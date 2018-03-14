@@ -1,0 +1,598 @@
+
+****************** Created on 09_03_2018_10_10_04 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 09_03_2018_10_10_04
+# Type of quantum error correcting code
+ecc FiveQubit,FiveQubit,FiveQubit
+# Type of quantum channel
+channel dp
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 1,10,10
+# Scale of noise range.
+scale 0.66
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler ./../input/schedule_09_03_2018_10_10_04.txt
+# Parameters to be sampled within a node. It would be replaced with values by bqtools.
+current ~~node~~
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of concatenation levels
+levels 3
+# Number of syndromes to be sampled at top level
+stats 1000
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance N
+# Metrics to be computed on the effective channels at every level.
+metrics fidelity
+# Load distribution on cores.
+cores 1,1
+# Number of nodes
+nodes 10
+# Name of the host computer.
+host mp2
+# Batch name.
+job trial
+# Wall time in hours.
+wall 1
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue qtest
+# Output result's directory.
+outdir /Users/poulingroup/Desktop/pavithran/channels
+++++++++++
+bqsubmit file
+++++++++++
+Not provided
+
+
+
+****************** Created on 09_03_2018_10_12_54 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 09_03_2018_10_12_54
+# Type of quantum error correcting code
+ecc FiveQubit,FiveQubit,FiveQubit
+# Type of quantum channel
+channel dp
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 1,10,10
+# Scale of noise range.
+scale 0.66
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler ./../input/schedule_09_03_2018_10_12_54.txt
+# Parameters to be sampled within a node. It would be replaced with values by bqtools.
+current ~~node~~
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of concatenation levels
+levels 3
+# Number of syndromes to be sampled at top level
+stats 1000
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance N
+# Metrics to be computed on the effective channels at every level.
+metrics fidelity
+# Load distribution on cores.
+cores 1,1
+# Number of nodes
+nodes 10
+# Name of the host computer.
+host mp2
+# Batch name.
+job trial
+# Wall time in hours.
+wall 1
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue qtest
+# Output result's directory.
+outdir /Users/poulingroup/Desktop/pavithran/channels
+++++++++++
+bqsubmit file
+++++++++++
+batchName = trial
+
+
+
+****************** Created on 09_03_2018_10_13_40 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 09_03_2018_10_13_40
+# Type of quantum error correcting code
+ecc FiveQubit,FiveQubit,FiveQubit
+# Type of quantum channel
+channel dp
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 1,10,10
+# Scale of noise range.
+scale 0.66
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler ./../input/schedule_09_03_2018_10_13_40.txt
+# Parameters to be sampled within a node. It would be replaced with values by bqtools.
+current ~~node~~
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of concatenation levels
+levels 3
+# Number of syndromes to be sampled at top level
+stats 1000
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance N
+# Metrics to be computed on the effective channels at every level.
+metrics fidelity
+# Load distribution on cores.
+cores 1,1
+# Number of nodes
+nodes 10
+# Name of the host computer.
+host mp2
+# Batch name.
+job trial
+# Wall time in hours.
+wall 1
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue qtest
+# Output result's directory.
+outdir /Users/poulingroup/Desktop/pavithran/channels
+++++++++++
+bqsubmit file
+++++++++++
+batchName = trial
+
+copyFiles = chflow.sh, docs/, src/, input/, code/ 
+
+templateFiles = ./../input/09_03_2018_10_12_54.txt
+
+command = export OMP_NUM_THREADS=1;mkdir -p code/;./chflow.sh 09_03_2018_10_12_54
+
+postBatch = mkdir -p /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_12_54/code;cp code/ /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_12_54/;cp src/ /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_12_54/srccp input/ /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_12_54/;cp physical /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_12_54/;cp chflow.sh /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_12_54/;mkdir -p /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_12_54/channels;mv trial_node*.BQ/temp/channels* /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_12_54/channels/;mkdir -p /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_12_54/metrics;mv trial_node*.BQ/temp/metrics* /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_12_54/metrics/;mkdir -p /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_12_54/results;
+
+
+
+****************** Created on 09_03_2018_10_13_56 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 09_03_2018_10_13_56
+# Type of quantum error correcting code
+ecc FiveQubit,FiveQubit,FiveQubit
+# Type of quantum channel
+channel dp
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 1,10,10
+# Scale of noise range.
+scale 0.66
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler ./../input/schedule_09_03_2018_10_13_56.txt
+# Parameters to be sampled within a node. It would be replaced with values by bqtools.
+current ~~node~~
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of concatenation levels
+levels 3
+# Number of syndromes to be sampled at top level
+stats 1000
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance N
+# Metrics to be computed on the effective channels at every level.
+metrics fidelity
+# Load distribution on cores.
+cores 1,1
+# Number of nodes
+nodes 10
+# Name of the host computer.
+host mp2
+# Batch name.
+job trial
+# Wall time in hours.
+wall 1
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue qtest
+# Output result's directory.
+outdir /Users/poulingroup/Desktop/pavithran/channels
+++++++++++
+bqsubmit file
+++++++++++
+batchName = trial
+
+copyFiles = chflow.sh, docs/, src/, input/, code/ 
+
+templateFiles = ./../input/09_03_2018_10_13_40.txt
+
+command = export OMP_NUM_THREADS=1;mkdir -p code/;./chflow.sh 09_03_2018_10_13_40
+
+postBatch = mkdir -p /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_13_40/code;cp code/ /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_13_40/;cp src/ /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_13_40/srccp input/ /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_13_40/;cp physical /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_13_40/;cp chflow.sh /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_13_40/;mkdir -p /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_13_40/channels;mv trial_node*.BQ/temp/channels* /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_13_40/channels/;mkdir -p /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_13_40/metrics;mv trial_node*.BQ/temp/metrics* /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_13_40/metrics/;mkdir -p /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_13_40/results;cat trial_node*.BQ/temp/perf.txt >> /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_13_40/results/perf.txt;rm -rf trial_*.BQ/
+
+submitOptions=-q qtest@mp2 -l walltime=1:00:00,nodes=1
+
+accJobsPerNode = 1
+runJobsPerNode = 1
+
+param1 = node = [0,1,2,3,4,5,6,7,8,9]
+
+concurrentJobs = 10
+
+emailAddress = pavithran.sridhar@gmail.com
+
+
+
+****************** Created on 09_03_2018_10_20_17 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 09_03_2018_10_20_17
+# Type of quantum error correcting code
+ecc FiveQubit,FiveQubit,FiveQubit
+# Type of quantum channel
+channel dp
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 1,10,10
+# Scale of noise range.
+scale 0.66
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler ./../input/schedule_09_03_2018_10_20_17.txt
+# Parameters to be sampled within a node. It would be replaced with values by bqtools.
+current ~~node~~
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of concatenation levels
+levels 3
+# Number of syndromes to be sampled at top level
+stats 1000
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance N
+# Metrics to be computed on the effective channels at every level.
+metrics fidelity
+# Load distribution on cores.
+cores 1,1
+# Number of nodes
+nodes 10
+# Name of the host computer.
+host mp2
+# Batch name.
+job trial
+# Wall time in hours.
+wall 1
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue qtest
+# Output result's directory.
+outdir /Users/poulingroup/Desktop/pavithran/channels
+++++++++++
+bqsubmit file
+++++++++++
+batchName = trial
+
+copyFiles = chflow.sh, docs/, src/, input/, code/ 
+
+templateFiles = ./../input/09_03_2018_10_13_56.txt
+
+command = export OMP_NUM_THREADS=1;mkdir -p code/;./chflow.sh 09_03_2018_10_13_56
+
+postBatch = mkdir -p /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_13_56/code;cp code/ /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_13_56/;cp src/ /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_13_56/srccp input/ /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_13_56/;cp physical /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_13_56/;cp chflow.sh /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_13_56/;mkdir -p /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_13_56/channels;mv trial_node*.BQ/temp/channels* /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_13_56/channels/;mkdir -p /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_13_56/metrics;mv trial_node*.BQ/temp/metrics* /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_13_56/metrics/;mkdir -p /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_13_56/results;cat trial_node*.BQ/temp/perf.txt >> /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_13_56/results/perf.txt;rm -rf trial_*.BQ/
+
+submitOptions=-q qtest@mp2 -l walltime=1:00:00,nodes=1
+
+accJobsPerNode = 1
+runJobsPerNode = 1
+
+param1 = node = [0,1,2,3,4,5,6,7,8,9]
+
+concurrentJobs = 10
+
+emailAddress = pavithran.sridhar@gmail.com
+
+
+
+****************** Created on 09_03_2018_10_21_46 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 09_03_2018_10_21_46
+# Type of quantum error correcting code
+ecc FiveQubit,FiveQubit,FiveQubit
+# Type of quantum channel
+channel dp
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 1,10,10
+# Scale of noise range.
+scale 0.66
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler ./../input/schedule_09_03_2018_10_21_46.txt
+# Parameters to be sampled within a node. It would be replaced with values by bqtools.
+current ~~node~~
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of concatenation levels
+levels 3
+# Number of syndromes to be sampled at top level
+stats 1000
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance N
+# Metrics to be computed on the effective channels at every level.
+metrics fidelity
+# Load distribution on cores.
+cores 1,1
+# Number of nodes
+nodes 10
+# Name of the host computer.
+host mp2
+# Batch name.
+job trial
+# Wall time in hours.
+wall 1
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue qtest
+# Output result's directory.
+outdir /Users/poulingroup/Desktop/pavithran/channels
+++++++++++
+bqsubmit file
+++++++++++
+batchName = trial
+
+copyFiles = chflow.sh, docs/, src/, input/, code/ 
+
+templateFiles = ./../input/09_03_2018_10_20_17.txt
+
+command = export OMP_NUM_THREADS=1;mkdir -p code/;./chflow.sh 09_03_2018_10_20_17
+
+postBatch = mkdir -p /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_20_17/code;cp code/ /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_20_17/;cp src/ /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_20_17/srccp input/ /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_20_17/;cp physical /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_20_17/;cp chflow.sh /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_20_17/;mkdir -p /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_20_17/channels;mv trial_node*.BQ/temp/channels* /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_20_17/channels/;mkdir -p /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_20_17/metrics;mv trial_node*.BQ/temp/metrics* /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_20_17/metrics/;mkdir -p /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_20_17/results;cat trial_node*.BQ/temp/perf.txt >> /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_20_17/results/perf.txt;rm -rf trial_*.BQ/
+
+submitOptions=-q qtest@mp2 -l walltime=1:00:00,nodes=1
+
+accJobsPerNode = 1
+runJobsPerNode = 1
+
+param1 = node = [0,1,2,3,4,5,6,7,8,9]
+
+concurrentJobs = 10
+
+emailAddress = pavithran.sridhar@gmail.com
+
+
+
+****************** Created on 09_03_2018_10_30_56 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 09_03_2018_10_30_56
+# Type of quantum error correcting code
+ecc FiveQubit,FiveQubit,FiveQubit
+# Type of quantum channel
+channel dp
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 1,10,10
+# Scale of noise range.
+scale 0.66
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler ./../input/schedule_09_03_2018_10_30_56.txt
+# Parameters to be sampled within a node. It would be replaced with values by bqtools.
+current ~~node~~
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of concatenation levels
+levels 3
+# Number of syndromes to be sampled at top level
+stats 1000
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance N
+# Metrics to be computed on the effective channels at every level.
+metrics fidelity
+# Load distribution on cores.
+cores 1,1
+# Number of nodes
+nodes 10
+# Name of the host computer.
+host mp2
+# Batch name.
+job trial
+# Wall time in hours.
+wall 1
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue qtest
+# Output result's directory.
+outdir /Users/poulingroup/Desktop/pavithran/channels
+++++++++++
+bqsubmit file
+++++++++++
+batchName = trial
+
+copyFiles = chflow.sh, docs/, src/, input/, code/ 
+
+templateFiles = ./../input/09_03_2018_10_21_46.txt
+
+command = export OMP_NUM_THREADS=1;mkdir -p code/;./chflow.sh 09_03_2018_10_21_46
+
+postBatch = mkdir -p /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_21_46/code;cp code/ /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_21_46/;cp src/ /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_21_46/srccp input/ /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_21_46/;cp physical /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_21_46/;cp chflow.sh /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_21_46/;mkdir -p /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_21_46/channels;mv trial_node*.BQ/temp/channels* /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_21_46/channels/;mkdir -p /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_21_46/metrics;mv trial_node*.BQ/temp/metrics* /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_21_46/metrics/;mkdir -p /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_21_46/results;cat trial_node*.BQ/temp/perf.txt >> /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_21_46/results/perf.txt;rm -rf trial_*.BQ/
+
+submitOptions=-q qtest@mp2 -l walltime=1:00:00,nodes=1
+
+accJobsPerNode = 1
+runJobsPerNode = 1
+
+param1 = node = [0,1,2,3,4,5,6,7,8,9]
+
+concurrentJobs = 10
+
+emailAddress = pavithran.sridhar@gmail.com
+
+
+
+****************** Created on 09_03_2018_10_36_11 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 09_03_2018_10_36_11
+# Type of quantum error correcting code
+ecc FiveQubit,FiveQubit,FiveQubit
+# Type of quantum channel
+channel dp
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 1,10,10
+# Scale of noise range.
+scale 0.66
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler ./../input/schedule_09_03_2018_10_36_11.txt
+# Parameters to be sampled within a node. It would be replaced with values by bqtools.
+current ~~node~~
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of concatenation levels
+levels 3
+# Number of syndromes to be sampled at top level
+stats 1000
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance N
+# Metrics to be computed on the effective channels at every level.
+metrics fidelity
+# Load distribution on cores.
+cores 1,1
+# Number of nodes
+nodes 10
+# Name of the host computer.
+host mp2
+# Batch name.
+job trial
+# Wall time in hours.
+wall 1
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue qtest
+# Output result's directory.
+outdir /Users/poulingroup/Desktop/pavithran/channels
+++++++++++
+bqsubmit file
+++++++++++
+batchName = trial
+
+copyFiles = chflow.sh, docs/, src/, input/, code/ 
+
+templateFiles = ./../input/09_03_2018_10_30_56.txt
+
+command = export OMP_NUM_THREADS=1;mkdir -p code/;./chflow.sh 09_03_2018_10_30_56
+
+postBatch = mkdir -p /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_30_56/code;cp code/ /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_30_56/;cp src/ /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_30_56/srccp input/ /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_30_56/;cp physical /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_30_56/;cp chflow.sh /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_30_56/;mkdir -p /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_30_56/channels;mv trial_node*.BQ/temp/channels* /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_30_56/channels/;mkdir -p /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_30_56/metrics;mv trial_node*.BQ/temp/metrics* /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_30_56/metrics/;mkdir -p /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_30_56/results;cat trial_node*.BQ/temp/perf.txt >> /Users/poulingroup/Desktop/pavithran/channels/09_03_2018_10_30_56/results/perf.txt;rm -rf trial_*.BQ/
+
+submitOptions=-q qtest@mp2 -l walltime=1:00:00,nodes=1
+
+accJobsPerNode = 1
+runJobsPerNode = 1
+
+param1 = node = [0,1,2,3,4,5,6,7,8,9]
+
+concurrentJobs = 10
+
+emailAddress = pavithran.sridhar@gmail.com
+
+
+
+****************** Created on 09_03_2018_16_24_24 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 09_03_2018_16_24_24
+# Type of quantum error correcting code
+ecc FiveQubit,FiveQubit,FiveQubit
+# Type of quantum channel
+channel dp
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 1,10,10
+# Scale of noise range.
+scale 0.66
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler ./../input/schedule_09_03_2018_16_24_24.txt
+# Parameters to be sampled within a node. It would be replaced with values by bqtools.
+current ~~node~~
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of concatenation levels
+levels 3
+# Number of syndromes to be sampled at top level
+stats 1000
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance N
+# Metrics to be computed on the effective channels at every level.
+metrics fidelity
+# Load distribution on cores.
+cores 1,1
+# Number of nodes
+nodes 10
+# Name of the host computer.
+host local
+# Batch name.
+job trial
+# Wall time in hours.
+wall 1
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue qtest
+# Output result's directory.
+outdir /Users/poulingroup/Desktop/pavithran/channels
+++++++++++
+bqsubmit file
+++++++++++
+Not provided
+
+

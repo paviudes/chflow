@@ -1,0 +1,137 @@
+/Users/poulingroup/anaconda2/lib/python2.7/distutils/extension.py:133: UserWarning: Unknown Extension options: 'build_dir'
+  warnings.warn(msg)
+Compiling benchmark.pyx because it changed.
+Compiling printfuns.pyx because it changed.
+Compiling checks.pyx because it changed.
+Compiling memory.pyx because it changed.
+Compiling logmetrics.pyx because it changed.
+Compiling effective.pyx because it changed.
+Compiling sampling.pyx because it changed.
+Compiling qecc.pyx because it changed.
+Compiling constants.pyx because it changed.
+[1/9] Cythonizing benchmark.pyx
+[2/9] Cythonizing checks.pyx
+[3/9] Cythonizing constants.pyx
+[4/9] Cythonizing effective.pyx
+[5/9] Cythonizing logmetrics.pyx
+[6/9] Cythonizing memory.pyx
+[7/9] Cythonizing printfuns.pyx
+[8/9] Cythonizing qecc.pyx
+[9/9] Cythonizing sampling.pyx
+running build_ext
+building 'benchmark' extension
+creating build
+creating build/temp.macosx-10.6-x86_64-2.7
+clang -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -I/Users/poulingroup/anaconda2/lib/python2.7/site-packages/numpy/core/include -I/Users/poulingroup/anaconda2/include/python2.7 -c benchmark.c -o build/temp.macosx-10.6-x86_64-2.7/benchmark.o -fopenmp
+clang: warning: -lm: 'linker' input unused
+In file included from benchmark.c:511:
+In file included from /Users/poulingroup/anaconda2/lib/python2.7/site-packages/numpy/core/include/numpy/arrayobject.h:4:
+In file included from /Users/poulingroup/anaconda2/lib/python2.7/site-packages/numpy/core/include/numpy/ndarrayobject.h:18:
+In file included from /Users/poulingroup/anaconda2/lib/python2.7/site-packages/numpy/core/include/numpy/ndarraytypes.h:1809:
+/Users/poulingroup/anaconda2/lib/python2.7/site-packages/numpy/core/include/numpy/npy_1_7_deprecated_api.h:15:2: warning: "Using deprecated NumPy API, disable it by "          "#defining NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION" [-W#warnings]
+#warning "Using deprecated NumPy API, disable it by " \
+ ^
+benchmark.c:3777:9: warning: declaration does not declare anything [-Wmissing-declarations]
+        CYTHON_FALLTHROUGH;
+        ^
+benchmark.c:444:34: note: expanded from macro 'CYTHON_FALLTHROUGH'
+      #define CYTHON_FALLTHROUGH __attribute__((fallthrough))
+                                 ^
+benchmark.c:3779:9: warning: declaration does not declare anything [-Wmissing-declarations]
+        CYTHON_FALLTHROUGH;
+        ^
+benchmark.c:444:34: note: expanded from macro 'CYTHON_FALLTHROUGH'
+      #define CYTHON_FALLTHROUGH __attribute__((fallthrough))
+                                 ^
+benchmark.c:3781:9: warning: declaration does not declare anything [-Wmissing-declarations]
+        CYTHON_FALLTHROUGH;
+        ^
+benchmark.c:444:34: note: expanded from macro 'CYTHON_FALLTHROUGH'
+      #define CYTHON_FALLTHROUGH __attribute__((fallthrough))
+                                 ^
+benchmark.c:3783:9: warning: declaration does not declare anything [-Wmissing-declarations]
+        CYTHON_FALLTHROUGH;
+        ^
+benchmark.c:444:34: note: expanded from macro 'CYTHON_FALLTHROUGH'
+      #define CYTHON_FALLTHROUGH __attribute__((fallthrough))
+                                 ^
+benchmark.c:3785:9: warning: declaration does not declare anything [-Wmissing-declarations]
+        CYTHON_FALLTHROUGH;
+        ^
+benchmark.c:444:34: note: expanded from macro 'CYTHON_FALLTHROUGH'
+      #define CYTHON_FALLTHROUGH __attribute__((fallthrough))
+                                 ^
+benchmark.c:3794:9: warning: declaration does not declare anything [-Wmissing-declarations]
+        CYTHON_FALLTHROUGH;
+        ^
+benchmark.c:444:34: note: expanded from macro 'CYTHON_FALLTHROUGH'
+      #define CYTHON_FALLTHROUGH __attribute__((fallthrough))
+                                 ^
+benchmark.c:3800:9: warning: declaration does not declare anything [-Wmissing-declarations]
+        CYTHON_FALLTHROUGH;
+        ^
+benchmark.c:444:34: note: expanded from macro 'CYTHON_FALLTHROUGH'
+      #define CYTHON_FALLTHROUGH __attribute__((fallthrough))
+                                 ^
+benchmark.c:3806:9: warning: declaration does not declare anything [-Wmissing-declarations]
+        CYTHON_FALLTHROUGH;
+        ^
+benchmark.c:444:34: note: expanded from macro 'CYTHON_FALLTHROUGH'
+      #define CYTHON_FALLTHROUGH __attribute__((fallthrough))
+                                 ^
+benchmark.c:3812:9: warning: declaration does not declare anything [-Wmissing-declarations]
+        CYTHON_FALLTHROUGH;
+        ^
+benchmark.c:444:34: note: expanded from macro 'CYTHON_FALLTHROUGH'
+      #define CYTHON_FALLTHROUGH __attribute__((fallthrough))
+                                 ^
+10 warnings generated.
+clang -bundle -undefined dynamic_lookup -L/Users/poulingroup/anaconda2/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/benchmark.o -L/Users/poulingroup/anaconda2/lib -o /Users/poulingroup/Dropbox/factory_v86/simulate/benchmark.so -fopenmp
+building 'printfuns' extension
+clang -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -I/Users/poulingroup/anaconda2/include/python2.7 -c printfuns.c -o build/temp.macosx-10.6-x86_64-2.7/printfuns.o -fopenmp
+clang: warning: -lm: 'linker' input unused
+clang -bundle -undefined dynamic_lookup -L/Users/poulingroup/anaconda2/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/printfuns.o -L/Users/poulingroup/anaconda2/lib -o /Users/poulingroup/Dropbox/factory_v86/simulate/printfuns.so -fopenmp
+building 'checks' extension
+clang -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -I/Users/poulingroup/anaconda2/lib/python2.7/site-packages/numpy/core/include -I/Users/poulingroup/anaconda2/include/python2.7 -c checks.c -o build/temp.macosx-10.6-x86_64-2.7/checks.o -fopenmp
+clang: warning: -lm: 'linker' input unused
+In file included from checks.c:511:
+In file included from /Users/poulingroup/anaconda2/lib/python2.7/site-packages/numpy/core/include/numpy/arrayobject.h:4:
+In file included from /Users/poulingroup/anaconda2/lib/python2.7/site-packages/numpy/core/include/numpy/ndarrayobject.h:18:
+In file included from /Users/poulingroup/anaconda2/lib/python2.7/site-packages/numpy/core/include/numpy/ndarraytypes.h:1809:
+/Users/poulingroup/anaconda2/lib/python2.7/site-packages/numpy/core/include/numpy/npy_1_7_deprecated_api.h:15:2: warning: "Using deprecated NumPy API, disable it by "          "#defining NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION" [-W#warnings]
+#warning "Using deprecated NumPy API, disable it by " \
+ ^
+1 warning generated.
+clang -bundle -undefined dynamic_lookup -L/Users/poulingroup/anaconda2/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/checks.o -L/Users/poulingroup/anaconda2/lib -o /Users/poulingroup/Dropbox/factory_v86/simulate/checks.so -fopenmp
+building 'memory' extension
+clang -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -I/Users/poulingroup/anaconda2/include/python2.7 -c memory.c -o build/temp.macosx-10.6-x86_64-2.7/memory.o -fopenmp
+clang: warning: -lm: 'linker' input unused
+clang -bundle -undefined dynamic_lookup -L/Users/poulingroup/anaconda2/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/memory.o -L/Users/poulingroup/anaconda2/lib -o /Users/poulingroup/Dropbox/factory_v86/simulate/memory.so -fopenmp
+building 'logmetrics' extension
+clang -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -I/Users/poulingroup/anaconda2/lib/python2.7/site-packages/numpy/core/include -I/Users/poulingroup/anaconda2/include/python2.7 -c logmetrics.c -o build/temp.macosx-10.6-x86_64-2.7/logmetrics.o -fopenmp
+clang: warning: -lm: 'linker' input unused
+In file included from logmetrics.c:511:
+In file included from /Users/poulingroup/anaconda2/lib/python2.7/site-packages/numpy/core/include/numpy/arrayobject.h:4:
+In file included from /Users/poulingroup/anaconda2/lib/python2.7/site-packages/numpy/core/include/numpy/ndarrayobject.h:18:
+In file included from /Users/poulingroup/anaconda2/lib/python2.7/site-packages/numpy/core/include/numpy/ndarraytypes.h:1809:
+/Users/poulingroup/anaconda2/lib/python2.7/site-packages/numpy/core/include/numpy/npy_1_7_deprecated_api.h:15:2: warning: "Using deprecated NumPy API, disable it by "          "#defining NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION" [-W#warnings]
+#warning "Using deprecated NumPy API, disable it by " \
+ ^
+1 warning generated.
+clang -bundle -undefined dynamic_lookup -L/Users/poulingroup/anaconda2/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/logmetrics.o -L/Users/poulingroup/anaconda2/lib -o /Users/poulingroup/Dropbox/factory_v86/simulate/logmetrics.so -fopenmp
+building 'effective' extension
+clang -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -I/Users/poulingroup/anaconda2/include/python2.7 -c effective.c -o build/temp.macosx-10.6-x86_64-2.7/effective.o -fopenmp
+clang: warning: -lm: 'linker' input unused
+clang -bundle -undefined dynamic_lookup -L/Users/poulingroup/anaconda2/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/effective.o -L/Users/poulingroup/anaconda2/lib -o /Users/poulingroup/Dropbox/factory_v86/simulate/effective.so -fopenmp
+building 'sampling' extension
+clang -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -I/Users/poulingroup/anaconda2/include/python2.7 -c sampling.c -o build/temp.macosx-10.6-x86_64-2.7/sampling.o -fopenmp
+clang: warning: -lm: 'linker' input unused
+clang -bundle -undefined dynamic_lookup -L/Users/poulingroup/anaconda2/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/sampling.o -L/Users/poulingroup/anaconda2/lib -o /Users/poulingroup/Dropbox/factory_v86/simulate/sampling.so -fopenmp
+building 'qecc' extension
+clang -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -I/Users/poulingroup/anaconda2/include/python2.7 -c qecc.c -o build/temp.macosx-10.6-x86_64-2.7/qecc.o -fopenmp
+clang: warning: -lm: 'linker' input unused
+clang -bundle -undefined dynamic_lookup -L/Users/poulingroup/anaconda2/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/qecc.o -L/Users/poulingroup/anaconda2/lib -o /Users/poulingroup/Dropbox/factory_v86/simulate/qecc.so -fopenmp
+building 'constants' extension
+clang -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -I/Users/poulingroup/anaconda2/include/python2.7 -c constants.c -o build/temp.macosx-10.6-x86_64-2.7/constants.o -fopenmp
+clang: warning: -lm: 'linker' input unused
+clang -bundle -undefined dynamic_lookup -L/Users/poulingroup/anaconda2/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/constants.o -L/Users/poulingroup/anaconda2/lib -o /Users/poulingroup/Dropbox/factory_v86/simulate/constants.so -fopenmp

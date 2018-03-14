@@ -1,0 +1,42 @@
+# Time stamp
+timestamp 12_03_2018_12_27_56
+# Type of quantum error correcting code
+ecc FiveQubit,FiveQubit,FiveQubit
+# Type of quantum channel
+channel gdtx
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 2,12,6;0,0,1;1,12,12
+# Scale of the noise range
+scale 0.66
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler scheduler.txt
+# Parameters to be sampled within a node. It would be replaced with values by bqtools.
+current ~~node~~
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of concatenation levels
+levels 3
+# Number of syndromes to be sampled at top level
+stats 1000
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance N
+# Metrics to be computed on the effective channels at every level.
+metrics fidelity
+# Load distribution on cores.
+cores 1,1
+# Name of the host computer.
+host mp2
+# Batch name.
+job gdtx
+# Wall time in hours.
+wall 1
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue qtest
+# Output directory
+outdir /Users/poulingroup/Desktop/pavithran/channels

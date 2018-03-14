@@ -1,0 +1,4 @@
+name Cat
+N 6
+K 1
+D 3

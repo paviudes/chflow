@@ -1,0 +1,7 @@
+6 7
+1 X X X X I I I
+1 X X I I X X I
+1 X I X I X I X
+1 Z Z Z Z I I I
+1 Z Z I I Z Z I
+1 Z I Z I Z I Z

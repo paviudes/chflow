@@ -1,0 +1,4 @@
+name Steane
+N 7
+K 1
+D 3
