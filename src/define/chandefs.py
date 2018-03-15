@@ -60,6 +60,12 @@ def GetKraussForChannel(chType, *params):
 		krauss[2, :, :] = np.sqrt(params[0]/3) * gv.Pauli[2, :, :]
 		krauss[3, :, :] = np.sqrt(params[0]/3) * gv.Pauli[3, :, :]
 
+	elif chType == "pauli":
+		# Generic Pauli channel
+		krauss = np.zeros((4, 2, 2), dtype = np.complex128)
+		for i in range(4):
+			krauss[i, :, :] = np.sqrt(params[i]) * gv.Pauli[i, :, :]
+
 	elif chType == "rtz":
 		# Rotation about the Z-axis
 		krauss = np.zeros((1, 2, 2), dtype = np.complex128)
@@ -113,9 +119,9 @@ def GetKraussForChannel(chType, *params):
 		krauss = np.zeros((1, 2, 2), dtype = np.complex128)
 		krauss[0, :, :] = linalg.expm(-1j * params[0] * np.pi * exponent)
 
-	elif chType == "chris":
+	elif chType == "strtz":
 		# Stochastic over-rotation about the Z-axis
-		# E(rho) = (1-p) rho + exp(i pi/4 Z) rho exp(-i pi/4 Z)
+		# E(rho) = (1-p) rho + p exp(i pi/4 Z) rho exp(-i pi/4 Z)
 		krauss = np.zeros((3, 2, 2), dtype = np.complex128)
 		krauss[0, :, :] = np.sqrt(1 - params[0]) * np.eye(2)
 		krauss[1, :, :] = np.sqrt(params[0]) * linalg.expm(1j * np.pi/np.longdouble(4) * gv.Pauli[3, :, :])
@@ -172,31 +178,59 @@ def GetKraussForChannel(chType, *params):
 			krauss = rchan.RandomCPTP(params[0], int(params[1]) - 1)
 	
 	elif (os.path.isfile(chType) == 1):
-		# Custom channel defined using a file. The file will contain the process matrix of a channel with numbers as well as symbolic entries.
-		# We will replace the symbolic entries with the values in the "params" array.
-		# At last, we have to convert the representation to Krauss.
-		process = np.zeros((4, 4), dtype = np.longdouble)
-		with open(chType, "r") as cfp:
-			row = 0
-			col = 0
-			symbol = 0
-			for (lno, line) in enumerate(cfp):
-				if (not (line[0] == "#")):
-					contents = map(lambda numstr: numstr.strip(" "), line[0].strip("\n").split(" "))
-					for j in range(4):
-						if (IsNumber(contents[j] == 0)):
-							contents[j] = params[symbol]
-							symbol = symbol + 1
-						process[row, col] = np.longdouble(contents[j])
-						col = col + 1
-					row = row + 1
-		krauss = crep.ConvertRepresentations(process, "process", "krauss")
-		
+		krauss = UserdefQC(chType, params)
 	else:
 		print("\033[93mUnknown channel type\033[0m")
 		krauss = np.identity(2, dtype = np.complex128)[np.newaxis, :, :]
 
 	return krauss
+
+
+def UserdefQC(fname, params):
+	# Custom channel defined using a file.
+	# The file will contain list of variables and a representation of the channel with numbers as well as symbolic entries.
+	# We will replace the symbolic entries with values for the variables in the "params" array.
+	# The i-th variable in the list of variables will be substituted with the i-th value in params.
+	# At last, we have to convert the representation to Krauss.
+	fail = 0
+	process = np.zeros((4, 4), dtype = np.longdouble)
+	variables = {}
+	with open(fname, "r") as cfp:
+		row = 0
+		col = 0
+		for (lno, line) in enumerate(cfp):
+			if (not (line[0] == "#")):
+				contents = map(lambda numstr: numstr.strip(" "), line[0].strip("\n").split(" "))
+				if (contents[0] == "vars"):
+					for i in range(1, len(contents)):
+						variables.update({contents[i]:params[i - 1]})
+				else:
+					for j in range(4):
+						# If the matrix element is not a number, evaluate the expression to convert it to a number.
+						if (IsNumber(contents[j] == 0)):
+							contents[j] = Evaluate(contents[j], variables)
+							if (contents[j] == "nan"):
+								fail = 1
+								contents[j] = 0
+						process[row, col] = np.longdouble(contents[j])
+						col = col + 1
+				row = row + 1
+	if (fail == 1):
+		print("\033[2mSome elements failed to load properly, their values have been replaced by 0.\033[0m")
+	krauss = crep.ConvertRepresentations(process, "process", "krauss")
+	return krauss
+
+
+def Evaluate(expr, values):
+	# evaluate an expression by substituting the values of the variables provided.
+	# Return "nan" is the result is not an expression
+	for var in values:
+		expr.replace(var, values[var])
+	try:
+		result = eval(expr)
+	except:
+		return = "nan"
+	return result
 
 
 def IsNumber(numstr):

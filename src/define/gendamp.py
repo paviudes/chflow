@@ -134,12 +134,15 @@ def GDPerfTimeScales(submit, logmet, colx = 0, coly = 1):
 				dist = dist * submit.eccs[l - 1].D
 			fig = plt.figure(figsize = gv.canvas_size)
 			if (submit.scale == 1):
-				meshZ = griddata((submit.noiserates[:, colx], submit.noiserates[:, coly]), logErr[:, l], (meshX, meshY), method = "cubic")
+				meshZ = griddata((submit.noiserates[:, colx], submit.noiserates[:, coly]), logErr[:, l], (meshX, meshY), method = "nearest")
 			else:
-				meshZ = griddata((np.power(submit.scale, submit.noiserates[:, colx]), np.power(submit.scale, submit.noiserates[:, coly])), logErr[:, l], (meshX, meshY), method = "cubic")
-			# print("meshZ[np.nonzero(meshZ > 1)]\n%s" % (np.array_str(meshZ[np.nonzero(meshZ > 1)])))
+				meshZ = griddata((np.power(submit.scale, submit.noiserates[:, colx]), np.power(submit.scale, submit.noiserates[:, coly])), logErr[:, l], (meshX, meshY), method = "linear")
+			
+			print("meshZ\n%s" % (np.array_str(meshZ)))
+
+			# print("meshZ[np.nonzero(meshZ < 0)]\n%s" % (np.array_str(meshZ[np.nonzero(meshZ < 0)])))
 			clevels = np.logspace(np.log10(logErr[:, l].min()), np.log10(logErr[:, l].max()), gv.contour_nlevs, base = 10.0)
-			cplot = plt.contourf(meshX, meshY, meshZ, cmap = cm.bwr, locator = ticker.LogLocator(), linestyles = gv.contour_linestyle, levels = clevels)
+			cplot = plt.contourf(meshX, meshY, meshZ, cmap = cm.winter, locator = ticker.LogLocator(), linestyles = gv.contour_linestyle, levels = clevels)
 			# plt.contour(meshX, meshY, meshZ, colors = 'k', locator = ticker.LogLocator(), linewidth = gv.line_width)
 			if (submit.scale == 1):
 				plt.scatter(submit.noiserates[:, colx], submit.noiserates[:, coly], marker = 'o', color = 'k')
