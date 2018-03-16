@@ -229,7 +229,7 @@ def Evaluate(expr, values):
 	try:
 		result = eval(expr)
 	except:
-		return = "nan"
+		result = "nan"
 	return result
 
 

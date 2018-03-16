@@ -1,3 +1,4 @@
+import os
 import sys
 import time
 import ctypes as ct
@@ -320,6 +321,8 @@ def GenCalibrationData(chname, channels, noiserates, metrics):
 	# output[0, 0] = number of free variables in every channel
 	# {output[i + 1, 0], ..., output[i + 1, m - 1]} = values for the free variables used to specify the i-th channel
 	# {output[i + 1, m], ..., output[i + 1, m + n - 1]} = values for the n metrics on the i-th channel.
+	if (not (os.path.exists("./../temp"))):
+		os.system("mkdir -p ./../temp")
 	for m in range(len(metrics)):
 		calibdata = np.zeros((channels.shape[0], 1 + noiserates.shape[1]), dtype = np.longdouble)
 		for i in range(channels.shape[0]):
@@ -381,7 +384,7 @@ def PlotCalibrationData1D(chname, metrics, xcol = 0):
 		# print("calibdata\n%s" % (np.array_str(calibdata)))
 		plt.plot(calibdata[:, xcol], calibdata[:, -1], label = Metrics[metrics[m]][1], marker = Metrics[metrics[m]][2], color = Metrics[metrics[m]][3], markersize = gv.marker_size, linestyle = "-")
 	ax = plt.gca()
-	ax.set_xlabel(qc.Channels[chname][2], fontsize = gv.axes_labels_fontsize)
+	ax.set_xlabel(qc.Channels[chname][2][xcol], fontsize = gv.axes_labels_fontsize)
 	ax.set_xscale('log')
 	ax.set_ylabel("$\\mathcal{N}_{0}$", fontsize = gv.axes_labels_fontsize)
 	ax.set_yscale('log')

@@ -58,7 +58,7 @@ def GDTimeScalesExplicit(t, T1, T2):
 	return krauss
 
 
-def GDPerfPlots(submit, logmet):
+def GDPerfPlots(submit, logmet, xcol = 0, ycol = 1):
 	# Plot performance contours for the logical error rates for every concatenation level, with repect to the dephasing and relaxation rates.
 	# Each plot will be a contour plot or a color density plot indicating the logical error, with the x-axis as the dephasing rate and the y-axis as the relaxation rate.
 	# There will be one plot for every concatenation level.
@@ -83,9 +83,9 @@ def GDPerfPlots(submit, logmet):
 			plt.title("N = %d, d = %d" % (nqubits, dist), fontsize = gv.title_fontsize, y = 1.03)
 			# Axes labels
 			ax = plt.gca()
-			ax.set_xlabel("$\\gamma$", fontsize = gv.axes_labels_fontsize)
+			ax.set_xlabel(qc.Channels[submit.channel][2][xcol], fontsize = gv.axes_labels_fontsize)
 			ax.set_xscale('log')
-			ax.set_ylabel("$p_{d}$", fontsize = gv.axes_labels_fontsize)
+			ax.set_ylabel(qc.Channels[submit.channel][2][ycol], fontsize = gv.axes_labels_fontsize)
 			ax.set_yscale('log')
 			ax.tick_params(axis = 'both', which = 'both', pad = gv.ticks_pad, direction = 'inout', length = gv.ticks_length, width = gv.ticks_width, labelsize = gv.ticks_fontsize)
 			# Legend
@@ -152,8 +152,8 @@ def GDPerfTimeScales(submit, logmet, colx = 0, coly = 1):
 			plt.title("N = %d, d = %d" % (nqubits, dist), fontsize = gv.title_fontsize, y = 1.03)
 			# Axes labels
 			ax = plt.gca()
-			ax.set_xlabel("$t/T_{1}$", fontsize = gv.axes_labels_fontsize)
-			ax.set_ylabel("$T_{2}/T_{1}$", fontsize = gv.axes_labels_fontsize)
+			ax.set_xlabel(qc.Channels[submit.channel][2][xcol], fontsize = gv.axes_labels_fontsize)
+			ax.set_ylabel(qc.Channels[submit.channel][2][ycol], fontsize = gv.axes_labels_fontsize)
 			if (not (submit.scale == 1)):
 				ax.set_xscale('log', basex = submit.scale, basey = submit.scale)
 				ax.invert_xaxis()
