@@ -173,7 +173,6 @@ def ConvertRepresentations(channel, initial, final):
 				choi = choi + np.dot(np.kron(inprep[k, :, :], np.eye(2)), np.dot(gv.bell[0, :, :], HermitianConjugate(np.kron(inprep[k, :, :], np.eye(2)))))
 			outrep = np.copy(choi)
 
-
 		elif (initial == 'choi' and final == 'krauss'):
 			# Convert from the Choi matrix to the Krauss representation of a quantum channel.
 			# Compute the eigenvalues and the eigen vectors of the Choi matrix. The eigen vectors operators are vectorized forms of the Krauss operators.

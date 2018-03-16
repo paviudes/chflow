@@ -114,7 +114,6 @@ def GDPerfTimeScales(submit, logmet, colx = 0, coly = 1):
 	# Plot performance contours for the logical error rates for every concatenation level, with repect to the dephasing and relaxation rates.
 	# Each plot will be a contour plot or a color density plot indicating the logical error, with the x-axis as the dephasing rate and the y-axis as the relaxation rate.
 	# There will be one plot for every concatenation level.
-	npoints = 5
 	logErr = np.load(fn.LogicalErrorRates(submit, logmet, fmt = "npy"))
 	if (submit.scale == 1):
 		(meshX, meshY) = np.meshgrid(np.linspace(submit.noiserates[:, colx].min(), submit.noiserates[:, colx].max(), max(100, submit.noiserates.shape[0])), np.linspace(submit.noiserates[:, coly].min(), submit.noiserates[:, coly].max(), max(100, submit.noiserates.shape[0])))

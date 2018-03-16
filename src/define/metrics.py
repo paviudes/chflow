@@ -1,15 +1,22 @@
 import os
 import sys
 import time
+import datetime as dt
 import ctypes as ct
 import numpy as np
 from scipy import linalg as linalg
 try:
 	import matplotlib
+	from matplotlib import colors, ticker, cm
 	matplotlib.use("Agg")
+	from matplotlib.backends.backend_pdf import PdfPages
 	import matplotlib.pyplot as plt
 except Exception:
 	sys.stderr.write("\033[91m\033[2mMATPLOTLIB does not exist, cannot make plots.\n\033[0m")
+try:
+	from scipy.interpolate import griddata
+except Exception:
+	sys.stderr.write("\033[91m\033[2mSCIPY does not exist, cannot make 3D plots.\n\033[0m")
 
 try:
 	import picos as pic
@@ -329,7 +336,7 @@ def GenCalibrationData(chname, channels, noiserates, metrics):
 			calibdata[i, :noiserates.shape[1]] = noiserates[i, :]
 			calibdata[i, noiserates.shape[1]] = eval(Metrics[metrics[m]][-1])(channels[i, :, :], "unknown")
 		# Save the calibration data
-		np.save(fn.CalibrationData(chname, metrics[m]), calibdata)
+		np.savetxt(fn.CalibrationData(chname, metrics[m]), calibdata)
 	return None
 
 def ComputeNorms(channel, metrics):
@@ -380,7 +387,7 @@ def PlotCalibrationData1D(chname, metrics, xcol = 0):
 	fig = plt.figure(figsize = gv.canvas_size)
 	plt.title("%s" % (qc.Channels[chname][0]), fontsize = gv.title_fontsize, y = 1.01)
 	for m in range(len(metrics)):
-		calibdata = np.load(fn.CalibrationData(chname, metrics[m]))
+		calibdata = np.loadtxt(fn.CalibrationData(chname, metrics[m]))
 		# print("calibdata\n%s" % (np.array_str(calibdata)))
 		plt.plot(calibdata[:, xcol], calibdata[:, -1], label = Metrics[metrics[m]][1], marker = Metrics[metrics[m]][2], color = Metrics[metrics[m]][3], markersize = gv.marker_size, linestyle = "-")
 	ax = plt.gca()
@@ -398,3 +405,36 @@ def PlotCalibrationData1D(chname, metrics, xcol = 0):
 	return None
 
 
+def PlotCalibrationData2D(chname, metrics, xcol = 0, ycol = 1):
+	# Plot performance contours for various noise strength values, with repect to the physical noise parameters.
+	plotfname = fn.CalibrationPlot(chname, "_".join(metrics))
+	
+	with PdfPages(plotfname) as pdf:
+		for m in range(len(metrics)):
+			calibdata = np.loadtxt(fn.CalibrationData(chname, metrics[m]))
+			(meshX, meshY) = np.meshgrid(np.linspace(calibdata[:, xcol].min(), calibdata[:, xcol].max(), max(10, calibdata.shape[0])), np.linspace(calibdata[:, ycol].min(), calibdata[:, ycol].max(), max(10, calibdata.shape[0])))
+			meshZ = griddata((calibdata[:, xcol], calibdata[:, ycol]), calibdata[:, -1], (meshX, meshY), method = "cubic")
+			# Contour Plot
+			fig = plt.figure(figsize = gv.canvas_size)
+			# Data points
+			cplot = plt.contourf(meshX, meshY, meshZ, cmap = cm.winter, locator = ticker.LogLocator(), linestyles = gv.contour_linestyle)
+			plt.scatter(calibdata[:, xcol], calibdata[:, ycol], marker = 'o', color = 'k')
+			plt.title("%s channel" % (chname), fontsize = gv.title_fontsize, y = 1.03)
+			ax = plt.gca()
+			ax.set_xlabel(qc.Channels[chname][2][xcol], fontsize = gv.axes_labels_fontsize)
+			ax.set_ylabel(qc.Channels[chname][2][ycol], fontsize = gv.axes_labels_fontsize)
+			ax.tick_params(axis = 'both', which = 'both', pad = gv.ticks_pad, direction = 'inout', length = gv.ticks_length, width = gv.ticks_width, labelsize = gv.ticks_fontsize)
+			# Legend
+			cbar = plt.colorbar(cplot, extend = "both", spacing = "proportional", drawedges = False)
+			cbar.ax.set_xlabel(Metrics[metrics[m]][1], fontsize = gv.colorbar_fontsize)
+			cbar.ax.tick_params(labelsize = gv.legend_fontsize, pad = gv.ticks_pad, length = gv.ticks_length, width = gv.ticks_width)
+			cbar.ax.xaxis.labelpad = gv.ticks_pad
+			# Save the plot
+			pdf.savefig(fig)
+			plt.close()
+		#Set PDF attributes
+		pdfInfo = pdf.infodict()
+		pdfInfo['Title'] = ("%s for %d %s channels." % (",".join(metrics), calibdata.shape[0], chname))
+		pdfInfo['Author'] = "Pavithran Iyer"
+		pdfInfo['ModDate'] = dt.datetime.today()
+	return None

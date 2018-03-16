@@ -109,12 +109,15 @@ def GenChannelsForCalibration(chname, rangeinfo):
 	return (pvalues, channels)
 
 
-def Calibrate(chname, rangeinfo, metinfo, xcol = 0):
+def Calibrate(chname, rangeinfo, metinfo, xcol = 0, ycol = -1):
 	# Plot various metrics for channels corresponding to a noise model with a range of different parameter values.
 	metrics = map(lambda met: met.strip(" "), metinfo.split(","))
 	(noiserates, channels) = GenChannelsForCalibration(chname, rangeinfo)
 	ml.GenCalibrationData(chname, channels, noiserates, metrics)
-	ml.PlotCalibrationData1D(chname, metrics, xcol)
+	if (ycol == -1):
+		ml.PlotCalibrationData1D(chname, metrics, xcol)
+	else:
+		ml.PlotCalibrationData2D(chname, metrics, xcol, ycol)
 	return None
 
 

@@ -61,7 +61,7 @@ def CompareLogErrRates(dbses, lmet):
 
 def CalibrationData(chname, metric):
 	# File containing the data for calibrating a channel with a particular output metric.
-	fname = ("./../temp/calib_%s_%s.npy" % (chname, metric))
+	fname = ("./../temp/calib_%s_%s.txt" % (chname, metric))
 	return fname
 
 def CalibrationPlot(chname, metric):

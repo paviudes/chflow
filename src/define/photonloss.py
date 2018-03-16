@@ -272,9 +272,9 @@ def PLPerfPlots2D(submit, logmet):
 if __name__ == '__main__':
 	import chanreps as crep
 	# test the properties of the Photon Loss channel
-	gamma = 0.01
+	gamma = 0.8
 	alpha = 5
 	plkrauss = PLKraussOld(gamma, alpha)
 	print("The Krauss operators for the Photon Loss channel with alpha = %g, gamma = %g are the following.\n%s" % (alpha, gamma, np.array_str(plkrauss)))
-	plprocess = crep.ConvertRepresentations(plkrauss, "krauss", "process")
-	print("The process matrix for the Photon Loss channel with alpha = %g, gamma = %g is the following.\n%s" % (alpha, gamma, np.array_str(plprocess)))
+	plprocess = crep.ConvertRepresentations(plkrauss, "krauss", "choi")
+	print("The choi matrix for the Photon Loss channel with alpha = %g, gamma = %g is the following.\n%s" % (alpha, gamma, np.array_str(plprocess)))

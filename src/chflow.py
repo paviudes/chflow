@@ -151,18 +151,26 @@ if __name__ == '__main__':
 		#####################################################################
 
 		elif (user[0] == "chcalib"):
-			if (len(user) < 4):
+			if (len(user) == 3):
+				# noise metric, xcol and ycol are not specified.
 				out = "fidelity"
 				xcol = 0
+				ycol = -1
+			elif (len(user) == 4):
+				# xcol and ycol are not provided
+				out = user[3]
+				xcol = 0
+				ycol = -1
+			elif (len(user) == 5):
+				# ycol is not provided
+				out = int(user[3])
+				xcol = int(user[4])
+				ycol = -1
 			else:
 				out = user[3]
-				if (len(user) < 5):
-					xcol = 0
-				else:
-					xcol = int(user[4])
-			if (not (os.path.exists("temp"))):
-				os.mkdir("temp")
-			qc.Calibrate(user[1], user[2], out, xcol = xcol)
+				xcol = int(user[4])
+				ycol = int(user[5])
+			qc.Calibrate(user[1], user[2], out, xcol = xcol, ycol = ycol)	
 
 		#####################################################################
 
