@@ -39,19 +39,10 @@ def LogResultsToStream(submit, stream, endresults):
 		for m in range(len(submit.metrics)):
 			fname = ("./../temp/metrics/%s" % os.path.basename(fn.LogicalErrorRate(submit, rate, sample, submit.metrics[m])))
 			metvals[m, :] = np.load(fname)
-
-		if (len(submit.noiserange) > 1):
-			noisedes = ", ".join(map(lambda num: ("%g" % num), rate))
-			ratesdes = (noisedes + ".")[:-1]
-			if (submit.scale == "log"):
-				ratesdes = ", ".join(map(lambda num: ("%g" % num), np.power(2/np.longdouble(3), rate)))
-		else:
-			noisedes = ("%g" % rate)
-			ratesdes = noisedes
-			if (submit.scale == "log"):
-				ratesdes = ("%g" % (np.power(2/np.longdouble(3), rate)))
-
-		stream.write("\033[92m Core %d\n\tNoise rate: (2/3)^(%s) = %s, sample = %d\n\tImportance: %g\n\tDecoder: %d\n\tRuntime: %g seconds\033[0m\n" % (coreindex + 1, noisedes, ratesdes, sample, submit.importance, submit.decoder, runtime))
+		stream.write("Core %d:\n" % (coreindex + 1))
+		stream.write("    Noise rate: %s\n" % (np.array_str(rate)))
+		stream.write("    sample = %d\n" % (sample))
+		stream.write("    Runtime: %g seconds.\n" % (runtime))
 		stream.write("\033[92m \tMetrics\033[0m\n")
 		stream.write("\033[92m \txxxxxxxxxxxxxxx\033[0m\n")
 		stream.write("\033[92m\t{:<10}\033[0m".format("Level"))

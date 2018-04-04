@@ -41,14 +41,14 @@ cpdef Benchmark(submit, rate, sample, physical, refchan):
 		InitQECC(qcode[l], consts[0].nclifford)
 		for s in range(qcode[l][0].nstabs):
 			for g in range(qcode[l][0].nstabs):
-				qcode[l][0].projector[s][g] = <int>(submit.eccs[l].StabilizerSyndromeSigns[s, g])
+				qcode[l][0].projector[s][g] = <int>(submit.eccs[l].syndsigns[s, g])
 		for i in range(qcode[l][0].nlogs):
 			for g in range(qcode[l][0].nstabs):
 				for c in range(qcode[l].N):
-					qcode[l][0].action[i][g][c] = submit.eccs[l].LogicalActionOperators[i, g, c]
+					qcode[l][0].action[i][g][c] = submit.eccs[l].normalizer[i, g, c]
 		for i in range(qcode[l][0].nlogs):
 			for g in range(qcode[l][0].nstabs):
-				qcode[l][0].phases[i][g] = submit.eccs[l].LogicalActionPhases[i, g]
+				qcode[l][0].phases[i][g] = submit.eccs[l].normphases[i, g]
 		for i in range(2):
 			for c in range(consts[0].nclifford):
 				for r in range(qcode[l][0].nlogs):

@@ -5,6 +5,7 @@ import numpy as np
 # Files from the "cluster" module.
 from cluster import mammouth as mam
 # Files from the "define" module.
+from define import qcode as qec
 from define import verifychans as vc
 from define import fnames as fn
 from define import submission as sub
@@ -24,7 +25,15 @@ if __name__ == '__main__':
 	availChReps = map(lambda rep: ("\"%s\"" % (rep)), ["krauss", "choi", "chi", "process", "stine"])
 	availMetrics = map(lambda met: "\"%s\"" % (met), ml.Metrics.keys())
 	availChans = map(lambda chan: "\"%s\"" % (chan), qc.Channels.keys())
-	mannual = {"chan":["Load a channel.",
+	mannual = {"qcode":["Load a quantum error correcting code.",
+						"qcode s(string)\n\twhere s is the name of the file containing the details of the code."],
+			   "qcbasis":["Output the Canonical basis for the quantum error correcting code.",
+			   			  "No parameters."],
+			   "qcminw":["Prepare the syndrome lookup table for (hard) minimum weight decoding algorithm.",
+			   			 "No parameters."],
+			   "qcprint":["Print all the details on the underlying quantum error correcting code.",
+			   			  "No parameters."],
+			   "chan":["Load a channel.",
 					   "chan s1(string) x1(float),x2(float),...\n\twhere s1 is either the name of a channel or a file name containing the channel information x1,x2,... specify the noise rates."],
 			   "chsave":["Save a channel into a file.",
 			   			"chsave s1(string)\n\twhere s1 is the name of the file."],
@@ -62,8 +71,12 @@ if __name__ == '__main__':
 			   		  "No parameters"],
 			   "collect":["Collect results.",
 			   			  "No parameters"],
-			   "plot":["Plot metrics",
-			   		   "plot s1(string)[,s2(string),s3(string),...]\nwhere s1,s2,... are names of the simulation records."],
+			   "tplot":["Threshold plots for the current database.",
+			   		   "tplot s11(string)[,s12(string),s13(string),...] s2(string)\nwhere each of s1i are either metric names or indices of indepenent parameters in the defition of the physical noise model; s2 is the name of the logical metric."],
+			   "lplot":["Level-wise plots of the logical error rates vs physical noise rates in the current (and/or other) database(s).",
+			   		   "lplot s11(string)[,s12(string),s13(string),...] s2(string) [s31(string),s32(string),...]\nwhere each of s1i are either metric names or indices of indepenent parameters in the defition of the physical noise model; s2 is the name of the logical metric; s3i are time stamps of other simulation records that also need to be plotted alongside."],
+			   "lplot2d":["Level-wise 2D (density) plots of the logical error rates vs. a pair of physical noise rates in the current (and/or other) database(s).",
+			   		   "lplot2d s11(string),s12(string) s2(string)\nwhere each of s1i are either metric names or indices of indepenent parameters in the defition of the physical noise model; s2 is the name of the logical metric."],
 			   "clean":["Remove compilation and run time files.",
 			   		  "No parameters."],
 			   "man":["Mannual",
@@ -83,6 +96,7 @@ if __name__ == '__main__':
 	isquit = 0
 	rep = "process"
 	channel = np.zeros((4, 4), dtype = np.longdouble)
+	qeccode = None
 	submit = sub.Submission()
 	
 	while (isquit == 0):
@@ -97,7 +111,34 @@ if __name__ == '__main__':
 			user = map(lambda val: val.strip("\n").strip(" "), infp.readline().strip(" ").strip("\n").split(" "))
 
 		
-		if (user[0] == "chan"):
+		if (user[0] == "qcode"):
+			# define a quantum code
+			qeccode = qec.QuantumErrorCorrectingCode(user[1])
+			qec.Load(qeccode)
+
+		#####################################################################
+
+		elif (user[0] == "qcbasis"):
+			# display the canonical basis for the code
+			qec.IsCanonicalBasis(qeccode.S, qeccode.L, qeccode.T, verbose = 1)
+
+		#####################################################################
+
+		elif (user[0] == "qcminw"):
+			# prepare a syndrome lookup table for minimum weight decoding
+			# Syndrome look-up table for hard decoding.
+			print("\033[2mPreparing syndrome lookup table.\033[0m")
+			qec.PrepareSyndromeLookUp(qeccode)
+
+		#####################################################################
+
+		elif (user[0] == "qcprint"):
+			# print details of the error correcting code
+			qec.Print(qeccode)
+
+		#####################################################################
+
+		elif (user[0] == "chan"):
 			noiserates = []
 			if (len(user) > 2):
 				noiserates = map(np.longdouble, user[2].split(","))
@@ -220,6 +261,15 @@ if __name__ == '__main__':
 			# If yes, directly display the logical error rates data. Else, simulate error correction.
 			if (cl.IsComplete(submit) == 0):
 				# Compile the cythonizer file to be able to perform error correction simulations
+				# Syndrome look-up table for hard decoding.
+				start = time.time()
+				if (submit.decoder == 1):
+					start = time.time()
+					for l in range(submit.levels):
+						if (submit.ecc[l].lookup is None):
+							print("\033[2mPreparing syndrome lookup table for the %s code.\033[0m" % (submit.eccs[l].name))
+							qec.PrepareSyndromeLookUp(submit.eccs[l])
+					print("\033[2mHard decoding tables built in %d seconds.\033[0m" % (time.time() - start))
 				# Files from the "simulate" module.
 				os.system("cd simulate/;python compile.py build_ext --inplace > compiler_output.txt 2>&1;cd ..")
 				from simulate import simulate as sim
@@ -252,43 +302,66 @@ if __name__ == '__main__':
 			
 		#####################################################################
 
-		elif (user[0] == "plot"):
-			# plot the gathered logical error rates data
-			# The parameters are: physical metric, logical metric, reference datasets.
-			# Other plot settings must be controlled in the file plotsettings.txt
-			# Also input reference datasets as timestamps
-			if (submit.channel == "pl"):
-				# ploss.PLThreshPlots(submit, user[1])
-				# ploss.PLPerfPlots(submit, user[1])
-				ploss.PLPerfPlots2D(submit, user[1])
-			elif (submit.channel in ["gd", "gdt", "gdtx"]):
-				if (submit.channel == "gd"):
-					gdamp.GDPerfPlots(submit, user[1])
-				if (len(user) < 3):
-					colx = 0
-					coly = 1
-				else:
-					colx = int(user[2])
-					coly = int(user[3])
-				gdamp.GDPerfTimeScales(submit, user[1], colx = colx, coly = coly)
-			else:
-				pmet = user[1]
+		elif (user[0] == "tplot"):
+			# Produce threshold plots for a particular logical metric.
+			# Plot the logical error rate with respect to the concatnation layers, with a new curve for every physical noise rate.
+			# At the threshold in the physical noise strengh, the curves will have a bifurcation.
+			pl.ThresholdPlot(user[1], user[2], submit)
+
+		elif (user[0] == "lplot"):
+			# Plot the logical error rate with respect to a physical noise strength, with a new figure for every concatenation layer.
+			# One or more simulation data can be plotted in the same figure with a new curve for every dataset.
+			# One of more measures of physical noise strength can be plotted on the same figure with a new curve for each definition.
+			if (len(user) < 4):
 				refs = []
-				if (len(user) > 3):
-					lmet = user[2]
-					refstamps = user[3].split(",")
-					for i in range(len(refstamps)):
-						refsub = sub.Submission()
-						sub.LoadSub(refsub, "input/%s.txt" % (refstamps[i]))
-						refs.append(refsub)
-				else:
-					refs = []
-					if (len(user) < 3):
-						lmet = submit.metrics[0]
-					else:
-						lmet = user[2]
-				pl.LevelWisePlot(submit, refs, pmet, lmet, maxlevel = 3)
-				pl.ThresholdPlot(submit, pmet, lmet, maxlevel = 3)
+			else:
+				refs = [sub.LoadSub(sub.Submission(), ts, 1) for ts in user[3].split(",")]
+			pl.LevelWisePlot(user[1], user[2], [submit] + refs)
+
+		elif (user[0] == "lplot2d"):
+			# Plot the logical error rates with respect to two parameters of the physical noise rate.
+			# The plot will be a 2D density plot with the logical error rates represented by the density of the colors.
+			print("\033[2m"),
+			pl.LevelWisePlot2D(user[1], user[2], submit)
+			print("\033[0m"),
+
+		# elif (user[0] == "plot"):
+		# 	# plot the gathered logical error rates data
+		# 	# The parameters are: physical metric, logical metric, reference datasets.
+		# 	# Other plot settings must be controlled in the file plotsettings.txt
+		# 	# Also input reference datasets as timestamps
+		# 	if (submit.channel == "pl"):
+		# 		# ploss.PLThreshPlots(submit, user[1])
+		# 		# ploss.PLPerfPlots(submit, user[1])
+		# 		ploss.PLPerfPlots2D(submit, user[1])
+		# 	elif (submit.channel in ["gd", "gdt", "gdtx"]):
+		# 		if (submit.channel == "gd"):
+		# 			gdamp.GDPerfPlots(submit, user[1])
+		# 		if (len(user) < 3):
+		# 			colx = 0
+		# 			coly = 1
+		# 		else:
+		# 			colx = int(user[2])
+		# 			coly = int(user[3])
+		# 		gdamp.GDPerfTimeScales(submit, user[1], colx = colx, coly = coly)
+		# 	else:
+		# 		pmet = user[1]
+		# 		refs = []
+		# 		if (len(user) > 3):
+		# 			lmet = user[2]
+		# 			refstamps = user[3].split(",")
+		# 			for i in range(len(refstamps)):
+		# 				refsub = sub.Submission()
+		# 				sub.LoadSub(refsub, "input/%s.txt" % (refstamps[i]))
+		# 				refs.append(refsub)
+		# 		else:
+		# 			refs = []
+		# 			if (len(user) < 3):
+		# 				lmet = submit.metrics[0]
+		# 			else:
+		# 				lmet = user[2]
+		# 		pl.LevelWisePlot(submit, refs, pmet, lmet, maxlevel = 3)
+		# 		pl.ThresholdPlot(submit, pmet, lmet, maxlevel = 3)
 
 		#####################################################################
 
@@ -330,7 +403,7 @@ if __name__ == '__main__':
 		elif (user[0] == "man"):
 			if (len(user) > 1):
 				if (user[1] in mannual):
-					print("\t\033[2m\"%s\"\n\tDescription: %s\n\tUsage\n\t%s\033[0m" % (user[1], mannual[user[1]][0], mannual[user[1]][1]))
+					print("\t\033[2m\"%s\"\n\tDescription: %s\n\tUsage:\n\t%s\033[0m" % (user[1], mannual[user[1]][0], mannual[user[1]][1]))
 				elif (user[1] in qc.Channels):
 					print("\t\033[2m\"%s\"\n\tDescription: %s\n\tParameters: %s\033[0m" % (user[1], qc.Channels[user[1]][0], qc.Channels[user[1]][1]))
 				elif (user[1] in ml.Metrics):

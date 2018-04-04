@@ -1,6 +1,0 @@
-5 6
-1 Z Z I I I I
-1 I Z Z I I I
-1 I I I Z Z I
-1 I I I I Z Z
-1 X X X X X X

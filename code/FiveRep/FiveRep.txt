@@ -1,4 +1,0 @@
-name FiveRep
-N 5
-K 1
-D 1

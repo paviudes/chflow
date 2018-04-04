@@ -3,13 +3,13 @@ timestamp input
 # Type of quantum error correcting code
 ecc 5qc,5qc,5qc
 # Type of quantum channel
-channel dp
+channel pl
 # Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
 repr process
 # Noise rate exponents. The actual noise rate is (scale)^exponent.
-noiserange 1,10,10
+noiserange 1,10,10;0.5,3,6
 # Scale of the noise range
-scale 0.66
+scale 0.66,1
 # Number of samples
 samples 1
 # Parameters schedule

@@ -1,5 +1,0 @@
-4 5
-1 Z X I X Z
-1 Z Z X I X
-1 X Z Z X I
-1 I X Z Z X

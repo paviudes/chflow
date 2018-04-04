@@ -33,7 +33,7 @@ class Submission():
 		self.repr = "process"
 		self.noiserange = np.array([])
 		self.noiserates = np.array([[]])
-		self.scale = 1
+		self.scales = []
 		self.samps = 1
 		self.chfiles = []
 		self.channels = 0
@@ -58,6 +58,9 @@ class Submission():
 		
 		# Advanced options
 		self.isAdvanced = 0
+
+		# Plot settings -- color, marker, linestyle
+		self.plotsettings = ["k", "o", "--"]
 
 		# Output options
 		self.outdir = fn.OutputDirectory(os.path.abspath("./../../"), self)
@@ -105,11 +108,9 @@ def Update(submit, pname, newvalue):
 		submit.ecfiles = []
 		for i in range(len(names)):
 			submit.eccs.append(qec.QuantumErrorCorrectingCode(names[i]))
-			submit.eccs[i].Load()
-			submit.ecfiles.append([submit.eccs[i].defnfile] + [submit.eccs[i].LAOpsFname, submit.eccs[i].LAPhaseFname, submit.eccs[i].LGensFname, submit.eccs[i].TGensFname, submit.eccs[i].SGensFname, submit.eccs[i].stabSyndSignsFname, submit.eccs[i].lookupFname, submit.eccs[i].conjfname, submit.eccs[i].pbasisfname])
-		if (not (submit.eccs[i].name in ["Steane", "FiveQubit", "Cat", "FourQubit", "FiveRep"])):
-			sys.stderr.write("\033[93mWarning, possibly unknown error correcting code: %s.\n\033[0m" % (submit.eccs[i]))
-
+			qec.Load(submit.eccs[i])
+			submit.ecfiles.append(submit.eccs[i].defnfile)
+	
 	elif (pname == "channel"):
 		submit.channel = newvalue
 
@@ -125,6 +126,9 @@ def Update(submit, pname, newvalue):
 		for i in range(len(newRanges)):
 			submit.noiserange.append(np.linspace(np.longdouble(newRanges[i][0]), np.longdouble(newRanges[i][1]), np.int(newRanges[i][2])))
 		submit.noiserates = np.array(map(list, it.product(*submit.noiserange)), dtype = np.float)
+		if (len(submit.scales) == 0):
+			submit.scaled = [1 for __ in range(len(newRanges))]
+
 	elif (pname == "samples"):
 		# The value must be an integer
 		submit.samps = int(newvalue)
@@ -201,7 +205,10 @@ def Update(submit, pname, newvalue):
 		submit.outdir = fn.OutputDirectory(newvalue, submit)
 
 	elif (pname == "scale"):
-		submit.scale = np.longdouble(newvalue)
+		submit.scales = map(np.longdouble, newvalue.split(","))
+
+	elif (pname == "plot"):
+		submit.plotsettings = newvalue.split(",")
 
 	else:
 		pass
@@ -220,7 +227,7 @@ def PrintSub(submit):
 	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Noise range", "%s." % (np.array_str(submit.noiserange[0], max_line_width = 150))))
 	for i in range(1, len(submit.noiserange)):
 		print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("", "%s." % (np.array_str(submit.noiserange[i], max_line_width = 150))))
-	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Scale of noise rates", "%g" % (submit.scale)))
+	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Scales of noise rates", "%s" % (np.array_str(submit.scales))))
 	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Number of Samples", "%d" % (submit.samps)))
 
 	print("Metrics")
@@ -230,20 +237,21 @@ def PrintSub(submit):
 	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("QECC", "%s" % (" X ".join([submit.eccs[i].name for i in range(len(submit.eccs))]))))
 	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("[[N, K, D]]", "[[%d, %d, %d]]" % (reduce((lambda x,y: x * y), [submit.eccs[i].N for i in range(len(submit.eccs))]), reduce((lambda x,y: x * y), [submit.eccs[i].K for i in range(len(submit.eccs))]), reduce((lambda x,y: x * y), [submit.eccs[i].D for i in range(len(submit.eccs))]))))
 	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Levels of concatenation", "%d" % (submit.levels)))
-	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("ECC frame", "%d" % (submit.frame)))
+	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("ECC frame", "%s" % (submit.eccframes.keys()[submit.eccframes.values().index(submit.frame)])))
 	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Decoder", "%d" % (submit.decoder)))
 	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Syndrome samples at level %d" % (submit.levels), "%d" % (submit.stats)))
-	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Type of syndrome sampling", "%d" % (submit.importance)))
+	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Type of syndrome sampling", "%s" % (submit.samplingOptions.keys()[submit.samplingOptions.values().index(submit.importance)])))
 	
-	print("Mammouth")
-	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Host", "%s" % (submit.host)))
-	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Job name", "%s" % (submit.job)))
-	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Number of nodes", "%d" % (submit.nodes)))
-	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Walltime per node", "%d" % (submit.wall)))
-	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Submission queue", "%s" % (submit.queue)))
+	if (not (submit.host == "local")):
+		print("Mammouth")
+		print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Host", "%s" % (submit.host)))
+		print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Job name", "%s" % (submit.job)))
+		print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Number of nodes", "%d" % (submit.nodes)))
+		print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Walltime per node", "%d" % (submit.wall)))
+		print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Submission queue", "%s" % (submit.queue)))
 	
-	print("Usage")
-	Usage(submit)
+		print("Usage")
+		Usage(submit)
 
 	print("\033[0m")
 	return None
@@ -315,12 +323,8 @@ def Validate(submit):
 				hard.append(submit.chfiles[i])
 		# Check if the ecc files exist
 		for i in range(len(submit.ecfiles)):
-			for j in range(len(submit.ecfiles[i])):
-				if (not os.path.isfile(submit.ecfiles[i][j])):
-					if (submit.ecfiles[i][j].endswith("npy")):
-						soft.append(submit.ecfiles[i][j])
-					else:
-						hard.append(submit.ecfiles[i][j])
+			if (not os.path.isfile(submit.ecfiles[i])):
+				hard.append(submit.ecfiles[i])
 
 		if (not os.path.isfile(submit.inputfile)):
 			hard.append(submit.inputfile)
@@ -363,7 +367,7 @@ def Save(submit):
 			infid.write(";%g,%g,%g" % (submit.noiserange[i][0], submit.noiserange[i][-1], submit.noiserange[i].shape[0]))
 		infid.write("\n")
 		# Scale of noise range
-		infid.write("# Scale of noise range.\nscale %g\n" % (submit.scale))
+		infid.write("# Scales of noise range.\nscale %s\n" % (",".join(map(str, submit.scales))))
 		# Number of samples
 		infid.write("# Number of samples\nsamples %d\n" % submit.samps)
 		# File name containing the parameters to be run on the particular node
@@ -373,7 +377,7 @@ def Save(submit):
 		# Decoder
 		infid.write("# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.\ndecoder %d\n" % (submit.decoder))
 		# ECC frame to be used
-		infid.write("# Logical frame for error correction (Available options: \"[P] Pauli\", \"[C] Clifford\", \"[PC] Pauli + Logical Clifford\").\nframe %s\n" % submit.eccframes.keys()[submit.eccframes.values().index(submit.frame)])
+		infid.write("# Logical frame for error correction (Available options: \"[P] Pauli\", \"[C] Clifford\", \"[PC] Pauli + Logical Clifford\").\nframe %s\n" % (submit.eccframes.keys()[submit.eccframes.values().index(submit.frame)]))
 		# Number of concatenation levels
 		infid.write("# Number of concatenation levels\nlevels %d\n" % submit.levels)
 		# Number of decoding trials per level

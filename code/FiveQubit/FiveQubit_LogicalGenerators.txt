@@ -1,3 +1,0 @@
-2 5
-1 X X X X X
-1 Z Z Z Z Z

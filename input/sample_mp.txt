@@ -1,7 +1,7 @@
 # Time stamp
 timestamp input
 # Type of quantum error correcting code
-ecc FiveQubit,FiveQubit,FiveQubit
+ecc Steane,Steane,Steane
 # Type of quantum channel
 channel dp
 # Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")

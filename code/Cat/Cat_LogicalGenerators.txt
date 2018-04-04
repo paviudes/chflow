@@ -1,3 +1,0 @@
-2 6
-1 X X X I I I
-1 Z I I Z I I

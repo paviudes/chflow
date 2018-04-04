@@ -1,0 +1,3060 @@
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 1.   0.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 1.   0.5]
+    sample = 0
+    Runtime: 1.8581 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.363006            [0m
+	[92m1         [0m[92m 0.5733              [0m
+	[92m2         [0m[92m 0.595205            [0m
+	[92m3         [0m[92m 0.733887            [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.32192026]
+ [ 0.0  0.80474549  0.0  0.0]
+ [ 0.0  0.0  0.46924323  0.0]
+ [-0.32192026  0.0  0.0  0.27398872]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0 -0.00086433387]
+ [ 0.0  0.49348854  0.0  0.0]
+ [ 0.0  0.0  0.4613003  0.0]
+ [ 0.0034573355  0.0  0.0 -0.24798703]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0  2.1801818e-15]
+ [ 0.0  0.25064605  0.0  0.0]
+ [ 0.0  0.0  0.19795423  0.0]
+ [-4.8874744e-13  0.0  0.0  0.17058087]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.4247438e-21]
+ [ 0.0  0.033110608  0.0  0.0]
+ [ 0.0  0.0  0.011159918  0.0]
+ [ 4.8806625e-24  0.0  0.0  0.020183432]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 1.  1.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 1.  1.]
+    sample = 0
+    Runtime: 1.61779 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.451255            [0m
+	[92m1         [0m[92m 0.512222            [0m
+	[92m2         [0m[92m 0.416689            [0m
+	[92m3         [0m[92m 0.643848            [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.11994448]
+ [ 0.0  0.98376728  0.0  0.0]
+ [ 0.0  0.0  0.1137235  0.0]
+ [-0.11994448  0.0  0.0  0.097490777]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  9.3096344e-06]
+ [ 0.0  0.92142898  0.0  0.0]
+ [ 0.0  0.0  0.20504288  0.0]
+ [ 2.4825692e-05  0.0  0.0 -0.17536146]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.4171862e-21]
+ [ 0.0  0.66453846  0.0  0.0]
+ [ 0.0  0.0  0.36107237  0.0]
+ [-3.0470824e-23  0.0  0.0  0.30763359]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -9.4730177e-22]
+ [ 0.0  0.11165265  0.0  0.0]
+ [ 0.0  0.0  0.082833625  0.0]
+ [ 1.4423575e-23  0.0  0.0  0.23012339]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 1.   1.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 1.   1.5]
+    sample = 0
+    Runtime: 1.61486 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.496166            [0m
+	[92m1         [0m[92m 0.500096            [0m
+	[92m2         [0m[92m 0.485139            [0m
+	[92m3         [0m[92m 0.503524            [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.011022445]
+ [ 0.0  0.99987755  0.0  0.0]
+ [ 0.0  0.0  0.0077911568  0.0]
+ [-0.011022445  0.0  0.0  0.0076687085]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  6.1012791e-11]
+ [ 0.0  0.99938791  0.0  0.0]
+ [ 0.0  0.0  0.014604269  0.0]
+ [ 1.6270078e-10  0.0  0.0 -0.014374726]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.4201486e-21]
+ [ 0.0  0.99694315  0.0  0.0]
+ [ 0.0  0.0  0.031497357  0.0]
+ [ 0.0  0.0  0.0  0.0310022]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.5749163e-21]
+ [ 0.0  0.98481276  0.0  0.0]
+ [ 0.0  0.0  0.069439039  0.0]
+ [ 0.0  0.0  0.0 -0.068346341]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 1.  2.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 1.  2.]
+    sample = 0
+    Runtime: 1.61892 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.499911            [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 0.49964             [0m
+	[92m3         [0m[92m 0.500003            [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.00033540272]
+ [ 0.0  0.99999989  0.0  0.0]
+ [ 0.0  0.0  0.00017857937  0.0]
+ [-0.00033540272  0.0  0.0  0.00017846686]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  1.5881866e-18]
+ [ 0.0  0.99999944  0.0  0.0]
+ [ 0.0  0.0  0.00033483624  0.0]
+ [ 4.2283885e-18  0.0  0.0 -0.00033462527]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.8631336e-21]
+ [ 0.0  0.99999719  0.0  0.0]
+ [ 0.0  0.0  0.00072171402  0.0]
+ [ 0.0  0.0  0.0  0.0007212593]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.6542555e-21]
+ [ 0.0  0.99998594  0.0  0.0]
+ [ 0.0  0.0  0.0015897678  0.0]
+ [ 0.0  0.0  0.0 -0.0015887661]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 1.   2.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 1.   2.5]
+    sample = 0
+    Runtime: 0.47238 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.499999            [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 0.499997            [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  3.726648e-06]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  1.3915104e-06  0.0]
+ [-3.726648e-06  0.0  0.0  1.3914965e-06]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0 -1.1858461e-20]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  2.609082e-06  0.0]
+ [ 0.0  0.0  0.0 -2.609056e-06]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -5.2014599e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  5.5756083e-06  0.0]
+ [ 0.0  0.0  0.0  5.5755527e-06]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.9829041e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  1.2316781e-05  0.0]
+ [ 0.0  0.0  0.0 -1.2316658e-05]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 1.  3.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 1.  3.]
+    sample = 0
+    Runtime: 0.47726 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.5                 [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 0.5                 [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  1.522998e-08]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  3.686553e-09  0.0]
+ [-1.522998e-08  0.0  0.0  3.6865528e-09]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  4.2351647e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  6.9122869e-09  0.0]
+ [ 0.0  0.0  0.0 -6.9122865e-09]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -2.1172436e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  1.4771557e-08  0.0]
+ [ 0.0  0.0  0.0  1.4771556e-08]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -4.3630667e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  3.2631063e-08  0.0]
+ [ 0.0  0.0  0.0 -3.2631061e-08]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 2.   0.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 2.   0.5]
+    sample = 0
+    Runtime: 1.84617 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.235093            [0m
+	[92m1         [0m[92m 0.52599             [0m
+	[92m2         [0m[92m 0.259172            [0m
+	[92m3         [0m[92m 0.557627            [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.20848516]
+ [ 0.0  0.87354736  0.0  0.0]
+ [ 0.0  0.0  0.65626608  0.0]
+ [-0.20848516  0.0  0.0  0.52981344]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0 -9.8472683e-05]
+ [ 0.0  0.73621409  0.0  0.0]
+ [ 0.0  0.0  0.72232883  0.0]
+ [ 0.00039389073  0.0  0.0 -0.56250426]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -3.6814357e-20]
+ [ 0.0  0.69686823  0.0  0.0]
+ [ 0.0  0.0  0.63623935  0.0]
+ [-9.6102971e-18  0.0  0.0  0.63020289]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.8644267e-21]
+ [ 0.0  0.45457951  0.0  0.0]
+ [ 0.0  0.0  0.055884184  0.0]
+ [ 2.6437336e-23  0.0  0.0  0.2590273]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 2.  1.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 2.  1.]
+    sample = 0
+    Runtime: 1.62475 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.349003            [0m
+	[92m1         [0m[92m 0.509145            [0m
+	[92m2         [0m[92m 0.18105             [0m
+	[92m3         [0m[92m 0.53238             [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.092765819]
+ [ 0.0  0.98744551  0.0  0.0]
+ [ 0.0  0.0  0.31454816  0.0]
+ [-0.092765819  0.0  0.0  0.30199367]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  2.5761502e-06]
+ [ 0.0  0.93878405  0.0  0.0]
+ [ 0.0  0.0  0.54080554  0.0]
+ [ 6.8697338e-06  0.0  0.0 -0.51616834]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -2.1598934e-21]
+ [ 0.0  0.779553  0.0  0.0]
+ [ 0.0  0.0  0.75318474  0.0]
+ [-3.1112933e-23  0.0  0.0  0.74306319]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.9400195e-21]
+ [ 0.0  0.56664116  0.0  0.0]
+ [ 0.0  0.0  0.068995512  0.0]
+ [ 2.8486698e-23  0.0  0.0  0.2348436]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 2.   1.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 2.   1.5]
+    sample = 0
+    Runtime: 1.62142 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.461945            [0m
+	[92m1         [0m[92m 0.500089            [0m
+	[92m2         [0m[92m 0.350728            [0m
+	[92m3         [0m[92m 0.503232            [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.010262224]
+ [ 0.0  0.999886  0.0  0.0]
+ [ 0.0  0.0  0.076224048  0.0]
+ [-0.010262224  0.0  0.0  0.076110045]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  4.2681403e-11]
+ [ 0.0  0.99943011  0.0  0.0]
+ [ 0.0  0.0  0.1423366  0.0]
+ [ 1.1381707e-10  0.0  0.0 -0.14212206]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.4345681e-21]
+ [ 0.0  0.99715221  0.0  0.0]
+ [ 0.0  0.0  0.30019765  0.0]
+ [ 1.7956461e-23  0.0  0.0  0.29973671]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.8650376e-21]
+ [ 0.0  0.98578978  0.0  0.0]
+ [ 0.0  0.0  0.51862686  0.0]
+ [-1.5163662e-24  0.0  0.0 -0.51734585]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 2.  2.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 2.  2.]
+    sample = 0
+    Runtime: 1.61452 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.494852            [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 0.479386            [0m
+	[92m3         [0m[92m 0.500003            [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.00033200849]
+ [ 0.0  0.99999989  0.0  0.0]
+ [ 0.0  0.0  0.010296651  0.0]
+ [-0.00033200849  0.0  0.0  0.01029654]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  1.5046447e-18]
+ [ 0.0  0.99999944  0.0  0.0]
+ [ 0.0  0.0  0.019304852  0.0]
+ [ 4.011548e-18  0.0  0.0 -0.019304643]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.0155091e-21]
+ [ 0.0  0.99999722  0.0  0.0]
+ [ 0.0  0.0  0.041229909  0.0]
+ [ 0.0  0.0  0.0  0.041229463]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.4383744e-21]
+ [ 0.0  0.99998608  0.0  0.0]
+ [ 0.0  0.0  0.089000688  0.0]
+ [ 0.0  0.0  0.0 -0.088999724]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 2.   2.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 2.   2.5]
+    sample = 0
+    Runtime: 0.477247 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.499608            [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 0.498424            [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  3.723728e-06]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.00078494199  0.0]
+ [-3.723728e-06  0.0  0.0  0.00078494198]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  3.3881255e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.0014717656  0.0]
+ [ 0.0  0.0  0.0 -0.0014717656]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.6083369e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.0031515109  0.0]
+ [ 0.0  0.0  0.0  0.0031515108]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.6288383e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.0070197924  0.0]
+ [ 0.0  0.0  0.0 -0.0070197923]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 2.  3.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 2.  3.]
+    sample = 0
+    Runtime: 0.474872 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.499983            [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 0.499932            [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  1.5229465e-08]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  3.3772724e-05  0.0]
+ [-1.5229465e-08  0.0  0.0  3.3772724e-05]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  5.0821977e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  6.3323858e-05  0.0]
+ [ 0.0  0.0  0.0 -6.3323858e-05]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -3.1987352e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.00013559664  0.0]
+ [ 0.0  0.0  0.0  0.00013559664]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.9989977e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.0003020379  0.0]
+ [ 0.0  0.0  0.0 -0.0003020379]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 3.   0.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 3.   0.5]
+    sample = 0
+    Runtime: 1.62898 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.154649            [0m
+	[92m1         [0m[92m 0.508613            [0m
+	[92m2         [0m[92m 0.073172            [0m
+	[92m3         [0m[92m 0.501379            [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.13714591]
+ [ 0.0  0.9168168  0.0  0.0]
+ [ 0.0  0.0  0.77388462  0.0]
+ [-0.13714591  0.0  0.0  0.69070142]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0 -1.2129819e-05]
+ [ 0.0  0.86967687  0.0  0.0]
+ [ 0.0  0.0  0.86473156  0.0]
+ [ 4.8519274e-05  0.0  0.0 -0.76885995]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.1800722e-21]
+ [ 0.0  0.91983088  0.0  0.0]
+ [ 0.0  0.0  0.89330811  0.0]
+ [-2.5984356e-23  0.0  0.0  0.89417295]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -2.5930216e-21]
+ [ 0.0  0.65655053  0.0  0.0]
+ [ 0.0  0.0  0.097607923  0.0]
+ [-2.441913e-24  0.0  0.0  0.24032649]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 3.  1.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 3.  1.]
+    sample = 0
+    Runtime: 1.61606 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.25303             [0m
+	[92m1         [0m[92m 0.506019            [0m
+	[92m2         [0m[92m 0.0586162           [0m
+	[92m3         [0m[92m 0.500851            [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.067256067]
+ [ 0.0  0.99089788  0.0  0.0]
+ [ 0.0  0.0  0.50304115  0.0]
+ [-0.067256067  0.0  0.0  0.49393903]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  5.1604621e-07]
+ [ 0.0  0.95531038  0.0  0.0]
+ [ 0.0  0.0  0.78616723  0.0]
+ [ 1.3761232e-06  0.0  0.0 -0.76555461]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -2.0831301e-21]
+ [ 0.0  0.92914187  0.0  0.0]
+ [ 0.0  0.0  0.91884203  0.0]
+ [-1.2528095e-23  0.0  0.0  0.91755136]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -2.4480001e-21]
+ [ 0.0  0.66649987  0.0  0.0]
+ [ 0.0  0.0  0.12064819  0.0]
+ [-6.9148765e-23  0.0  0.0  0.20944695]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 3.   1.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 3.   1.5]
+    sample = 0
+    Runtime: 1.62198 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.391288            [0m
+	[92m1         [0m[92m 0.500074            [0m
+	[92m2         [0m[92m 0.132695            [0m
+	[92m3         [0m[92m 0.501037            [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.0086925579]
+ [ 0.0  0.99990343  0.0  0.0]
+ [ 0.0  0.0  0.21752087  0.0]
+ [-0.0086925579  0.0  0.0  0.21742431]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  1.8610979e-11]
+ [ 0.0  0.99951727  0.0  0.0]
+ [ 0.0  0.0  0.39510306  0.0]
+ [ 4.9629278e-11  0.0  0.0 -0.39491592]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -2.1477301e-21]
+ [ 0.0  0.99760132  0.0  0.0]
+ [ 0.0  0.0  0.73600873  0.0]
+ [ 4.6809774e-24  0.0  0.0  0.73560957]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -2.012303e-21]
+ [ 0.0  0.13539607  0.0  0.0]
+ [ 0.0  0.0  0.040799959  0.0]
+ [ 6.5275645e-24  0.0  0.0  0.81965772]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 3.  2.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 3.  2.]
+    sample = 0
+    Runtime: 1.62331 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.46679             [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 0.368288            [0m
+	[92m3         [0m[92m 0.500003            [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.00031318122]
+ [ 0.0  0.99999989  0.0  0.0]
+ [ 0.0  0.0  0.066419929  0.0]
+ [-0.00031318122  0.0  0.0  0.066419824]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  1.1358447e-18]
+ [ 0.0  0.99999947  0.0  0.0]
+ [ 0.0  0.0  0.12417155  0.0]
+ [ 3.0360527e-18  0.0  0.0 -0.12417136]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.311014e-21]
+ [ 0.0  0.99999737  0.0  0.0]
+ [ 0.0  0.0  0.26342565  0.0]
+ [-7.0049372e-24  0.0  0.0  0.26342522]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.8242731e-21]
+ [ 0.0  0.99998688  0.0  0.0]
+ [ 0.0  0.0  0.48969937  0.0]
+ [ 4.4091636e-23  0.0  0.0 -0.4896983]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 3.   2.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 3.   2.5]
+    sample = 0
+    Runtime: 0.473307 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.492775            [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 0.470984            [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  3.6728063e-06]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.014449118  0.0]
+ [-3.6728063e-06  0.0  0.0  0.014449118]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0 -9.3155946e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.027088326  0.0]
+ [ 0.0  0.0  0.0 -0.027088325]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.9156165e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.058032905  0.0]
+ [ 0.0  0.0  0.0  0.058032905]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.3622648e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.12918847  0.0]
+ [ 2.3709036e-24  0.0  0.0 -0.12918847]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 3.  3.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 3.  3.]
+    sample = 0
+    Runtime: 0.466945 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.49888             [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 0.495476            [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  1.5195871e-08]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.0022396055  0.0]
+ [-1.5195871e-08  0.0  0.0  0.0022396055]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  8.4702445e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.0041992462  0.0]
+ [ 0.0  0.0  0.0 -0.0041992462]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0  4.7156762e-22]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.0090475081  0.0]
+ [ 0.0  0.0  0.0  0.0090475081]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.7092425e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.020224164  0.0]
+ [ 0.0  0.0  0.0 -0.020224164]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 4.   0.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 4.   0.5]
+    sample = 0
+    Runtime: 1.62713 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.102112            [0m
+	[92m1         [0m[92m 0.502723            [0m
+	[92m2         [0m[92m 0.0154774           [0m
+	[92m3         [0m[92m 0.500003            [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.090554415]
+ [ 0.0  0.94507597  0.0  0.0]
+ [ 0.0  0.0  0.85070101  0.0]
+ [-0.090554415  0.0  0.0  0.79577698]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0 -1.5222576e-06]
+ [ 0.0  0.938153  0.0  0.0]
+ [ 0.0  0.0  0.93653414  0.0]
+ [ 6.0890304e-06  0.0  0.0 -0.88557818]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -2.2926236e-21]
+ [ 0.0  0.98382555  0.0  0.0]
+ [ 0.0  0.0  0.97671084  0.0]
+ [-2.4431964e-24  0.0  0.0  0.97755421]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -2.8226696e-21]
+ [ 0.0  0.68731079  0.0  0.0]
+ [ 0.0  0.0  0.10669628  0.0]
+ [ 1.4374403e-22  0.0  0.0  0.20598269]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 4.  1.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 4.  1.]
+    sample = 0
+    Runtime: 1.61754 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.17702             [0m
+	[92m1         [0m[92m 0.503549            [0m
+	[92m2         [0m[92m 0.0118725           [0m
+	[92m3         [0m[92m 0.500002            [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.047052179]
+ [ 0.0  0.99363218  0.0  0.0]
+ [ 0.0  0.0  0.65232881  0.0]
+ [-0.047052179  0.0  0.0  0.64596099]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  8.6482849e-08]
+ [ 0.0  0.96872493  0.0  0.0]
+ [ 0.0  0.0  0.91364052  0.0]
+ [ 2.3062093e-07  0.0  0.0 -0.89656055]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -2.2139143e-21]
+ [ 0.0  0.98674208  0.0  0.0]
+ [ 0.0  0.0  0.98285568  0.0]
+ [ 2.6386269e-24  0.0  0.0  0.98291225]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -2.6102938e-21]
+ [ 0.0  0.71619512  0.0  0.0]
+ [ 0.0  0.0  0.20282936  0.0]
+ [ 4.72892e-22  0.0  0.0  0.080967369]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 4.   1.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 4.   1.5]
+    sample = 0
+    Runtime: 1.62743 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.30607             [0m
+	[92m1         [0m[92m 0.500055            [0m
+	[92m2         [0m[92m 0.0213715           [0m
+	[92m3         [0m[92m 0.500007            [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.0067994252]
+ [ 0.0  0.99992447  0.0  0.0]
+ [ 0.0  0.0  0.38793525  0.0]
+ [-0.0067994252  0.0  0.0  0.38785971]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  5.449947e-12]
+ [ 0.0  0.99962238  0.0  0.0]
+ [ 0.0  0.0  0.65762013  0.0]
+ [ 1.4533192e-11  0.0  0.0 -0.65746111]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.7232183e-21]
+ [ 0.0  0.99813873  0.0  0.0]
+ [ 0.0  0.0  0.95834214  0.0]
+ [-4.2769849e-24  0.0  0.0  0.95803304]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -3.1765453e-21]
+ [ 0.0  0.36295029  0.0  0.0]
+ [ 0.0  0.0  0.23024786  0.0]
+ [-2.6979648e-22  0.0  0.0  0.40677571]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 4.  2.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 4.  2.]
+    sample = 0
+    Runtime: 1.62172 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.407118            [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 0.172287            [0m
+	[92m3         [0m[92m 0.500002            [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.00027314545]
+ [ 0.0  0.99999991  0.0  0.0]
+ [ 0.0  0.0  0.18576487  0.0]
+ [-0.00027314545  0.0  0.0  0.18576478]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  5.6405337e-19]
+ [ 0.0  0.99999954  0.0  0.0]
+ [ 0.0  0.0  0.34037894  0.0]
+ [ 1.5202165e-18  0.0  0.0 -0.34037876]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.9721509e-21]
+ [ 0.0  0.9999977  0.0  0.0]
+ [ 0.0  0.0  0.65542783  0.0]
+ [-6.3266435e-23  0.0  0.0  0.65542746]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.7904768e-21]
+ [ 0.0  0.99908845  0.0  0.0]
+ [ 0.0  0.0  0.50227522  0.0]
+ [ 6.9367912e-24  0.0  0.0 -0.50137047]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 4.   2.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 4.   2.5]
+    sample = 0
+    Runtime: 0.479718 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.463965            [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 0.357664            [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  3.4580726e-06]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.072070193  0.0]
+ [-3.4580726e-06  0.0  0.0  0.072070193]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0 -9.3437371e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.13466441  0.0]
+ [ 0.0  0.0  0.0 -0.13466441]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.2497102e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.28467173  0.0]
+ [ 5.4021309e-23  0.0  0.0  0.28467173]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.8805202e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.52040889  0.0]
+ [ 4.1719819e-23  0.0  0.0 -0.52040889]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 4.  3.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 4.  3.]
+    sample = 0
+    Runtime: 0.478038 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.488672            [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 0.454481            [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  1.4884941e-08]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.022655215  0.0]
+ [-1.4884941e-08  0.0  0.0  0.022655215]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0 -7.6276433e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.042463995  0.0]
+ [ 0.0  0.0  0.0 -0.042463995]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.849597e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.091037624  0.0]
+ [ 0.0  0.0  0.0  0.091037624]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.1553857e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.2032  0.0]
+ [ 4.9943839e-24  0.0  0.0 -0.2032]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 5.   0.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 5.   0.5]
+    sample = 0
+    Runtime: 1.62288 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.067474            [0m
+	[92m1         [0m[92m 0.500834            [0m
+	[92m2         [0m[92m 0.00280149          [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.059837234]
+ [ 0.0  0.96370688  0.0  0.0]
+ [ 0.0  0.0  0.90134508  0.0]
+ [-0.059837234  0.0  0.0  0.86505196]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0 -1.9177745e-07]
+ [ 0.0  0.97146386  0.0  0.0]
+ [ 0.0  0.0  0.97095854  0.0]
+ [ 7.671098e-07  0.0  0.0 -0.94575755]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.1738871e-21]
+ [ 0.0  0.99713248  0.0  0.0]
+ [ 0.0  0.0  0.9957243  0.0]
+ [ 2.9267951e-24  0.0  0.0  0.99593724]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -3.4571478e-21]
+ [ 0.0  0.73633201  0.0  0.0]
+ [ 0.0  0.0 -0.030893186  0.0]
+ [ 1.3963594e-21  0.0  0.0  0.29456117]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 5.  1.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 5.  1.]
+    sample = 0
+    Runtime: 1.62214 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.121241            [0m
+	[92m1         [0m[92m 0.501914            [0m
+	[92m2         [0m[92m 0.0017638           [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.032226107]
+ [ 0.0  0.99563867  0.0  0.0]
+ [ 0.0  0.0  0.76187949  0.0]
+ [-0.032226107  0.0  0.0  0.75751816]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  1.3033782e-08]
+ [ 0.0  0.97959245  0.0  0.0]
+ [ 0.0  0.0  0.96703271  0.0]
+ [ 3.4756753e-08  0.0  0.0 -0.95427953]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -4.6253224e-21]
+ [ 0.0  0.99809305  0.0  0.0]
+ [ 0.0  0.0  0.99740465  0.0]
+ [-7.2953905e-25  0.0  0.0  0.99744709]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -2.9043133e-21]
+ [ 0.0  0.77445514  0.0  0.0]
+ [ 0.0  0.0 -0.0087164665  0.0]
+ [ 1.5810871e-21  0.0  0.0  0.23426132]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 5.   1.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 5.   1.5]
+    sample = 0
+    Runtime: 1.62766 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.226211            [0m
+	[92m1         [0m[92m 0.500036            [0m
+	[92m2         [0m[92m 0.001797            [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.0050253248]
+ [ 0.0  0.99994417  0.0  0.0]
+ [ 0.0  0.0  0.54763468  0.0]
+ [-0.0050253248  0.0  0.0  0.54757885]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  1.2018547e-12]
+ [ 0.0  0.9997209  0.0  0.0]
+ [ 0.0  0.0  0.83992739  0.0]
+ [ 3.2049458e-12  0.0  0.0 -0.83979239]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -2.0622102e-21]
+ [ 0.0  0.99897156  0.0  0.0]
+ [ 0.0  0.0  0.99693926  0.0]
+ [-9.4789301e-26  0.0  0.0  0.99690117]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -3.5202905e-21]
+ [ 0.0  0.70860345  0.0  0.0]
+ [ 0.0  0.0  0.15102911  0.0]
+ [ 8.209109e-22  0.0  0.0  0.14036739]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 5.  2.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 5.  2.]
+    sample = 0
+    Runtime: 1.628 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.328562            [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 0.0366271           [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.00022044028]
+ [ 0.0  0.99999993  0.0  0.0]
+ [ 0.0  0.0  0.34287678  0.0]
+ [-0.00022044028  0.0  0.0  0.34287671]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  1.909911e-19]
+ [ 0.0  0.99999963  0.0  0.0]
+ [ 0.0  0.0  0.59428337  0.0]
+ [ 5.2823099e-19  0.0  0.0 -0.59428321]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -2.1137139e-21]
+ [ 0.0  0.99999816  0.0  0.0]
+ [ 0.0  0.0  0.9267469  0.0]
+ [-1.2974621e-23  0.0  0.0  0.92674659]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -2.4926345e-21]
+ [ 0.0  0.043003671  0.0  0.0]
+ [ 0.0  0.0  0.01467428  0.0]
+ [ 4.9065762e-23  0.0  0.0  0.94232147]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 5.   2.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 5.   2.5]
+    sample = 0
+    Runtime: 0.467455 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.406109            [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 0.168036            [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  3.0268559e-06]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.18778171  0.0]
+ [-3.0268559e-06  0.0  0.0  0.18778171]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  1.9132454e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.34390132  0.0]
+ [-4.5180472e-22  0.0  0.0 -0.34390132]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -2.231251e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.66392795  0.0]
+ [ 2.5705061e-23  0.0  0.0  0.66392795]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.9195866e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.51188911  0.0]
+ [-1.0165064e-22  0.0  0.0 -0.5118891]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 5.  3.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 5.  3.]
+    sample = 0
+    Runtime: 0.477762 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.455019            [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 0.324146            [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  1.3859855e-08]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.089962339  0.0]
+ [-1.3859855e-08  0.0  0.0  0.089962339]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  3.4159965e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.16777149  0.0]
+ [ 0.0  0.0  0.0 -0.16777149]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.2818454e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.35170765  0.0]
+ [ 4.5052249e-23  0.0  0.0  0.35170765]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -2.093498e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.6040737  0.0]
+ [-1.1337784e-23  0.0  0.0 -0.6040737]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 6.   0.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 6.   0.5]
+    sample = 0
+    Runtime: 1.63109 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.0445836           [0m
+	[92m1         [0m[92m 0.50025             [0m
+	[92m2         [0m[92m 0.000369181         [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.039537621]
+ [ 0.0  0.97601922  0.0  0.0]
+ [ 0.0  0.0  0.93481348  0.0]
+ [-0.039537621  0.0  0.0  0.9108327]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0 -2.4154201e-08]
+ [ 0.0  0.98708328  0.0  0.0]
+ [ 0.0  0.0  0.98693008  0.0]
+ [ 9.6616802e-08  0.0  0.0 -0.97501319]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -3.7496105e-21]
+ [ 0.0  0.99961976  0.0  0.0]
+ [ 0.0  0.0  0.9994231  0.0]
+ [ 1.575739e-25  0.0  0.0  0.99948041]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -2.3846652e-21]
+ [ 0.0  0.79904819  0.0  0.0]
+ [ 0.0  0.0 -0.26655381  0.0]
+ [ 1.3154553e-21  0.0  0.0  0.46750562]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 6.  1.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 6.  1.]
+    sample = 0
+    Runtime: 1.6485 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.0819525           [0m
+	[92m1         [0m[92m 0.500965            [0m
+	[92m2         [0m[92m 0.000294807         [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.02178317]
+ [ 0.0  0.99705197  0.0  0.0]
+ [ 0.0  0.0  0.83904294  0.0]
+ [-0.02178317  0.0  0.0  0.83609491]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  1.8392326e-09]
+ [ 0.0  0.98922481  0.0  0.0]
+ [ 0.0  0.0  0.98499034  0.0]
+ [ 4.9046201e-09  0.0  0.0 -0.9780758]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.0680338e-21]
+ [ 0.0  0.99967896  0.0  0.0]
+ [ 0.0  0.0  0.99954685  0.0]
+ [-7.7732191e-25  0.0  0.0  0.99959495]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -2.64204e-21]
+ [ 0.0  0.80216784  0.0  0.0]
+ [ 0.0  0.0 -0.24996716  0.0]
+ [ 1.2861758e-21  0.0  0.0  0.44779932]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 6.   1.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 6.   1.5]
+    sample = 0
+    Runtime: 1.67243 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.160901            [0m
+	[92m1         [0m[92m 0.500021            [0m
+	[92m2         [0m[92m 0.000233839         [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.0035744527]
+ [ 0.0  0.99996029  0.0  0.0]
+ [ 0.0  0.0  0.67823802  0.0]
+ [-0.0035744527  0.0  0.0  0.67819831]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  2.18816e-13]
+ [ 0.0  0.99980147  0.0  0.0]
+ [ 0.0  0.0  0.93548359  0.0]
+ [ 5.8350928e-13  0.0  0.0 -0.93537056]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.4815314e-21]
+ [ 0.0  0.99972067  0.0  0.0]
+ [ 0.0  0.0  0.99967555  0.0]
+ [-1.5746317e-26  0.0  0.0  0.99966842]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -2.341606e-21]
+ [ 0.0  0.81829946  0.0  0.0]
+ [ 0.0  0.0 -0.22800017  0.0]
+ [ 1.5974846e-21  0.0  0.0  0.40970071]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 6.  2.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 6.  2.]
+    sample = 0
+    Runtime: 1.53061 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.249253            [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 0.00342542          [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.00016723021]
+ [ 0.0  0.99999994  0.0  0.0]
+ [ 0.0  0.0  0.50149376  0.0]
+ [-0.00016723021  0.0  0.0  0.50149371]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  5.0168015e-20]
+ [ 0.0  0.99999972  0.0  0.0]
+ [ 0.0  0.0  0.794541  0.0]
+ [ 1.1596042e-19  0.0  0.0 -0.79454088]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.835334e-21]
+ [ 0.0  0.99999859  0.0  0.0]
+ [ 0.0  0.0  0.99314999  0.0]
+ [ 6.0533492e-25  0.0  0.0  0.99314972]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -3.522397e-21]
+ [ 0.0  0.25029098  0.0  0.0]
+ [ 0.0  0.0  0.024292843  0.0]
+ [ 8.3790612e-22  0.0  0.0  0.72541617]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 6.   2.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 6.   2.5]
+    sample = 0
+    Runtime: 0.473087 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.329927            [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 0.039158            [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  2.4590482e-06]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.34014567  0.0]
+ [-2.4590482e-06  0.0  0.0  0.34014567]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  1.4463771e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.59028743  0.0]
+ [ 1.4463771e-21  0.0  0.0 -0.59028743]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.9811398e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.92168402  0.0]
+ [ 1.2071839e-23  0.0  0.0  0.92168402]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -2.6619459e-21]
+ [ 0.0  0.78930094  0.0  0.0]
+ [ 0.0  0.0  0.35340292  0.0]
+ [ 2.9771064e-22  0.0  0.0 -0.14270386]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 6.  3.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 6.  3.]
+    sample = 0
+    Runtime: 0.472156 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.39418             [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 0.140182            [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  1.2006709e-08]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.21163988  0.0]
+ [-1.2006709e-08  0.0  0.0  0.21163988]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0 -4.7820778e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.38513444  0.0]
+ [-9.1781446e-22  0.0  0.0 -0.38513444]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.9607487e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.71963563  0.0]
+ [ 6.1354634e-23  0.0  0.0  0.71963563]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.6966978e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.73451883  0.0]
+ [ 1.1478208e-22  0.0  0.0 -0.73451883]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 7.   0.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 7.   0.5]
+    sample = 0
+    Runtime: 1.70235 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.0294516           [0m
+	[92m1         [0m[92m 0.500074            [0m
+	[92m2         [0m[92m 7.15167e-05         [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.026118203]
+ [ 0.0  0.98415851  0.0  0.0]
+ [ 0.0  0.0  0.95693836  0.0]
+ [-0.026118203  0.0  0.0  0.94109687]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0 -3.0384804e-09]
+ [ 0.0  0.99422813  0.0  0.0]
+ [ 0.0  0.0  0.99418254  0.0]
+ [ 1.2153922e-08  0.0  0.0 -0.9887062]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -2.0407007e-23]
+ [ 0.0  0.99993082  0.0  0.0]
+ [ 0.0  0.0  0.99988295  0.0]
+ [-1.1582043e-25  0.0  0.0  0.99990016]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.8734757e-21]
+ [ 0.0  0.81796921  0.0  0.0]
+ [ 0.0  0.0 -0.26810215  0.0]
+ [ 1.3484714e-21  0.0  0.0  0.45013294]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 7.  1.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 7.  1.]
+    sample = 0
+    Runtime: 1.62473 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.0549349           [0m
+	[92m1         [0m[92m 0.500464            [0m
+	[92m2         [0m[92m 2.87857e-05         [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.014601832]
+ [ 0.0  0.99802386  0.0  0.0]
+ [ 0.0  0.0  0.89210624  0.0]
+ [-0.014601832  0.0  0.0  0.8901301]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  2.4892471e-10]
+ [ 0.0  0.99384295  0.0  0.0]
+ [ 0.0  0.0  0.99249122  0.0]
+ [ 6.6379924e-10  0.0  0.0 -0.98819112]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.4607328e-21]
+ [ 0.0  0.9999727  0.0  0.0]
+ [ 0.0  0.0  0.99995499  0.0]
+ [-4.3614968e-26  0.0  0.0  0.99995717]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -2.5907369e-21]
+ [ 0.0  0.8595513  0.0  0.0]
+ [ 0.0  0.0 -0.19547276  0.0]
+ [ 1.7210735e-21  0.0  0.0  0.33592145]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 7.   1.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 7.   1.5]
+    sample = 0
+    Runtime: 1.62041 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.11157             [0m
+	[92m1         [0m[92m 0.500012            [0m
+	[92m2         [0m[92m 3.02776e-05         [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.0024785533]
+ [ 0.0  0.99997247  0.0  0.0]
+ [ 0.0  0.0  0.77688774  0.0]
+ [-0.0024785533  0.0  0.0  0.77686021]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  3.5077044e-14]
+ [ 0.0  0.99986234  0.0  0.0]
+ [ 0.0  0.0  0.9766505  0.0]
+ [ 9.3538707e-14  0.0  0.0 -0.9765593]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -4.8647705e-21]
+ [ 0.0  0.99995968  0.0  0.0]
+ [ 0.0  0.0  0.99995796  0.0]
+ [-9.9105475e-28  0.0  0.0  0.99996124]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -2.1006466e-21]
+ [ 0.0  0.80199916  0.0  0.0]
+ [ 0.0  0.0 -0.27999271  0.0]
+ [ 1.2332689e-21  0.0  0.0  0.47799355]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 7.  2.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 7.  2.]
+    sample = 0
+    Runtime: 0.470943 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.180793            [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 0.000122485         [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.00012129849]
+ [ 0.0  0.99999996  0.0  0.0]
+ [ 0.0  0.0  0.6384143  0.0]
+ [-0.00012129849  0.0  0.0  0.63841426]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  1.0165284e-20]
+ [ 0.0  0.9999998  0.0  0.0]
+ [ 0.0  0.0  0.91154534  0.0]
+ [ 2.0765521e-20  0.0  0.0 -0.91154523]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -2.5053997e-21]
+ [ 0.0  0.99999903  0.0  0.0]
+ [ 0.0  0.0  0.99975559  0.0]
+ [-3.166177e-25  0.0  0.0  0.99975544]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.8091054e-21]
+ [ 0.0  0.79097572  0.0  0.0]
+ [ 0.0  0.0 -0.28901436  0.0]
+ [ 1.3341661e-21  0.0  0.0  0.49803865]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 7.   2.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 7.   2.5]
+    sample = 0
+    Runtime: 0.474401 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.252005            [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 0.00338785          [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  1.8782708e-06]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.49598992  0.0]
+ [-1.8782708e-06  0.0  0.0  0.49598992]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0 -2.3327237e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.78871678  0.0]
+ [-1.3696354e-21  0.0  0.0 -0.78871678]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.6255295e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.9932243  0.0]
+ [ 5.0110759e-25  0.0  0.0  0.9932243]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -3.2229838e-21]
+ [ 0.0  0.61471739  0.0  0.0]
+ [ 0.0  0.0 -0.11746081  0.0]
+ [ 1.2792996e-21  0.0  0.0  0.50274342]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 7.  3.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 7.  3.]
+    sample = 0
+    Runtime: 0.468736 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.317841            [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 0.0277472           [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  9.6814205e-09]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.36431823  0.0]
+ [-9.6814205e-09  0.0  0.0  0.36431823]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0 -8.6722302e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.62505952  0.0]
+ [-3.8986195e-22  0.0  0.0 -0.62505952]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -2.075407e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.94450566  0.0]
+ [-3.0000395e-24  0.0  0.0  0.94450566]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -2.7837957e-21]
+ [ 0.0  0.98411414  0.0  0.0]
+ [ 0.0  0.0 -0.054727169  0.0]
+ [ 3.1880933e-22  0.0  0.0  0.070613025]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 8.   0.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 8.   0.5]
+    sample = 0
+    Runtime: 1.63322 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.0194507           [0m
+	[92m1         [0m[92m 0.500022            [0m
+	[92m2         [0m[92m 1.1329e-05          [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.017249229]
+ [ 0.0  0.98953781  0.0  0.0]
+ [ 0.0  0.0  0.97156083  0.0]
+ [-0.017249229  0.0  0.0  0.96109864]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0 -3.8175822e-10]
+ [ 0.0  0.99744291  0.0  0.0]
+ [ 0.0  0.0  0.9974295  0.0]
+ [ 1.5270329e-09  0.0  0.0 -0.99495894]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.6364986e-20]
+ [ 0.0  0.99998882  0.0  0.0]
+ [ 0.0  0.0  0.99998188  0.0]
+ [-3.71431e-26  0.0  0.0  0.99998399]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.6532295e-21]
+ [ 0.0  0.85599734  0.0  0.0]
+ [ 0.0  0.0 -0.029996323  0.0]
+ [ 1.6264819e-21  0.0  0.0  0.17399898]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 8.  1.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 8.  1.]
+    sample = 0
+    Runtime: 1.64867 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.0366269           [0m
+	[92m1         [0m[92m 0.500216            [0m
+	[92m2         [0m[92m 4.17383e-06         [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.0097355087]
+ [ 0.0  0.99868244  0.0  0.0]
+ [ 0.0  0.0  0.92806378  0.0]
+ [-0.0097355087  0.0  0.0  0.92674622]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  3.2796274e-11]
+ [ 0.0  0.99626461  0.0  0.0]
+ [ 0.0  0.0  0.99584829  0.0]
+ [ 8.7456731e-11  0.0  0.0 -0.99297733]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.181967e-20]
+ [ 0.0  0.99999614  0.0  0.0]
+ [ 0.0  0.0  0.99999372  0.0]
+ [ 5.3017368e-27  0.0  0.0  0.99999345]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -2.4394543e-21]
+ [ 0.0  0.81300003  0.0  0.0]
+ [ 0.0  0.0 -0.33500002  0.0]
+ [ 1.2197274e-21  0.0  0.0  0.52199998]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 8.   1.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 8.   1.5]
+    sample = 0
+    Runtime: 1.6472 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.0760734           [0m
+	[92m1         [0m[92m 0.500006            [0m
+	[92m2         [0m[92m 4.35361e-06         [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.00168999]
+ [ 0.0  0.99998123  0.0  0.0]
+ [ 0.0  0.0  0.84787195  0.0]
+ [-0.00168999  0.0  0.0  0.84785317]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  5.169559e-15]
+ [ 0.0  0.99990613  0.0  0.0]
+ [ 0.0  0.0  0.99216031  0.0]
+ [ 1.3785476e-14  0.0  0.0 -0.99209005]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -2.3452029e-21]
+ [ 0.0  0.99999441  0.0  0.0]
+ [ 0.0  0.0  0.99999397  0.0]
+ [ 6.6977717e-28  0.0  0.0  0.99999421]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -2.2226156e-21]
+ [ 0.0  0.80199991  0.0  0.0]
+ [ 0.0  0.0 -0.326  0.0]
+ [ 9.4867573e-22  0.0  0.0  0.5240001]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 8.  2.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 8.  2.]
+    sample = 0
+    Runtime: 0.469768 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.127118            [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 3.00692e-06         [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  8.5286556e-05]
+ [ 0.0  0.99999997  0.0  0.0]
+ [ 0.0  0.0  0.74576436  0.0]
+ [-8.5286556e-05  0.0  0.0  0.74576433]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  2.8272712e-22]
+ [ 0.0  0.99999986  0.0  0.0]
+ [ 0.0  0.0  0.96635323  0.0]
+ [ 2.8272712e-22  0.0  0.0 -0.96635314]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -4.3358594e-21]
+ [ 0.0  0.99999957  0.0  0.0]
+ [ 0.0  0.0  0.9999942  0.0]
+ [-8.2294668e-26  0.0  0.0  0.9999942]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.9651665e-21]
+ [ 0.0  0.81899988  0.0  0.0]
+ [ 0.0  0.0 -0.33099968  0.0]
+ [ 1.0705975e-21  0.0  0.0  0.51199979]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 8.   2.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 8.   2.5]
+    sample = 0
+    Runtime: 0.47544 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.183838            [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 0.00017261          [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  1.3701988e-06]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.63232457  0.0]
+ [-1.3701988e-06  0.0  0.0  0.63232457]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0 -7.9553249e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.90748526  0.0]
+ [-7.3451244e-21  0.0  0.0 -0.90748526]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -2.3821936e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.99965478  0.0]
+ [ 1.7707067e-25  0.0  0.0  0.99965478]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -2.0222714e-21]
+ [ 0.0  0.79881211  0.0  0.0]
+ [ 0.0  0.0 -0.294826  0.0]
+ [ 1.2302629e-21  0.0  0.0  0.49601389]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 8.  3.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 8.  3.]
+    sample = 0
+    Runtime: 0.47103 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.241581            [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 0.00255343          [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  7.3585612e-09]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.5168371  0.0]
+ [-7.3585612e-09  0.0  0.0  0.5168371]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0 -1.2207686e-20]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.81032656  0.0]
+ [-3.1475614e-21  0.0  0.0 -0.81032656]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.817721e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.99489314  0.0]
+ [-3.5750239e-25  0.0  0.0  0.99489314]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -2.4438719e-21]
+ [ 0.0  0.78920992  0.0  0.0]
+ [ 0.0  0.0 -0.24800378  0.0]
+ [ 1.276601e-21  0.0  0.0  0.45879386]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 9.   0.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 9.   0.5]
+    sample = 0
+    Runtime: 1.62306 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.0128433           [0m
+	[92m1         [0m[92m 0.500006            [0m
+	[92m2         [0m[92m 6.26305e-07         [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.011389666]
+ [ 0.0  0.99309182  0.0  0.0]
+ [ 0.0  0.0  0.98122162  0.0]
+ [-0.011389666  0.0  0.0  0.97431343]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0 -4.7917578e-11]
+ [ 0.0  0.9988736  0.0  0.0]
+ [ 0.0  0.0  0.99886968  0.0]
+ [ 1.9167031e-10  0.0  0.0 -0.99776846]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -2.2928045e-21]
+ [ 0.0  0.99999937  0.0  0.0]
+ [ 0.0  0.0  0.99999891  0.0]
+ [ 1.1272711e-27  0.0  0.0  0.99999921]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.0977547e-21]
+ [ 0.0  0.869  0.0  0.0]
+ [ 0.0  0.0 -0.509  0.0]
+ [ 7.1828394e-22  0.0  0.0  0.63999999]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 9.  1.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 9.  1.]
+    sample = 0
+    Runtime: 1.62465 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.0243352           [0m
+	[92m1         [0m[92m 0.500066            [0m
+	[92m2         [0m[92m 1.7369e-06          [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.0064683474]
+ [ 0.0  0.9991246  0.0  0.0]
+ [ 0.0  0.0  0.95220502  0.0]
+ [-0.0064683474  0.0  0.0  0.95132962]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0 -2.8307837e-12]
+ [ 0.0  0.99701271  0.0  0.0]
+ [ 0.0  0.0  0.99688747  0.0]
+ [ 1.1323135e-11  0.0  0.0 -0.99416509]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.4621123e-20]
+ [ 0.0  0.99999861  0.0  0.0]
+ [ 0.0  0.0  0.99999683  0.0]
+ [ 9.2043861e-28  0.0  0.0  0.99999761]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.4365622e-21]
+ [ 0.0  0.75099995  0.0  0.0]
+ [ 0.0  0.0 -0.038999017  0.0]
+ [ 1.6805191e-21  0.0  0.0  0.28799906]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 9.   1.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 9.   1.5]
+    sample = 0
+    Runtime: 1.63537 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.0512983           [0m
+	[92m1         [0m[92m 0.500003            [0m
+	[92m2         [0m[92m 2.39717e-07         [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.0011396048]
+ [ 0.0  0.99998734  0.0  0.0]
+ [ 0.0  0.0  0.89741604  0.0]
+ [-0.0011396048  0.0  0.0  0.89740338]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  7.2077066e-16]
+ [ 0.0  0.9999367  0.0  0.0]
+ [ 0.0  0.0  0.99749886  0.0]
+ [ 1.922087e-15  0.0  0.0 -0.99744698]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -3.4242641e-21]
+ [ 0.0  0.99999975  0.0  0.0]
+ [ 0.0  0.0  0.99999971  0.0]
+ [-1.6290659e-28  0.0  0.0  0.99999958]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -2.2090619e-21]
+ [ 0.0  0.83799999  0.0  0.0]
+ [ 0.0  0.0 -0.34199998  0.0]
+ [ 1.3145951e-21  0.0  0.0  0.50399998]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 9.  2.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 9.  2.]
+    sample = 0
+    Runtime: 0.468595 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.0875102           [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 1.07632e-07         [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  5.8712784e-05]
+ [ 0.0  0.99999998  0.0  0.0]
+ [ 0.0  0.0  0.82497966  0.0]
+ [-5.8712784e-05  0.0  0.0  0.82497964]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0 -3.6983981e-22]
+ [ 0.0  0.9999999  0.0  0.0]
+ [ 0.0  0.0  0.98829465  0.0]
+ [-3.6983981e-22  0.0  0.0 -0.98829458]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -3.3602818e-21]
+ [ 0.0  0.99999991  0.0  0.0]
+ [ 0.0  0.0  0.99999983  0.0]
+ [ 1.3981536e-27  0.0  0.0  0.99999983]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -2.2903771e-21]
+ [ 0.0  0.823  0.0  0.0]
+ [ 0.0  0.0 -0.289  0.0]
+ [ 1.2061749e-21  0.0  0.0  0.466]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 9.   2.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 9.   2.5]
+    sample = 0
+    Runtime: 0.474819 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.12982             [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 3.26482e-06         [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  9.6759059e-07]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.74035937  0.0]
+ [-9.6759059e-07  0.0  0.0  0.74035937]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  4.892538e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.96432049  0.0]
+ [ 5.5843427e-21  0.0  0.0 -0.96432049]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -3.1025067e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.99999347  0.0]
+ [-2.3106345e-26  0.0  0.0  0.99999347]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -2.1819459e-21]
+ [ 0.0  0.79399992  0.0  0.0]
+ [ 0.0  0.0 -0.27599994  0.0]
+ [ 1.1519757e-21  0.0  0.0  0.48200001]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 9.  3.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 9.  3.]
+    sample = 0
+    Runtime: 0.466845 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.175685            [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 0.000107275         [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  5.3513517e-09]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.64863041  0.0]
+ [-5.3513517e-09  0.0  0.0  0.64863041]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0 -2.1017708e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.78208507  0.0]
+ [ 2.338116e-21  0.0  0.0 -0.78208507]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -2.6399832e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.99978545  0.0]
+ [ 1.329034e-25  0.0  0.0  0.99978545]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -2.3781983e-21]
+ [ 0.0  0.80281339  0.0  0.0]
+ [ 0.0  0.0 -0.34514523  0.0]
+ [ 1.1451833e-21  0.0  0.0  0.54233184]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 10.    0.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 10.    0.5]
+    sample = 0
+    Runtime: 1.62752 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.0084792           [0m
+	[92m1         [0m[92m 0.500002            [0m
+	[92m2         [0m[92m 1.24567e-07         [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.0075195151]
+ [ 0.0  0.99543918  0.0  0.0]
+ [ 0.0  0.0  0.98760242  0.0]
+ [-0.0075195151  0.0  0.0  0.9830416]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0 -6.0102038e-12]
+ [ 0.0  0.9995057  0.0  0.0]
+ [ 0.0  0.0  0.99950456  0.0]
+ [ 2.4040815e-11  0.0  0.0 -0.99901755]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -2.6330162e-22]
+ [ 0.0  0.99999986  0.0  0.0]
+ [ 0.0  0.0  0.99999982  0.0]
+ [-1.5174003e-28  0.0  0.0  0.99999983]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -3.8489177e-21]
+ [ 0.0  0.809  0.0  0.0]
+ [ 0.0  0.0 -0.549  0.0]
+ [ 7.8604654e-22  0.0  0.0  0.74]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 10.   1.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 10.   1.]
+    sample = 0
+    Runtime: 1.62492 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.0161316           [0m
+	[92m1         [0m[92m 0.50002             [0m
+	[92m2         [0m[92m 8.93171e-08         [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.0042878284]
+ [ 0.0  0.99941971  0.0  0.0]
+ [ 0.0  0.0  0.968317  0.0]
+ [-0.0042878284  0.0  0.0  0.9677367]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0 -3.6234895e-13]
+ [ 0.0  0.99867572  0.0  0.0]
+ [ 0.0  0.0  0.99863862  0.0]
+ [ 1.4493958e-12  0.0  0.0 -0.99739279]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -9.4649143e-23]
+ [ 0.0  0.99999992  0.0  0.0]
+ [ 0.0  0.0  0.9999999  0.0]
+ [-1.2474789e-27  0.0  0.0  0.99999983]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.0977547e-21]
+ [ 0.0  0.798  0.0  0.0]
+ [ 0.0  0.0 -0.468  0.0]
+ [ 5.5565361e-22  0.0  0.0  0.67]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 10.    1.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 10.    1.5]
+    sample = 0
+    Runtime: 1.63202 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.0343398           [0m
+	[92m1         [0m[92m 0.500001            [0m
+	[92m2         [0m[92m 2.01005e-08         [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.00076286836]
+ [ 0.0  0.99999153  0.0  0.0]
+ [ 0.0  0.0  0.93132878  0.0]
+ [-0.00076286836  0.0  0.0  0.9313203]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  9.691855e-17]
+ [ 0.0  0.99995763  0.0  0.0]
+ [ 0.0  0.0  0.99922887  0.0]
+ [ 2.5837127e-16  0.0  0.0 -0.99919184]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -1.4008252e-20]
+ [ 0.0  0.99999998  0.0  0.0]
+ [ 0.0  0.0  0.99999998  0.0]
+ [ 1.106532e-28  0.0  0.0  0.99999996]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.6805134e-21]
+ [ 0.0  0.808  0.0  0.0]
+ [ 0.0  0.0 -0.202  0.0]
+ [ 1.7076184e-21  0.0  0.0  0.394]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 10.   2.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 10.   2.]
+    sample = 0
+    Runtime: 0.481397 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.0593959           [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 9.11638e-09         [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  3.9850176e-05]
+ [ 0.0  0.99999999  0.0  0.0]
+ [ 0.0  0.0  0.8812083  0.0]
+ [-3.9850176e-05  0.0  0.0  0.88120829]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  7.3986339e-21]
+ [ 0.0  0.99999993  0.0  0.0]
+ [ 0.0  0.0  0.99617368  0.0]
+ [ 7.3986339e-21  0.0  0.0 -0.99617363]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -3.5074618e-21]
+ [ 0.0  0.99999999  0.0  0.0]
+ [ 0.0  0.0  0.99999999  0.0]
+ [-6.961591e-29  0.0  0.0  0.99999999]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.6805134e-21]
+ [ 0.0  0.82  0.0  0.0]
+ [ 0.0  0.0 -0.302  0.0]
+ [ 1.1655173e-21  0.0  0.0  0.482]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 10.    2.5]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 10.    2.5]
+    sample = 0
+    Runtime: 0.464113 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.0896492           [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 3.15406e-08         [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  6.6818289e-07]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.82070162  0.0]
+ [-6.6818289e-07  0.0  0.0  0.82070162]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0 -3.0599543e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.98745813  0.0]
+ [-3.0599543e-21  0.0  0.0 -0.98745813]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -4.9616102e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.99999994  0.0]
+ [ 2.3160977e-28  0.0  0.0  0.99999994]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -1.8973538e-21]
+ [ 0.0  0.846  0.0  0.0]
+ [ 0.0  0.0 -0.386  0.0]
+ [ 1.1113072e-21  0.0  0.0  0.54]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: 5qc X 5qc X 5qc
+[0m[2mChannel: Photon Loss channel
+[0m[2mNoise rates: [[ 10.   3.]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 3
+[0m[2mDecoding trials per level: 1000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 10.   3.]
+    sample = 0
+    Runtime: 0.468286 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.123819            [0m
+	[92m1         [0m[92m 0.5                 [0m
+	[92m2         [0m[92m 1.33581e-06         [0m
+	[92m3         [0m[92m 0.5                 [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  3.7715227e-09]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.75236194  0.0]
+ [-3.7715227e-09  0.0  0.0  0.75236194]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0 -1.2582986e-22]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0 -0.75236194  0.0]
+ [-7.6386224e-22  0.0  0.0  0.75236194]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0 -3.071261e-21]
+ [ 0.0  1.0  0.0  0.0]
+ [ 0.0  0.0  0.99999733  0.0]
+ [-9.5284967e-28  0.0  0.0  0.99999733]]
+	--------[0m
+	[92mLevel 3
+[[ 1.0  0.0  0.0 -2.0193265e-21]
+ [ 0.0  0.82600006  0.0  0.0]
+ [ 0.0  0.0 -0.30200006  0.0]
+ [ 1.0435446e-21  0.0  0.0  0.476]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m

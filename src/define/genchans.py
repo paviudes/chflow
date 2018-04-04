@@ -41,10 +41,12 @@ def PreparePhysicalChannels(submit):
 	channels = np.zeros((submit.samps, 4, 4), dtype = np.longdouble)
 	submit.params = np.zeros((submit.noiserates.shape[0] * submit.samps, submit.noiserates.shape[1] + 1), dtype = np.longdouble)
 	for i in range(submit.noiserates.shape[0]):
-		if (submit.scale == 1):
-			noise = submit.noiserates[i, :]
-		else:
-			noise = np.power(submit.scale, submit.noiserates[i, :])
+		noise = np.zeros(submit.noiserates.shape[1], dtype = np.longdouble)
+		for j in range(submit.noiserates.shape[1]):
+			if (submit.scales[j] == 1):
+				noise[j] = submit.noiserates[i, j]
+			else:
+				noise[j] = np.power(submit.scales[j], submit.noiserates[i, j])
 		for j in range(submit.samps):
 			submit.params[i * submit.samps + j, :-1] = submit.noiserates[i, :]
 			submit.params[i * submit.samps + j, -1] = j
