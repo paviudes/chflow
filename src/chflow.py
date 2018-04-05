@@ -236,6 +236,13 @@ if __name__ == '__main__':
 				# Generate new physical channels if needed
 				if (cl.IsComplete(submit) == 0):
 					chgen.PreparePhysicalChannels(submit)
+				else:
+					# prepare the set of parameters
+					submit.params = np.zeros((submit.noiserates.shape[0] * submit.samps, submit.noiserates.shape[1] + 1), dtype = np.longdouble)
+					for i in range(submit.noiserates.shape[0]):
+						for j in range(submit.samps):
+							submit.params[i * submit.samps + j, :-1] = submit.noiserates[i, :]
+							submit.params[i * submit.samps + j, -1] = j
 			
 		#####################################################################
 

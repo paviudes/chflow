@@ -205,7 +205,7 @@ def Update(submit, pname, newvalue):
 		submit.outdir = fn.OutputDirectory(newvalue, submit)
 
 	elif (pname == "scale"):
-		submit.scales = map(np.longdouble, newvalue.split(","))
+		submit.scales = np.array(map(np.longdouble, newvalue.split(",")), dtype = np.longdouble)
 
 	elif (pname == "plot"):
 		submit.plotsettings = newvalue.split(",")
@@ -253,7 +253,7 @@ def PrintSub(submit):
 		print("Usage")
 		Usage(submit)
 
-	print("\033[0m")
+	print("\033[0m"),
 	return None
 
 

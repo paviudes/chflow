@@ -58,6 +58,7 @@ cdef int ComputeLevelOneChannels(simul_t *sim, qecc_t *qcode, constants_t *const
 		for i in range(qcode[0].nlogs):
 			for j in range(qcode[0].nlogs):
 				sim[0].levelOneChannels[s][i][j] = sim[0].effprocess[s][i][j]
+
 	ConstructCumulative(sim[0].levelOneSynds, sim[0].levelOneCumul, qcode[0].nstabs)
 	# PrintDoubleArray1D(sim[0].levelOneCumul, "Level-1 cumulative distribution", qcode[0].nstabs)
 	# Compute the importance distribution for level-1 if necessary.
@@ -157,6 +158,8 @@ cdef int ComputeLogicalChannels(simul_t **sims, qecc_t **qcode, constants_t *con
 					channels[level][b][0][qcode[level][0].nlogs][2] = sims[0][0].syndprobs[randsynd]
 				else:
 					pass
+		
+		# PrintDoubleArray1D(sims[0][0].metricValues[level + 1], "metrics at level %d" % (level + 1), sims[0][0].nmetrics)
 		# Free memory for inputchannels
 		MemManageInputChannels(inputchannels, qcode[level][0].N, qcode[level][0].nlogs, sims[0][0].importance, 1)
 		# Free simulation parameters that depend on the qcode
@@ -182,6 +185,8 @@ cdef int Performance(qecc_t **qcode, simul_t **sims, constants_t *consts):
 		# Sample 7^(l-1) level-1 syndromes and store thier associated effective channels in the array.
 		# Store the level-l average logical channel conditioned on level-1 syndromes selected above.
 	
+	# PrintIntArray2D(qcode[0].projector, "action[%d]", qcode[0][0].nstabs, qcode[0][0].nstabs)
+
 	srand48(time(0))
 	cdef:
 		int i, j, b, s, level, stat, batch, nbatches = sims[0][0].cores, nchans
@@ -194,6 +199,8 @@ cdef int Performance(qecc_t **qcode, simul_t **sims, constants_t *consts):
 	# for s in range(1 + sims[0].importance):
 	# 	ComputeLevelOneChannels(sims[s], qcode[0], consts)
 	
+	# print("nbatches = %d" % (nbatches))
+
 	cdef:
 		int randsynd = 0
 		unsigned int thread_id
@@ -308,6 +315,9 @@ cdef int UpdateMetrics(int level, long double bias, long double history, int isf
 			if (sim[0].syndprobs[s] > consts[0].atol):
 				# Compute metrics
 				ComputeMetrics(metvals, sim[0].nmetrics, sim[0].metricsToCompute, sim[0].effective[s], sim[0].chname)
+				# with gil:
+					# PrintDoubleArray2D(sim[0].effprocess[s], "s = %d" % (s), qcode[0].nlogs, qcode[0].nlogs)
+					# PrintDoubleArray1D(metvals, "metrics", sim[0].nmetrics)
 				for m in range(sim[0].nmetrics):
 					avgmetvals[m] = avgmetvals[m] + metvals[m] * sim[0].syndprobs[s]
 				# Compute average channel

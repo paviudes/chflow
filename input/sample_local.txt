@@ -7,7 +7,7 @@ channel dp
 # Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
 repr process
 # Noise rate exponents. The actual noise rate is (scale)^exponent.
-noiserange 1,10,10
+noiserange 2,11,10
 # Scale of the noise range
 scale 0.66
 # Number of samples
@@ -21,9 +21,9 @@ decoder 0
 # Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
 frame P
 # Number of concatenation levels
-levels 3
+levels 4
 # Number of syndromes to be sampled at top level
-stats 1000
+stats 10000
 # Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
 importance N
 # Metrics to be computed on the effective channels at every level.

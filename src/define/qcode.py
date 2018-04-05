@@ -547,6 +547,8 @@ def ConstructNormalizer(qecc):
 			# Combine the logical operator with the stabilizers to generate all the operators in the corresponding logical class
 			(normop, normph) = PauliProduct(logop, stabop)
 			normph = normph * stabph * logph
+			if (l == 3):
+				normph = normph * 1j
 			qecc.normalizer[ordering[lgens[0], lgens[1]], s, :] = normop
 			qecc.normphases[ordering[lgens[0], lgens[1]], s] = normph
 	return None
@@ -604,3 +606,5 @@ if __name__ == '__main__':
 	qcode = QuantumErrorCorrectingCode("%s" % (codename))
 	Load(qcode)
 	Print(qcode)
+	IsCanonicalBasis(qcode.S, qcode.L, qcode.T, verbose = 1)
+	print("logical action\n%s\n phases\n%s" % (np.array_str(qcode.normalizer), np.array_str(qcode.normphases)))

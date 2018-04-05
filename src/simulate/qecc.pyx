@@ -7,6 +7,7 @@
 from libc.stdlib cimport malloc, free
 from constants cimport constants_t
 from memory cimport simul_t
+from printfuns cimport PrintDoubleArray1D, PrintComplexArray2D
 
 cdef extern from "math.h" nogil:
 	long double powl(long double base, long double expo)
@@ -224,7 +225,8 @@ cdef int ComputeSyndromeDistribution(qecc_t *qecc, simul_t *sim, int isPauli, lo
 			sim[0].cumulative[s] = sim[0].syndprobs[s]
 		else:
 			sim[0].cumulative[s] = sim[0].cumulative[s - 1] + sim[0].syndprobs[s]
-	# PrintDoubleArray1D(sim[0].syndprobs, "Fresh syndrome probabilities", qecc[0].nstabs)
+	# with gil:
+	# 	PrintDoubleArray1D(sim[0].syndprobs, "Fresh syndrome probabilities", qecc[0].nstabs)
 	return 0
 
 

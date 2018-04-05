@@ -71,8 +71,9 @@ def ThresholdPlot(phymets, logmet, dbs):
 				phyerrs[i, m] = np.sum(dbs.available[sampreps[i]:sampreps[i + 1], np.int8(phylist[m])], dtype = np.longdouble)/np.longdouble(sampreps[i + 1] - sampreps[i])
 			phyparams.append(qc.Channels[dbs.channel][2][np.int8(phylist[m])])
 		else:
+			# print("loading: %s" % (fn.PhysicalErrorRates(dbs, phylist[m])))
 			phyrates = np.load(fn.PhysicalErrorRates(dbs, phylist[m]))
-			# print("phyrates\n%s" % (np.array_str(phyrates)))
+			# print("metric = %s, phyrates\n%s" % (phylist[m], np.array_str(phyrates)))
 			for i in range(sampreps.shape[0] - 1):
 				# print("phyrates[%d:%d, np.int8(phylist[m])]\n%s" % (sampreps[i], sampreps[i + 1], np.array_str(phyrates[sampreps[i]:sampreps[i + 1]])))
 				phyerrs[i, m] = np.sum(phyrates[sampreps[i]:sampreps[i + 1]], dtype = np.longdouble)/np.longdouble(sampreps[i + 1] - sampreps[i])
@@ -194,7 +195,7 @@ def LevelWisePlot(phymets, logmet, dbses):
 			ax.set_xscale('log')
 			ax.set_ylabel("$\\mathcal{N}_{%d}$: %s" % (l + 1, ml.Metrics[logmet][1]), fontsize = gv.axes_labels_fontsize)
 			ax.set_yscale('log')
-			ax.tick_params(axis = 'both', which = 'major', pad = gv.ticks_pad, direction = 'inout', length = gv.ticks_length, width = gv.ticks_width, labelsize = gv.ticks_fontsize)
+			ax.tick_params(axis = 'both', which = 'both', pad = gv.ticks_pad, direction = 'inout', length = gv.ticks_length, width = gv.ticks_width, labelsize = gv.ticks_fontsize)
 			# Legend
 			dblegend = plt.legend(handles = dblines, labels = [dbses[i].timestamp for i in range(ndb)], numpoints = 1, loc = 1, shadow = True, fontsize = gv.legend_fontsize, markerscale = gv.legend_marker_scale)
 			plt.legend(handles = phlines, labels = phyparams, numpoints = 1, loc = 4, shadow = True, fontsize = gv.legend_fontsize, markerscale = gv.legend_marker_scale)

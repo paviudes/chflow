@@ -1,5 +1,6 @@
 import os
 import sys
+import numpy as np
 # Force the module scripts to run locally -- https://stackoverflow.com/questions/279237/import-a-module-from-a-relative-path
 import inspect as ins
 current = os.path.realpath(os.path.abspath(os.path.dirname(ins.getfile(ins.currentframe()))))

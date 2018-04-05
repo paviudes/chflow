@@ -1,0 +1,94 @@
+Pavithrans-MacBook-Pro:chflow pavithran$ ./chflow.sh 
+>> sbload sample_dp
+Input file not found.
+>> sbload sample_local
+Simulation data is available for 0% of the channels.
+Preparing physical channels... 10 (100%) done. 
+>> submit
+For remote execution, run: "./chflow.sh 05_04_2018_15_30_31"
+>> exit
+Pavithrans-MacBook-Pro:chflow pavithran$ clear
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Pavithrans-MacBook-Pro:chflow pavithran$ ./chflow.sh 
+>> sbload 05_04_2018_15_30_31
+Simulation data is available for 0% of the channels.
+Preparing physical channels... 10 (100%) done. 
+>> ecc
+Simulation data is available for 0% of the channels.
+Please wait ...
+100% done, approximately 0 seconds remaining ... 
+done, in 5 seconds.
+>> metrics dnorm,fidelity      
+>> collect
+Simulation data is available for 100% of the channels.
+>> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
