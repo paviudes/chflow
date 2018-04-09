@@ -1,5 +1,5 @@
 # chflow
-This package is intended to be used for studying the response of different quantum error correction schemes on various types of quantum noise processes. In order to gauge the response of a scheme, we perform numerical simulations of a quantum error correcting scheme over a noise model and study different measures of noise strength for a qubit. 
+This package is intended to be used for studying the response of different quantum error correction schemes on various types of quantum noise processes. In order to gauge the response of a scheme, we perform numerical simulations of a quantum (stabilizer) error correcting scheme over a noise model and study different measures of noise strength for a qubit. For any stabilizer error correction scheme, `chflow` tracks the flow of a quantum channel -- evolution of from a physical noise process to the _effective quantum channel_ that affects the underlying logical information encompassing quantum error correction steps.
 
 More about quantum error correction with various noise processes can be learnt from [arXiv:1711.04736](https://arxiv.org/abs/1711.04736) and [Phys. Rev. A 95, 042332](https://journals.aps.org/pra/abstract/10.1103/PhysRevA.95.042332).
 
