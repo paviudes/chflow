@@ -169,7 +169,7 @@ def LevelWisePlot(phymets, logmet, dbses):
 					phyparams.append(ml.Metrics[phylist[i]][1])
 			if (not (dbses[d].scales[i] == 1)):
 				phyerrs[d][:, i] = np.power(dbses[d].scales[i], phyerrs[d][:, i])
-	
+
 	plotfname = fn.LevelWise(dbses[0], "_".join(phylist), logmet)
 	phlines = []
 	dblines = []
@@ -195,7 +195,7 @@ def LevelWisePlot(phymets, logmet, dbses):
 					if (d == 0):
 						phlines.append(plotobj[0])
 			# Title
-			plt.title(("Level %d %s vs. physical error metrics for the %s channel." % (l + 1, ml.Metrics[logmet][0], qc.Channels[dbses[0].channel][0])), fontsize = gv.title_fontsize, y = 1.03)
+			plt.title(("%s vs. physical error metrics for the %s channel." % (ml.Metrics[logmet][0], qc.Channels[dbses[0].channel][0])), fontsize = gv.title_fontsize, y = 1.03)
 			# Axes labels
 			ax = plt.gca()
 			ax.set_xlabel("$\\mathcal{N}_{0}$: Physical noise strength", fontsize = gv.axes_labels_fontsize)
@@ -204,7 +204,7 @@ def LevelWisePlot(phymets, logmet, dbses):
 			ax.set_yscale('log')
 			ax.tick_params(axis = 'both', which = 'both', pad = gv.ticks_pad, direction = 'inout', length = gv.ticks_length, width = gv.ticks_width, labelsize = gv.ticks_fontsize)
 			# Legend
-			dblegend = plt.legend(handles = dblines, labels = [dbses[i].timestamp for i in range(ndb)], numpoints = 1, loc = 1, shadow = True, fontsize = gv.legend_fontsize, markerscale = gv.legend_marker_scale)
+			dblegend = plt.legend(handles = dblines, labels = [("N = %d, D = %d") % (np.prod([dbses[i].eccs[j].N for j in range(l + 1)]), np.prod([dbses[i].eccs[j].D for l in range(l + 1)])) for i in range(ndb)], numpoints = 1, loc = 1, shadow = True, fontsize = gv.legend_fontsize, markerscale = gv.legend_marker_scale)
 			plt.legend(handles = phlines, labels = phyparams, numpoints = 1, loc = 4, shadow = True, fontsize = gv.legend_fontsize, markerscale = gv.legend_marker_scale)
 			ax.add_artist(dblegend)
 			

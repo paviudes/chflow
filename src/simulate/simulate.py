@@ -74,7 +74,7 @@ def OrganizeResults(submit):
 		os.mkdir("%s/results" % (submit.outdir))
 	# os.system("cp -r ./../src %s/ > /dev/null 2>&1 2>&1" % (submit.outdir))
 	# os.system("cp -r ./../physical %s/ > /dev/null 2>&1" % (submit.outdir))
-	# os.system("cp -r ./../input %s/ > /dev/null 2>&1" % (submit.outdir))
+	os.system("cp -r ./../input %s/ > /dev/null 2>&1" % (submit.outdir))
 	# os.system("cp -r ./../code %s/ > /dev/null 2>&1" % (submit.outdir))
 	# os.system("cp -r ./../docs %s/ > /dev/null 2>&1" % (submit.outdir))
 	os.system("mv ./../temp/perf.txt %s/results/ > /dev/null 2>&1" % (submit.outdir))
