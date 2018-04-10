@@ -1,13 +1,13 @@
 # Time stamp
 timestamp input
 # Type of quantum error correcting code
-ecc 5qc,5qc,5qc
+ecc Steane,Steane,Steane
 # Type of quantum channel
-channel dp
+channel rtz
 # Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
 repr process
 # Noise rate exponents. The actual noise rate is (scale)^exponent.
-noiserange 2,11,10
+noiserange 1,10,10
 # Scale of the noise range
 scale 0.66
 # Number of samples
@@ -21,7 +21,7 @@ decoder 0
 # Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
 frame P
 # Number of concatenation levels
-levels 4
+levels 3
 # Number of syndromes to be sampled at top level
 stats 10000
 # Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)

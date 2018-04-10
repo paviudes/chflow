@@ -167,6 +167,9 @@ def LevelWisePlot(phymets, logmet, dbses):
 				phyerrs[d][:, i] = np.load(fn.PhysicalErrorRates(dbses[d], phylist[i]))
 				if (d == 0):
 					phyparams.append(ml.Metrics[phylist[i]][1])
+			if (not (dbses[d].scales[i] == 1)):
+				phyerrs[d][:, i] = np.power(dbses[d].scales[i], phyerrs[d][:, i])
+	
 	plotfname = fn.LevelWise(dbses[0], "_".join(phylist), logmet)
 	phlines = []
 	dblines = []
@@ -176,11 +179,15 @@ def LevelWisePlot(phymets, logmet, dbses):
 			for p in range(len(phylist)):
 				for d in range(ndb):
 					if (d == 0):
-						if (phylist[p] in ml.Metrics):
-							plotset = [ml.Metrics[phylist[p]][3], ml.Metrics[phylist[p]][2]]
+						if (dbses[d].samps > 1):
+							lsytle = 'None'
 						else:
-							plotset = [ml.Metrics[ml.Metrics.keys()[p % len(ml.Metrics)]][3], ml.Metrics[ml.Metrics.keys()[p % len(ml.Metrics)]][2]]
-						plotobj = plt.plot(phyerrs[d][:, p], logErrs[d][:, l + 1], color = plotset[0], marker = plotset[1], markersize = gv.marker_size, linestyle = 'None', linewidth = gv.line_width)
+							lsytle = '--'
+						if (phylist[p] in ml.Metrics):
+							plotset = [ml.Metrics[phylist[p]][3], ml.Metrics[phylist[p]][2], lsytle]
+						else:
+							plotset = [ml.Metrics[ml.Metrics.keys()[p % len(ml.Metrics)]][3], ml.Metrics[ml.Metrics.keys()[p % len(ml.Metrics)]][2], lsytle]
+						plotobj = plt.plot(phyerrs[d][:, p], logErrs[d][:, l + 1], color = plotset[0], marker = plotset[1], markersize = gv.marker_size, linestyle = plotset[2], linewidth = gv.line_width)
 					else:
 						plotobj = plt.plot(phyerrs[d][:, p], logErrs[d][:, l + 1], color = dbses[d].plotsettings[2], marker = ml.Metrics[p][2], markersize = gv.marker_size, linestyle = dbses[d].plotsettings[2], linewidth = gv.line_width)
 					if (p == 0):
@@ -262,9 +269,9 @@ def LevelWisePlot2D(phymets, logmet, dbs):
 			meshZ = griddata((phyerrs[:, 0], phyerrs[:, 1]), logErr[:, l], (meshX, meshY), method = "linear")
 			
 			# print("meshZ\n%s" % (np.array_str(meshZ)))
-
 			# print("meshZ[np.nonzero(meshZ < 0)]\n%s" % (np.array_str(meshZ[np.nonzero(meshZ < 0)])))
-			clevels = np.logspace(np.log10(logErr[:, l].min()), np.log10(logErr[:, l].max()), gv.contour_nlevs, base = 10.0)
+			# print("logical error rates\n%s" % (np.array_str(logErr[:, l])))
+			clevels = np.logspace(np.log10(np.abs(logErr[:, l].min())), np.log10(logErr[:, l].max()), gv.contour_nlevs, base = 10.0)
 			cplot = plt.contourf(meshX, meshY, meshZ, cmap = cm.winter, locator = ticker.LogLocator(), linestyles = gv.contour_linestyle, levels = clevels)
 			# plt.contour(meshX, meshY, meshZ, colors = 'k', locator = ticker.LogLocator(), linewidth = gv.line_width)
 			plt.scatter(phyerrs[:, 0], phyerrs[:, 1], marker = 'o', color = 'k')
