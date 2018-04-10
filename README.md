@@ -10,3 +10,16 @@ For any stabilizer error correction scheme, `chflow` tracks the _flow of a quant
 More about quantum error correction with various noise processes can be learnt from [arXiv:1711.04736](https://arxiv.org/abs/1711.04736) and [Phys. Rev. A 95, 042332](https://journals.aps.org/pra/abstract/10.1103/PhysRevA.95.042332).
 
 In addition to its main purpose, this package can also be used to perform simple but useful operations on quantum error correcting codes as well as quantum channels. For instance, derivation of the [canonical basis](https://github.com/paviudes/chflow/wiki/Quantum-error-correction#complete-description-of-a-stabilizer-code) \(Stabilizers, Logicals and Pure errors\) for an error correcting code, converting between various [representations of a quantum channel](https://github.com/paviudes/chflow/wiki/Quantum-channels#representations-for-quantum-channels), computing [Pauli approximations](https://github.com/paviudes/chflow/wiki/Quantum-channels#approximations-to-a-pauli-channel) of a quantum channel and so on.
+
+## Downloading and installing
+The latest version of `chflow` can be obtained by either [cloning this github repository](https://help.github.com/articles/cloning-a-repository/) or directly downloading the source zip file by following the ![clone](https://github.com/paviudes/chflow/blob/master/docs/clone.jpg) link in the home page.
+First, let us see how to install and run this software. The following dependencies, along with their recommended versions desirable for the smooth compiling and execution of `chflow`.
+
+| Software     	| Recommended version 	                               |
+|--------------	|------------------------------------------------------|
+| Python       	| [2.7](https://www.python.org/downloads/)             |
+| NumPy, SciPy 	| [1.1.0](https://www.scipy.org/install.html)          |
+| PICOS        	| [1.1.2](http://picos.zib.de/intro.html#installation) |
+| CVXOPT       	| [1.1.9](http://cvxopt.org/install/index.html)        |
+| Cython       	| [0.25.2](https://docs.anaconda.com/anaconda/install/)|
+
