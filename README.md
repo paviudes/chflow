@@ -13,8 +13,8 @@ In addition to its main purpose, this package can also be used to perform simple
 
 ## Downloading and installing
 The latest version of `chflow` can be obtained by either [cloning this github repository](https://help.github.com/articles/cloning-a-repository/) or directly downloading the source zip file by following the ![clone](https://github.com/paviudes/chflow/blob/master/docs/clone.jpg) link in the home page.
-First, let us see how to install and run this software. The following dependencies, along with their recommended versions desirable for the smooth compiling and execution of `chflow`.
 
+The following dependencies, along with their recommended versions are desirable for the smooth compiling and execution of `chflow`.
 | Software     	| Recommended version 	                               |
 |--------------	|------------------------------------------------------|
 | Python       	| [2.7](https://www.python.org/downloads/)             |
