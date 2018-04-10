@@ -1,4 +1,4 @@
-# chflow
+# chflow -- Quantum error correction for realistic noise
 
 [![DOI](https://zenodo.org/badge/125156309.svg)](https://zenodo.org/badge/latestdoi/125156309)
 
