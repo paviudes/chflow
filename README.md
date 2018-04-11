@@ -29,7 +29,9 @@ The following dependencies, along with their recommended versions are desirable 
 There are no restrictions on contributing to `chflow`. While updating the GitHub repository, care has to be taken to avoid uploading large (input and output) data files that are generated from Quantum error correction simulations. To make this easier, there is a `clean` command available in the `chflow` interface. Please run `clean git` in `chflow`, which moves all the unwated files (for publishing a release) into a folder called `.gitignore` and delete this folder using `rm -r .gitignore` before pushing on to the GitHub repository.
 
 ## Citing `chflow`
-
+```text
+P. Iyer and D. Poulin. chflow: quantum error correction for realistic noise. https://github.com/paviudes/chflow, DOI: 10.5281/zenodo.1216202, April 2018.
+```
 ```text
 @misc{chflow,
   author       = {Pavithran Iyer and David Poulin},
