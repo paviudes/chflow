@@ -150,52 +150,43 @@ def LevelWisePlot(phymets, logmet, dbses):
 	# In each figure, each curve will represent a new physical metric.
 	phylist = map(lambda phy: phy.strip(" "), phymets.split(","))
 	ndb = len(dbses)
-	logErrs = []
-	phyerrs = []
-	phyparams = []
 	maxlevel = max([dbses[i].levels for i in range(ndb)])
-	for d in range(ndb):
-		logErrs.append(np.load(fn.LogicalErrorRates(dbses[d], logmet, fmt = "npy")))
-		phyerrs.append(np.zeros((dbses[d].channels, len(phylist)), dtype = np.longdouble))
-		for i in range(len(phylist)):
-			if (IsNumber(phylist[i])):
-				# If phymet is a number, then it indicates an independent parameter of the channel to serve as a measure of the physical noise strength
-				phyerrs[d][:, i] = dbses[d].available[:, np.int8(phylist[i])]
-				if (d == 0):
-					phyparams.append(qc.Channels[dbses[d].channel][2][np.int8(phylist[i])])
-			else:
-				phyerrs[d][:, i] = np.load(fn.PhysicalErrorRates(dbses[d], phylist[i]))
-				if (d == 0):
-					phyparams.append(ml.Metrics[phylist[i]][1])
-			if (not (dbses[d].scales[i] == 1)):
-				phyerrs[d][:, i] = np.power(dbses[d].scales[i], phyerrs[d][:, i])
-
 	plotfname = fn.LevelWise(dbses[0], "_".join(phylist), logmet)
 	phlines = []
+	phynames = []
 	dblines = []
+	dbnames = []
 	with PdfPages(plotfname) as pdf:
 		for l in range(maxlevel):
 			fig = plt.figure(figsize = gv.canvas_size)
 			for p in range(len(phylist)):
 				for d in range(ndb):
-					if (d == 0):
-						if (dbses[d].samps > 1):
-							lsytle = 'None'
-						else:
-							lsytle = '--'
-						if (phylist[p] in ml.Metrics):
-							plotset = [ml.Metrics[phylist[p]][3], ml.Metrics[phylist[p]][2], lsytle]
-						else:
-							plotset = [ml.Metrics[ml.Metrics.keys()[p % len(ml.Metrics)]][3], ml.Metrics[ml.Metrics.keys()[p % len(ml.Metrics)]][2], lsytle]
-						plotobj = plt.plot(phyerrs[d][:, p], logErrs[d][:, l + 1], color = plotset[0], marker = plotset[1], markersize = gv.marker_size, linestyle = plotset[2], linewidth = gv.line_width)
+					logErrs = np.load(fn.LogicalErrorRates(dbses[d], logmet, fmt = "npy"))[:, l + 1]
+					if (phylist[p] in ml.Metrics):
+						phymet = ml.Metrics[phylist[i]][1]
+						phyerrs = np.load(fn.PhysicalErrorRates(dbses[d], phylist[p]))
+						plotset = [ml.Metrics[phylist[p]][3], ml.Metrics[phylist[p]][2], ['None', '--'][dbses[d].samps == 1]]
 					else:
-						plotobj = plt.plot(phyerrs[d][:, p], logErrs[d][:, l + 1], color = dbses[d].plotsettings[2], marker = ml.Metrics[p][2], markersize = gv.marker_size, linestyle = dbses[d].plotsettings[2], linewidth = gv.line_width)
-					if (p == 0):
-						dblines.append(plotobj[0])
+						phymet = qc.Channels[dbses[d].channel][2][np.int8(phylist[p])]
+						phyerrs = dbses[d].available[:, np.int8(phylist[p])]
+						plotset = [ml.Metrics[ml.Metrics.keys()[p % len(ml.Metrics)]][3], ml.Metrics[ml.Metrics.keys()[p % len(ml.Metrics)]][2], ['None', '--'][dbses[d].samps == 1]]
+					if (not (dbses[d].scales[p] == 1)):
+						phyerrs = np.power(dbses[d].scales[p], phyerrs)
+					# Plotting
 					if (d == 0):
+						plotobj = plt.plot(phyerrs, logErrs, color = plotset[0], marker = plotset[1], markersize = gv.marker_size, linestyle = plotset[2], linewidth = gv.line_width)
+					else:
+						plotobj = plt.plot(phyerrs, logErrs, color = dbses[d].plotsettings[0], marker = dbses[d].plotsettings[1], markersize = gv.marker_size, linestyle = dbses[d].plotsettings[2], linewidth = gv.line_width)
+					# if we find a new physical metric, we must add it to metric legend labels
+					if (not (phymet in phynames)):
 						phlines.append(plotobj[0])
+						phynames.append(phymet)
+					if (not (dbses[d].timestamp in [name[0] for name in dbnames])):
+						dblines.append(plotobj[0])
+						dbnames.append([dbses[d].timestamp, (("N = %d, D = %d, %s") % (np.prod([dbses[d].eccs[j].N for j in range(l + 1)]), np.prod([dbses[d].eccs[j].D for j in range(l + 1)]), qc.Channels[dbses[d].channel][0]))])
+
 			# Title
-			plt.title(("%s vs. physical error metrics for the %s channel." % (ml.Metrics[logmet][0], qc.Channels[dbses[0].channel][0])), fontsize = gv.title_fontsize, y = 1.03)
+			# plt.title(("%s vs. physical error metrics for the %s channel." % (ml.Metrics[logmet][0], qc.Channels[dbses[0].channel][0])), fontsize = gv.title_fontsize, y = 1.03)
 			# Axes labels
 			ax = plt.gca()
 			ax.set_xlabel("$\\mathcal{N}_{0}$: Physical noise strength", fontsize = gv.axes_labels_fontsize)
@@ -204,8 +195,8 @@ def LevelWisePlot(phymets, logmet, dbses):
 			ax.set_yscale('log')
 			ax.tick_params(axis = 'both', which = 'both', pad = gv.ticks_pad, direction = 'inout', length = gv.ticks_length, width = gv.ticks_width, labelsize = gv.ticks_fontsize)
 			# Legend
-			dblegend = plt.legend(handles = dblines, labels = [("N = %d, D = %d") % (np.prod([dbses[i].eccs[j].N for j in range(l + 1)]), np.prod([dbses[i].eccs[j].D for l in range(l + 1)])) for i in range(ndb)], numpoints = 1, loc = 1, shadow = True, fontsize = gv.legend_fontsize, markerscale = gv.legend_marker_scale)
-			plt.legend(handles = phlines, labels = phyparams, numpoints = 1, loc = 4, shadow = True, fontsize = gv.legend_fontsize, markerscale = gv.legend_marker_scale)
+			dblegend = plt.legend(handles = dblines, labels = [name[1] for name in dbnames], numpoints = 1, loc = 1, shadow = True, fontsize = gv.legend_fontsize, markerscale = gv.legend_marker_scale)
+			plt.legend(handles = phlines, labels = phynames, numpoints = 1, loc = 4, shadow = True, fontsize = gv.legend_fontsize, markerscale = gv.legend_marker_scale)
 			ax.add_artist(dblegend)
 			
 			# plots = [[], []]
@@ -226,7 +217,7 @@ def LevelWisePlot(phymets, logmet, dbses):
 			plt.close()
 		# Set PDF attributes
 		pdfInfo = pdf.infodict()
-		pdfInfo['Title'] = ("%s at levels %s, with physical %s for %d channels." % (ml.Metrics[logmet][0], ", ".join(map(str, range(1, 1 + maxlevel))), ", ".join(phyparams), dbses[0].channels))
+		pdfInfo['Title'] = ("%s at levels %s, with physical %s for %d channels." % (ml.Metrics[logmet][0], ", ".join(map(str, range(1, 1 + maxlevel))), ", ".join(phynames), dbses[0].channels))
 		pdfInfo['Author'] = "Pavithran Iyer"
 		pdfInfo['ModDate'] = dt.datetime.today()
 	return None

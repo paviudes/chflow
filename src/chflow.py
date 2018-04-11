@@ -319,11 +319,21 @@ if __name__ == '__main__':
 			# Plot the logical error rate with respect to a physical noise strength, with a new figure for every concatenation layer.
 			# One or more simulation data can be plotted in the same figure with a new curve for every dataset.
 			# One of more measures of physical noise strength can be plotted on the same figure with a new curve for each definition.
-			if (len(user) < 4):
-				refs = []
+			dbses = [submit]
+			check = 1
+			if (len(user) > 3):
+				for (i, ts) in enumerate(user[3].split(",")):
+					dbses.append(sub.Submission())
+					sub.LoadSub(dbses[i + 1], ts, 1)
+					if (cl.IsComplete(dbses[i + 1]) > 0):
+						cl.GatherLogErrData(dbses[i + 1])
+					else:
+						check = 0
+						break
+			if (check == 1):
+				pl.LevelWisePlot(user[1], user[2], dbses)
 			else:
-				refs = [sub.LoadSub(sub.Submission(), ts, 1) for ts in user[3].split(",")]
-			pl.LevelWisePlot(user[1], user[2], [submit] + refs)
+				print("\033[2mOne of the databases does not have logical error data.\033[0m")
 
 		elif (user[0] == "lplot2d"):
 			# Plot the logical error rates with respect to two parameters of the physical noise rate.
