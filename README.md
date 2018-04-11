@@ -2,8 +2,48 @@
 
 [![DOI](https://zenodo.org/badge/125156309.svg)](https://zenodo.org/badge/latestdoi/125156309)
 
-This package is intended to be used for studying the response of different quantum error correction schemes on various types of quantum noise processes. In order to gauge the response of a scheme, we perform numerical simulations of a quantum (stabilizer) error correcting scheme over a noise model and study different measures of noise strength for a qubit. As an example, the following plot produced by `chflow` describes the [fidelity](https://github.com/paviudes/chflow/wiki/Measures-of-noise-strength) of a logical qubit [error corrected](https://github.com/paviudes/chflow/wiki/Running-Simulations#running-simulations) for [coherent errors](https://github.com/paviudes/chflow/wiki/Quantum-channels#predefined-channels) \(rotations about Z-axis\) as a function of the angle of the over rotation error.
+This package is intended to be used for studying the response of different quantum error correction schemes on various types of quantum noise processes. In order to gauge the response of a scheme, we perform numerical simulations of a quantum (stabilizer) error correcting scheme over a noise model and study different measures of noise strength for a qubit.
+
+## Example
+As an example, the following plot produced by `chflow` describes the [fidelity](https://github.com/paviudes/chflow/wiki/Measures-of-noise-strength) of a logical qubit [error corrected](https://github.com/paviudes/chflow/wiki/Running-Simulations#running-simulations) for [coherent errors](https://github.com/paviudes/chflow/wiki/Quantum-channels#predefined-channels) \(rotations about Z-axis\) as a function of the angle of the over rotation error.
 ![rotz](https://github.com/paviudes/chflow/blob/master/docs/rotz.jpg)
+The following command set is required to generate the above plot.
+
+```python
+Pavithrans-MacBook-Pro:chflow pavithran$ ./chflow.sh
+>> sbload 11_04_2018_13_52_37
+Simulation data is available for 0% of the channels.
+Preparing physical channels... 26 (100%) done. 
+>> sbprint
+Time stamp: 11_04_2018_13_52_37
+ Physical channel
+Parameters                     Values                        
+Channel                        rtz                           
+Noise range                    [ 0.05  0.06  0.07  0.08  0.09  0.1  0.11  0.12  0.13  0.14  0.15  0.16  0.17  0.18  0.19  0.2  0.21  0.22  0.23  0.24  0.25  0.26  0.27  0.28  0.29
+  0.3].
+Scales of noise rates          [ 1.0]                        
+Number of Samples              1                             
+Metrics
+Logical metrics                fidelity                      
+Error correction
+QECC                           Steane X Steane               
+[[N, K, D]]                    [[49, 1, 9]]                  
+Levels of concatenation        2                             
+ECC frame                      P                             
+Decoder                        0                             
+Syndrome samples at level 2    10000                         
+Type of syndrome sampling      N                             
+ >> ecc
+Simulation data is available for 0% of the channels.
+Please wait ...
+100% done, approximately 0 seconds remaining ...   
+done, in 870 seconds.
+>> metrics fidelity 
+>> collect
+Simulation data is available for 100% of the channels.
+>> lplot 0 fidelity
+>> 
+```
 
 For any stabilizer error correction scheme, `chflow` tracks the _flow of a quantum channel_ -- evolution from a physical noise process to the _effective quantum channel_ that affects the underlying logical information encompassing quantum error correction steps.
 
