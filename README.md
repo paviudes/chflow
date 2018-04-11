@@ -39,4 +39,4 @@ There are no restrictions on contributing to `chflow`. While updating the GitHub
   doi          = {10.5281/zenodo.1216202},
   url          = {https://github.com/paviudes/chflow}
 }
-```tex
+```
