@@ -1,11 +1,10 @@
 Citing chflow
 
 @misc{chflow,
-  author       = {Pavithran Iyer and
-                  David Poulin},
+  author       = {Pavithran Iyer and David Poulin},
   title        = {{chflow}: Quantum error correction for realistic noise},
   month        = April,
   year         = 2018,
-  doi          = {},
-  url          = {}
+  doi          = {10.5281/zenodo.1216202},
+  url          = {https://github.com/paviudes/chflow}
 }
