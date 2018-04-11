@@ -29,6 +29,8 @@ Compiling constants.pyx because it changed.
 [9/9] Cythonizing sampling.pyx
 running build_ext
 building 'benchmark' extension
+creating build
+creating build/temp.macosx-10.6-x86_64-2.7
 gcc -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -I/Users/pavithran/anaconda/lib/python2.7/site-packages/numpy/core/include -I/Users/pavithran/anaconda/include/python2.7 -c benchmark.c -o build/temp.macosx-10.6-x86_64-2.7/benchmark.o -fopenmp
 In file included from /Users/pavithran/anaconda/lib/python2.7/site-packages/numpy/core/include/numpy/ndarraytypes.h:1777:0,
                  from /Users/pavithran/anaconda/lib/python2.7/site-packages/numpy/core/include/numpy/ndarrayobject.h:18,

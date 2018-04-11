@@ -29,7 +29,7 @@ importance N
 # Metrics to be computed on the effective channels at every level.
 metrics fidelity
 # Load distribution on cores.
-cores 4,1
+cores 1,1
 # Name of the host computer.
 host local
 # Batch name.

@@ -448,6 +448,12 @@ def Clean(submit, git = 0):
 	if (git == 1):
 		# Remove all *.sh files from cluster/
 		os.system("mv cluster/*.sh ./../.gitignore/ > /dev/null 2>&1")
+		# Remove all latex generated files from docs/
+		os.system("find ./../docs \( -name \"*.out\" -o -name \"*.aux\" -o -name \"*.log\" -o -name \"*.fls\" -o -name \"*.bbl\" -o -name \"*.synctex.gz\" \) -type f -exec mv \'{}\' ./../.gitignore/ \\; > /dev/null 2>&1")
+		# os.system("find ./../docs -name \'*.aux\' -type f -exec mv \'{}\' ./../.gitignore/ \\; > /dev/null 2>&1")
+		# os.system("find ./../docs -name \'*.log\' -type f -exec mv \'{}\' ./../.gitignore/ \\; > /dev/null 2>&1")
+		# os.system("find ./../docs -name \'*.fls\' -type f -exec mv \'{}\' ./../.gitignore/ \\; > /dev/null 2>&1")
+		# os.system("find ./../docs -name \'*.bbl\' -type f -exec mv \'{}\' ./../.gitignore/ \\; > /dev/null 2>&1")
 		# Remove all input files except for the template one.
 		os.system("find ./../input ! -name \'sample_*.txt\' -type f -exec mv \'{}\' ./../.gitignore/ \\; > /dev/null 2>&1")
 		# Remove all physical channels
