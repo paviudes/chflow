@@ -35,7 +35,7 @@ P. Iyer and D. Poulin. chflow: quantum error correction for realistic noise. htt
 ```text
 @misc{chflow,
   author       = {Pavithran Iyer and David Poulin},
-  title        = {{chflow}: Quantum error correction for realistic noise},
+  title        = {chflow: Quantum error correction for realistic noise},
   month        = {April},
   year         = {2018},
   doi          = {10.5281/zenodo.1216202},
