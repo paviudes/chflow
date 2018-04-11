@@ -152,12 +152,12 @@ def LevelWisePlot(phymets, logmet, dbses):
 	ndb = len(dbses)
 	maxlevel = max([dbses[i].levels for i in range(ndb)])
 	plotfname = fn.LevelWise(dbses[0], "_".join(phylist), logmet)
-	phlines = []
-	phynames = []
-	dblines = []
-	dbnames = []
 	with PdfPages(plotfname) as pdf:
 		for l in range(maxlevel):
+			phlines = []
+			phynames = []
+			dblines = []
+			dbnames = []
 			fig = plt.figure(figsize = gv.canvas_size)
 			for p in range(len(phylist)):
 				for d in range(ndb):
