@@ -15,14 +15,11 @@ In addition to its main purpose, this package can also be used to perform simple
 The latest version of `chflow` can be obtained by either [cloning this github repository](https://help.github.com/articles/cloning-a-repository/) or directly downloading the source zip file by following the ![clone](https://github.com/paviudes/chflow/blob/master/docs/clone.jpg) link in the home page.
 
 The following dependencies, along with their recommended versions are desirable for the smooth compiling and execution of `chflow`.
-
-| Software     	| Recommended version 	                               |
-|--------------	|------------------------------------------------------|
-| Python       	| [2.7](https://www.python.org/downloads/)             |
-| NumPy, SciPy 	| [1.1.0](https://www.scipy.org/install.html)          |
-| PICOS        	| [1.1.2](http://picos.zib.de/intro.html#installation) |
-| CVXOPT       	| [1.1.9](http://cvxopt.org/install/index.html)        |
-| Cython       	| [0.25.2](https://docs.anaconda.com/anaconda/install/)|
+[![Python](https://img.shields.io/badge/Python-2.7-Green.svg)](https://www.python.org/downloads/)
+[![Numpy](https://img.shields.io/badge/Numpy-1.1.0-Red.svg)](https://www.scipy.org/install.html)
+[![PICOS](https://img.shields.io/badge/PICOS-1.1.2-Green.svg)](http://picos.zib.de/intro.html#installation)
+[![CVXOPT](https://img.shields.io/badge/CVXOPT-1.1.9-Green.svg)](http://cvxopt.org/install/index.html)
+[![Cython](https://img.shields.io/badge/Cython-0.25.2-Red.svg)](https://docs.anaconda.com/anaconda/install/)
 
 ## Contributing to `chflow`
 
