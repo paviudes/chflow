@@ -60,7 +60,8 @@ The following dependencies, along with their recommended versions
 [![PICOS](https://img.shields.io/badge/PICOS-1.1.2-Green.svg)](http://picos.zib.de/intro.html#installation)
 [![CVXOPT](https://img.shields.io/badge/CVXOPT-1.1.9-Green.svg)](http://cvxopt.org/install/index.html)
 [![Cython](https://img.shields.io/badge/Cython-0.25.2-Red.svg)](https://docs.anaconda.com/anaconda/install/)
-are desirable for the smooth compiling and execution of `chflow`.
+are desirable for the smooth compiling and execution of `chflow`. Refer to the [Wiki](https://github.com/paviudes/chflow/wiki) for further instructions on running `chflow`.
+
 ## Contributing to `chflow`
 
 There are no restrictions on contributing to `chflow`. While updating the GitHub repository, care has to be taken to avoid uploading large (input and output) data files that are generated from Quantum error correction simulations. To make this easier, there is a `clean` command available in the `chflow` interface. Please run `clean git` in `chflow`, which moves all the unwated files (for publishing a release) into a folder called `.gitignore` and delete this folder using `rm -r .gitignore` before pushing on to the GitHub repository.
