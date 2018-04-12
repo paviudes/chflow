@@ -6,8 +6,8 @@ This package is intended to be used for studying the response of different quant
 
 ## Example
 As an example, the following plot produced by `chflow` describes the [fidelity](https://github.com/paviudes/chflow/wiki/Measures-of-noise-strength) of a logical qubit [error corrected](https://github.com/paviudes/chflow/wiki/Running-Simulations#running-simulations) for [coherent errors](https://github.com/paviudes/chflow/wiki/Quantum-channels#predefined-channels) \(rotations about Z-axis\) as a function of the angle of the over rotation error.
+![rotz](https://github.com/paviudes/chflow/blob/master/docs/rotz.jpg)
 
-![rotz]({{ site.url }}/docs/rotz.jpg)
 The following command set is required to generate the above plot.
 
 ```python
