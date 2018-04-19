@@ -12,7 +12,7 @@ def CreateLaunchScript(submit):
 		fp.write("#!/bin/bash\n")
 
 		# Account name to which the usage must be billed
-		fp.write("#SBATCH --account=def-poulinda\n\n")
+		fp.write("#SBATCH --account=rrg-poulinda\n\n")
 
 		# Wall time in (DD-HH:MM)
 		fp.write("#SBATCH --begin=now\n")
@@ -31,7 +31,7 @@ def CreateLaunchScript(submit):
 		fp.write("#SBATCH --mail-user=%s\n\n" % (submit.email))
 
 		# Command to be executed for each job step
-		bq.write("cd chflow/\n")
+		fp.write("cd /global/home/hpc4198/chflow/\n")
 		fp.write("./chflow.sh %s ${SLURM_ARRAY_TASK_ID}\n" % (submit.timestamp))
 	print("\033[2mssh into the frontenac console by\nssh hpcXXXX@login.cac.queensu.ca\nand run the following\nsbatch frontenac.sh\nto launch the job.\nSee https://cac.queensu.ca/wiki/index.php/SLURM#Running_jobs for details.\033[0m")
 	return None

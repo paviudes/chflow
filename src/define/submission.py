@@ -361,7 +361,7 @@ def Clean(submit, git = 0):
 	if (not (os.path.exists("./../.gitignore/"))):
 		os.mkdir("./../.gitignore/")
 	
-	os.system("find . -maxdepth 2 \( -name \"*.out\" -o -name \"*.aux\" -o -name \"*.log\" -o -name \"*.fls\" -o -name \"*.bbl\" -o -name \"*.synctex.gz\" -o -name \"*.pyc\" -o -name \"*.c\" -o -name \"*.so\" \) -type f -exec mv \'{}\' ./../.gitignore/ \\; > /dev/null 2>&1")
+	os.system("find ./../ -maxdepth 3 \( -name \"*.pbs\" -o -name \"*.out\" -o -name \"*.aux\" -o -name \"*.log\" -o -name \"*.fls\" -o -name \"*.bbl\" -o -name \"*.synctex.gz\" -o -name \"*.pyc\" -o -name \"*.c\" -o -name \"*.so\" \) -type f -exec mv \'{}\' ./../.gitignore/ \\; > /dev/null 2>&1")
 	# Remove all latex generated files from docs/	
 	os.system("find ./../docs \( -name \"*.out\" -o -name \"*.aux\" -o -name \"*.log\" -o -name \"*.fls\" -o -name \"*.bbl\" -o -name \"*.synctex.gz\" \) -type f -exec mv \'{}\' ./../.gitignore/ \\; > /dev/null 2>&1")
 	os.system("mv simulate/build/ ./../.gitignore/simulate_build > /dev/null 2>&1")
