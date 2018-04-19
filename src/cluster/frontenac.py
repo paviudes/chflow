@@ -8,11 +8,11 @@ def Usage(submit):
 def CreateLaunchScript(submit):
 	# Write the script to launch a job-array describing all the simulations to be run.
 	# See https://slurm.schedmd.com/sbatch.html
-	with open("frontenac.sh", "w") as fp:
+	with open("frontenac.pbs", "w") as fp:
 		fp.write("#!/bin/bash\n")
 
 		# Account name to which the usage must be billed
-		fp.write("#SBATCH --account=rrg-poulinda\n\n")
+		fp.write("#SBATCH --account=rrg-poulinda-2018-hpcg1742\n\n")
 
 		# Wall time in (DD-HH:MM)
 		fp.write("#SBATCH --begin=now\n")
@@ -31,6 +31,8 @@ def CreateLaunchScript(submit):
 		fp.write("#SBATCH --mail-user=%s\n\n" % (submit.email))
 
 		# Command to be executed for each job step
+		fp.write("module load anaconda/2.7.13\n")
+		fp.write("module load gcc/6.4.0\n")
 		fp.write("cd /global/home/hpc4198/chflow/\n")
 		fp.write("./chflow.sh %s ${SLURM_ARRAY_TASK_ID}\n" % (submit.timestamp))
 	print("\033[2mssh into the frontenac console by\nssh hpcXXXX@login.cac.queensu.ca\nand run the following\nsbatch frontenac.sh\nto launch the job.\nSee https://cac.queensu.ca/wiki/index.php/SLURM#Running_jobs for details.\033[0m")

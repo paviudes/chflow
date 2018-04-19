@@ -19,14 +19,14 @@ metrics fidelity
 # Load distribution on cores.
 cores 1,1
 # Name of the host computer.
-host mp2
+host frontenac
 # Batch name.
 job rand
 # Wall time in hours.
 wall 1
 # Submission queue (Available options: see goo.gl/pTdqbV).
-queue qtest
-Email notifications
+queue test
+# Email notifications
 email pavithran.sridhar@gmail.com
 # Output directory
-outdir /home/pavi/chbank
+outdir /global/home/hpc4198/chbank
