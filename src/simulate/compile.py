@@ -9,15 +9,15 @@ os.environ["CC"]="gcc"
 os.environ["CFLAGS"] = "-lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros"
 
 ext_modules = [
-	Extension('simulate.benchmark', ['benchmark.pyx'], build_dir="build", include_dirs = [np.get_include()], extra_compile_args=['-fopenmp'], extra_link_args=['-fopenmp'], language = 'c'),
-	Extension('simulate.printfuns', ['printfuns.pyx'], build_dir="build", extra_compile_args=['-fopenmp'], extra_link_args=['-fopenmp'], language = 'c'),
-	Extension('simulate.checks', ['checks.pyx'], build_dir="build", include_dirs = [np.get_include()], extra_compile_args=['-fopenmp'], extra_link_args=['-fopenmp'], language = 'c'),
-	Extension('simulate.memory', ['memory.pyx'], build_dir="build", extra_compile_args=['-fopenmp'], extra_link_args=['-fopenmp'], language = 'c'),
-	Extension('simulate.logmetrics', ['logmetrics.pyx'], build_dir="build", include_dirs = [np.get_include()], extra_compile_args=['-fopenmp'], extra_link_args=['-fopenmp'], language = 'c'),
-	Extension('simulate.effective', ['effective.pyx'], build_dir="build", extra_compile_args=['-fopenmp'], extra_link_args=['-fopenmp'], language = 'c'),
-	Extension('simulate.sampling', ['sampling.pyx'], build_dir="build", extra_compile_args=['-fopenmp'], extra_link_args=['-fopenmp'], language = 'c'),
-	Extension('simulate.qecc', ['qecc.pyx'], build_dir="build", extra_compile_args=['-fopenmp'], extra_link_args=['-fopenmp'], language = 'c'),
-	Extension('simulate.constants', ['constants.pyx'], build_dir="build", extra_compile_args=['-fopenmp'], extra_link_args=['-fopenmp'], language = 'c')
+	Extension('benchmark', ['benchmark.pyx'], build_dir="build", include_dirs = [np.get_include()], extra_compile_args=['-fopenmp'], extra_link_args=['-fopenmp'], language = 'c'),
+	Extension('printfuns', ['printfuns.pyx'], build_dir="build", extra_compile_args=['-fopenmp'], extra_link_args=['-fopenmp'], language = 'c'),
+	Extension('checks', ['checks.pyx'], build_dir="build", include_dirs = [np.get_include()], extra_compile_args=['-fopenmp'], extra_link_args=['-fopenmp'], language = 'c'),
+	Extension('memory', ['memory.pyx'], build_dir="build", extra_compile_args=['-fopenmp'], extra_link_args=['-fopenmp'], language = 'c'),
+	Extension('logmetrics', ['logmetrics.pyx'], build_dir="build", include_dirs = [np.get_include()], extra_compile_args=['-fopenmp'], extra_link_args=['-fopenmp'], language = 'c'),
+	Extension('effective', ['effective.pyx'], build_dir="build", extra_compile_args=['-fopenmp'], extra_link_args=['-fopenmp'], language = 'c'),
+	Extension('sampling', ['sampling.pyx'], build_dir="build", extra_compile_args=['-fopenmp'], extra_link_args=['-fopenmp'], language = 'c'),
+	Extension('qecc', ['qecc.pyx'], build_dir="build", extra_compile_args=['-fopenmp'], extra_link_args=['-fopenmp'], language = 'c'),
+	Extension('constants', ['constants.pyx'], build_dir="build", extra_compile_args=['-fopenmp'], extra_link_args=['-fopenmp'], language = 'c')
 ]
 
 setup(
