@@ -69,6 +69,46 @@ def CalibrationPlot(chname, metric):
 	fname = ("./../temp/calib_%s_%s.pdf" % (chname, metric))
 	return fname
 
+def FitPhysRates(dbs, lmet):
+	# File containing the fit obtained physical error rates
+	fname = ("%s/results/pfit_%s.npy" % (dbs.outdir, lmet))
+	return fname
+
+def FitWtEnums(dbs, lmet):
+	# File containing the fit obtained weight enumerator coefficients (combinatorial factors)
+	fname = ("%s/results/wefit_%s.npy" % (dbs.outdir, lmet))
+	return fname
+
+def FitExpo(dbs, lmet):
+	# File containing the fit obtained exponents for the physical error rate
+	fname = ("%s/results/expofit_%s.npy" % (dbs.outdir, lmet))
+	return fname
+
+def AnsatzComparePlot(dbs, lmet, pmet):
+	# File containing the plot comparing physical error metric with a fit obtained error metric
+	fname = ("%s/results/%s_fit_vs_%s.pdf" % (dbs.outdir, pmet, lmet))
+	return fname
+
+def TrainingSet(dbs):
+	# File containing the training set -- physical channel parameters with the fit error rates
+	fname = ("%s/results/mltrain.npy" % (dbs.outdir))
+	return fname
+
+def TestingSet(dbs):
+	# File containing the testing set -- physical channel parameters
+	fname = ("%s/results/mltest.npy" % (dbs.outdir))
+	return fname
+
+def PredictedPhyRates(dbs):
+	# File containing the predictions of the physical error rates
+	fname = ("%s/results/pred.npy" % (dbs.outdir))
+	return fname
+
+def PredictComparePlot(dbs, lmet, pmet):
+	# File containing the comparisons between the machine learnt metric and a standard metric -- by studying both their correlations with the logical error rate.
+	fname = ("%s/results/val_%s_vs_%s.pdf" % (dbs.outdir, pmet, lmet))
+	return fname
+
 # =====================================================================================================================================
 
 # def ChannelsBankFname():

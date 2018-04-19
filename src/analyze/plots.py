@@ -34,6 +34,17 @@ def IsNumber(numorstr):
 	except:
 		return 0
 
+
+def latex_float(f):
+	# Function taken from: https://stackoverflow.com/questions/13490292/format-number-using-latex-notation-in-python
+	float_str = "{0:.2g}".format(f)
+	if "e" in float_str:
+		base, exponent = float_str.split("e")
+		return r"{0} \times 10^{{{1}}}".format(base, int(exponent))
+	else:
+		return float_str
+
+
 def DisplayForm(number, base):
 	# Express a float number in a scientific notation with two digits after the decimal.
 	# N = A b^x where A < b. Then, log N/(log b) = log A/(log b) + x.
@@ -106,43 +117,6 @@ def ThresholdPlot(phymets, logmet, dbs):
 		pdfInfo['ModDate'] = dt.datetime.today()
 	return None
 
-# def LevelWisePlot(submit, refs, phymet, logmet, maxlevel = 3):
-# 	# Plot the logical error rate data that has already been collected.
-# 	logErrorRates = np.load(fn.LogicalErrorRates(submit, logmet, fmt = "npy"))
-# 	physErrorRates = np.load(fn.PhysicalErrorRates(submit, phymet))
-# 	# print("Logical error rates\n%s" % (np.array_str(logErrorRates)))
-# 	# print("Physical error rates\n%s" % (np.array_str(physErrorRates)))
-# 	refLogErrRates = []
-# 	refPhysErrRates = []
-# 	for i in range(len(refs)):
-# 		refLogErrRates.append(np.load(refs[i].LogicalErrorRates(submit, logmet, fmt = "npy")))
-# 		refPhysErrRates.append(np.load(refs[i].PhysicalErrorRates(submit, phymet)))
-# 	plotfname = fn.LevelWise(submit, phymet, logmet)
-# 	with PdfPages(plotfname) as pdf:
-# 		for l in range(submit.levels):
-# 			fig = plt.figure(figsize = gv.canvas_size)
-# 			plt.plot(physErrorRates, logErrorRates[:, l + 1], label = ("%s" % (submit.channel)), color = ml.Metrics[phymet][3], marker = ml.Metrics[phymet][2], markersize = gv.marker_size, linestyle = 'None')
-# 			for i in range(len(refs)):
-# 				plt.plot(refPhysErrRates[i], refLogErrRates[i][:, l + 1], color = qch.Channels[refs[i].channel][2], label = ("%s" % (refs[i].channel)), marker = ml.Metrics[phymet][2], markersize = gv.marker_size, linestyle = "-", linewidth = gv.line_width)
-# 			# Legend
-# 			plt.legend(numpoints = 1, loc = 4, shadow = True, fontsize = gv.legend_fontsize, markerscale = gv.legend_marker_scale)
-# 			# Axes labels
-# 			ax = plt.gca()
-# 			ax.set_xlabel(("$\\mathcal{N}_{0}$  $\\left(%s\\right)$" % (ml.Metrics[phymet][1].replace("$", ""))), fontsize = gv.axes_labels_fontsize)
-# 			ax.set_xscale('log')
-# 			ax.set_ylabel(("$\\mathcal{N}_{%d}$  $\\left(%s\\right)$" % (l + 1, ml.Metrics[logmet][1].replace("$", ""))), fontsize = gv.axes_labels_fontsize)
-# 			ax.set_yscale('log')
-# 			ax.tick_params(axis = 'both', which = 'major', pad = gv.ticks_pad, direction = 'inout', length = gv.ticks_length, width = gv.ticks_width, labelsize = gv.ticks_fontsize)
-# 			# Save the plot
-# 			pdf.savefig(fig)
-# 			plt.close()
-# 		#Set PDF attributes
-# 		pdfInfo = pdf.infodict()
-# 		pdfInfo['Title'] = ("%s at levels %s, with physical %s for %d channels." % (ml.Metrics[logmet][0], ", ".join(map(str, range(1, 1 + submit.levels))), ml.Metrics[phymet][0], submit.channels))
-# 		pdfInfo['Author'] = "Pavithran Iyer"
-# 		pdfInfo['ModDate'] = dt.datetime.today()
-# 	return None
-
 
 def LevelWisePlot(phymets, logmet, dbses):
 	# Plot logical error rates vs. physical error rates.
@@ -199,19 +173,6 @@ def LevelWisePlot(phymets, logmet, dbses):
 			plt.legend(handles = phlines, labels = phynames, numpoints = 1, loc = 4, shadow = True, fontsize = gv.legend_fontsize, markerscale = gv.legend_marker_scale)
 			ax.add_artist(dblegend)
 			
-			# plots = [[], []]
-			# if (ndb > 1):
-			# 	for d in range(1, ndb):
-			# 		plots[0].append(plt.plot([], [], label = dbses[d].timestamp, color = dbses[d].plotsettings[2], linestyle = dbses[d].plotsettings[2]))
-			# 	dblegend = plt.legend(handles = plots[0], numpoints = 1, loc = 4, shadow = True, fontsize = gv.legend_fontsize, markerscale = gv.legend_marker_scale)
-			# 	ax.add_artist(dblegend)
-			# for p in range(len(phylist)):
-			# 	if (phylist[p] in ml.Metrics):
-			# 		plotset = [ml.Metrics[phylist[p]][3], ml.Metrics[phylist[p]][2]]
-			# 	else:
-			# 		plotset = [ml.Metrics[ml.Metrics.keys()[p % len(ml.Metrics)]][3], ml.Metrics[ml.Metrics.keys()[p % len(ml.Metrics)]][2]]
-			# 	plots[1].append(plt.plot([], [], label = phyparams[p], color = plotset[0], marker = plotset[1], markersize = gv.marker_size, linestyle = 'None', linewidth = gv.line_width))
-			# plt.legend(handles = plots[1], labels = phyparams, numpoints = 1, loc = 4, shadow = True, fontsize = gv.legend_fontsize, markerscale = gv.legend_marker_scale)
 			# Save the plot
 			pdf.savefig(fig)
 			plt.close()
@@ -259,12 +220,8 @@ def LevelWisePlot2D(phymets, logmet, dbs):
 			fig = plt.figure(figsize = gv.canvas_size)
 			meshZ = griddata((phyerrs[:, 0], phyerrs[:, 1]), logErr[:, l], (meshX, meshY), method = "linear")
 			
-			# print("meshZ\n%s" % (np.array_str(meshZ)))
-			# print("meshZ[np.nonzero(meshZ < 0)]\n%s" % (np.array_str(meshZ[np.nonzero(meshZ < 0)])))
-			# print("logical error rates\n%s" % (np.array_str(logErr[:, l])))
 			clevels = np.logspace(np.log10(np.abs(logErr[:, l].min())), np.log10(logErr[:, l].max()), gv.contour_nlevs, base = 10.0)
 			cplot = plt.contourf(meshX, meshY, meshZ, cmap = cm.winter, locator = ticker.LogLocator(), linestyles = gv.contour_linestyle, levels = clevels)
-			# plt.contour(meshX, meshY, meshZ, colors = 'k', locator = ticker.LogLocator(), linewidth = gv.line_width)
 			plt.scatter(phyerrs[:, 0], phyerrs[:, 1], marker = 'o', color = 'k')
 			# Title
 			plt.title("N = %d, d = %d" % (nqubits, dist), fontsize = gv.title_fontsize, y = 1.03)
@@ -327,6 +284,72 @@ def CompareSubs(logmet, *dbses):
 		#Set PDF attributes
 		pdfInfo = pdf.infodict()
 		pdfInfo['Title'] = ("Comparison of %s for databases %s up to %d levels." % (ml.Metrics[logmet][0], "_".join([dbses[i].timestamp for i in range(ndb)]), cdepth))
+		pdfInfo['Author'] = "Pavithran Iyer"
+		pdfInfo['ModDate'] = dt.datetime.today()
+	return None
+
+def CompareAnsatzToMetrics(dbs, pmet, lmet):
+	# Compare the fluctuations in the logical error rates with respect to the physical noise metrics -- obtained from fit and those computed from standard metrics
+	logerr = np.load(fn.LogicalErrorRates(dbs, lmet))
+	phyerr = np.load(fn.PhysicalErrorRates(dbs, pmet))
+	fiterr = np.load(fn.FitPhysRates(dbs, lmet))
+	weightenums = np.load(fn.FitWtEnums(dbs, lmet))
+	expo = np.load(fn.FitExpo(dbs, lmet))
+	plotfname = fn.AnsatzComparePlot(dbs, lmet, pmet)
+	with PdfPages(plotfname) as pdf:
+		for l in range(dbs.levels):
+			fig = plt.figure(figsize = gv.canvas_size)
+			# Plots
+			plt.plot(phyerr, logerr[:, l + 1], label = ml.Metrics[pmet][1], color = ml.Metrics[pmet][3], marker = ml.Metrics[pmet][2], markersize = gv.marker_size, linestyle = 'None')
+			plt.plot(fiterr, logerr[:, l + 1], label = ("$\\epsilon$ where $\\widetilde{\\mathcal{N}}_{%d} = %s \\times \\left[\epsilon(\\mathcal{E})\\right]^{%.2f t}$" % (l + 1, latex_float(weightenums[l + 1]), expo)), color = 'blue', marker = 'o', markersize = gv.marker_size, linestyle = 'None')
+			# Axes
+			ax = plt.gca()
+			ax.set_xlabel("$\\mathcal{N}_{0}$", fontsize = gv.axes_labels_fontsize)
+			ax.set_xscale('log')
+			ax.set_ylabel(("$\\mathcal{N}_{%d}$  $\\left(%s\\right)$" % (l + 1, ml.Metrics[lmet][1].replace("$", ""))), fontsize = gv.axes_labels_fontsize)
+			ax.set_yscale('log')
+			ax.tick_params(axis = 'both', which = 'both', pad = gv.ticks_pad, direction = 'inout', length = gv.ticks_length, width = gv.ticks_width, labelsize = gv.ticks_fontsize)
+			# Legend
+			lgnd = plt.legend(numpoints = 1, loc = 4, shadow = True, fontsize = gv.legend_fontsize, markerscale = gv.legend_marker_scale)
+			# Save the plot
+			pdf.savefig(fig)
+			plt.close()
+		#Set PDF attributes
+		pdfInfo = pdf.infodict()
+		pdfInfo['Title'] = ("Comparing fit obtained p to physical %s at levels %s, by studying fluctuations of output %s for %d channels." % (ml.Metrics[pmet][0], ", ".join(map(str, range(1, 1 + dbs.levels))), ml.Metrics[lmet][0], dbs.channels))
+		pdfInfo['Author'] = "Pavithran Iyer"
+		pdfInfo['ModDate'] = dt.datetime.today()
+	return None
+
+
+def ValidatePrediction(dbs, pmet, lmet):
+	# Validate a prediction by comparing the fluctuations in the logical error rate with reprect to
+	# (i) The predicted physical noise rate
+	# (ii) Any standard metric.
+	logerr = np.load(fn.LogicalErrorRates(dbs, lmet))
+	phyerr = np.load(fn.PhysicalErrorRates(dbs, pmet))
+	macerr = np.load(fn.PredictedPhyRates(dbs))
+	plotfname = fn.PredictComparePlot(dbs, lmet, pmet)
+	with PdfPages(plotfname) as pdf:
+		for l in range(1 + dbs.levels):
+			fig = plt.figure(figsize = gv.canvas_size)
+			plt.plot(phyerr, logerr[:, l], label = ml.Metrics[pmet][1], color = ml.Metrics[pmet][3], marker = ml.Metrics[pmet][2], markersize = gv.marker_size, linestyle = 'None')
+			plt.plot(macerr, logerr[:, l], label = "$\\epsilon_{\\rm predicted}$", color = 'blue', marker = 'o', markersize = gv.marker_size, linestyle = 'None')
+			# Axes labels
+			ax = plt.gca()
+			ax.set_xlabel("$\\mathcal{N}_{0}$", fontsize = gv.axes_labels_fontsize)
+			ax.set_xscale('log')
+			ax.set_ylabel(("$\\widetilde{\\mathcal{N}}_{%d}$  $\\left(%s\\right)$" % (l + 1, ml.Metrics[lmet][1].replace("$", ""))), fontsize = gv.axes_labels_fontsize)
+			ax.set_yscale('log')
+			ax.tick_params(axis = 'both', which = 'both', pad = gv.ticks_pad, direction = 'inout', length = gv.ticks_length, width = gv.ticks_width, labelsize = gv.ticks_fontsize)
+			# Legend
+			lgnd = plt.legend(numpoints = 1, loc = 4, shadow = True, fontsize = gv.legend_fontsize, markerscale = gv.legend_marker_scale)
+			# Save the plot
+			pdf.savefig(fig)
+			plt.close()
+		#Set PDF attributes
+		pdfInfo = pdf.infodict()
+		pdfInfo['Title'] = ("Comparing predicted p to physical %s at levels %s, by studying fluctuations of output %s for %d channels." % (ml.Metrics[pmet][0], ", ".join(map(str, range(1, 1 + dbs.levels))), ml.Metrics[lmet][0], dbs.channels))
 		pdfInfo['Author'] = "Pavithran Iyer"
 		pdfInfo['ModDate'] = dt.datetime.today()
 	return None

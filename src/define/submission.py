@@ -6,7 +6,6 @@ import itertools as it
 # Files from the define module
 import fnames as fn
 import qcode as qec
-from cluster import mammouth as mam
 
 class Submission():
 	def __init__(self):
@@ -20,8 +19,8 @@ class Submission():
 		self.wall = 0
 		self.params = np.array([1, 0], dtype = float)
 		self.queue = "X"
-		self.current = ""
-
+		self.email = "X"
+		
 		# Run time options
 		self.cores = [1, 1]
 		self.inputfile = InputFile(self.timestamp)
@@ -65,26 +64,14 @@ class Submission():
 		# Output options
 		self.outdir = fn.OutputDirectory(os.path.abspath("./../../"), self)
 		
-
 def Scheduler(timestamp):
 	# name of the scheduler file.
-	return ("./../input/schedule_%s.txt" % (timestamp))
+	return ("./../input/scheduler_%s.txt" % (timestamp))
 
 def InputFile(timestamp):
 	# name of the script containing the commands to be run
 	return ("./../input/%s.txt" % timestamp)
 
-
-def Usage(submit):
-	# Print the amount of resources that will be used up by a simulation.
-	if (submit.isSubmission == 1):
-		if (submit.host == "ms"):
-			totalavailable = 100000
-		else:
-			totalavailable = 700000
-		quota = submit.nodes * submit.wall * 100/float(100000)
-		print("\033[2m%d nodes will run for a maximum time of %d hours.\n%g%% of total usage quota will be used up if the simulation runs for the entrie walltime.\033[0m" % (submit.nodes, submit.wall, quota))
-	return None
 
 def ChangeTimeStamp(submit, timestamp):
 	# change the timestamp of a submission and all the related values to the timestamp.
@@ -93,6 +80,19 @@ def ChangeTimeStamp(submit, timestamp):
 	submit.inputfile = InputFile(submit.timestamp)
 	submit.scheduler = Scheduler(submit.timestamp)
 	submit.outdir = fn.OutputDirectory(os.path.dirname(submit.outdir), submit)
+	return None
+
+
+def Schedule(submit):
+	# List all the parameters that must be run in every node, explicity.
+	# For every node, list out all the parameter values in a two-column format.
+	with open(submit.scheduler, 'w') as sch:
+		for i in range(submit.nodes):
+			sch.write("!!node %d!!\n" % (i))
+			for j in range(submit.cores[0]):
+				sch.write("%s %d\n" % (" ".join(map(lambda num: ("%g" % num), submit.params[i * submit.cores[0] + j, :-1])), submit.params[i * submit.cores[0] + j, -1]))
+				if (i * submit.cores[0] + j == (submit.params.shape[0] - 1)):
+					break
 	return None
 
 
@@ -106,7 +106,8 @@ def Update(submit, pname, newvalue):
 		# Read all the Parameters of the error correcting code
 		names = newvalue.split(",")
 		submit.ecfiles = []
-		for i in range(len(names)):
+		submit.levels = len(names) 
+		for i in range(submit.levels):
 			submit.eccs.append(qec.QuantumErrorCorrectingCode(names[i]))
 			qec.Load(submit.eccs[i])
 			submit.ecfiles.append(submit.eccs[i].defnfile)
@@ -150,11 +151,6 @@ def Update(submit, pname, newvalue):
 			submit.filter['lower'] = np.float(filterDetails[1])
 			submit.filter['upper'] = np.float(filterDetails[2])
 
-	elif (pname == "levels"):
-		# The value must be an integer
-		submit.isSubmission = 1
-		submit.levels = int(newvalue)
-
 	elif (pname == "stats"):
 		# The value must be an integer
 		submit.isSubmission = 1
@@ -194,10 +190,10 @@ def Update(submit, pname, newvalue):
 	elif (pname == "nodes"):
 		submit.isSubmission = 1
 		submit.nodes = int(newvalue)
-	
-	elif (pname == "current"):
-		submit.current = newvalue
 
+	elif (pname == "email"):
+		submit.email = newvalue
+	
 	elif (pname == "scheduler"):
 		submit.scheduler = newvalue
 
@@ -224,9 +220,15 @@ def PrintSub(submit):
 	print("Physical channel")
 	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Parameters", "Values"))
 	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Channel", "%s" % (submit.channel)))
-	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Noise range", "%s." % (np.array_str(submit.noiserange[0], max_line_width = 150))))
+	if (submit.scales[0] == 1):
+		print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Noise range", "%s." % (np.array_str(submit.noiserange[0], max_line_width = 150))))
+	else:
+		print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Noise range", "%s." % (np.array_str(np.power(submit.scales[0], submit.noiserange[0]), max_line_width = 150))))
 	for i in range(1, len(submit.noiserange)):
-		print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("", "%s." % (np.array_str(submit.noiserange[i], max_line_width = 150))))
+		if (submit.scales[i] == 1):
+			print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("", "%s." % (np.array_str(submit.noiserange[i], max_line_width = 150))))
+		else:
+			print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("", "%s." % (np.array_str(np.power(submit.scales[i], submit.noiserange[i]), max_line_width = 150))))
 	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Scales of noise rates", "%s" % (np.array_str(submit.scales))))
 	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Number of Samples", "%d" % (submit.samps)))
 
@@ -251,101 +253,9 @@ def PrintSub(submit):
 		print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Submission queue", "%s" % (submit.queue)))
 	
 		print("Usage")
-		Usage(submit)
-
+		mam.Usage(submit)
 	print("\033[0m"),
 	return None
-
-
-def MergeSubs(parent, *children):
-	# Merge the simulation data obtained in two submissions and create a new submission record with the combined simulation data
-	parent.timestamp = ("merged_%s" % ("_".join([children[i].timestamp for i in range(len(children))])))
-	# ECC, channel, importance, decoder must be the same for all children
-	parent.ecc = children[0].ecc
-	parent.channel = children[0].channel
-	parent.importance = children[0].importance
-	parent.decoder = children[0].decoder
-	parent.outdir = children[0].outdir
-	parent.noiserange = np.union1d([children[i].noiserange for i in range(len(children))])
-	accumulation = [[] for i in range(parent.noiserange.shape[0])]
-	samps = np.zeros(len(children), dtype = np.int)
-	for i in range(parent.noiserange.shape[0]):
-		for j in range(len(children)):
-			if (parent.noiserange[i] in children[j].noiserange):
-				accumulation[i].append(j)
-				samps[i] = samps[i] + children[j].samps
-	parent.samps = np.max(samps, dtype = np.int)
-	parent.levels = np.max([children[i].levels for i in range(len(children))], dtype = np.int)
-	parent.stats = np.max([children[i].stats for i in range(len(children))], dtype = np.int)
-	parent.metrics = list(set([metname for i in range(len(children)) for metname in children[i].metrics]))
-	# Gather all the simulation input and output data and write into a file in the parent directory.
-	for i in range(parent.noiserange.shape[0]):
-		physical = np.zeros((parent.samps, 4, 4), dtype = np.longdouble)
-		logical = np.zeros((parent.samps, parent.levels, 4, 4), dtype = np.longdouble)
-		filled = 0
-		for j in range(len(accumulation[i])):
-			physical[filled:(filled + children[accumulation[i][j]].samps)] = np.load("%s/channels/%s_%g.npy" % (children[accumulation[i][j]].outdir, children[accumulation[i][j]].channel, parent.noiserange[i]))
-			for k in range(children[accumulation[i][j]].samps):
-				logical[filled + k, :parent.levels, :, :] = np.load(fn.LogicalChannel(children[accumulation[i][j]], parent.noiserange[i], k))[:parent.levels]
-				for m in range(len(children[accumulation[i][j]])):
-					fname = fn.LogicalErrorRate(children[accumulation[i][j]], children[accumulation[i][j]].metrics[m], parent.noiserange[i], k)
-					metrics[filled + k, parent.metrics.index(children[accumulation[i][j]].metrics[m]), :] = np.load(fname)
-			filled = filled + children[accumulation[i][j]].samps
-		# Write into file
-		np.save(("%s/channels/%s_%g.npy" % (parent.outdir, parent.channel, parent.noiserange[i])), physical)
-		for k in range(filled):
-			np.save(fn.LogicalChannel(parent, parent.noiserange[i], k), logical)
-			for m in range(parent.metrics):
-				fname = fn.LogicalErrorRate(parent, parent.metrics[m], parent.noiserange[i], k)
-				np.save(fname, metrics[k, m, :])
-	Save(parent)
-	return None
-
-def Validate(submit):
-	# Validate the submission details
-	# 1. Check if all the necessary parameters are provided
-	# 2. Check if the required files exist
-	hard = []
-	soft = []
-	if (submit.isSubmission == 1):
-		# Check if the source files exist
-		if (os.path.isfile("srclist.txt")):
-			with open("srclist.txt", "r") as sfp:
-				for name in sfp:
-					if (not (name[0] == "#")):
-						if (not os.path.isfile(name.strip("\n").strip(" "))):
-							hard.append(name)
-		else:
-			soft.append("srclist.txt -- cannot determine if source files exist.")
-		# Check if the physical channels exist
-		for i in range(len(submit.chfiles)):
-			if (not os.path.isfile(submit.chfiles[i])):
-				hard.append(submit.chfiles[i])
-		# Check if the ecc files exist
-		for i in range(len(submit.ecfiles)):
-			if (not os.path.isfile(submit.ecfiles[i])):
-				hard.append(submit.ecfiles[i])
-
-		if (not os.path.isfile(submit.inputfile)):
-			hard.append(submit.inputfile)
-		if (not os.path.isfile(submit.scheduler)):
-			hard.append(submit.scheduler)
-
-	if (len(hard) > 0):
-		print("\033[2m\033[91mError: The following essential files were missing.\033[0m")
-		for i in range(len(hard)):
-			print("\033[2m%s\033[0m" % (hard[i]))
-	else:
-		if (len(soft) > 0):
-			print("\033[2m\033[93mWarning: The following files were missing.\033[0m")
-			for i in range(len(soft)):
-				print("\033[2m\033[93m%s\033[0m" % (soft[i]))
-		else:
-			print("\033[92m\033[2m_/ Everything seems to be OK!\033[0m")
-	# Print the amount of resources that will be used up by a simulation.
-	Usage(submit)
-	return None
-
 
 def Save(submit):
 	# Write a file named const.txt with all the parameter values selected for the simulation
@@ -372,14 +282,10 @@ def Save(submit):
 		infid.write("# Number of samples\nsamples %d\n" % submit.samps)
 		# File name containing the parameters to be run on the particular node
 		infid.write("# Parameters schedule\nscheduler %s\n" % (submit.scheduler))
-		# The parameter list that mist be evaluated in the current node.
-		infid.write("# Parameters to be sampled within a node. It would be replaced with values by bqtools.\ncurrent ~~node~~\n")
 		# Decoder
 		infid.write("# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.\ndecoder %d\n" % (submit.decoder))
 		# ECC frame to be used
 		infid.write("# Logical frame for error correction (Available options: \"[P] Pauli\", \"[C] Clifford\", \"[PC] Pauli + Logical Clifford\").\nframe %s\n" % (submit.eccframes.keys()[submit.eccframes.values().index(submit.frame)]))
-		# Number of concatenation levels
-		infid.write("# Number of concatenation levels\nlevels %d\n" % submit.levels)
 		# Number of decoding trials per level
 		infid.write("# Number of syndromes to be sampled at top level\nstats %d\n" % submit.stats)
 		# Importance distribution
@@ -398,14 +304,33 @@ def Save(submit):
 		infid.write("# Wall time in hours.\nwall %d\n" % (submit.wall))
 		# Queue
 		infid.write("# Submission queue (Available options: see goo.gl/pTdqbV).\nqueue %s\n" % (submit.queue))
+		# Queue
+		infid.write("# Email notifications.\nemail %s\n" % (submit.email))
 		# Output directory
 		infid.write("# Output result\'s directory.\noutdir %s\n" % (os.path.dirname(submit.outdir)))
-			
 	# Append the content of the input file to the log file.
 	if (os.path.isfile("bqsubmit.dat")):
 		os.system(("echo \"\\n****************** Created on %s *************\\n++++++++++\\nInput file\\n++++++++++\n$(cat %s)\\n++++++++++\\nbqsubmit file\\n++++++++++\\n$(cat ./../bqsubmit.dat)\\n\\n\" >> log.txt" % (submit.timestamp, submit.inputfile)))
 	else:
 		os.system(("echo \"\\n****************** Created on %s *************\\n++++++++++\\nInput file\\n++++++++++\n$(cat %s)\\n++++++++++\\nbqsubmit file\\n++++++++++\\nNot provided\\n\\n\" >> log.txt" % (submit.timestamp, submit.inputfile)))
+	return None
+
+def PrepOutputDir(submit):
+	# Prepare the output directory -- create it, put the input files.
+	# Copy the necessary input files, error correcting code.
+	if (not (os.path.exists(submit.outdir))):
+		os.mkdir(submit.outdir)
+	for subdir in ["input", "code", "physical", "channels", "metrics", "results"]:
+		if (not (os.path.exists("%s/%s" % (subdir, submit.outdir)))):
+			os.mkdir("%s/%s" % (submit.outdir, subdir))
+	# Copy the relevant code data
+	for l in range(submit.levels):
+		os.system("cp %s %s/code/" % (submit.eccs[l].defnfile, submit.outdir))
+	# Copy the physical channels data
+	for i in range(submit.noiserates.shape[0]):
+		os.system("cp ./../physical/%s %s/physical/" % (fn.PhysicalChannel(submit, submit.noiserates[i, :], loc = "local"), submit.outdir))
+	os.system("cp ./../input/%s.txt %s/input/" % (submit.timestamp, submit.outdir))
+	os.system("cp ./../input/scheduler_%s.txt %s/input/" % (submit.timestamp, submit.outdir))
 	return None
 
 
@@ -435,25 +360,13 @@ def Clean(submit, git = 0):
 	# Remove the files generated by the Cython compiler -- *.c and *.so and build/ directory in the simulate/ folder.
 	if (not (os.path.exists("./../.gitignore/"))):
 		os.mkdir("./../.gitignore/")
-	if (os.path.isfile("srclist.txt")):
-		with open("srclist.txt", "r") as sfp:
-			for name in sfp:
-				for extn in ["c", "so", "pyc"]:
-					fname = ("%s.%s" % (name.strip("\n").strip(" ").split(".")[0], extn))
-					if (os.path.isfile(fname)):
-						# print("Removing file %s" % (fname))
-						os.system("mv %s ./../.gitignore/ > /dev/null 2>&1" % (fname))
-	os.system("mv simulate/build/ ./../.gitignore/ > /dev/null 2>&1")
-	os.system("rm -rf ./../temp/")
+	
+	os.system("find . -maxdepth 2 \( -name \"*.out\" -o -name \"*.aux\" -o -name \"*.log\" -o -name \"*.fls\" -o -name \"*.bbl\" -o -name \"*.synctex.gz\" -o -name \"*.pyc\" -o -name \"*.c\" -o -name \"*.so\" \) -type f -exec mv \'{}\' ./../.gitignore/ \\; > /dev/null 2>&1")
+	# Remove all latex generated files from docs/	
+	os.system("find ./../docs \( -name \"*.out\" -o -name \"*.aux\" -o -name \"*.log\" -o -name \"*.fls\" -o -name \"*.bbl\" -o -name \"*.synctex.gz\" \) -type f -exec mv \'{}\' ./../.gitignore/ \\; > /dev/null 2>&1")
+	os.system("mv simulate/build/ ./../.gitignore/simulate_build > /dev/null 2>&1")
+	os.system("mv analyze/build/ ./../.gitignore/analyze_build > /dev/null 2>&1")
 	if (git == 1):
-		# Remove all *.sh files from cluster/
-		os.system("mv cluster/*.sh ./../.gitignore/ > /dev/null 2>&1")
-		# Remove all latex generated files from docs/
-		os.system("find ./../docs \( -name \"*.out\" -o -name \"*.aux\" -o -name \"*.log\" -o -name \"*.fls\" -o -name \"*.bbl\" -o -name \"*.synctex.gz\" \) -type f -exec mv \'{}\' ./../.gitignore/ \\; > /dev/null 2>&1")
-		# os.system("find ./../docs -name \'*.aux\' -type f -exec mv \'{}\' ./../.gitignore/ \\; > /dev/null 2>&1")
-		# os.system("find ./../docs -name \'*.log\' -type f -exec mv \'{}\' ./../.gitignore/ \\; > /dev/null 2>&1")
-		# os.system("find ./../docs -name \'*.fls\' -type f -exec mv \'{}\' ./../.gitignore/ \\; > /dev/null 2>&1")
-		# os.system("find ./../docs -name \'*.bbl\' -type f -exec mv \'{}\' ./../.gitignore/ \\; > /dev/null 2>&1")
 		# Remove all input files except for the template one.
 		os.system("find ./../input ! -name \'sample_*.txt\' -type f -exec mv \'{}\' ./../.gitignore/ \\; > /dev/null 2>&1")
 		# Remove all physical channels

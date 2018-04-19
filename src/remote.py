@@ -29,14 +29,12 @@ if (submit.decoder == 1):
 			print("\033[2mPreparing syndrome lookup table for the %s code.\033[0m" % (submit.eccs[l].name))
 			qec.PrepareSyndromeLookUp(submit.eccs[l])
 	print("\033[2mHard decoding tables built in %d seconds.\033[0m" % (time.time() - start))
-# If the current node is not specified, then simulate all nodes in serial.
-if ((submit.host == "local") or (submit.current == "~~node~~")):
-	for i in range(submit.nodes):
-		submit.current = ("%d" % i)
-		sim.LocalSimulations(submit, stream)
-	# Create a folder with the timestamp as its name and move the channels, metrics data and the input files, bqsubmit.dat data into the timestamp-folder.
+
+# If no node information is specified, then simulate all nodes in serial. Else simulate only the given node.
+if (len(sys.argv) > 2):
+	sim.LocalSimulations(submit, stream, int(sys.argv[2]))
 	stream.close()
-	sim.OrganizeResults(submit)
 else:
-	sim.LocalSimulations(submit, stream)
+	for i in range(submit.nodes):
+		sim.LocalSimulations(submit, stream, i)
 	stream.close()

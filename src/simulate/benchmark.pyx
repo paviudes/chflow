@@ -139,22 +139,13 @@ cpdef Benchmark(submit, rate, sample, physical, refchan):
 
 	# Write all the data pertaining to the simulation
 	# Record the logical channels
-	path = fn.LogicalChannel(submit, rate, sample).split("/")
-	fname = ("./../temp/channels/%s" % path[len(path) - 1])
-	np.save(fname, logical)
-	# Record the variance in the metric values
-	# varfname = ("metrics/%s_var_%g_%d_%d_s%d.npy" % (submit.channel, rate, submit.stats, submit.levels, sample))
-	# np.save(varfname, variance)
+	np.save(fn.LogicalChannel(submit, rate, sample), logical)
 	# Metrics and syndrome bins
 	for m in range(sims[0].nmetrics):
 		# Save the metrics onto respective files
-		path = fn.LogicalErrorRate(submit, rate, sample, submit.metrics[m]).split("/")
-		fname = ("./../temp/metrics/%s" % path[len(path) - 1])
-		np.save(fname, metricValues[:, m])
+		np.save(fn.LogicalErrorRate(submit, rate, sample, submit.metrics[m]), metricValues[:, m])
 		# Record the syndrome bins
-		path = fn.SyndromeBins(submit, rate, sample, submit.metrics[m]).split("/")
-		fname = ("./../temp/metrics/%s" % path[len(path) - 1])
-		np.save(fname, bins[m, :, :, :])
+		np.save(fn.SyndromeBins(submit, rate, sample, submit.metrics[m]), bins[m, :, :, :])
 
 	###################################
 

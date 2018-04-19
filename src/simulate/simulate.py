@@ -32,13 +32,11 @@ def LogResultsToStream(submit, stream, endresults):
 	for i in range(len(endresults)):
 		(coreindex, rate, sample, runtime) = endresults[i]
 		# Load the logical channels
-		fname = ("./../temp/channels/%s" % os.path.basename(fn.LogicalChannel(submit, rate, sample)))
-		logchans = np.load(fname)
+		logchans = np.load(fn.LogicalChannel(submit, rate, sample))
 		# Load the metrics
 		metvals = np.zeros((len(submit.metrics), 1 + submit.levels), dtype = np.longdouble)
 		for m in range(len(submit.metrics)):
-			fname = ("./../temp/metrics/%s" % os.path.basename(fn.LogicalErrorRate(submit, rate, sample, submit.metrics[m])))
-			metvals[m, :] = np.load(fname)
+			metvals[m, :] = np.load(fn.LogicalErrorRate(submit, rate, sample, submit.metrics[m]))
 		stream.write("Core %d:\n" % (coreindex + 1))
 		stream.write("    Noise rate: %s\n" % (np.array_str(rate)))
 		stream.write("    sample = %d\n" % (sample))
@@ -63,27 +61,7 @@ def LogResultsToStream(submit, stream, endresults):
 	return None
 
 
-def OrganizeResults(submit):
-	# Create a folder whose name is the same as the timestamp.
-	# Move the channels and metrics folders.
-	# Move the relevant code data and the input data required for this simulation.
-	# Move the oupout log-file of the simulation.
-	if (not (os.path.exists(submit.outdir))):
-		os.mkdir(submit.outdir)
-	if (not (os.path.exists("%s/results" % (submit.outdir)))):
-		os.mkdir("%s/results" % (submit.outdir))
-	# os.system("cp -r ./../src %s/ > /dev/null 2>&1 2>&1" % (submit.outdir))
-	# os.system("cp -r ./../physical %s/ > /dev/null 2>&1" % (submit.outdir))
-	os.system("cp -r ./../input %s/ > /dev/null 2>&1" % (submit.outdir))
-	# os.system("cp -r ./../code %s/ > /dev/null 2>&1" % (submit.outdir))
-	# os.system("cp -r ./../docs %s/ > /dev/null 2>&1" % (submit.outdir))
-	os.system("mv ./../temp/perf.txt %s/results/ > /dev/null 2>&1" % (submit.outdir))
-	os.system("mv ./../temp/channels/ %s/ > /dev/null 2>&1" % (submit.outdir))
-	os.system("mv ./../temp/metrics/ %s/ > /dev/null 2>&1" % (submit.outdir))
-	return None
-
-
-def LocalSimulations(submit, stream):
+def LocalSimulations(submit, stream, node):
 	# run all simulations designated for a node.
 	# All the parameters are stored in the scheduler file. Each parameter must be run in a separate core.
 	params = []
@@ -95,17 +73,13 @@ def LocalSimulations(submit, stream):
 					if (line.strip("\n").strip(" ")[0] == "!"):
 						break
 					params.append(map(np.float, line.strip("\n").strip(" ").split(" ")))
-				if (line.strip("\n").strip(" ") == ("!!node %s!!" % (submit.current))):
+				if (line.strip("\n").strip(" ") == ("!!node %d!!" % (node))):
 					isfound = 1
 
 	params = np.array(params)
 	submit.cores[0] = min(submit.cores[0], params.shape[0])
 	# print("Parameters to be simulated in node %d with %d cores.\n%s" % (submit.current, min(params.shape[0], submit.cores[0]), np.array_str(params)))
 	
-	if (not (os.path.exists("./../temp/channels/"))):
-		os.system("mkdir -p ./../temp/channels/")
-	if (not (os.path.exists("./../temp/metrics/"))):
-		os.system("mkdir -p ./../temp/metrics/")
 	availcores = mp.cpu_count()
 	finished = 0
 	while (finished < submit.cores[0]):

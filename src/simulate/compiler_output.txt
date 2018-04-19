@@ -64,10 +64,10 @@ benchmark.c:7139:17: warning: dereferencing type-punned pointer will break stric
 benchmark.c:7141:17: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
                  Py_RETURN_FALSE;
                  ^
-gcc -bundle -undefined dynamic_lookup -L/Users/pavithran/anaconda/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/benchmark.o -L/Users/pavithran/anaconda/lib -o /Users/pavithran/Dropbox/chflow/src/simulate/benchmark.so -fopenmp
+gcc -bundle -undefined dynamic_lookup -L/Users/pavithran/anaconda/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/benchmark.o -L/Users/pavithran/anaconda/lib -o /Users/pavithran/Dropbox/chflow_ml/src/simulate/benchmark.so -fopenmp
 building 'printfuns' extension
 gcc -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -I/Users/pavithran/anaconda/include/python2.7 -c printfuns.c -o build/temp.macosx-10.6-x86_64-2.7/printfuns.o -fopenmp
-gcc -bundle -undefined dynamic_lookup -L/Users/pavithran/anaconda/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/printfuns.o -L/Users/pavithran/anaconda/lib -o /Users/pavithran/Dropbox/chflow/src/simulate/printfuns.so -fopenmp
+gcc -bundle -undefined dynamic_lookup -L/Users/pavithran/anaconda/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/printfuns.o -L/Users/pavithran/anaconda/lib -o /Users/pavithran/Dropbox/chflow_ml/src/simulate/printfuns.so -fopenmp
 building 'checks' extension
 gcc -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -I/Users/pavithran/anaconda/lib/python2.7/site-packages/numpy/core/include -I/Users/pavithran/anaconda/include/python2.7 -c checks.c -o build/temp.macosx-10.6-x86_64-2.7/checks.o -fopenmp
 In file included from /Users/pavithran/anaconda/lib/python2.7/site-packages/numpy/core/include/numpy/ndarraytypes.h:1777:0,
@@ -77,10 +77,10 @@ In file included from /Users/pavithran/anaconda/lib/python2.7/site-packages/nump
 /Users/pavithran/anaconda/lib/python2.7/site-packages/numpy/core/include/numpy/npy_1_7_deprecated_api.h:15:2: warning: #warning "Using deprecated NumPy API, disable it by " "#defining NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION" [-Wcpp]
  #warning "Using deprecated NumPy API, disable it by " \
   ^
-gcc -bundle -undefined dynamic_lookup -L/Users/pavithran/anaconda/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/checks.o -L/Users/pavithran/anaconda/lib -o /Users/pavithran/Dropbox/chflow/src/simulate/checks.so -fopenmp
+gcc -bundle -undefined dynamic_lookup -L/Users/pavithran/anaconda/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/checks.o -L/Users/pavithran/anaconda/lib -o /Users/pavithran/Dropbox/chflow_ml/src/simulate/checks.so -fopenmp
 building 'memory' extension
 gcc -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -I/Users/pavithran/anaconda/include/python2.7 -c memory.c -o build/temp.macosx-10.6-x86_64-2.7/memory.o -fopenmp
-gcc -bundle -undefined dynamic_lookup -L/Users/pavithran/anaconda/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/memory.o -L/Users/pavithran/anaconda/lib -o /Users/pavithran/Dropbox/chflow/src/simulate/memory.so -fopenmp
+gcc -bundle -undefined dynamic_lookup -L/Users/pavithran/anaconda/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/memory.o -L/Users/pavithran/anaconda/lib -o /Users/pavithran/Dropbox/chflow_ml/src/simulate/memory.so -fopenmp
 building 'logmetrics' extension
 gcc -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -I/Users/pavithran/anaconda/lib/python2.7/site-packages/numpy/core/include -I/Users/pavithran/anaconda/include/python2.7 -c logmetrics.c -o build/temp.macosx-10.6-x86_64-2.7/logmetrics.o -fopenmp
 In file included from /Users/pavithran/anaconda/lib/python2.7/site-packages/numpy/core/include/numpy/ndarraytypes.h:1777:0,
@@ -115,16 +115,16 @@ logmetrics.c:6713:17: warning: dereferencing type-punned pointer will break stri
 logmetrics.c:6715:17: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
                  Py_RETURN_FALSE;
                  ^
-gcc -bundle -undefined dynamic_lookup -L/Users/pavithran/anaconda/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/logmetrics.o -L/Users/pavithran/anaconda/lib -o /Users/pavithran/Dropbox/chflow/src/simulate/logmetrics.so -fopenmp
+gcc -bundle -undefined dynamic_lookup -L/Users/pavithran/anaconda/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/logmetrics.o -L/Users/pavithran/anaconda/lib -o /Users/pavithran/Dropbox/chflow_ml/src/simulate/logmetrics.so -fopenmp
 building 'effective' extension
 gcc -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -I/Users/pavithran/anaconda/include/python2.7 -c effective.c -o build/temp.macosx-10.6-x86_64-2.7/effective.o -fopenmp
-gcc -bundle -undefined dynamic_lookup -L/Users/pavithran/anaconda/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/effective.o -L/Users/pavithran/anaconda/lib -o /Users/pavithran/Dropbox/chflow/src/simulate/effective.so -fopenmp
+gcc -bundle -undefined dynamic_lookup -L/Users/pavithran/anaconda/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/effective.o -L/Users/pavithran/anaconda/lib -o /Users/pavithran/Dropbox/chflow_ml/src/simulate/effective.so -fopenmp
 building 'sampling' extension
 gcc -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -I/Users/pavithran/anaconda/include/python2.7 -c sampling.c -o build/temp.macosx-10.6-x86_64-2.7/sampling.o -fopenmp
-gcc -bundle -undefined dynamic_lookup -L/Users/pavithran/anaconda/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/sampling.o -L/Users/pavithran/anaconda/lib -o /Users/pavithran/Dropbox/chflow/src/simulate/sampling.so -fopenmp
+gcc -bundle -undefined dynamic_lookup -L/Users/pavithran/anaconda/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/sampling.o -L/Users/pavithran/anaconda/lib -o /Users/pavithran/Dropbox/chflow_ml/src/simulate/sampling.so -fopenmp
 building 'qecc' extension
 gcc -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -I/Users/pavithran/anaconda/include/python2.7 -c qecc.c -o build/temp.macosx-10.6-x86_64-2.7/qecc.o -fopenmp
-gcc -bundle -undefined dynamic_lookup -L/Users/pavithran/anaconda/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/qecc.o -L/Users/pavithran/anaconda/lib -o /Users/pavithran/Dropbox/chflow/src/simulate/qecc.so -fopenmp
+gcc -bundle -undefined dynamic_lookup -L/Users/pavithran/anaconda/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/qecc.o -L/Users/pavithran/anaconda/lib -o /Users/pavithran/Dropbox/chflow_ml/src/simulate/qecc.so -fopenmp
 building 'constants' extension
 gcc -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -I/Users/pavithran/anaconda/include/python2.7 -c constants.c -o build/temp.macosx-10.6-x86_64-2.7/constants.o -fopenmp
-gcc -bundle -undefined dynamic_lookup -L/Users/pavithran/anaconda/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/constants.o -L/Users/pavithran/anaconda/lib -o /Users/pavithran/Dropbox/chflow/src/simulate/constants.so -fopenmp
+gcc -bundle -undefined dynamic_lookup -L/Users/pavithran/anaconda/lib -arch x86_64 -lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros -arch x86_64 build/temp.macosx-10.6-x86_64-2.7/constants.o -L/Users/pavithran/anaconda/lib -o /Users/pavithran/Dropbox/chflow_ml/src/simulate/constants.so -fopenmp

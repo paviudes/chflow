@@ -4,6 +4,8 @@ import time
 import numpy as np
 # Files from the "cluster" module.
 from cluster import mammouth as mam
+from cluster import frontenac as front
+from cluster import briaree as bri
 # Files from the "define" module.
 from define import qcode as qec
 from define import verifychans as vc
@@ -77,6 +79,10 @@ if __name__ == '__main__':
 			   		   "lplot s11(string)[,s12(string),s13(string),...] s2(string) [s31(string),s32(string),...]\nwhere each of s1i are either metric names or indices of indepenent parameters in the defition of the physical noise model; s2 is the name of the logical metric; s3i are time stamps of other simulation records that also need to be plotted alongside."],
 			   "lplot2d":["Level-wise 2D (density) plots of the logical error rates vs. a pair of physical noise rates in the current (and/or other) database(s).",
 			   		   "lplot2d s11(string),s12(string) s2(string)\nwhere each of s1i are either metric names or indices of indepenent parameters in the defition of the physical noise model; s2 is the name of the logical metric."],
+			   "sbfit":["Fit the logical error rates in the database with an ansatz and plot the results.",
+			   			"sbfit [s1(string)] [s2(string)] [s31(string),s32(string),...]\nwhere s1 and s2 are physical and logical error metric names respectively; s3i are time stamp of additional simulation datasets that need to be fitted with the same ansatz."],
+			   "sblearn":["Derive new noise rates for physical channels using machine learnning.",
+			   			"sblearn s1(string) s2(string) s31(string)[,s32(string),...] [s4(string)] [s5(string)]\nwhere s1 is the name of a testing database; s2 is the name of a logical metric; s3i are the names of physical metrics to be included in the training set; s4 is the name of the machine learning method to be used; s5 is the name of a mask."],
 			   "clean":["Remove compilation and run time files.",
 			   		  "No parameters."],
 			   "man":["Mannual",
@@ -254,12 +260,19 @@ if __name__ == '__main__':
 		elif (user[0] == "submit"):
 			sub.ChangeTimeStamp(submit, time.strftime("%d/%m/%Y %H:%M:%S").replace("/", "_").replace(":", "_").replace(" ", "_"))
 			sub.Save(submit)
-			if (submit.host == "local"):
-				mam.Scheduler(submit)
-				print("\033[2mFor remote execution, run: \"./chflow.sh %s\"\033[0m" % (submit.timestamp))
+			sub.Schedule(submit)
+			sub.PrepOutputDir(submit)
+			if (submit.host in ["ms", "mp2"]):
+				mam.CreateLaunchScript(submit)
+				mam.Usage(submit)
+			elif (submit.host == "frontenac"):
+				front.CreateLaunchScript(submit)
+				front.Usage(submit)
+			elif (submit.host == "briaree"):
+				bri.CreateLaunchScript(submit)
+				bri.Usage(submit)
 			else:
-				mam.SubmitOnMammouth(submit)
-				sub.Validate(submit)
+				print("\033[2mFor remote execution, run: \"./chflow.sh %s\"\033[0m" % (submit.timestamp))
 		
 		#####################################################################
 
@@ -286,9 +299,8 @@ if __name__ == '__main__':
 				stream = open("perf.txt", "w")
 				try:
 					for i in range(submit.nodes):
-						submit.current = ("%d" % i)
 						stnode = time.time()
-						sim.LocalSimulations(submit, stream)
+						sim.LocalSimulations(submit, stream, i)
 						print("\r\033[2m%d%% done, approximately %d seconds remaining ...\033[0m" % (100 * (i + 1)/float(submit.nodes), (submit.nodes - i - 1) * (time.time() - stnode))),
 					print("")
 				except KeyboardInterrupt:
@@ -315,6 +327,8 @@ if __name__ == '__main__':
 			# At the threshold in the physical noise strengh, the curves will have a bifurcation.
 			pl.ThresholdPlot(user[1], user[2], submit)
 
+		#####################################################################
+
 		elif (user[0] == "lplot"):
 			# Plot the logical error rate with respect to a physical noise strength, with a new figure for every concatenation layer.
 			# One or more simulation data can be plotted in the same figure with a new curve for every dataset.
@@ -324,7 +338,7 @@ if __name__ == '__main__':
 			if (len(user) > 3):
 				for (i, ts) in enumerate(user[3].split(",")):
 					dbses.append(sub.Submission())
-					sub.LoadSub(dbses[i + 1], ts, 1)
+					sub.LoadSub(dbses[i + 1], ts, 0)
 					if (cl.IsComplete(dbses[i + 1]) > 0):
 						cl.GatherLogErrData(dbses[i + 1])
 					else:
@@ -335,50 +349,14 @@ if __name__ == '__main__':
 			else:
 				print("\033[2mOne of the databases does not have logical error data.\033[0m")
 
+		#####################################################################
+
 		elif (user[0] == "lplot2d"):
 			# Plot the logical error rates with respect to two parameters of the physical noise rate.
 			# The plot will be a 2D density plot with the logical error rates represented by the density of the colors.
 			print("\033[2m"),
 			pl.LevelWisePlot2D(user[1], user[2], submit)
 			print("\033[0m"),
-
-		# elif (user[0] == "plot"):
-		# 	# plot the gathered logical error rates data
-		# 	# The parameters are: physical metric, logical metric, reference datasets.
-		# 	# Other plot settings must be controlled in the file plotsettings.txt
-		# 	# Also input reference datasets as timestamps
-		# 	if (submit.channel == "pl"):
-		# 		# ploss.PLThreshPlots(submit, user[1])
-		# 		# ploss.PLPerfPlots(submit, user[1])
-		# 		ploss.PLPerfPlots2D(submit, user[1])
-		# 	elif (submit.channel in ["gd", "gdt", "gdtx"]):
-		# 		if (submit.channel == "gd"):
-		# 			gdamp.GDPerfPlots(submit, user[1])
-		# 		if (len(user) < 3):
-		# 			colx = 0
-		# 			coly = 1
-		# 		else:
-		# 			colx = int(user[2])
-		# 			coly = int(user[3])
-		# 		gdamp.GDPerfTimeScales(submit, user[1], colx = colx, coly = coly)
-		# 	else:
-		# 		pmet = user[1]
-		# 		refs = []
-		# 		if (len(user) > 3):
-		# 			lmet = user[2]
-		# 			refstamps = user[3].split(",")
-		# 			for i in range(len(refstamps)):
-		# 				refsub = sub.Submission()
-		# 				sub.LoadSub(refsub, "input/%s.txt" % (refstamps[i]))
-		# 				refs.append(refsub)
-		# 		else:
-		# 			refs = []
-		# 			if (len(user) < 3):
-		# 				lmet = submit.metrics[0]
-		# 			else:
-		# 				lmet = user[2]
-		# 		pl.LevelWisePlot(submit, refs, pmet, lmet, maxlevel = 3)
-		# 		pl.ThresholdPlot(submit, pmet, lmet, maxlevel = 3)
 
 		#####################################################################
 
@@ -415,6 +393,73 @@ if __name__ == '__main__':
 			else:
 				print("The logical metrics that are available in both simulation data are %s." % (", ".join([ml.Metrics[met][0] for met in tocompare[0].metrics if met in tocompare[1].metrics])))
 		
+		#####################################################################
+
+		elif (user[0] == "sbfit"):
+			# fit the logical error rates to an ansatz
+			# if there are two outputs, the first is the logical metric and the second is a list of databases
+			lmet = submit.metrics[0]
+			pmet = lmet
+			dbses = [submit]
+			check = 1
+			if (len(user) > 3):
+				for (i, ts) in enumerate(user[3].split(",")):
+					refs.append(sub.Submission())
+					sub.LoadSub(dbses[i + 1], ts, 0)
+					if (cl.IsComplete(dbses[i + 1]) > 0):
+						cl.GatherLogErrData(dbses[i + 1])
+					else:
+						check = 0
+			if (len(user) > 2):
+				lmet = user[2]
+			if(len(user) > 1):
+				pmet = user[1]
+
+			if ((os.path.isfile(fn.FitPhysRates(submit, lmet)) == 1) and (os.path.isfile(fn.FitWtEnums(submit, lmet)) == 1) and (os.path.isfile(fn.FitExpo(submit, lmet)) == 1)):
+				pl.CompareAnsatzToMetrics(submit, pmet, lmet)
+			else:
+				if (check == 1):
+					os.system("cd analyze/;python compile.py build_ext --inplace > compiler_output.txt 2>&1;cd ..")
+					from analyze import bestfit as bf
+					bf.FitPhysErr(pmet, lmet, *dbses)
+					pl.CompareAnsatzToMetrics(submit, pmet, lmet)
+				else:
+					print("\033[2mSome of the databases do not have simulation data.\033[0m")
+
+		#####################################################################
+
+		elif (user[0] == "sblearn"):
+			# learn physical noise rates from fit data
+			# sblearn <timestamp> <physical metrics> <logical metric> [method] [<mask>]
+			sbtest = sub.Submission()
+			sub.LoadSub(sbtest, user[1], 0)
+			if (cl.IsComplete(sbtest) > 0):
+				cl.GatherLogErrData(sbtest)
+
+			if (os.path.isfile(fn.PredictedPhyRates(sbtest)) == 1):
+				pl.ValidatePrediction(sbtest, user[2], user[3])
+			else:
+				mask = np.zeros((4, 4), dtype = np.int8)
+				mask[:, 1:] = 1
+				if (len(user) > 5):
+					if (user[5] in qc.Channels):
+						noiserates = np.random.rand(len(qc.Channels[user[5]][2]))
+						mask[np.nonzero(chrep.ConvertRepresentations(chdef.GetKraussForChannel(user[5], *noiserates), "krauss", "process") > 10E-10)] = 1
+						mask[0, 0] = 0
+				method = "mplr"
+				if (len(user) > 4):
+					method = user[4]
+				os.system("cd analyze/;python compile.py build_ext --inplace > compiler_output.txt 2>&1;cd ..")
+				from analyze import learning as mac
+				# prepare training set
+				mac.PrepareMLData(submit, user[2].split(","), user[3], 0, mask)
+				# prepare testing set
+				mac.PrepareMLData(sbtest, user[2].split(","), user[3], 1, mask)
+				# predict using machine learning
+				mac.Predict(sbtest, submit, method)
+				# validate machine learning predictions using a plot 
+				pl.ValidatePrediction(sbtest, user[2].split(",")[0], user[3])
+
 		#####################################################################
 
 		elif (user[0] == "man"):

@@ -1,0 +1,5 @@
+/Users/pavithran/anaconda/lib/python2.7/distutils/extension.py:133: UserWarning: Unknown Extension options: 'build_dir'
+  warnings.warn(msg)
+Warning: Extension name 'bestfit' does not match fully qualified name 'analyze.bestfit' of 'bestfit.pyx'
+Warning: Extension name 'learning' does not match fully qualified name 'analyze.learning' of 'learning.pyx'
+running build_ext

@@ -1,7 +1,7 @@
 def Usage(submit):
 	# Print the amount of resources that will be used up by a simulation.
-	limits = {"ms":100000, "mp2":700000}
-	quota = submit.nodes * submit.wall * 100/float(limits[submit.host])
+	limits = 95 * 365 * 24
+	quota = submit.nodes * submit.wall * 100/float(limits)
 	print("\033[2m%d nodes will run for a maximum time of %d hours.\n%g%% of total usage quota will be used.\033[0m" % (submit.nodes, submit.wall, quota))
 	return None
 
@@ -15,10 +15,13 @@ def CreateLaunchScript(submit):
 		bq.write("#PBS -N %s\n\n" % (submit.job))
 
 		# Account name to which the usage must be billed
-		bq.write("#PBS -A fia-010-aa\n\n")
+		bq.write("#PBS -A fia-010-ab\n\n")
 
 		# Name of the submission queue
 		bq.write("#PBS -q %s\n\n" % (submit.queue))
+
+		# Number of processes per node
+		bq.write("#PBS -l nodes=1:ppn=12\n\n")
 
 		# Wall time
 		bq.write("#PBS -l walltime=%d:00:00\n\n" % (submit.wall))

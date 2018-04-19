@@ -1,7 +1,0 @@
-6 7
-1 I I I Z I I I
-1 I I I I Z I Z
-1 I I I I Z Z I
-1 X X X I I I I
-1 X I X I I I I
-1 X X I I I I I
