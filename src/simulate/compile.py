@@ -4,7 +4,6 @@ from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Build import cythonize
 from Cython.Distutils import build_ext
-# os.environ["CC"]="clang"
 os.environ["CC"]="gcc"
 os.environ["CFLAGS"] = "-lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros"
 
