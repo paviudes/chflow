@@ -20,6 +20,7 @@ def CreateLaunchScript(submit):
 
 		# Job array specification
 		fp.write("#SBATCH --array=0-%d:1\n" % (submit.nodes))
+		fp.write("#SBATCH --cpus-per-task=%d\n" % (submit.nodes))
 		fp.write("#SBATCH --output=%s_%%A_%%a.out\n\n" % (submit.job))
 
 		# Redirecting STDOUT and STDERR files

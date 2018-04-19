@@ -24,9 +24,9 @@ from analyze import collect as cl
 from analyze import plots as pl
 
 if __name__ == '__main__':
-	availChReps = map(lambda rep: ("\"%s\"" % (rep)), ["krauss", "choi", "chi", "process", "stine"])
-	availMetrics = map(lambda met: "\"%s\"" % (met), ml.Metrics.keys())
-	availChans = map(lambda chan: "\"%s\"" % (chan), qc.Channels.keys())
+	avchreps = map(lambda rep: ("\"%s\"" % (rep)), ["krauss", "choi", "chi", "process", "stine"])
+	avmets = map(lambda met: "\"%s\"" % (met), ml.Metrics.keys())
+	avch = map(lambda chan: "\"%s\"" % (chan), qc.Channels.keys())
 	mannual = {"qcode":["Load a quantum error correcting code.",
 						"qcode s(string)\n\twhere s is the name of the file containing the details of the code."],
 			   "qcbasis":["Output the Canonical basis for the quantum error correcting code.",
@@ -40,19 +40,19 @@ if __name__ == '__main__':
 			   "chsave":["Save a channel into a file.",
 			   			"chsave s1(string)\n\twhere s1 is the name of the file."],
 			   "chrep":["Convert from its current representation to another form.",
-			   			"chrep s1(string)\n\twhere s1 must be one of %s." % (", ".join(availChReps))],
+			   			"chrep s1(string)\n\twhere s1 must be one of %s." % (", ".join(avchreps))],
 			   "chtwirl":["Twirl a quantum channel.",
 			   			  "No parameters."],
 			   "chpa":["Honest Pauli Approximation of a quantum channel.",
 			   		   "No parameters."],
 			   "chmetrics":["Compute standard metric(s).",
-			   				"chmetrics s1(string)[,s2(string)]\n\ts1 must be one of %s." % (", ".join(availMetrics))],
+			   				"chmetrics s1(string)[,s2(string)]\n\ts1 must be one of %s." % (", ".join(avmets))],
 			   "chval":["Test if all the properties of a CPTP map are satisfied.",
 			   			"No parameters."],
 			   "chprint":["Print a quantum channel in its current representation.",
 			   			  "No parameters."],
 			   "chcalib":["Measure all the norms for a quantum channel.",
-			   			  "calibrate s1(string) x11(float),x12(float),n1(int);x21(float),x22(float),n2(int),... [m1(string),m2(string),m3(string),...] [c(int)]\n\twhere s1 must be one of %s\n\t\"xi1\", \"xi2\" and \"ni\" specify the noise range for calibration: from \"xi1\" to \"xi2\", in \"ni\" steps.\n\teach of m1, m2, m3, ... must be one of %s.\n\tc is a number that specified which noise parameter must be varied in the calibration plots. By default it is the first parameter, i.e, c = 0." % (", ".join(availChans), ", ".join(availMetrics))],
+			   			  "calibrate s1(string) x11(float),x12(float),n1(int);x21(float),x22(float),n2(int),... [m1(string),m2(string),m3(string),...] [c(int)]\n\twhere s1 must be one of %s\n\t\"xi1\", \"xi2\" and \"ni\" specify the noise range for calibration: from \"xi1\" to \"xi2\", in \"ni\" steps.\n\teach of m1, m2, m3, ... must be one of %s.\n\tc is a number that specified which noise parameter must be varied in the calibration plots. By default it is the first parameter, i.e, c = 0." % (", ".join(avch), ", ".join(avmets))],
 			   "sbprint":["Print details about the currently loaded submission.",
 			   			  "No parameters."],
 			   "sbload":["Create a new submission of channels to be simulated.",
@@ -64,7 +64,7 @@ if __name__ == '__main__':
 			   "sbsave":["Save the current simulation parameters.",
 			   		     "No parameters."],
 			   "metrics":["Compute metrics for the physical channels in the current submission.",
-			   			  "metrics m1(string)[,m2(string),m3(string),...]\nwhere m1,m2,... should be one of %s." % (availMetrics)],
+			   			  "metrics m1(string)[,m2(string),m3(string),...]\nwhere m1,m2,... should be one of %s." % (avmets)],
 			   "threshold":["Estimate the threshold of the ECC and quantum channel with the current simulation data.",
 			   				"threshold s1(string)\nwhere s1 is a metric computed at the logical level."],
 			   "compare":["Compare the logical error rates from two different simulations.",
