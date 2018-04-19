@@ -8,7 +8,7 @@ def Usage(submit):
 def CreateLaunchScript(submit):
 	# Write the script to launch a job-array describing all the simulations to be run.
 	# See https://slurm.schedmd.com/sbatch.html
-	with open("frontenac.pbs", "w") as fp:
+	with open("./../frontenac.sh", "w") as fp:
 		fp.write("#!/bin/bash\n")
 
 		# Account name to which the usage must be billed
