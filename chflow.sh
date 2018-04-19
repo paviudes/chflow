@@ -10,6 +10,7 @@ elif [[ "$ts" = "<" ]]; then
 	python chflow.py ${nd}
 	cd ..
 else
+	cd src
 	if [[ "$nd" = "null" ]]; then
 		python remote.py ${ts}
 	else
