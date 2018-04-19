@@ -81,3 +81,5 @@ P. Iyer and D. Poulin. chflow: quantum error correction for realistic noise. htt
   url          = {https://github.com/paviudes/chflow}
 }
 ```
+## Comments
+Comments and suggestions are welcome, they can be addressed to pavithran.iyer.sridharan@usherbrooke.ca.
