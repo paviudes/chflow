@@ -12,7 +12,7 @@ def CreateLaunchScript(submit):
 		fp.write("#!/bin/bash\n")
 
 		# Account name to which the usage must be billed
-		fp.write("#SBATCH --account=rrg-poulinda-2018-hpcg1742\n\n")
+		fp.write("#SBATCH --account=default\n\n")
 
 		# Wall time in (DD-HH:MM)
 		fp.write("#SBATCH --begin=now\n")
