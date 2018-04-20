@@ -1,0 +1,32 @@
+# Time stamp
+timestamp input
+# Type of quantum error correcting code
+ecc Steane,Steane,Steane
+# Type of quantum channel
+channel rand
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 3,12,10;5,5,1
+# Scale of the noise range
+scale 0.66,1
+# Number of samples
+samples 1
+# Number of syndromes to be sampled at top level
+stats 1000
+# Metrics to be computed on the effective channels at every level.
+metrics fidelity
+# Load distribution on cores.
+cores 1,1
+# Name of the host computer.
+host frontenac
+# Batch name.
+job rand
+# Wall time in hours.
+wall 1
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue test
+# Email notifications
+email pavithran.sridhar@gmail.com
+# Output directory
+outdir /global/home/hpc4198/chbank

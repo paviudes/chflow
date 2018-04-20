@@ -59,9 +59,32 @@ def CheckDependencies():
 
 	if (len(missing) > 0):
 		print("\033[2mMissing packages might affect certain functionalities.\033[2m")
-		print("\033[2m{:<10}, {:<20}\033[0m".format("Package", "Affected functionality"))
+		print("\033[2m{:<20}, {:<20}\033[0m".format("Package", "Affected functionality"))
 		for i in range(len(missing)):
-			print("\033[2m{:<10}, {:<20}\033[0m".format(missing[i][0], missing[i][1]))
+			print("\033[2m{:<20} {:<20}\033[0m".format(missing[i][0], missing[i][1]))
+		print("\033[2mxxxxxx\033[0m")
+	return None
+
+
+def DisplayLogoLicense():
+	# Display logo as ascii drawing from http://ascii.mastervb.net with font = xcourb.tiff
+	# Display license from the LICENSE file in chflow/
+	logo = r"""                                    
+	      ###      ###  ###                 
+	       ##     ##     ##                 
+	 ###   ####  #####   ##    ###  ## # ## 
+	## ##  ## ##  ##     ##   ## ##  # # #  
+	##     ## ##  ##     ##   ## ##  #####  
+	## ##  ## ##  ##     ##   ## ##   ####  
+	 ###   ## ## ####  ######  ###    # #   
+	"""
+	license = r"""
+	BSD 3-Clause License
+
+	Copyright (c) 2018, Pavithran S Iyer and David Poulin
+	All rights reserved.
+	"""
+	print("%s\nWelcome to chflow version v1.0\n%s" % (logo, license))
 	return None
 
 
@@ -134,6 +157,8 @@ if __name__ == '__main__':
 			   "exit":["Quit",
 			   		   "No parameters."]}
 	
+	# Display the logo and license information
+	DisplayLogoLicense()
 	
 	# Check if all the packages exist
 	CheckDependencies()
