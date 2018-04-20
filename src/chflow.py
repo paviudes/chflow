@@ -59,9 +59,9 @@ def CheckDependencies():
 
 	if (len(missing) > 0):
 		print("\033[2mMissing packages might affect certain functionalities.\033[2m")
-		print("\033[2m{:<20}, {:<20}\033[0m".format("Package", "Affected functionality"))
+		print("\033[2m{:<20} | {:<20}\033[0m".format("Package", "Affected functionality"))
 		for i in range(len(missing)):
-			print("\033[2m{:<20} {:<20}\033[0m".format(missing[i][0], missing[i][1]))
+			print("\033[2m{:<20} | {:<20}\033[0m".format(missing[i][0], missing[i][1]))
 		print("\033[2mxxxxxx\033[0m")
 	return None
 
