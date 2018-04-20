@@ -17,7 +17,7 @@ def CreateLaunchScript(submit):
 
 		# Wall time in (DD-HH:MM)
 		fp.write("#SBATCH --begin=now\n")
-		fp.write("#SBATCH --time=%d-00:00\n\n" % (submit.wall))
+		fp.write("#SBATCH --time=%d:00:00\n\n" % (submit.wall))
 
 		# Job array specification
 		fp.write("#SBATCH --array=0-%d:1\n" % (submit.nodes - 1))
