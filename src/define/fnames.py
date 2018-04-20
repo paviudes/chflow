@@ -1,7 +1,3 @@
-import os
-
-# =====================================================================================================================================
-
 def PhysicalChannel(dbs, noise, loc = "local"):
 	# Name of the file containing the physical channel
 	noisedes = "_".join(map(lambda p: ("%g" % p), noise))

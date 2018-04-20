@@ -92,8 +92,6 @@ def ConvertRepresentations(channel, initial, final):
 					  [5, -1, -1, -1, 0]], dtype = np.int8)
 
 	map_process = ShortestPath(costs, initial, final, reprs)
-	# print("Input\n%s" % (np.array_str(channel, max_line_width = 150, precision = 3)))
-	# print("\033[2mMapping procedure: %s\033[0m" % (" -> ".join(map_process)))
 	outrep = np.copy(channel)
 	
 	for i in range(len(map_process) - 1):

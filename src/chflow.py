@@ -23,6 +23,40 @@ from define import chanreps as crep
 from analyze import collect as cl
 from analyze import plots as pl
 
+
+def CheckDependencies():
+	# Check if all the requires packages exist
+	missing = []
+	try:
+		from scipy import linalg as linalg
+	except Exception:
+		missing.append(["scipy", "linear algebra"])
+	try:
+		import matplotlib
+	except Exception:
+		missing.append(["matplotlib", "plotting"])
+	try:
+		import picos as pic
+		import cvxopt as cvx
+	except Exception:
+		missing.append(["picos and/or cvxopt", "semi-definite programming"])
+	try:
+		import multiprocessing as mp
+	except Exception:
+		missing.append(["multiprocessing", "parallel computations"])
+	try:
+		import numpy as np2
+	except Exception:
+		missing.append(["numpy", "Array operations"])
+
+	if (len(missing) > 0):
+		print("Missing packages might affect certain functionalities.")
+		print("{:<10}, {:<20}".format("Package", "Affected functionality"))
+		for i in range(len(missing)):
+			print("{:<10}, {:<20}".format(missing[i][0], missing[i][1]))
+	return None
+
+
 if __name__ == '__main__':
 	avchreps = map(lambda rep: ("\"%s\"" % (rep)), ["krauss", "choi", "chi", "process", "stine"])
 	avmets = map(lambda met: "\"%s\"" % (met), ml.Metrics.keys())
@@ -92,6 +126,10 @@ if __name__ == '__main__':
 			   "exit":["Quit",
 			   		   "No parameters."]}
 	
+	
+	# Check if all the packages exist
+	CheckDependencies()
+
 	fileinput = 0
 	infp = None
 	if (len(sys.argv) > 1):

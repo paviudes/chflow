@@ -5,32 +5,18 @@ import datetime as dt
 import ctypes as ct
 import numpy as np
 from scipy import linalg as linalg
-try:
-	import matplotlib
-	from matplotlib import colors, ticker, cm
-	matplotlib.use("Agg")
-	from matplotlib.backends.backend_pdf import PdfPages
-	import matplotlib.pyplot as plt
-except Exception:
-	sys.stderr.write("\033[91m\033[2mMATPLOTLIB does not exist, cannot make plots.\n\033[0m")
-try:
-	from scipy.interpolate import griddata
-except Exception:
-	sys.stderr.write("\033[91m\033[2mSCIPY does not exist, cannot make 3D plots.\n\033[0m")
-
-try:
-	import picos as pic
-	import cvxopt as cvx
-except Exception:
-	sys.stderr.write("\033[91m\033[2mPICOS and CVXOPT packages do not exist. So, metrics defined using an SDP cannot be computed.\n\033[0m")
+import matplotlib
+from matplotlib import colors, ticker, cm
+matplotlib.use("Agg")
+from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.pyplot as plt
+from scipy.interpolate import griddata
 import multiprocessing as mp
 
 import globalvars as gv
 import chanreps as crep
 import qchans as qc
 import fnames as fn
-
-DEBUG = 0
 
 ########################################## GLOBAL VARIABLES ##########################################
 
