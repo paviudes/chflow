@@ -1,6 +1,9 @@
 import os
 import sys
-import numpy as np
+try:
+	import numpy as np
+except:
+	pass
 
 class QuantumErrorCorrectingCode():
 	"""

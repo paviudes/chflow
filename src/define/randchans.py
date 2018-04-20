@@ -1,5 +1,8 @@
-import numpy as np
-from scipy import linalg as linalg
+try:
+	import numpy as np
+	from scipy import linalg as linalg
+except:
+	pass
 import globalvars as gv
 import chanreps as crep
 

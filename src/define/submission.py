@@ -1,8 +1,11 @@
 import os
 import sys
 import time
-import numpy as np
-import itertools as it
+try:
+	import numpy as np
+	import itertools as it
+except:
+	pass
 # Files from the define module
 import fnames as fn
 import qcode as qec

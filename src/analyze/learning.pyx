@@ -9,19 +9,13 @@ import time
 try:
 	import numpy as np
 	cimport numpy as np
-except Exception:
-	sys.stderr.write("\033[91mNumPy doesn\'t exist. So, plots cannot be done.\n\033[0m")
-
-try:
 	from sklearn.preprocessing import PolynomialFeatures
 	from sklearn.linear_model import RidgeCV, ElasticNet, LassoCV
 	from sklearn import neighbors
 	from sklearn.feature_selection import RFECV
 	from sklearn.neural_network import MLPRegressor
-
-except Exception:
-	sys.stderr.write("\033[91mThere is some problem with the sklearn package. Cannot do any machine learning steps.\n\033[0m")
-
+except:
+	pass
 from define import fnames as fn
 
 
@@ -111,9 +105,9 @@ cpdef Predict(dbstest, dbstrain, learning):
 		predictor = estimator.fit(trainset[:, :(trainset.shape[1] - 1)], trainset[:, trainset.shape[1] - 1])
 		predictions = predictor.predict(testset)
 	if (unknown == 1):
-		print("Unknown learning method: %s." % (learning))
+		print("\033[2mUnknown learning method: %s.\033[0m" % (learning))
 		return None
 	# Save the predictions on to a file.
 	np.save(fn.PredictedPhyRates(dbstest), predictions)
-	print("Machine learning completed in %d seconds." % (time.time() - start))
+	print("\033[2mMachine learning completed in %d seconds.\033[0m" % (time.time() - start))
 	return None

@@ -1,19 +1,15 @@
 import datetime as dt
-import numpy as np
 try:
+	import numpy as np
 	import matplotlib
 	matplotlib.use("Agg")
 	from matplotlib import colors, ticker, cm
 	# from matplotlib.mlab import griddata
 	from matplotlib.backends.backend_pdf import PdfPages
 	import matplotlib.pyplot as plt
-except Exception:
-	sys.stderr.write("\033[91m\033[2mMATPLOTLIB does not exist, cannot make plots.\n\033[0m")
-try:
 	from scipy.interpolate import griddata
-except Exception:
-	sys.stderr.write("\033[91m\033[2mSCIPY does not exist, cannot make 3D plots.\n\033[0m")
-
+except:
+	pass
 import globalvars as gv
 import fnames as fn
 import metrics as ml

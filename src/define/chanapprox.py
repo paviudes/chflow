@@ -1,9 +1,12 @@
 import sys
 import time
-import numpy as np
-from scipy import optimize as opt
-import picos as pic
-import cvxopt as cvx
+try:
+	import numpy as np
+	from scipy import optimize as opt
+	import picos as pic
+	import cvxopt as cvx
+except:
+	pass
 
 import chanreps as crep
 

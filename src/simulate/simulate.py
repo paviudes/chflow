@@ -1,8 +1,11 @@
 import os
 import sys
 import time
-import numpy as np
-import multiprocessing as mp
+try:
+	import numpy as np
+	import multiprocessing as mp
+except:
+	pass
 from benchmark import Benchmark
 from define import qcode as qec
 from define import qchans as qch

@@ -1,12 +1,15 @@
 import os
 import sys
-import numpy as np
+try:
+	import numpy as np
+except:
+	pass
 from define import fnames as fn
 # Force the module scripts to run locally -- https://stackoverflow.com/questions/279237/import-a-module-from-a-relative-path
-import inspect as ins
-current = os.path.realpath(os.path.abspath(os.path.dirname(ins.getfile(ins.currentframe()))))
-if (not (current in sys.path)):
-	sys.path.insert(0, current)
+# import inspect as ins
+# current = os.path.realpath(os.path.abspath(os.path.dirname(ins.getfile(ins.currentframe()))))
+# if (not (current in sys.path)):
+# 	sys.path.insert(0, current)
 
 def IsComplete(submit):
 	# Determine the noise rates and samples for which simulation output data is available.

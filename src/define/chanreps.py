@@ -1,4 +1,7 @@
-import numpy as np
+try:
+	import numpy as np
+except:
+	pass
 import globalvars as gv
 
 def HermitianConjugate(mat):

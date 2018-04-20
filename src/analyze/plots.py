@@ -1,24 +1,21 @@
 import os
 import sys
 import datetime as dt
-import numpy as np
 try:
+	import numpy as np
 	import matplotlib
 	from matplotlib import colors, ticker, cm
 	matplotlib.use("Agg")
 	from matplotlib.backends.backend_pdf import PdfPages
 	import matplotlib.pyplot as plt
-except Exception:
-	sys.stderr.write("\033[91m\033[2mMATPLOTLIB does not exist, cannot make plots.\n\033[0m")
-try:
 	from scipy.interpolate import griddata
-except Exception:
-	sys.stderr.write("\033[91m\033[2mSCIPY does not exist, cannot make 3D plots.\n\033[0m")
+except:
+	pass
 # Force the module scripts to run locally -- https://stackoverflow.com/questions/279237/import-a-module-from-a-relative-path
-import inspect as ins
-current = os.path.realpath(os.path.abspath(os.path.dirname(ins.getfile(ins.currentframe()))))
-if (not (current in sys.path)):
-	sys.path.insert(0, current)
+# import inspect as ins
+# current = os.path.realpath(os.path.abspath(os.path.dirname(ins.getfile(ins.currentframe()))))
+# if (not (current in sys.path)):
+# 	sys.path.insert(0, current)
 
 from define import qchans as qc
 from define import fnames as fn

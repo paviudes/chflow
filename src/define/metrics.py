@@ -3,16 +3,18 @@ import sys
 import time
 import datetime as dt
 import ctypes as ct
-import numpy as np
-from scipy import linalg as linalg
-import matplotlib
-from matplotlib import colors, ticker, cm
-matplotlib.use("Agg")
-from matplotlib.backends.backend_pdf import PdfPages
-import matplotlib.pyplot as plt
-from scipy.interpolate import griddata
-import multiprocessing as mp
-
+try:
+	import numpy as np
+	from scipy import linalg as linalg
+	import matplotlib
+	from matplotlib import colors, ticker, cm
+	matplotlib.use("Agg")
+	from matplotlib.backends.backend_pdf import PdfPages
+	import matplotlib.pyplot as plt
+	from scipy.interpolate import griddata
+	import multiprocessing as mp
+except:
+	pass
 import globalvars as gv
 import chanreps as crep
 import qchans as qc

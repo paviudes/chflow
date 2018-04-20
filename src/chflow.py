@@ -1,7 +1,10 @@
 import os
 import sys
 import time
-import numpy as np
+try:
+	import numpy as np
+except:
+	pass
 # Files from the "cluster" module.
 from cluster import mammouth as mam
 from cluster import frontenac as front
@@ -49,11 +52,16 @@ def CheckDependencies():
 	except Exception:
 		missing.append(["numpy", "Array operations"])
 
+	try:
+		import sklearn as sk
+	except Exception:
+		missing.append(["sklearn", "Machine learning"])
+
 	if (len(missing) > 0):
-		print("Missing packages might affect certain functionalities.")
-		print("{:<10}, {:<20}".format("Package", "Affected functionality"))
+		print("\033[2mMissing packages might affect certain functionalities.\033[2m")
+		print("\033[2m{:<10}, {:<20}\033[0m".format("Package", "Affected functionality"))
 		for i in range(len(missing)):
-			print("{:<10}, {:<20}".format(missing[i][0], missing[i][1]))
+			print("\033[2m{:<10}, {:<20}\033[0m".format(missing[i][0], missing[i][1]))
 	return None
 
 
