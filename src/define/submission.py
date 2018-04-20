@@ -370,6 +370,9 @@ def Clean(submit, git = 0):
 	os.system("mv simulate/build/ ./../.gitignore/simulate_build > /dev/null 2>&1")
 	os.system("mv analyze/build/ ./../.gitignore/analyze_build > /dev/null 2>&1")
 	if (git == 1):
+		# remove compiler logs
+		os.system("mv simulate/compiler_output.txt ./../.gitignore/simulate_compiler.txt > /dev/null 2>&1")
+		os.system("mv analyze/compiler_output.txt ./../.gitignore/analyze_compiler.txt > /dev/null 2>&1")
 		# Remove all input files except for the template one.
 		os.system("find ./../input ! -name \'sample_*.txt\' -type f -exec mv \'{}\' ./../.gitignore/ \\; > /dev/null 2>&1")
 		# Remove all physical channels

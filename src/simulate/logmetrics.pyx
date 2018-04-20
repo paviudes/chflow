@@ -10,8 +10,8 @@ cimport numpy as np
 try:
 	import picos as pic
 	import cvxopt as cvx
-except Exception:
-	sys.stderr.write("\033[91m\033[2mPICOS and CVXOPT packages do not exist. So, metrics defined using an SDP cannot be computed.\n\033[0m")
+except:
+	pass
 
 cdef extern from "math.h" nogil:
 	long double fabsl(long double num)

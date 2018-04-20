@@ -64,7 +64,7 @@ def LogResultsToStream(submit, stream, endresults):
 	return None
 
 
-def LocalSimulations(submit, stream, node):
+def LocalSimulations(submit, node, stream = sys.stdout):
 	# run all simulations designated for a node.
 	# All the parameters are stored in the scheduler file. Each parameter must be run in a separate core.
 	params = []

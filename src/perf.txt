@@ -1,0 +1,454 @@
+[2mCode: Steane X Steane
+[0m[2mChannel: Rotation about Z-axis
+[0m[2mNoise rates: [[ 0.05]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 2
+[0m[2mDecoding trials per level: 10000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 0.05]
+    sample = 0
+    Runtime: 28.1085 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.0244717           [0m
+	[92m1         [0m[92m 0.0318041           [0m
+	[92m2         [0m[92m 0.00348903          [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.0]
+ [ 0.0  0.95105652  0.30901699  0.0]
+ [ 0.0 -0.30901699  0.95105652  0.0]
+ [ 0.0  0.0  0.0  1.0]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  0.0]
+ [ 0.0  0.93639175  0.12228497  0.0]
+ [ 0.0 -0.12228497  0.93639175  0.0]
+ [ 0.0  0.0  0.0  1.0]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0  0.0]
+ [ 0.0  0.99302195  0.009149679  0.0]
+ [ 0.0 -0.009149679  0.99302195  0.0]
+ [ 0.0  0.0  0.0  1.0]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: Steane X Steane
+[0m[2mChannel: Rotation about Z-axis
+[0m[2mNoise rates: [[ 0.06]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 2
+[0m[2mDecoding trials per level: 10000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 0.06]
+    sample = 0
+    Runtime: 34.3049 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.0351118           [0m
+	[92m1         [0m[92m 0.060701            [0m
+	[92m2         [0m[92m 0.0148163           [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.0]
+ [ 0.0  0.92977649  0.36812455  0.0]
+ [ 0.0 -0.36812455  0.92977649  0.0]
+ [ 0.0  0.0  0.0  1.0]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  0.0]
+ [ 0.0  0.87859801  0.18550273  0.0]
+ [ 0.0 -0.18550273  0.87859801  0.0]
+ [ 0.0  0.0  0.0  1.0]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0  0.0]
+ [ 0.0  0.97036741  0.028337919  0.0]
+ [ 0.0 -0.028337919  0.97036741  0.0]
+ [ 0.0  0.0  0.0  1.0]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: Steane X Steane
+[0m[2mChannel: Rotation about Z-axis
+[0m[2mNoise rates: [[ 0.07]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 2
+[0m[2mDecoding trials per level: 10000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0mCore 1:
+    Noise rate: [ 0.07]
+    sample = 0
+    Runtime: 37.0987 seconds.
+[92m 	Metrics[0m
+[92m 	xxxxxxxxxxxxxxx[0m
+[92m	Level     [0m[92m fidelity            [0m
+	[92m0         [0m[92m 0.0475865           [0m
+	[92m1         [0m[92m 0.10192             [0m
+	[92m2         [0m[92m 0.0478444           [0m
+[92m xxxxxxxxxxxxxxx
+[0m[92mAverage logical channels[0m
+	[92mLevel 0
+[[ 1.0  0.0  0.0  0.0]
+ [ 0.0  0.90482705  0.42577929  0.0]
+ [ 0.0 -0.42577929  0.90482705  0.0]
+ [ 0.0  0.0  0.0  1.0]]
+	--------[0m
+	[92mLevel 1
+[[ 1.0  0.0  0.0  0.0]
+ [ 0.0  0.79615958  0.25157946  0.0]
+ [ 0.0 -0.25157946  0.79615958  0.0]
+ [ 0.0  0.0  0.0  1.0]]
+	--------[0m
+	[92mLevel 2
+[[ 1.0  0.0  0.0  0.0]
+ [ 0.0  0.9043111  0.069938499  0.0]
+ [ 0.0 -0.069938499  0.9043111  0.0]
+ [ 0.0  0.0  0.0  1.0]]
+	--------[0m
+[92m*******************[0m
+[92m************** Finished batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: Steane X Steane
+[0m[2mChannel: Rotation about Z-axis
+[0m[2mNoise rates: [[ 0.08]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 2
+[0m[2mDecoding trials per level: 10000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0m[91mThe user has interrupted the process![0m
+[91m************** Exited batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: Steane X Steane
+[0m[2mChannel: Rotation about Z-axis
+[0m[2mNoise rates: [[ 0.09]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 2
+[0m[2mDecoding trials per level: 10000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0m[91mThe user has interrupted the process![0m
+[91m************** Exited batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: Steane X Steane
+[0m[2mChannel: Rotation about Z-axis
+[0m[2mNoise rates: [[ 0.1]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 2
+[0m[2mDecoding trials per level: 10000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0m[91mThe user has interrupted the process![0m
+[91m************** Exited batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: Steane X Steane
+[0m[2mChannel: Rotation about Z-axis
+[0m[2mNoise rates: [[ 0.11]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 2
+[0m[2mDecoding trials per level: 10000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0m[91mThe user has interrupted the process![0m
+[91m************** Exited batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: Steane X Steane
+[0m[2mChannel: Rotation about Z-axis
+[0m[2mNoise rates: [[ 0.12]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 2
+[0m[2mDecoding trials per level: 10000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0m[91mThe user has interrupted the process![0m
+[91m************** Exited batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: Steane X Steane
+[0m[2mChannel: Rotation about Z-axis
+[0m[2mNoise rates: [[ 0.13]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 2
+[0m[2mDecoding trials per level: 10000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0m[91mThe user has interrupted the process![0m
+[91m************** Exited batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: Steane X Steane
+[0m[2mChannel: Rotation about Z-axis
+[0m[2mNoise rates: [[ 0.14]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 2
+[0m[2mDecoding trials per level: 10000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0m[91mThe user has interrupted the process![0m
+[91m************** Exited batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: Steane X Steane
+[0m[2mChannel: Rotation about Z-axis
+[0m[2mNoise rates: [[ 0.15]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 2
+[0m[2mDecoding trials per level: 10000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0m[91mThe user has interrupted the process![0m
+[91m************** Exited batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: Steane X Steane
+[0m[2mChannel: Rotation about Z-axis
+[0m[2mNoise rates: [[ 0.16]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 2
+[0m[2mDecoding trials per level: 10000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0m[91mThe user has interrupted the process![0m
+[91m************** Exited batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: Steane X Steane
+[0m[2mChannel: Rotation about Z-axis
+[0m[2mNoise rates: [[ 0.17]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 2
+[0m[2mDecoding trials per level: 10000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0m[91mThe user has interrupted the process![0m
+[91m************** Exited batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: Steane X Steane
+[0m[2mChannel: Rotation about Z-axis
+[0m[2mNoise rates: [[ 0.18]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 2
+[0m[2mDecoding trials per level: 10000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0m[91mThe user has interrupted the process![0m
+[91m************** Exited batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: Steane X Steane
+[0m[2mChannel: Rotation about Z-axis
+[0m[2mNoise rates: [[ 0.19]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 2
+[0m[2mDecoding trials per level: 10000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0m[91mThe user has interrupted the process![0m
+[91m************** Exited batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: Steane X Steane
+[0m[2mChannel: Rotation about Z-axis
+[0m[2mNoise rates: [[ 0.2]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 2
+[0m[2mDecoding trials per level: 10000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0m[91mThe user has interrupted the process![0m
+[91m************** Exited batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: Steane X Steane
+[0m[2mChannel: Rotation about Z-axis
+[0m[2mNoise rates: [[ 0.21]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 2
+[0m[2mDecoding trials per level: 10000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0m[91mThe user has interrupted the process![0m
+[91m************** Exited batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: Steane X Steane
+[0m[2mChannel: Rotation about Z-axis
+[0m[2mNoise rates: [[ 0.22]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 2
+[0m[2mDecoding trials per level: 10000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0m[91mThe user has interrupted the process![0m
+[91m************** Exited batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: Steane X Steane
+[0m[2mChannel: Rotation about Z-axis
+[0m[2mNoise rates: [[ 0.23]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 2
+[0m[2mDecoding trials per level: 10000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0m[91mThe user has interrupted the process![0m
+[91m************** Exited batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: Steane X Steane
+[0m[2mChannel: Rotation about Z-axis
+[0m[2mNoise rates: [[ 0.24]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 2
+[0m[2mDecoding trials per level: 10000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0m[91mThe user has interrupted the process![0m
+[91m************** Exited batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: Steane X Steane
+[0m[2mChannel: Rotation about Z-axis
+[0m[2mNoise rates: [[ 0.25]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 2
+[0m[2mDecoding trials per level: 10000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0m[91mThe user has interrupted the process![0m
+[91m************** Exited batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: Steane X Steane
+[0m[2mChannel: Rotation about Z-axis
+[0m[2mNoise rates: [[ 0.26]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 2
+[0m[2mDecoding trials per level: 10000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0m[91mThe user has interrupted the process![0m
+[91m************** Exited batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: Steane X Steane
+[0m[2mChannel: Rotation about Z-axis
+[0m[2mNoise rates: [[ 0.27]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 2
+[0m[2mDecoding trials per level: 10000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0m[91mThe user has interrupted the process![0m
+[91m************** Exited batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: Steane X Steane
+[0m[2mChannel: Rotation about Z-axis
+[0m[2mNoise rates: [[ 0.28]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 2
+[0m[2mDecoding trials per level: 10000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0m[91mThe user has interrupted the process![0m
+[91m************** Exited batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: Steane X Steane
+[0m[2mChannel: Rotation about Z-axis
+[0m[2mNoise rates: [[ 0.29]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 2
+[0m[2mDecoding trials per level: 10000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0m[91mThe user has interrupted the process![0m
+[91m************** Exited batch **************[0m
+[92m************** Finished all batches **************[0m
+[2mCode: Steane X Steane
+[0m[2mChannel: Rotation about Z-axis
+[0m[2mNoise rates: [[ 0.3]]
+[0m[2mSamples: [ 0.]
+[0m[2mImportance: 0
+[0m[2mDecoder: 0
+[0m[2mConcatenation levels: 2
+[0m[2mDecoding trials per level: 10000
+[0m[2mMetrics to be computed at every level: fidelity
+[0m[2m---------------------------
+[0m[2mCalculating...
+[0m[91mThe user has interrupted the process![0m
+[91m************** Exited batch **************[0m
+[92m************** Finished all batches **************[0m

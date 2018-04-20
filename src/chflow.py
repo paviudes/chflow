@@ -371,15 +371,14 @@ if __name__ == '__main__':
 				try:
 					for i in range(submit.nodes):
 						stnode = time.time()
-						sim.LocalSimulations(submit, stream, i)
+						sim.LocalSimulations(submit, i, stream)
 						print("\r\033[2m%d%% done, approximately %d seconds remaining ...\033[0m" % (100 * (i + 1)/float(submit.nodes), (submit.nodes - i - 1) * (time.time() - stnode))),
 					print("")
 				except KeyboardInterrupt:
 					print("\033[2mProcess terminated by user.\033[0m")
 				# Create a folder with the timestamp as its name and move the channels, metrics data and the input files, bqsubmit.dat data into the timestamp-folder.
 				stream.close()
-				sim.OrganizeResults(submit)
-				print("\033[2mdone, in %d seconds.\033[0m" % (time.time() - start))
+				print("\033[2mdone, in %d seconds. Check %s/results/perf.txt for results.\033[0m" % (time.time() - start, submit.outdir))
 			else:
 				cl.GatherLogErrData(submit)
 

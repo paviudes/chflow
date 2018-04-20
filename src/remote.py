@@ -20,11 +20,8 @@ if (submit.decoder == 1):
 	print("\033[2mHard decoding tables built in %d seconds.\033[0m" % (time.time() - start))
 
 # If no node information is specified, then simulate all nodes in serial. Else simulate only the given node.
-stream = open(("%s/results/perf.txt" % (submit.outdir)), "w")
 if (len(sys.argv) > 2):
-	sim.LocalSimulations(submit, stream, int(sys.argv[2]))
-	stream.close()
+	sim.LocalSimulations(submit, int(sys.argv[2]))
 else:
 	for i in range(submit.nodes):
-		sim.LocalSimulations(submit, stream, i)
-	stream.close()
+		sim.LocalSimulations(submit, i)

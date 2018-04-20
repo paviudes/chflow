@@ -8,8 +8,8 @@ import sys
 try:
 	import numpy as np
 	cimport numpy as np
-except Exception:
-	sys.stderr.write("\033[91mThe NUMPY package doesn\'t exist. So, Eigenvalues cannot be computed.\n\033[0m")
+except:
+	pass
 
 cdef extern from "complex.h":
 	long double creall(long double complex cnum)
