@@ -11,13 +11,13 @@ noiserange 3,12,10;5,5,1
 # Scale of the noise range
 scale 0.66,1
 # Number of samples
-samples 1
+samples 2000
 # Number of syndromes to be sampled at top level
-stats 1000
+stats 100000
 # Metrics to be computed on the effective channels at every level.
 metrics fidelity
 # Load distribution on cores.
-cores 1,1
+cores 2000,1
 # Name of the host computer.
 host frontenac
 # Account for the compute cluster
@@ -25,7 +25,7 @@ account default
 # Batch name.
 job rand
 # Wall time in hours.
-wall 1
+wall 24
 # Submission queue (Available options: see goo.gl/pTdqbV).
 queue test
 # Email notifications

@@ -17,13 +17,16 @@ def CreateLaunchScript(submit):
 
 		# Wall time in (DD-HH:MM)
 		fp.write("#SBATCH --begin=now\n")
-		fp.write("#SBATCH --time=%d:00:00\n\n" % (submit.wall))
+		if (submit.wall < 24):
+			fp.write("#SBATCH --time=%d:00:00\n\n" % (submit.wall))
+		else:
+			fp.write("#SBATCH --time=%d-%d:00:00\n\n" % (submit.wall/24, (submit.wall % 24)))
 
 		# Job array specification
 		fp.write("#SBATCH --array=0-%d:1\n" % (submit.nodes - 1))
 		fp.write("#SBATCH --cpus-per-task=24\n")
 		fp.write("#SBATCH --nodes=%d\n" % (submit.nodes))
-		# fp.write("#SBATCH --ntasks=1\n" % (submit.nodes))
+		fp.write("#SBATCH --ntasks=1\n")
 		fp.write("#SBATCH --output=%s_%%A_%%a.out\n\n" % (submit.job))
 
 		# Redirecting STDOUT and STDERR files
