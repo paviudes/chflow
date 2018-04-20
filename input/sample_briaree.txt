@@ -20,6 +20,8 @@ metrics fidelity
 cores 1,1
 # Name of the host computer.
 host briaree
+# Account for the compute cluster
+account fia-010-ab
 # Batch name.
 job rand
 # Wall time in hours.

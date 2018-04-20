@@ -15,7 +15,7 @@ class Submission():
 		# Logging options
 		self.timestamp = time.strftime("%d/%m/%Y %H:%M:%S").replace("/", "_").replace(":", "_").replace(" ", "_")
 		
-		# Mammouth options
+		# Cluster options
 		self.job = "X"
 		self.host = "local"
 		self.nodes = 0
@@ -23,6 +23,7 @@ class Submission():
 		self.params = np.array([1, 0], dtype = float)
 		self.queue = "X"
 		self.email = "X"
+		self.account = "default"
 		
 		# Run time options
 		self.cores = [1, 1]
@@ -196,6 +197,9 @@ def Update(submit, pname, newvalue):
 
 	elif (pname == "email"):
 		submit.email = newvalue
+
+	elif (pname == "account"):
+		submit.account = newvalue
 	
 	elif (pname == "scheduler"):
 		submit.scheduler = newvalue
@@ -248,8 +252,9 @@ def PrintSub(submit):
 	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Type of syndrome sampling", "%s" % (submit.samplingOptions.keys()[submit.samplingOptions.values().index(submit.importance)])))
 	
 	if (not (submit.host == "local")):
-		print("Mammouth")
+		print("Cluster")
 		print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Host", "%s" % (submit.host)))
+		print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Account", "%s" % (submit.account)))
 		print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Job name", "%s" % (submit.job)))
 		print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Number of nodes", "%d" % (submit.nodes)))
 		print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Walltime per node", "%d" % (submit.wall)))
@@ -299,8 +304,10 @@ def Save(submit):
 		infid.write("# Load distribution on cores.\ncores %s\n" % (",".join(map(str, submit.cores))))
 		# Number of nodes
 		infid.write("# Number of nodes\nnodes %d\n" % submit.nodes)
-		# Job name
+		# Host
 		infid.write("# Name of the host computer.\nhost %s\n" % (submit.host))
+		# Account
+		infid.write("# Name of the account.\naccount %s\n" % (submit.account))
 		# Job name
 		infid.write("# Batch name.\njob %s\n" % (submit.job))
 		# Wall time

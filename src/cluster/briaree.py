@@ -15,7 +15,7 @@ def CreateLaunchScript(submit):
 		bq.write("#PBS -N %s\n\n" % (submit.job))
 
 		# Account name to which the usage must be billed
-		bq.write("#PBS -A fia-010-ab\n\n")
+		bq.write("#PBS -A %s\n\n" % (submit.account))
 
 		# Name of the submission queue
 		bq.write("#PBS -q %s\n\n" % (submit.queue))
