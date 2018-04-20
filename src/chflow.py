@@ -80,11 +80,11 @@ def DisplayLogoLicense():
 	"""
 	license = r"""
 	BSD 3-Clause License
-
 	Copyright (c) 2018, Pavithran S Iyer and David Poulin
 	All rights reserved.
 	"""
-	print("%s\nWelcome to chflow version v1.0\n%s" % (logo, license))
+	url = "https://github.com/paviudes/chflow/wiki"
+	print("%s\n\tWelcome to chflow version \033[1mv1.0\033[0m\n\tCheck out %s for help.\n%s" % (logo, url, license))
 	return None
 
 
