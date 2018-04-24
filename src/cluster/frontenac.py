@@ -13,7 +13,7 @@ def CreateLaunchScript(submit):
 
 		# Account name to which the usage must be billed
 		fp.write("#SBATCH --account=%s\n" % (submit.account))
-		fp.write("#SBATCH --partition=standard\n\n")
+		fp.write("#SBATCH --partition=reserved\n\n")
 
 		# Wall time in (DD-HH:MM)
 		fp.write("#SBATCH --begin=now\n")
@@ -25,8 +25,8 @@ def CreateLaunchScript(submit):
 		# Job array specification
 		fp.write("#SBATCH --array=0-%d:1\n" % (submit.nodes - 1))
 		fp.write("#SBATCH --cpus-per-task=24\n")
-		fp.write("#SBATCH --nodes=%d\n" % (submit.nodes))
-		fp.write("#SBATCH --ntasks=1\n")
+                fp.write("#SBATCH --ntasks=%d\n" % (submit.nodes))
+		# fp.write("#SBATCH --nodes=%d\n" % (submit.nodes)
 		fp.write("#SBATCH --output=%s_%%A_%%a.out\n\n" % (submit.job))
 
 		# Redirecting STDOUT and STDERR files
