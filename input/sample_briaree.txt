@@ -11,13 +11,13 @@ noiserange 3,12,10;5,5,1
 # Scale of the noise range
 scale 0.66,1
 # Number of samples
-samples 1
+samples 200
 # Number of syndromes to be sampled at top level
-stats 1000
+stats 100000
 # Metrics to be computed on the effective channels at every level.
 metrics fidelity
 # Load distribution on cores.
-cores 1,1
+cores 240,1
 # Name of the host computer.
 host briaree
 # Account for the compute cluster
@@ -25,9 +25,9 @@ account fia-010-ab
 # Batch name.
 job rand
 # Wall time in hours.
-wall 1
+wall 8
 # Submission queue (Available options: see goo.gl/pTdqbV).
-queue test
+queue hpcourte
 # Email notifications
 email pavithran.sridhar@gmail.com
 # Output directory

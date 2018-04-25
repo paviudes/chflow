@@ -36,14 +36,10 @@ def CreateLaunchScript(submit):
 		bq.write("#PBS -M %s\n\n" % (submit.email))
 
 		# Job arrays
-		bq.write("#PBS -t 1-%d\n\n" % (submit.nodes))
+		bq.write("#PBS -t 0-%d\n\n" % (submit.nodes - 1))
 
 		# Command to be run
-		bq.write("module load gcc/5.4.0\n")
-		bq.write("cd $PBS_O_WORKDIR\n")
-		bq.write("cd src/simulate/\n")
-		bq.write("python compile.py build_ext --inplace > compiler_output.txt 2>&1\n")
 		bq.write("cd $PBS_O_WORKDIR\n")
 		bq.write("eval chflow.sh %s $PBS_ARRAYID\n" % (submit.timestamp))
-	print("\033[2mSubmit the job using\nqsub %s.pbs\nSee https://wiki.calculquebec.ca/w/Running_jobs#tab=tab7 for details.\033[0m" % (submit.host))
+        print("\033[2mCompile using\ncd src/simulate;python compile.py build_ext --inplace;cd ./../../\nSubmit the job using\nqsub %s.pbs\nSee https://wiki.calculquebec.ca/w/Running_jobs#tab=tab7 for details.\033[0m" % (submit.host))
 	return None

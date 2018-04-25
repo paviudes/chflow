@@ -17,15 +17,15 @@ stats 100000
 # Metrics to be computed on the effective channels at every level.
 metrics fidelity
 # Load distribution on cores.
-cores 2000,1
+cores 96,1
 # Name of the host computer.
 host frontenac
 # Account for the compute cluster
-account default
+account rac-2018-hpcg1741
 # Batch name.
 job rand
 # Wall time in hours.
-wall 24
+wall 8 
 # Submission queue (Available options: see goo.gl/pTdqbV).
 queue test
 # Email notifications
