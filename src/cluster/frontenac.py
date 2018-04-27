@@ -24,8 +24,8 @@ def CreateLaunchScript(submit):
 
 		# Job array specification
 		fp.write("#SBATCH --array=0-%d:1\n" % (submit.nodes - 1))
-                fp.write("#SBATCH --cpus-per-task=24\n")
-                fp.write("#SBATCH --ntasks=1\n")
+                fp.write("#SBATCH --cpus-per-task=1\n")
+                fp.write("#SBATCH --ntasks=%d\n"% (submit.cores[0] * submit.cores[1]))
 		fp.write("#SBATCH --nodes=1\n")
 		fp.write("#SBATCH --output=%s_%%A_%%a.out\n\n" % (submit.job))
 
@@ -41,9 +41,6 @@ def CreateLaunchScript(submit):
 		fp.write("module load anaconda/2.7.13\n")
 		fp.write("module load gcc/6.4.0\n")
 		fp.write("cd $SLURM_SUBMIT_DIR\n")
-		fp.write("cd src/simulate/\n")
-		fp.write("python compile.py build_ext --inplace > compiler_output.txt 2>&1\n")
-		fp.write("cd $SLURM_SUBMIT_DIR\n")
 		fp.write("./chflow.sh %s ${SLURM_ARRAY_TASK_ID}\n" % (submit.timestamp))
-	print("\033[2mRun the following\nsbatch frontenac.sh\nto launch the job.\nSee https://cac.queensu.ca/wiki/index.php/SLURM#Running_jobs for details.\033[0m")
+	print("\033[2mCompile using\ncd src/simulate/;python compile.py build_ext --inplace;cd ./../../\nRun the following\nsbatch frontenac.sh\nto launch the job.\nSee https://cac.queensu.ca/wiki/index.php/SLURM#Running_jobs for details.\033[0m")
 	return None
