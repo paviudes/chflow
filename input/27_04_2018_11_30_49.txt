@@ -1,5 +1,5 @@
 # Time stamp
-timestamp input
+timestamp 27_04_2018_11_30_49
 # Type of quantum error correcting code
 ecc Steane,Steane,Steane
 # Type of quantum channel
@@ -8,19 +8,29 @@ channel rand
 repr process
 # Noise rate exponents. The actual noise rate is (2/3)^exponent.
 noiserange 3,12,10;5,5,1
-# Scale of the noise range
-scale 0.66,1
+# Scales of noise range.
+scale 0.66,1.0
 # Number of samples
 samples 200
+# Parameters schedule
+scheduler ./../input/scheduler_27_04_2018_11_30_49.txt
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
 # Number of syndromes to be sampled at top level
 stats 100000
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance N
 # Metrics to be computed on the effective channels at every level.
 metrics fidelity
 # Load distribution on cores.
 cores 96,1
+# Number of nodes
+nodes 21
 # Name of the host computer.
 host frontenac
-# Account for the compute cluster
+# Name of the account.
 account rac-2018-hpcg1742
 # Batch name.
 job rand
@@ -28,7 +38,7 @@ job rand
 wall 3
 # Submission queue (Available options: see goo.gl/pTdqbV).
 queue test
-# Email notifications
+# Email notifications.
 email pavithran.sridhar@gmail.com
-# Output directory
+# Output result's directory.
 outdir /global/home/hpc4198/chbank

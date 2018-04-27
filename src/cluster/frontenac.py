@@ -24,8 +24,8 @@ def CreateLaunchScript(submit):
 
 		# Job array specification
 		fp.write("#SBATCH --array=0-%d:1\n" % (submit.nodes - 1))
-                fp.write("#SBATCH --cpus-per-task=1\n")
-                fp.write("#SBATCH --ntasks=%d\n"% (submit.cores[0] * submit.cores[1]))
+                fp.write("#SBATCH --cpus-per-task=24\n")
+                fp.write("#SBATCH --ntasks=\n")
 		fp.write("#SBATCH --nodes=1\n")
 		fp.write("#SBATCH --output=%s_%%A_%%a.out\n\n" % (submit.job))
 
