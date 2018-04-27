@@ -419,3 +419,168 @@ queue test
 email pavithran.sridhar@gmail.com
 # Output result's directory.
 outdir /global/home/hpc4198/chbank\n++++++++++\nbqsubmit file\n++++++++++\nNot provided\n\n
+
+****************** Created on 27_04_2018_14_22_53 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 27_04_2018_14_22_53
+# Type of quantum error correcting code
+ecc Steane,Steane,Steane
+# Type of quantum channel
+channel rand
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 3,12,10;5,5,1
+# Scales of noise range.
+scale 0.66,1.0
+# Number of samples
+samples 200
+# Parameters schedule
+scheduler ./../input/scheduler_27_04_2018_14_22_53.txt
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of syndromes to be sampled at top level
+stats 100000
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance N
+# Metrics to be computed on the effective channels at every level.
+metrics fidelity
+# Load distribution on cores.
+cores 96,1
+# Number of nodes
+nodes 21
+# Name of the host computer.
+host frontenac
+# Name of the account.
+account rac-2018-hpcg1742
+# Batch name.
+job rand
+# Wall time in hours.
+wall 3
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue test
+# Email notifications.
+email pavithran.sridhar@gmail.com
+# Output result's directory.
+outdir /global/home/hpc4198/chbank
+++++++++++
+bqsubmit file
+++++++++++
+Not provided
+
+
+
+****************** Created on 27_04_2018_14_23_38 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 27_04_2018_14_23_38
+# Type of quantum error correcting code
+ecc Steane,Steane,Steane
+# Type of quantum channel
+channel rand
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 3,12,10;5,5,1
+# Scales of noise range.
+scale 0.66,1.0
+# Number of samples
+samples 200
+# Parameters schedule
+scheduler ./../input/scheduler_27_04_2018_14_23_38.txt
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of syndromes to be sampled at top level
+stats 100000
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance N
+# Metrics to be computed on the effective channels at every level.
+metrics fidelity
+# Load distribution on cores.
+cores 96,1
+# Number of nodes
+nodes 21
+# Name of the host computer.
+host frontenac
+# Name of the account.
+account rac-2018-hpcg1742
+# Batch name.
+job rand
+# Wall time in hours.
+wall 3
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue test
+# Email notifications.
+email pavithran.sridhar@gmail.com
+# Output result's directory.
+outdir /global/home/hpc4198/chbank
+++++++++++
+bqsubmit file
+++++++++++
+Not provided
+
+
+
+****************** Created on 27_04_2018_14_24_52 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 27_04_2018_14_24_52
+# Type of quantum error correcting code
+ecc Steane,Steane,Steane
+# Type of quantum channel
+channel rand
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 3,12,10;5,5,1
+# Scales of noise range.
+scale 0.66,1.0
+# Number of samples
+samples 200
+# Parameters schedule
+scheduler ./../input/scheduler_27_04_2018_14_24_52.txt
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of syndromes to be sampled at top level
+stats 100000
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance N
+# Metrics to be computed on the effective channels at every level.
+metrics fidelity
+# Load distribution on cores.
+cores 96,1
+# Number of nodes
+nodes 21
+# Name of the host computer.
+host frontenac
+# Name of the account.
+account rac-2018-hpcg1742
+# Batch name.
+job rand
+# Wall time in hours.
+wall 3
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue test
+# Email notifications.
+email pavithran.sridhar@gmail.com
+# Output result's directory.
+outdir /global/home/hpc4198/chbank
+++++++++++
+bqsubmit file
+++++++++++
+Not provided
+
+

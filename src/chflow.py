@@ -334,7 +334,7 @@ if __name__ == '__main__':
 			else:
 				if (os.path.isfile("cluster/%s.py" % (submit.host))):
 					try:
-						eval("from cluster import %s as cl" % (submit.host))
+						exec("from cluster import %s as cl" % (submit.host))
 						cl.CreateLaunchScript(submit)
 						cl.Usage(submit)
 					except:
