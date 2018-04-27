@@ -8,12 +8,12 @@ def Usage(submit):
 def CreateLaunchScript(submit):
 	# Write the script to launch a job-array describing all the simulations to be run.
 	# See https://slurm.schedmd.com/sbatch.html
-	with open("./../frontenac.sh", "w") as fp:
+	with open("./../cedar.sh", "w") as fp:
 		fp.write("#!/bin/bash\n")
 
 		# Account name to which the usage must be billed
 		fp.write("#SBATCH --account=%s\n" % (submit.account))
-		fp.write("#SBATCH --partition=reserved\n\n")
+		fp.write("#SBATCH --partition=standard\n\n")
 
 		# Wall time in (DD-HH:MM)
 		fp.write("#SBATCH --begin=now\n")
@@ -27,6 +27,7 @@ def CreateLaunchScript(submit):
 		fp.write("#SBATCH --cpus-per-task=24\n")
 		fp.write("#SBATCH --ntasks=1\n")
 		fp.write("#SBATCH --nodes=1\n")
+		fp.write("#SBATCH --mem-per-cpu=8g\n")
 		fp.write("#SBATCH --output=%s_%%A_%%a.out\n\n" % (submit.job))
 
 		# Redirecting STDOUT and STDERR files
@@ -42,5 +43,5 @@ def CreateLaunchScript(submit):
 		fp.write("module load gcc/6.4.0\n")
 		fp.write("cd $SLURM_SUBMIT_DIR\n")
 		fp.write("./chflow.sh %s ${SLURM_ARRAY_TASK_ID}\n" % (submit.timestamp))
-	print("\033[2mCompile using\ncd src/simulate/;python compile.py build_ext --inplace;cd ./../../\nRun the following\nsbatch frontenac.sh\nto launch the job.\nSee https://cac.queensu.ca/wiki/index.php/SLURM#Running_jobs for details.\033[0m")
+	print("\033[2mCompile using\ncd src/simulate/;python compile.py build_ext --inplace;cd ./../../\nRun the following\nsbatch cedar.sh\nto launch the job.\nSee https://cac.queensu.ca/wiki/index.php/SLURM#Running_jobs for details.\033[0m")
 	return None

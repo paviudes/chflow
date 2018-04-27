@@ -5,10 +5,6 @@ try:
 	import numpy as np
 except:
 	pass
-# Files from the "cluster" module.
-from cluster import mammouth as mam
-from cluster import frontenac as front
-from cluster import briaree as bri
 # Files from the "define" module.
 from define import qcode as qec
 from define import verifychans as vc
@@ -333,17 +329,18 @@ if __name__ == '__main__':
 			sub.Save(submit)
 			sub.Schedule(submit)
 			sub.PrepOutputDir(submit)
-			if (submit.host in ["ms", "mp2"]):
-				mam.CreateLaunchScript(submit)
-				mam.Usage(submit)
-			elif (submit.host == "frontenac"):
-				front.CreateLaunchScript(submit)
-				front.Usage(submit)
-			elif (submit.host == "briaree"):
-				bri.CreateLaunchScript(submit)
-				bri.Usage(submit)
-			else:
+			if (submit.host == "local"):
 				print("\033[2mFor remote execution, run: \"./chflow.sh %s\"\033[0m" % (submit.timestamp))
+			else:
+				if (os.path.isfile("cluster/%s.py" % (submit.host))):
+					try:
+						eval("from cluster import %s as cl" % (submit.host))
+						cl.CreateLaunchScript(submit)
+						cl.Usage(submit)
+					except:
+						print("\033[2mError importing %s.py. Ensure CreateLaunchScript(<submission object>) and Usage(<submission object>) are defined.\033[0m" % (submit.host))
+				else:
+					print("\033[2mNo submission rules for \"%s\". See wiki for details.\033[0m" % (submit.host))
 		
 		#####################################################################
 
