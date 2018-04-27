@@ -1,2 +1,2 @@
-ignore/
+.ignore/
 physical/*.npy
