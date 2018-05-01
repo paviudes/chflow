@@ -14,26 +14,7 @@ The following command set is required to generate the above plot.
 Pavithrans-MacBook-Pro:chflow pavithran$ ./chflow.sh
 >> sbload 11_04_2018_13_52_37
 Simulation data is available for 0% of the channels.
-Preparing physical channels... 26 (100%) done. 
->> sbprint
-Time stamp: 11_04_2018_13_52_37
- Physical channel
-Parameters                     Values                        
-Channel                        rtz                           
-Noise range                    [ 0.05  0.06  0.07  0.08  0.09  0.1  0.11  0.12  0.13  0.14  0.15  0.16  0.17  0.18  0.19  0.2  0.21  0.22  0.23  0.24  0.25  0.26  0.27  0.28  0.29
-  0.3].
-Scales of noise rates          [ 1.0]                        
-Number of Samples              1                             
-Metrics
-Logical metrics                fidelity                      
-Error correction
-QECC                           Steane X Steane               
-[[N, K, D]]                    [[49, 1, 9]]                  
-Levels of concatenation        2                             
-ECC frame                      P                             
-Decoder                        0                             
-Syndrome samples at level 2    10000                         
-Type of syndrome sampling      N                             
+Preparing physical channels... 26 (100%) done.        
  >> ecc
 Simulation data is available for 0% of the channels.
 Please wait ...
