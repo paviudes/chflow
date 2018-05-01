@@ -34,15 +34,7 @@ More about quantum error correction with various noise processes can be learnt f
 In addition to its main purpose, this package can also be used to perform simple but useful operations on quantum error correcting codes as well as quantum channels. For instance, derivation of the [canonical basis](https://github.com/paviudes/chflow/wiki/Quantum-error-correction#complete-description-of-a-stabilizer-code) \(Stabilizers, Logicals and Pure errors\) for an error correcting code, converting between various [representations of a quantum channel](https://github.com/paviudes/chflow/wiki/Quantum-channels#representations-for-quantum-channels), computing [Pauli approximations](https://github.com/paviudes/chflow/wiki/Quantum-channels#approximations-to-a-pauli-channel) of a quantum channel and so on.
 
 ## Downloading and installing
-The latest version of `chflow` can be obtained by either [cloning this github repository](https://help.github.com/articles/cloning-a-repository/) or directly downloading the source zip file.
-
-The following dependencies, along with their recommended versions
-[![Python](https://img.shields.io/badge/Python-2.7-Green.svg)](https://www.python.org/downloads/)
-[![Numpy](https://img.shields.io/badge/Numpy-1.1.0-Red.svg)](https://www.scipy.org/install.html)
-[![PICOS](https://img.shields.io/badge/PICOS-1.1.2-Green.svg)](http://picos.zib.de/intro.html#installation)
-[![CVXOPT](https://img.shields.io/badge/CVXOPT-1.1.9-Green.svg)](http://cvxopt.org/install/index.html)
-[![Cython](https://img.shields.io/badge/Cython-0.25.2-Red.svg)](https://docs.anaconda.com/anaconda/install/)
-are desirable for the smooth compiling and execution of `chflow`. Refer to the [Wiki](https://github.com/paviudes/chflow/wiki) for further instructions on running `chflow`.
+The latest version of `chflow` can be obtained by [cloning this github repository](https://help.github.com/articles/cloning-a-repository/). `chflow` relies on a few standard Python packages such as [Numpy](https://www.scipy.org/install.html), [Scipy](https://www.scipy.org/install.html), [Matplotlib](https://matplotlib.org/users/installing.html) and [gcc](https://gcc.gnu.org/install/). Additionally, [Cython](http://docs.cython.org/en/latest/src/quickstart/install.html) is required for recompiling any files ending with ".pyx" command, this can be done using the `build cython` command in `chflow`. Some advanced functions require the [PICOS](http://picos.zib.de/intro.html#installation), [CVXOPT](http://cvxopt.org/install/index.html) and [scikit-learn]() packages. When `chflow` is started, a text file called `requirements.txt` will be generated in `chflow/` containing the names of the missing packages. To fulfill all of those requirements, one can simply run `pip install -r requirements.txt` on the shell. MacOS users must prepend `sudo` before. Refer to the [Wiki](https://github.com/paviudes/chflow/wiki) for further instructions on running `chflow`.
 
 ## Contributing to `chflow`
 
