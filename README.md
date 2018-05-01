@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/125156309.svg)](https://zenodo.org/badge/latestdoi/125156309)
 
-This package is intended to be used for studying the response of different quantum error correction schemes on various types of quantum noise processes. In order to gauge the response of a scheme, we perform numerical simulations of a quantum (stabilizer) error correcting scheme over a noise model. This study reveals how different measures of noise strength for a logical qubit depend on measures of noise strength for a physical qubit.
+This package is intended to be used for studying the response of different quantum error correction schemes on various types of quantum noise processes. Here, numerical simulations can be peformed for any quantum (stabilizer) error correcting schemes over any noise model, thereby revealing how different measures of noise strength for a logical qubit depend on physical noise parameters.
 
 ## Example
 As an example, the following plot produced by `chflow` describes the [fidelity](https://github.com/paviudes/chflow/wiki/Measures-of-noise-strength) of a logical qubit [error corrected](https://github.com/paviudes/chflow/wiki/Running-Simulations#running-simulations) for [coherent errors](https://github.com/paviudes/chflow/wiki/Quantum-channels#predefined-channels) \(rotations about Z-axis\) as a function of the angle of the over rotation error.
