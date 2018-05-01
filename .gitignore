@@ -1,2 +1,10 @@
+# Directory containing all files removed by "clean"
 .ignore/
+# Physical channels -- these can be generated from chflow
 physical/*.npy
+# Temporary clipboard for code snippets
+clipboard.py
+# All build files
+**/build
+# All input files that do not start with sample_...
+!input/sample_*.txt

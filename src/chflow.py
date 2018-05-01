@@ -1,10 +1,12 @@
 import os
 import sys
 import time
+import readline
 try:
 	import numpy as np
 except:
 	pass
+import setup as st
 # Files from the "define" module.
 from define import qcode as qec
 from define import verifychans as vc
@@ -21,46 +23,6 @@ from define import chanreps as crep
 # Files from the "analyze" module.
 from analyze import collect as cl
 from analyze import plots as pl
-
-
-def CheckDependencies():
-	# Check if all the requires packages exist
-	missing = []
-	try:
-		from scipy import linalg as linalg
-	except Exception:
-		missing.append(["scipy", "linear algebra"])
-	try:
-		import matplotlib
-	except Exception:
-		missing.append(["matplotlib", "plotting"])
-	try:
-		import picos as pic
-		import cvxopt as cvx
-	except Exception:
-		missing.append(["picos and/or cvxopt", "semi-definite programming"])
-	try:
-		import multiprocessing as mp
-	except Exception:
-		missing.append(["multiprocessing", "parallel computations"])
-	try:
-		import numpy as np2
-	except Exception:
-		missing.append(["numpy", "Array operations"])
-
-	try:
-		import sklearn as sk
-	except Exception:
-		missing.append(["sklearn", "Machine learning"])
-
-	if (len(missing) > 0):
-		print("\033[2mMissing packages might affect certain functionalities.\033[2m")
-		print("\033[2m{:<20} | {:<20}\033[0m".format("Package", "Affected functionality"))
-		for i in range(len(missing)):
-			print("\033[2m{:<20} | {:<20}\033[0m".format(missing[i][0], missing[i][1]))
-		print("\033[2mxxxxxx\033[0m")
-	return None
-
 
 def DisplayLogoLicense():
 	# Display logo as ascii drawing from http://ascii.mastervb.net with font = xcourb.tiff
@@ -84,7 +46,33 @@ def DisplayLogoLicense():
 	return None
 
 
+def RemoteExecution(timestamp, node):
+	# Load a submission record
+	from simulate import simulate as sim
+	submit = sub.Submission()
+	sub.LoadSub(submit, timestamp, 0)
+
+	# Prepare syndrome look-up table for hard decoding.
+	if (submit.decoder == 1):
+		start = time.time()
+		for l in range(submit.levels):
+			if (submit.ecc[l].lookup is None):
+				print("\033[2mPreparing syndrome lookup table for the %s code.\033[0m" % (submit.eccs[l].name))
+				qec.PrepareSyndromeLookUp(submit.eccs[l])
+		print("\033[2mHard decoding tables built in %d seconds.\033[0m" % (time.time() - start))
+
+	# If no node information is specified, then simulate all nodes in serial.
+	# Else simulate only the given node.
+	if (node > -1):
+		sim.LocalSimulations(submit, node)
+	else:
+		for i in range(submit.nodes):
+			sim.LocalSimulations(submit, i)
+	return None
+
+
 if __name__ == '__main__':
+	# This is the starting point for the "chflow" shell command.
 	avchreps = map(lambda rep: ("\"%s\"" % (rep)), ["krauss", "choi", "chi", "process", "stine"])
 	avmets = map(lambda met: "\"%s\"" % (met), ml.Metrics.keys())
 	avch = map(lambda chan: "\"%s\"" % (chan), qc.Channels.keys())
@@ -144,6 +132,8 @@ if __name__ == '__main__':
 			   			"sbfit [s1(string)] [s2(string)] [s31(string),s32(string),...]\nwhere s1 and s2 are physical and logical error metric names respectively; s3i are time stamp of additional simulation datasets that need to be fitted with the same ansatz."],
 			   "sblearn":["Derive new noise rates for physical channels using machine learnning.",
 			   			"sblearn s1(string) s2(string) s31(string)[,s32(string),...] [s4(string)] [s5(string)]\nwhere s1 is the name of a testing database; s2 is the name of a logical metric; s3i are the names of physical metrics to be included in the training set; s4 is the name of the machine learning method to be used; s5 is the name of a mask."],
+			   "build":["Compile Cython files or C extension files.",
+			   		  "build s1(string) s2(string).\nwhere s1 is the directory in which the Cython (or C) files exist and s2 specifies if new C files need to be generated (using cythonize)."],
 			   "clean":["Remove compilation and run time files.",
 			   		  "No parameters."],
 			   "man":["Mannual",
@@ -157,15 +147,30 @@ if __name__ == '__main__':
 	DisplayLogoLicense()
 	
 	# Check if all the packages exist
-	CheckDependencies()
+	st.CheckDependencies()
 
+	# Handle console inputs
 	fileinput = 0
 	infp = None
 	if (len(sys.argv) > 1):
-		if (os.path.isfile(sys.argv[1])):
-			instructions = sys.argv[1]
-			fileinput = 1
-			infp = open(instructions, "r")
+		if (sys.argv[1] == "<"):
+			# Input commands are supplied through a file.
+			if (os.path.isfile(sys.argv[2])):
+				instructions = sys.argv[2]
+				fileinput = 1
+				infp = open(instructions, "r")
+			else:
+				print("\033[2mInput file not found.\033[0m")	
+		else:
+			# The simulations are to be run remotely.
+			timestamp = sys.argv[1].strip("\n").strip(" ")
+			if (len(sys.argv) > 2):
+				node = int(sys.argv[1].strip("\n").strip(" "))
+			else:
+				node = -1
+			RemoteExecution(timestamp, node)
+			sys.exit(0)
+
 	isquit = 0
 	rep = "process"
 	channel = np.zeros((4, 4), dtype = np.longdouble)
@@ -317,6 +322,21 @@ if __name__ == '__main__':
 							submit.params[i * submit.samps + j, :-1] = submit.noiserates[i, :]
 							submit.params[i * submit.samps + j, -1] = j
 			
+		#####################################################################
+
+		elif (user[0] == "build"):
+			# Compile the modules required for error correction simulations and machine learning
+			locs = ["simulate", "analyze"]
+			cython = 0
+			if (len(user) > 2):
+				if (user[2].lower() == "cython"):
+					cython = 1
+			if (len(user) > 1):
+				if (os.path.exisis(user[1]) == 1):
+					locs = [user[1]]
+			for l in range(len(locs)):
+				st.BuildExt(locs[l], cython)
+
 		#####################################################################
 
 		elif (user[0] == "sbmerge"):
@@ -552,7 +572,7 @@ if __name__ == '__main__':
 			if (len(user) > 1):
 				if (user[1] == "git"):
 					git = 1
-			sub.Clean(submit, git)
+			st.Clean(submit, git)
 			
 		#####################################################################
 

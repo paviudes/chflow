@@ -1,0 +1,8 @@
+# Install the missing packages using pip install -r requirements.txt
+scipy>=0.18
+numpy>=0.12
+picos>=1.0
+cvxopt>=1.0
+multiprocessing>=1.0
+sklearn>=1.0
+matplotlib>=1.0
