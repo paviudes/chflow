@@ -38,7 +38,7 @@ The latest version of `chflow` can be obtained by [cloning this github repositor
 
 ## Contributing to `chflow`
 
-There are no restrictions on contributing to `chflow`. While updating the GitHub repository, care has to be taken to avoid uploading large (input and output) data files that are generated from Quantum error correction simulations. To make this easier, there is a `clean` command available in the `chflow` interface. To return the `chflow/` directory to factory settings, please use `clean git`. Please run `clean git` in `chflow`, which moves all the unwated files (for publishing a release) into a folder called `.gitignore` and delete this folder using `rm -r .gitignore` before pushing on to the GitHub repository.
+There are no restrictions on contributing to `chflow`. While updating the GitHub repository, care should be taken to avoid syncing data files and compiler generated files. The `clean` and `clean git` in `chflow` remove such files. The latter option returns the `chflow/` directory to factory settings. Note that when files are removed, they are not _deleted_, but _moved_ into `chflow/.ignore`. It is then safe to delete this folder using `rm -r .ignore/`.
 
 ## Citing `chflow`
 ```text
