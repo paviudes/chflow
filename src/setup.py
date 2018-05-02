@@ -1,4 +1,5 @@
 import os
+import sys
 
 def CheckDependencies():
 	# Check if all the requires packages exist
@@ -32,33 +33,11 @@ def CheckDependencies():
 
 
 def BuildExt(loc, cython, compiler = "gcc"):
-	# build all the cython (or c) extensions for simulations.
-	# These are in src/simulate
-	from distutils.core import setup
-	from distutils.extension import Extension
-	files = [os.path.split(name)[1].split(".")[0] for name in os.listdir("src/%s" % (loc)) if (os.path.splitext(name)[1] == "pyx")]
-	if (cython == 1):
-		from Cython.Build import cythonize
-		from Cython.Distutils.build_ext import build_ext
-		ext = "pyx"
-	else:
-		from distutils.command.build_ext import build_ext
-		ext = "c"
-	build_ext.inplace = 1
-	os.environ["CC"]=compiler
-	if (compiler == "gcc"):
-		os.environ["CFLAGS"] = "-lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros"
-	for i in range(len(files)):
-		extensions.append(Extension("src/%s.%s.%s" % (loc, files[i], ext), ["src/%s/%s.%s" (loc, files[i], ext)], include_dirs = [np.get_include()], extra_compile_args=['-fopenmp'], extra_link_args=['-fopenmp'], language = 'c'))
-	if (cython == 1):
-		extensions = cythonize(extensions)
-	setup(
-		name=loc,
-		version="1.0",
-		description="Compiled tools for %s" % (loc),
-		ext_modules=extensions,
-		cmdclass={'build_ext':build_ext}
-	)
+	# Build all the cython (or c) extensions for simulations.
+	# For the build to work, a script containing the setup(...) function must be called from shell with additional arguments.
+	# Hence, in this function, we will call the parent script setup.py with the necessary shell arguments for successfully building the required Cython files.
+	# When the parent script is called, only the content under if __name__ == 'main' will be executed.
+	os.system("cd %s;python ./../setup.py build_ext --inplace %d %s;cd .." % (loc, cython, compiler))
 	return None
 
 
@@ -85,3 +64,49 @@ def Clean(dist = 0):
 		# Remove all physical channels
 		os.system("mv ./../physical/*.npy ./../.ignore/ > /dev/null 2>&1")
 	return None
+
+if __name__ == '__main__':
+	import numpy as np
+	from distutils.core import setup
+	from distutils.extension import Extension
+	# This python script should be called as: python setup.py build_ext --inplace <cython> <compiler>
+	# where cython is a flag that is either 1 or 0 dependeing on whether C files need to be generated from the cythonize command on the pyx files or not.
+	# and compiler is the name of the compiler.
+	# For setup(...) to work, we need to remove the last two shell arguments. Hence we use "remove" on sys.argv.
+	######
+	# loc = sys.argv[3]
+	# sys.argv.pop(3)
+	cython = 0
+	if (int(sys.argv[3]) == 1):
+		cython = 1
+	sys.argv.pop(3)
+	# Note that when the element at index 3 is removed, the subsequent element takes on index 3.
+	compiler = sys.argv[3]
+	sys.argv.pop(3)
+	######
+	files = [os.path.split(name)[1].split(".")[0] for name in os.listdir(".") if (os.path.splitext(name)[1] == ".pyx")]
+	print("calling python %s\non the files\n%s" % (sys.argv, files))
+	if (cython == 1):
+		from Cython.Build import cythonize
+		from Cython.Distutils.build_ext import build_ext
+		ext = "pyx"
+	else:
+		from distutils.command.build_ext import build_ext
+		ext = "c"
+	build_ext.inplace = 1
+	os.environ["CC"]=compiler
+	if (compiler == "gcc"):
+		os.environ["CFLAGS"] = "-lm -O3 -Wall -ffast-math -march=native -mfpmath=sse -fno-signed-zeros"
+	extensions = []
+	for i in range(len(files)):
+		extensions.append(Extension("%s" % (files[i]), ["%s.%s" % (files[i], ext)], include_dirs = [np.get_include()], extra_compile_args=['-fopenmp'], extra_link_args=['-fopenmp'], language = 'c'))
+	if (cython == 1):
+		print("cythonizing extensions")
+		extensions = cythonize(extensions)
+	setup(
+		name="extns",
+		version="1.0",
+		description="Compiled Cython extensions",
+		ext_modules=extensions,
+		cmdclass={'build_ext':build_ext},
+	)

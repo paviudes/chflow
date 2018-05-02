@@ -1,7 +1,6 @@
 import os
 import sys
 import time
-import readline
 try:
 	import numpy as np
 except:
@@ -332,7 +331,7 @@ if __name__ == '__main__':
 				if (user[2].lower() == "cython"):
 					cython = 1
 			if (len(user) > 1):
-				if (os.path.exisis(user[1]) == 1):
+				if (os.path.exists(user[1]) == 1):
 					locs = [user[1]]
 			for l in range(len(locs)):
 				st.BuildExt(locs[l], cython)
@@ -572,7 +571,7 @@ if __name__ == '__main__':
 			if (len(user) > 1):
 				if (user[1] == "git"):
 					git = 1
-			st.Clean(submit, git)
+			st.Clean(git)
 			
 		#####################################################################
 

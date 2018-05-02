@@ -10,9 +10,12 @@
         "extra_link_args": [
             "-fopenmp"
         ], 
+        "include_dirs": [
+            "/Users/pavithran/anaconda/lib/python2.7/site-packages/numpy/core/include"
+        ], 
         "language": "c"
     }, 
-    "module_name": "src.simulate.memory"
+    "module_name": "memory"
 }
 END: Cython Metadata */
 

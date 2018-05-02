@@ -82,8 +82,11 @@ def LocalSimulations(submit, node, stream = sys.stdout):
 	params = np.array(params)
 	submit.cores[0] = min(submit.cores[0], params.shape[0])
 	# print("Parameters to be simulated in node %d with %d cores.\n%s" % (submit.current, min(params.shape[0], submit.cores[0]), np.array_str(params)))
-	
-	availcores = mp.cpu_count()
+	if (submit.host == "local"):
+		availcores = mp.cpu_count()
+	else:
+		exce("from cluster import %s as cl" % (submit.host))
+		availcores = cl.GetCoresInNode()
 	finished = 0
 	while (finished < submit.cores[0]):
 		stream.write("\033[2mCode: %s\n\033[0m" % (" X ".join([submit.eccs[i].name for i in range(len(submit.eccs))])))

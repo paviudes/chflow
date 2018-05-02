@@ -1,10 +1,16 @@
+import os
+
+def GetCoresInNode():
+	# get the number of cores in a node by getting the value of the $SLURM_NTASKS variable.
+	# This is the value of ntasks in the slurm file, which is "SLURM_NTASKS".
+	return int(os.environ["PBS_NUM_PPN"])
+
 def Usage(submit):
 	# Print the amount of resources that will be used up by a simulation.
 	limits = {"ms":100000, "mp2":700000}
 	quota = submit.nodes * submit.wall * 100/float(limits[submit.host])
 	print("\033[2m%d nodes will run for a maximum time of %d hours.\n%g%% of total usage quota will be used.\033[0m" % (submit.nodes, submit.wall, quota))
 	return None
-
 
 def CreateLaunchScript(submit):
 	# Produce the bqsubmit.dat file which contains all the parameters for mammouth execution.

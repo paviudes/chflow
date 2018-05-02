@@ -1,3 +1,11 @@
+import os
+
+def GetCoresInNode():
+	# get the number of cores in a node by getting the value of the $SLURM_NTASKS variable.
+	# This is the value of ntasks in the slurm file, which is "SLURM_NTASKS".
+	return int(os.environ["SLURM_NTASKS"])
+
+
 def Usage(submit):
 	# Print the amount of resources that will be used up by a simulation.
 	limits = 48 * 365 * 24
