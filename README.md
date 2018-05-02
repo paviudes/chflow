@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/125156309.svg)](https://zenodo.org/badge/latestdoi/125156309)
 
-This package is intended to be used for studying the response of different quantum error correction schemes on various types of quantum noise processes. In order to gauge the response of a scheme, we perform numerical simulations of a quantum (stabilizer) error correcting scheme over a noise model and study different measures of noise strength for a qubit.
+This package is intended to be used for studying the response of different quantum error correction schemes on various types of quantum noise processes. Here, numerical simulations can be peformed for any quantum (stabilizer) error correcting scheme over any noise model, thereby revealing how different measures of noise strength for a logical qubit depend on physical noise parameters.
 
 ## Example
 As an example, the following plot produced by `chflow` describes the [fidelity](https://github.com/paviudes/chflow/wiki/Measures-of-noise-strength) of a logical qubit [error corrected](https://github.com/paviudes/chflow/wiki/Running-Simulations#running-simulations) for [coherent errors](https://github.com/paviudes/chflow/wiki/Quantum-channels#predefined-channels) \(rotations about Z-axis\) as a function of the angle of the over rotation error.
@@ -14,26 +14,7 @@ The following command set is required to generate the above plot.
 Pavithrans-MacBook-Pro:chflow pavithran$ ./chflow.sh
 >> sbload 11_04_2018_13_52_37
 Simulation data is available for 0% of the channels.
-Preparing physical channels... 26 (100%) done. 
->> sbprint
-Time stamp: 11_04_2018_13_52_37
- Physical channel
-Parameters                     Values                        
-Channel                        rtz                           
-Noise range                    [ 0.05  0.06  0.07  0.08  0.09  0.1  0.11  0.12  0.13  0.14  0.15  0.16  0.17  0.18  0.19  0.2  0.21  0.22  0.23  0.24  0.25  0.26  0.27  0.28  0.29
-  0.3].
-Scales of noise rates          [ 1.0]                        
-Number of Samples              1                             
-Metrics
-Logical metrics                fidelity                      
-Error correction
-QECC                           Steane X Steane               
-[[N, K, D]]                    [[49, 1, 9]]                  
-Levels of concatenation        2                             
-ECC frame                      P                             
-Decoder                        0                             
-Syndrome samples at level 2    10000                         
-Type of syndrome sampling      N                             
+Preparing physical channels... 26 (100%) done.        
  >> ecc
 Simulation data is available for 0% of the channels.
 Please wait ...
@@ -46,26 +27,16 @@ Simulation data is available for 100% of the channels.
 >> 
 ```
 
-For any stabilizer error correction scheme, `chflow` tracks the _flow of a quantum channel_ -- evolution from a physical noise process to the _effective quantum channel_ that affects the underlying logical information encompassing quantum error correction steps.
-
-More about quantum error correction with various noise processes can be learnt from [arXiv:1711.04736](https://arxiv.org/abs/1711.04736) and [Phys. Rev. A 95, 042332](https://journals.aps.org/pra/abstract/10.1103/PhysRevA.95.042332).
+For any stabilizer error correction scheme, `chflow` tracks the _flow of a quantum channel_ -- evolution from a physical noise process to the _effective quantum channel_ that affects the underlying logical information encompassing quantum error correction steps. To learn more about such techniques, see [arXiv:1711.04736](https://arxiv.org/abs/1711.04736) and [Phys. Rev. A 95, 042332](https://journals.aps.org/pra/abstract/10.1103/PhysRevA.95.042332).
 
 In addition to its main purpose, this package can also be used to perform simple but useful operations on quantum error correcting codes as well as quantum channels. For instance, derivation of the [canonical basis](https://github.com/paviudes/chflow/wiki/Quantum-error-correction#complete-description-of-a-stabilizer-code) \(Stabilizers, Logicals and Pure errors\) for an error correcting code, converting between various [representations of a quantum channel](https://github.com/paviudes/chflow/wiki/Quantum-channels#representations-for-quantum-channels), computing [Pauli approximations](https://github.com/paviudes/chflow/wiki/Quantum-channels#approximations-to-a-pauli-channel) of a quantum channel and so on.
 
 ## Downloading and installing
-The latest version of `chflow` can be obtained by either [cloning this github repository](https://help.github.com/articles/cloning-a-repository/) or directly downloading the source zip file by following the [![CloneDownload](https://img.shields.io/badge/-Clone%20or%20download-brightgreen.svg)](https://github.com/paviudes/chflow) link at the top of this page.
-
-The following dependencies, along with their recommended versions
-[![Python](https://img.shields.io/badge/Python-2.7-Green.svg)](https://www.python.org/downloads/)
-[![Numpy](https://img.shields.io/badge/Numpy-1.1.0-Red.svg)](https://www.scipy.org/install.html)
-[![PICOS](https://img.shields.io/badge/PICOS-1.1.2-Green.svg)](http://picos.zib.de/intro.html#installation)
-[![CVXOPT](https://img.shields.io/badge/CVXOPT-1.1.9-Green.svg)](http://cvxopt.org/install/index.html)
-[![Cython](https://img.shields.io/badge/Cython-0.25.2-Red.svg)](https://docs.anaconda.com/anaconda/install/)
-are desirable for the smooth compiling and execution of `chflow`. Refer to the [Wiki](https://github.com/paviudes/chflow/wiki) for further instructions on running `chflow`.
+The latest version of `chflow` can be obtained by [cloning this repository](https://help.github.com/articles/cloning-a-repository/). All of the interface and plotting tools require [Python](https://www.python.org/downloads/) (any version higher than) 2.7 and standard packages such as [Numpy](https://www.scipy.org/install.html), [Scipy](https://www.scipy.org/install.html) and [Matplotlib](https://matplotlib.org/users/installing.html). On the other hand, most of the error correction simulations that run in the backend are implemented as Cython extensions, with the associated C files already provided. However, they can also be generated using the `build cython` command in `chflow`, which requires [Cython](http://docs.cython.org/en/latest/src/quickstart/install.html) and [gcc](https://gcc.gnu.org/install/) compilers. Some advanced functions require the [PICOS](http://picos.zib.de/intro.html#installation), [CVXOPT](http://cvxopt.org/install/index.html) and [scikit-learn](http://scikit-learn.org/stable/install.html) packages. When `chflow` is started, a text file called `requirements.txt` will be generated in `chflow/` containing the names of the missing packages. To fulfill all of those requirements, one can simply run `pip install -r requirements.txt` on the shell. MacOS users must prepend this with a `sudo`. Refer to the [Wiki](https://github.com/paviudes/chflow/wiki) for instructions on running `chflow`.
 
 ## Contributing to `chflow`
 
-There are no restrictions on contributing to `chflow`. While updating the GitHub repository, care has to be taken to avoid uploading large (input and output) data files that are generated from Quantum error correction simulations. To make this easier, there is a `clean` command available in the `chflow` interface. Please run `clean git` in `chflow`, which moves all the unwated files (for publishing a release) into a folder called `.gitignore` and delete this folder using `rm -r .gitignore` before pushing on to the GitHub repository.
+There are no restrictions on contributing to `chflow`. While updating the GitHub repository, care should be taken to avoid syncing data files and compiler generated files. Two commands, `clean` and `clean git`, in `chflow` remove files unwanted for syncing. The latter option returns the `chflow/` directory to its factory setting. Note that when files are removed, they are not actually _deleted_, but _moved_ into `chflow/.ignore`. It is then safe to delete this folder using `rm -r .ignore/`.
 
 ## Citing `chflow`
 ```text
