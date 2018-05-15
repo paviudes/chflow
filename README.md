@@ -40,7 +40,7 @@ Contract W911NF-14-C-0048.
 
 ## Contributing to `chflow`
 
-There are no restrictions on contributing to `chflow`. While updating the GitHub repository, care should be taken to avoid syncing data files and compiler generated files. Two commands, `clean` and `clean git`, in `chflow` remove files unwanted for syncing. The latter option returns the `chflow/` directory to its factory setting. Note that when files are removed, they are not actually _deleted_, but _moved_ into `chflow/.ignore`. It is then safe to delete this folder using `rm -r .ignore/`.
+There are no restrictions on contributing to `chflow`. While updating the GitHub repository, care should be taken to avoid syncing data files and compiler generated files. Two commands, `clean` and `clean git`, in `chflow` remove such unwanted files. The latter option returns the `chflow/` directory to its factory setting. Note that when files are removed, they are not actually _deleted_, but _moved_ into `chflow/.ignore`. It is then safe to delete this folder using `rm -r .ignore/`.
 
 ## Citing `chflow`
 ```text
