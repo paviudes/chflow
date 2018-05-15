@@ -57,4 +57,4 @@ P. Iyer and D. Poulin. chflow: quantum error correction for realistic noise. htt
 }
 ```
 ## Comments
-Comments and suggestions are welcome, they can be addressed to pavithran.iyer.sridharan@usherbrooke.ca.
+Comments and suggestions are welcome, they can be addressed to [pavithran.iyer.sridharan@usherbrooke.ca](mailto:pavithran.iyer.sridharan@usherbrooke.ca?subject=comments+on+chflow).
