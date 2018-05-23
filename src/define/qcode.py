@@ -4,6 +4,7 @@ try:
 	import numpy as np
 except:
 	pass
+import globalvars as gv
 
 class QuantumErrorCorrectingCode():
 	"""
@@ -80,7 +81,7 @@ def Load(qecc):
 				ComputePureErrors(qecc)
 	
 	# Signs in front of each stabilizer element in the syndrome projectors
-	ConstructSyndromeProjectors(qecc)
+	ConstructSyndProjSigns(qecc)
 	# Elements in the cosets of the normalizer and their phases
 	ConstructNormalizer(qecc)
 	# Transformations between Pauli operators by Clifford conjugations
@@ -151,6 +152,13 @@ def ConvertToOperator(sympmat):
 		for j in range(nq):
 			pauliops[i, j] = encoding[sympmat[i, j], sympmat[i, nq + j]]
 	return pauliops
+
+def PauliOperatorToMatrix(ops):
+	# Convert a Pauli operator string to the explicit matrix form.
+	pmat = gv.Pauli[ops[0], :, :]
+	for i in range(1, ops.shape[0]):
+		pmat = np.kron(pmat, gv.Pauli[ops[i], :, :])
+	return pmat
 
 # Commutation relations
 
@@ -381,6 +389,21 @@ def Print(qecc):
 	print("xxxxx\033[0m")
 	return None
 
+
+def ConstructSyndromeProjectors(qecc):
+	# Construct the syndrome projectors
+	# Construct the stabilizer group and then combine the stabilizer according to the signs.
+	stabilizers = np.zeros((2**(qecc.N - qecc.K), 2**qecc.N, 2**qecc.N), dtype = np.complex128)
+	stabilizers[0, :, :] = np.identity(2**qecc.N, dtype = np.complex128)
+	for s in range(1, 2**(qecc.N - qecc.K)):
+		sgens = np.array(map(np.int8, np.binary_repr(s, width = qecc.N - qecc.K)), dtype = np.int8)
+		(stabop, stabph) = PauliProduct(*qecc.S[np.nonzero(sgens)])
+		stabilizers[s, :, :] = stabph * PauliOperatorToMatrix(stabop)
+	projectors = np.einsum("ij,jkl->ikl", qecc.syndsigns, stabilizers)
+	# Save the projectors on to a file in chflow/code
+	np.savetxt("./../code/%s_syndproj.txt" % (qecc.name), np.reshape(projectors, 2**(3 * qecc.N - qecc.K)))
+	return None
+
 	
 def ConstructPauliBasis(nqubits):
 	# Construct the list of all (4^n) Pauli matrices that act on a given number (n) of qubits.
@@ -521,7 +544,7 @@ def PauliProduct(*paulis):
 	return (product, overall)
 
 
-def ConstructSyndromeProjectors(qecc):
+def ConstructSyndProjSigns(qecc):
 	# For each syndrome, construct the operators that projects on to the subspace containing Pauli errors with that syndrome
 	# The syndrome projector can be expanded as a linear sum over all the stabilizers, with coefficients that depend on the syndrome.
 	# Here we only need these coefficients, they are numbers in {+1, -1}. The coefficient of the stabilizer is +1(-1) if it commutes (anti-commutes) with the Pure error of that particular syndrome.

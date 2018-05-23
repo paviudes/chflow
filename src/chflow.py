@@ -201,6 +201,14 @@ if __name__ == '__main__':
 
 		#####################################################################
 
+		elif (user[0] == "qcproj"):
+			# Construct the syndrome projectors
+			print("\033[2mConstructing syndrome projectors.\033[0m")
+			qec.ConstructSyndromeProjectors(qeccode)
+			print("\033[2mDone, saved to code/%s_syndproj.txt. Reshape the array to (%d, %d, %d) after importing it elsewhere.\033[0m" % (qeccode.name, 2**(qeccode.N - qeccode.K), 2**qeccode.N, 2**qeccode.N))
+
+		#####################################################################
+
 		elif (user[0] == "qcminw"):
 			# prepare a syndrome lookup table for minimum weight decoding
 			# Syndrome look-up table for hard decoding.
@@ -308,18 +316,21 @@ if __name__ == '__main__':
 				print("Console input is not set up currently.")
 			else:
 				submit = sub.Submission()
-				exisis = sub.LoadSub(submit, user[1], 1)
-			if (exisis == 1):
+				exists = sub.LoadSub(submit, user[1], 1)
+			if (exists == 1):
+				if (len(submit.scales) == 0):
+					submit.scales = [1 for __ in range(submit.noiserates.shape[1])]
 				# Generate new physical channels if needed
-				if (cl.IsComplete(submit) == 0):
+				cl.IsComplete(submit)
+				if (submit.complete == 0):
 					chgen.PreparePhysicalChannels(submit)
-				else:
-					# prepare the set of parameters
-					submit.params = np.zeros((submit.noiserates.shape[0] * submit.samps, submit.noiserates.shape[1] + 1), dtype = np.longdouble)
-					for i in range(submit.noiserates.shape[0]):
-						for j in range(submit.samps):
-							submit.params[i * submit.samps + j, :-1] = submit.noiserates[i, :]
-							submit.params[i * submit.samps + j, -1] = j
+				# else:
+				# 	# prepare the set of parameters
+				# 	submit.params = np.zeros((submit.noiserates.shape[0] * submit.samps, submit.noiserates.shape[1] + 1), dtype = np.longdouble)
+				# 	for i in range(submit.noiserates.shape[0]):
+				# 		for j in range(submit.samps):
+				# 			submit.params[i * submit.samps + j, :-1] = submit.noiserates[i, :]
+				# 			submit.params[i * submit.samps + j, -1] = j
 			
 		#####################################################################
 
@@ -366,7 +377,7 @@ if __name__ == '__main__':
 		elif (user[0] == "ecc"):
 			# Check if the logical channels and error dates already exist for this simulation.
 			# If yes, directly display the logical error rates data. Else, simulate error correction.
-			if (cl.IsComplete(submit) == 0):
+			if (submit.complete == 0):
 				# Compile the cythonizer file to be able to perform error correction simulations
 				# Syndrome look-up table for hard decoding.
 				start = time.time()
@@ -402,7 +413,7 @@ if __name__ == '__main__':
 
 		elif (user[0] == "collect"):
 			# Collect the logical failure rates into one file.
-			if (cl.IsComplete(submit) > 0):
+			if (submit.complete > 0):
 				cl.GatherLogErrData(submit)
 			
 		#####################################################################
@@ -425,7 +436,8 @@ if __name__ == '__main__':
 				for (i, ts) in enumerate(user[3].split(",")):
 					dbses.append(sub.Submission())
 					sub.LoadSub(dbses[i + 1], ts, 0)
-					if (cl.IsComplete(dbses[i + 1]) > 0):
+					cl.IsComplete(dbses[i + 1])
+					if (dbses[i + 1].complete > 0):
 						cl.GatherLogErrData(dbses[i + 1])
 					else:
 						check = 0
@@ -454,7 +466,10 @@ if __name__ == '__main__':
 		elif (user[0] == "metrics"):
 			# compute level-0 metrics.
 			physmetrics = user[1].split(",")
-			ml.ComputePhysicalMetrics(submit, physmetrics)
+			if (submit.complete == 0):
+				ml.ComputePhysicalMetrics(submit, physmetrics, loc = "local")
+			else:
+				ml.ComputePhysicalMetrics(submit, physmetrics, loc = "storage")
 		
 		#####################################################################
 
@@ -492,7 +507,8 @@ if __name__ == '__main__':
 				for (i, ts) in enumerate(user[3].split(",")):
 					refs.append(sub.Submission())
 					sub.LoadSub(dbses[i + 1], ts, 0)
-					if (cl.IsComplete(dbses[i + 1]) > 0):
+					cl.IsComplete(dbses[i + 1])
+					if (dbses[i + 1].complete > 0):
 						cl.GatherLogErrData(dbses[i + 1])
 					else:
 						check = 0
@@ -519,7 +535,8 @@ if __name__ == '__main__':
 			# sblearn <timestamp> <physical metrics> <logical metric> [method] [<mask>]
 			sbtest = sub.Submission()
 			sub.LoadSub(sbtest, user[1], 0)
-			if (cl.IsComplete(sbtest) > 0):
+			cl.IsComplete(sbtest)
+			if (sbtest.complete > 0):
 				cl.GatherLogErrData(sbtest)
 
 			if (os.path.isfile(fn.PredictedPhyRates(sbtest)) == 1):

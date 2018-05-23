@@ -215,10 +215,10 @@ def LevelWisePlot2D(phymets, logmet, dbs):
 				nqubits = nqubits * dbs.eccs[l - 1].N
 				dist = dist * dbs.eccs[l - 1].D
 			fig = plt.figure(figsize = gv.canvas_size)
-			meshZ = griddata((phyerrs[:, 0], phyerrs[:, 1]), logErr[:, l], (meshX, meshY), method = "linear")
+			meshZ = griddata((phyerrs[:, 0], phyerrs[:, 1]), logErr[:, l], (meshX, meshY), method = "cubic")
 			
 			clevels = np.logspace(np.log10(np.abs(logErr[:, l].min())), np.log10(logErr[:, l].max()), gv.contour_nlevs, base = 10.0)
-			cplot = plt.contourf(meshX, meshY, meshZ, cmap = cm.winter, locator = ticker.LogLocator(), linestyles = gv.contour_linestyle, levels = clevels)
+			cplot = plt.contourf(meshX, meshY, meshZ, cmap = cm.bwr, locator = ticker.LogLocator(), linestyles = gv.contour_linestyle, levels = clevels)
 			plt.scatter(phyerrs[:, 0], phyerrs[:, 1], marker = 'o', color = 'k')
 			# Title
 			plt.title("N = %d, d = %d" % (nqubits, dist), fontsize = gv.title_fontsize, y = 1.03)

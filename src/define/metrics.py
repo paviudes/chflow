@@ -335,10 +335,10 @@ def ComputeNorms(channel, metrics):
 		mets[m] = eval(Metrics[metrics[m]][-1])(channel, "unknown")
 	return mets
 
-def ChannelMetrics(submit, physmetrics, start, end, results, rep = "process"):
+def ChannelMetrics(submit, physmetrics, start, end, results, rep, loc):
 	# Compute the various metrics for all channels with a given noise rate
 	for i in range(start, end):
-		physical = np.load(fn.PhysicalChannel(submit, submit.available[i, :-1]))[int(submit.available[i, -1]), :, :]
+		physical = np.load(fn.PhysicalChannel(submit, submit.available[i, :-1], loc))[int(submit.available[i, -1]), :, :]
 		if (not (rep == "choi")):
 			physical = crep.ConvertRepresentations(physical, "process", "choi")
 		# print("Channel %d: Function ComputeNorms(\n%s,\n%s)" % (i, np.array_str(physical, max_line_width = 150, precision = 3), physmetrics))
@@ -346,14 +346,14 @@ def ChannelMetrics(submit, physmetrics, start, end, results, rep = "process"):
 			results[i * len(physmetrics) + m] = eval(Metrics[physmetrics[m]][-1])(physical, "unknown")
 	return None
 
-def ComputePhysicalMetrics(submit, physmetrics, ncpu = 1):
+def ComputePhysicalMetrics(submit, physmetrics, ncpu = 1, loc = "local"):
 	# Compute metrics for all physical channels in a submission.
 	nproc = min(ncpu, mp.cpu_count())
 	chunk = int(np.ceil(submit.channels/np.float(nproc)))
 	processes = []
 	results = mp.Array(ct.c_longdouble, submit.channels * len(physmetrics))
 	for i in range(nproc):
-		processes.append(mp.Process(target = ChannelMetrics, args = (submit, physmetrics, i * chunk, min(submit.channels, (i + 1) * chunk), results, "process")))
+		processes.append(mp.Process(target = ChannelMetrics, args = (submit, physmetrics, i * chunk, min(submit.channels, (i + 1) * chunk), results, "process", loc)))
 	for i in range(nproc):
 		processes[i].start()
 	for i in range(nproc):

@@ -42,17 +42,17 @@ def PreparePhysicalChannels(submit):
 		os.mkdir("./../physical/")
 	# Create quantum channels for various noise parameters and store them in the process matrix formalism.
 	channels = np.zeros((submit.samps, 4, 4), dtype = np.longdouble)
-	submit.params = np.zeros((submit.noiserates.shape[0] * submit.samps, submit.noiserates.shape[1] + 1), dtype = np.longdouble)
+	# submit.params = np.zeros((submit.noiserates.shape[0] * submit.samps, submit.noiserates.shape[1] + 1), dtype = np.longdouble)
+	noise = np.zeros(submit.noiserates.shape[1], dtype = np.longdouble)
 	for i in range(submit.noiserates.shape[0]):
-		noise = np.zeros(submit.noiserates.shape[1], dtype = np.longdouble)
 		for j in range(submit.noiserates.shape[1]):
 			if (submit.scales[j] == 1):
 				noise[j] = submit.noiserates[i, j]
 			else:
 				noise[j] = np.power(submit.scales[j], submit.noiserates[i, j])
 		for j in range(submit.samps):
-			submit.params[i * submit.samps + j, :-1] = submit.noiserates[i, :]
-			submit.params[i * submit.samps + j, -1] = j
+			# submit.params[i * submit.samps + j, :-1] = submit.noiserates[i, :]
+			# submit.params[i * submit.samps + j, -1] = j
 			# To create a random quantum channel, construct a random unitary operator by exponentiating a hertimitan operator and do a Krauss decomposition.
 			channels[j, :, :] = crep.ConvertRepresentations(chdef.GetKraussForChannel(submit.channel, *noise), 'krauss', 'process')
 			print("\r\033[2mPreparing physical channels... %d (%d%%) done.\033[0m" % (completed, 100*completed/float(submit.noiserates.shape[0]  * submit.samps))),
@@ -64,7 +64,6 @@ def PreparePhysicalChannels(submit):
 		submit.chfiles.append(chanfile)
 	print("")
 	if (submit.nodes > 0):
-		submit.cores[0] = int(np.ceil(len(submit.params)/np.longdouble(submit.nodes)))
-	# submit.cores[0] = min(submit.cores[0], len(submit.params))
-	submit.nodes = int(np.ceil(len(submit.params)/np.longdouble(submit.cores[0])))
+		submit.cores[0] = int(np.ceil(submit.noiserates.shape[0] * submit.samps/np.longdouble(submit.nodes)))
+	submit.nodes = int(np.ceil(submit.noiserates.shape[0] * submit.samps/np.longdouble(submit.cores[0])))
 	return None

@@ -1,13 +1,13 @@
 # Time stamp
-timestamp input
+timestamp sample
 # Type of quantum error correcting code
-ecc Steane,Steane
+ecc 5qc,5qc,5qc
 # Type of quantum channel
-channel rtz
+channel gdt
 # Noise rate exponents. The actual noise rate is (scale)^exponent.
-noiserange 0.05,0.3,26
+noiserange gdt_paduapts
 # Scale of the noise range
-scale 1
+scale 0.66,0.66
 # Number of samples
 samples 1
 # Number of syndromes to be sampled at top level

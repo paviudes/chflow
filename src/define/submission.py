@@ -20,7 +20,7 @@ class Submission():
 		self.host = "local"
 		self.nodes = 0
 		self.wall = 0
-		self.params = np.array([1, 0], dtype = float)
+		# self.params = np.array([1, 0], dtype = float)
 		self.queue = "X"
 		self.email = "X"
 		self.account = "default"
@@ -30,11 +30,12 @@ class Submission():
 		self.inputfile = InputFile(self.timestamp)
 		self.isSubmission = 0
 		self.scheduler = Scheduler(self.timestamp)
+		self.complete = -1
 
 		# Channel options
 		self.channel = "X"
 		self.repr = "process"
-		self.noiserange = np.array([])
+		self.noiserange = []
 		self.noiserates = np.array([[]])
 		self.scales = []
 		self.samps = 1
@@ -94,8 +95,8 @@ def Schedule(submit):
 		for i in range(submit.nodes):
 			sch.write("!!node %d!!\n" % (i))
 			for j in range(submit.cores[0]):
-				sch.write("%s %d\n" % (" ".join(map(lambda num: ("%g" % num), submit.params[i * submit.cores[0] + j, :-1])), submit.params[i * submit.cores[0] + j, -1]))
-				if (i * submit.cores[0] + j == (submit.params.shape[0] - 1)):
+				sch.write("%s %d\n" % (" ".join(map(lambda num: ("%g" % num), submit.noiserates[(i * submit.cores[0] + j)/submit.samps, :-1])), (i * submit.cores[0] + j) % submit.samps))
+				if (i * submit.cores[0] + j == (submit.noiserates[0] * submit.samps - 1)):
 					break
 	return None
 
@@ -123,16 +124,25 @@ def Update(submit, pname, newvalue):
 		submit.repr = newvalue
 
 	elif (pname == "noiserange"):
-		# For each free parameter, the value must be a float array: low,high,number of steps.
+		# There are 3 ways of providing the noise range.
+		# Using a file: The file must have as many columns as the number of free parameters and placed in chflow/input/.
+		# For each free parameter:
+			# 2. Using a compact range specification: low,high,number of steps.
+			# 3. Explicity specifying the points to be sampled: list of (length not equal to 3) points.
+			# Note that 2 or fewer points can be specified using the first scheme.
 		# The value for different free parameters must be separated by a ";".
-		# The noise range is interpretted in the logarithmic scale.
-		newRanges = map(lambda arr: map(np.longdouble, arr.split(",")), newvalue.split(";"))
-		submit.noiserange = []
-		for i in range(len(newRanges)):
-			submit.noiserange.append(np.linspace(np.longdouble(newRanges[i][0]), np.longdouble(newRanges[i][1]), np.int(newRanges[i][2])))
-		submit.noiserates = np.array(map(list, it.product(*submit.noiserange)), dtype = np.float)
-		if (len(submit.scales) == 0):
-			submit.scaled = [1 for __ in range(len(newRanges))]
+		# If scale is not equal to 1, the noise rates values is interpretted as an exponent for the value of scale.
+		if (os.path.isfile("./../input/%s.txt" % (newvalue)) == 1):
+			submit.noiserates = np.loadtxt("./../input/%s.txt" % (newvalue), comments="#", dtype = np.longdouble)
+		else:
+			newRanges = map(lambda arr: map(np.longdouble, arr.split(",")), newvalue.split(";"))
+			submit.noiserange = []
+			for i in range(len(newRanges)):
+				if (len(newRanges[i]) == 3):
+					submit.noiserange.append(np.linspace(np.longdouble(newRanges[i][0]), np.longdouble(newRanges[i][1]), np.int(newRanges[i][2])))
+				else:
+					submit.noiserange.append(newRanges[i])
+			submit.noiserates = np.array(map(list, it.product(*submit.noiserange)), dtype = np.float)
 
 	elif (pname == "samples"):
 		# The value must be an integer

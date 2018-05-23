@@ -35,6 +35,7 @@ cdef struct simulation:
 	long *statsperlevel
 	int nbins
 	int ****bins
+	long double **sumsq
 	long double **variance
 	long double threshold
 	## Running

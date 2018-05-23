@@ -58,22 +58,22 @@ cdef long double DiamondNorm(complex128_t **choi, char *chname):
 
 	else:
 		## =========> This block of code has a large Python interaction -- it can be very slow. <=========
-		choimatrix = np.zeros((4, 4), dtype = np.complex128)
+		choi = np.zeros((4, 4), dtype = np.complex128)
 		for i in range(4):
 			for j in range(4):
-				choimatrix[i, j] = choi[i][j]
+				choi[i, j] = choi[i][j]
 		# Subtracting the choi matrix of the identity channel, from the input.
 		# Choi matrix of the Identity channel is: 1/2 * ([[1,0,0,1],[0,0,0,0],[0,0,0,0],[1,0,0,1]])
-		choimatrix[0, 0] = choimatrix[0, 0] - 1/np.longdouble(2)
-		choimatrix[0, 3] = choimatrix[0, 3] - 1/np.longdouble(2)
-		choimatrix[3, 0] = choimatrix[3, 0] - 1/np.longdouble(2)
-		choimatrix[3, 3] = choimatrix[3, 3] - 1/np.longdouble(2)
+		choi[0, 0] = choi[0, 0] - 1/np.longdouble(2)
+		choi[0, 3] = choi[0, 3] - 1/np.longdouble(2)
+		choi[3, 0] = choi[3, 0] - 1/np.longdouble(2)
+		choi[3, 3] = choi[3, 3] - 1/np.longdouble(2)
 		## Taking a uniform superposition of a matrix and its Hermitian conjugate: (A + A^\dag)/2
 		try:
 			#### picos optimization problem
 			prob = pic.Problem()
 			# variables and parameters in the problem
-			J = pic.new_param('J', cvx.matrix(choimatrix))
+			J = pic.new_param('J', cvx.matrix(choi))
 			rho = prob.add_variable('rho', (2, 2), 'hermitian')
 			W = prob.add_variable('W', (4, 4), 'hermitian')
 			# objective function (maximize the hilbert schmidt inner product -- denoted by '|'. Here A|B means trace(A^\dagger * B))
@@ -96,13 +96,13 @@ cdef long double Entropy(complex128_t **choi):
 	# The idea is that a pure state (which corresponds to unitary channels) will have zero entropy while any mixed state which corresponds to a channel that does not preserve the input state, has finiste entropy.
 	cdef:
 		int i, j
-		np.ndarray[np.complex128_t, ndim = 2, mode = 'c'] choimatrix = np.zeros((4, 4), dtype = np.complex128)
+		np.ndarray[np.complex128_t, ndim = 2, mode = 'c'] choi = np.zeros((4, 4), dtype = np.complex128)
 	for i in range(4):
 		for j in range(4):
-			choimatrix[i, j] = choi[i][j]
+			choi[i, j] = choi[i][j]
 	cdef:
 		long double entropy = 0
-		np.ndarray[np.complex128_t, ndim = 2, mode = 'c'] singvals = np.linalg.svd(choimatrix, compute_uv = 0)
+		np.ndarray[np.complex128_t, ndim = 2, mode = 'c'] singvals = np.linalg.svd(choi, compute_uv = 0)
 	for i in range(4):
 		entropy = entropy - creall(singvals[i]) * logl(fabsl(creall(singvals[i])))
 	return entropy
@@ -135,20 +135,20 @@ cdef long double FrobeniousNorm(complex128_t **choi) nogil:
 	return frobenious
 
 
-cdef int ComputeMetrics(long double *metvals, int nmetrics, char **metricsToCompute, complex128_t **choichannel, char *chname) nogil:
+cdef int ComputeMetrics(long double *metvals, int nmetrics, char **metricsToCompute, complex128_t **choi, char *chname) nogil:
 	# Compute all the metrics for a given channel, in the Choi matrix form
 	cdef int m
 	for m in range(nmetrics):
 		if (strcmp(metricsToCompute[m], "frb") == 0):
-			metvals[m] = FrobeniousNorm(choichannel)
+			metvals[m] = FrobeniousNorm(choi)
 		elif (strcmp(metricsToCompute[m], "fidelity") == 0):
-			metvals[m] = Fidelity(choichannel)
+			metvals[m] = Fidelity(choi)
 		elif (strcmp(metricsToCompute[m], "processfidelity") == 0):
-			metvals[m] = ProcessFidelity(choichannel)
-		# elif (strcmp(metricsToCompute[m], "dnorm") == 0):
-		# 	metvals[m] = DiamondNorm(choichannel, chname)
-		# elif (strcmp(metricsToCompute[m], "entropy") == 0):
-		# 	metvals[m] = Entropy(choichannel)
+			metvals[m] = ProcessFidelity(choi)
+		elif (strcmp(metricsToCompute[m], "dnorm") == 0):
+			metvals[m] = DiamondNorm(choi, chname)
+		elif (strcmp(metricsToCompute[m], "entropy") == 0):
+			metvals[m] = Entropy(choi)
 		else:
 			# Metrics that are not optimized in C cannot be evaluated at the Logical levels. For these, the metric value is simply zero.
 			metvals[m] = 0

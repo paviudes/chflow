@@ -113,7 +113,7 @@ cpdef Benchmark(submit, rate, sample, physical, refchan):
 	cdef:
 		# np.ndarray[np.long_t, ndim = 1] statsperlevel = np.zeros(sims[0][0].nlevels + 1, dtype = np.long)
 		np.ndarray[np.longdouble_t, ndim = 2] metricValues = np.zeros((sims[0][0].nlevels + 1, sims[0][0].nmetrics), dtype = np.longdouble)
-		# np.ndarray[np.longdouble_t, ndim = 2] variance = np.zeros((sims[0][0].nlevels + 1, sims[0][0].nmetrics), dtype = np.longdouble)
+		np.ndarray[np.longdouble_t, ndim = 2] variance = np.zeros((sims[0][0].nlevels + 1, sims[0][0].nmetrics + qcode[0][0].nlogs * qcode[0][0].nlogs), dtype = np.longdouble)
 		np.ndarray[np.longdouble_t, ndim = 3] logical = np.zeros((sims[0][0].nlevels + 1, qcode[0][0].nlogs, qcode[0][0].nlogs), dtype = np.longdouble)
 		np.ndarray[np.longdouble_t, ndim = 4] bins = np.zeros((sims[0][0].nmetrics, sims[0].nlevels + 1, sims[0][0].nbins, sims[0][0].nbins), dtype = np.longdouble)
 
@@ -125,10 +125,11 @@ cpdef Benchmark(submit, rate, sample, physical, refchan):
 	for l in range(1, sims[0][0].nlevels + 1):
 		for m in range(sims[0][0].nmetrics):
 			metricValues[l, m] = sims[0][0].metricValues[l][m]
-			# variance[1 + l, m] = sims[0][0].variance[l][m]
+			variance[l, m] = sims[0][0].variance[l][m]
 		for r in range(qcode[0][0].nlogs):
 			for c in range(qcode[0][0].nlogs):
 				logical[l, r, c] = sims[0][0].logical[l][r][c]
+				variance[l, sims[0][0].nmetrics + r * qcode[0][0].nlogs + c] = sims[0][0].variance[l][sims[0][0].nmetrics + r * qcode[0][0].nlogs + c]
 		# statsperlevel[l] = sims[0][0].statsperlevel[l]
 		for m in range(sims[0].nmetrics):
 			for i in range(sims[0][0].nbins):
@@ -146,6 +147,10 @@ cpdef Benchmark(submit, rate, sample, physical, refchan):
 		np.save(fn.LogicalErrorRate(submit, rate, sample, submit.metrics[m]), metricValues[:, m])
 		# Record the syndrome bins
 		np.save(fn.SyndromeBins(submit, rate, sample, submit.metrics[m]), bins[m, :, :, :])
+		# Record the variance in metric values
+		np.save(fn.LogErrVariance(submit, rate, sample, submit.metrics[m]), variance[:, m])
+	# Record the variance in logical channel
+	np.save(fn.LogChanVariance(submit, rate, sample), variance[:, len(submit.metrics):])
 
 	###################################
 

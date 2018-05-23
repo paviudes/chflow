@@ -13,24 +13,25 @@ from define import fnames as fn
 
 def IsComplete(submit):
 	# Determine the noise rates and samples for which simulation output data is available.
-	chcount = 0
-	for i in range(submit.noiserates.shape[0]):
-		for j in range(submit.samps):
-			if (os.path.isfile(fn.LogicalChannel(submit, submit.noiserates[i], j))):
-				chcount = chcount + 1
-	submit.channels = chcount
-	if (chcount > 0):
-		submit.available = np.zeros((submit.channels, 1 + submit.noiserates.shape[1]), dtype = np.float)
+	if (submit.complete == -1):
 		chcount = 0
 		for i in range(submit.noiserates.shape[0]):
 			for j in range(submit.samps):
 				if (os.path.isfile(fn.LogicalChannel(submit, submit.noiserates[i], j))):
-					submit.available[chcount, :-1] = submit.noiserates[i, :]
-					submit.available[chcount, -1] = j
 					chcount = chcount + 1
-	availdata = (100 * chcount)/np.float(submit.noiserates.shape[0] * submit.samps)
-	print("\033[2mSimulation data is available for %d%% of the channels.\033[0m" % (availdata))
-	return availdata
+		submit.channels = chcount
+		if (chcount > 0):
+			submit.available = np.zeros((submit.channels, 1 + submit.noiserates.shape[1]), dtype = np.float)
+			chcount = 0
+			for i in range(submit.noiserates.shape[0]):
+				for j in range(submit.samps):
+					if (os.path.isfile(fn.LogicalChannel(submit, submit.noiserates[i], j))):
+						submit.available[chcount, :-1] = submit.noiserates[i, :]
+						submit.available[chcount, -1] = j
+						chcount = chcount + 1
+		submit.complete = (100 * chcount)/np.float(submit.noiserates.shape[0] * submit.samps)
+		print("\033[2mSimulation data is available for %d%% of the channels.\033[0m" % (submit.complete))
+	return submit.complete
 
 
 def GatherLogErrData(submit):

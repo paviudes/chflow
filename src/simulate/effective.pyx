@@ -345,9 +345,11 @@ cdef int UpdateMetrics(int level, long double bias, long double history, int isf
 		# After all the simulations are done, the average metrics are to be computed by diving the metricValues by the total number of statistics done for that level.
 		for m in range(sim[0].nmetrics):
 			sim[0].metricValues[level + 1][m] = sim[0].metricValues[level + 1][m]/(<long double>sim[0].statsperlevel[level + 1])
+			sim[0].variance[level + 1][m] = 1/(<long double>(sim[0].statsperlevel[level + 1] * (sim[0].statsperlevel[level + 1] - 1))) * sim[0].sumsq[level + 1][m] - (sim[0].statsperlevel[level + 1])/(<long double>(sim[0].statsperlevel[level + 1] - 1)) * sim[0].metricValues[level + 1][m] * sim[0].metricValues[level + 1][m]
 		for r in range(qcode[0].nlogs):
 			for c in range(qcode[0].nlogs):
 				sim[0].logical[level + 1][r][c] = sim[0].logical[level + 1][r][c]/(<long double>sim[0].statsperlevel[level + 1])
+				sim[0].variance[level + 1][sim[0].nmetrics + r * qcode[0].nlogs + c] = 1/(<long double>(sim[0].statsperlevel[level + 1] * (sim[0].statsperlevel[level + 1] - 1))) * sim[0].sumsq[level + 1][sim[0].nmetrics + r * qcode[0].nlogs + c] - (sim[0].statsperlevel[level + 1])/(<long double>(sim[0].statsperlevel[level + 1] - 1)) * sim[0].logical[level + 1][r][c] * sim[0].logical[level + 1][r][c]
 		# with gil:
 		# 	PrintDoubleArray1D(sim[0].metricValues[level + 1], "Level %d Metric values" % (level + 1), sim[0].nmetrics)
 	## Free memory

@@ -114,11 +114,23 @@ cdef int AllocSimParams(simul_t *simul, int nstabs, int nlogs) nogil:
 				for c in range(simul[0].nbins):
 					simul[0].bins[l][m][r][c] = 0
 	## Variance measures
+	simul[0].sumsq = <long double **>malloc((simul[0].nlevels + 1) * sizeof(long double *))
+	for l in range(simul[0].nlevels + 1):
+		simul[0].sumsq[l] = <long double *>malloc(simul[0].nmetrics * sizeof(long double))
+		for m in range(simul[0].nmetrics):
+			simul[0].sumsq[l][m] = 0.0
+		for r in range(nlogs):
+			for c in range(nlogs):
+				simul[0].sumsq[l][simul[0].nmetrics + r * nlogs + c] = 0.0
 	simul[0].variance = <long double **>malloc((simul[0].nlevels + 1) * sizeof(long double *))
 	for l in range(simul[0].nlevels + 1):
 		simul[0].variance[l] = <long double *>malloc(simul[0].nmetrics * sizeof(long double))
 		for m in range(simul[0].nmetrics):
 			simul[0].variance[l][m] = 0.0
+		for r in range(nlogs):
+			for c in range(nlogs):
+				simul[0].variance[l][simul[0].nmetrics + r * nlogs + c] = 0.0
+
 	## Quantum error correction
 	simul[0].levelOneChannels = <long double ***>malloc(nstabs * sizeof(long double **))
 	for s in range(nstabs):
@@ -193,6 +205,9 @@ cdef int FreeSimParams(simul_t *simul, int nstabs, int nlogs) nogil:
 	free(<void *>simul[0].levelOneImpDist)
 	free(<void *>simul[0].levelOneImpCumul)
 	## Variance measure
+	for i in range(simul[0].nlevels + 1):
+		free(<void *>simul[0].sumsq[i])
+	free(<void *>simul[0].sumsq)
 	for i in range(simul[0].nlevels + 1):
 		free(<void *>simul[0].variance[i])
 	free(<void *>simul[0].variance)
