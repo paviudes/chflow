@@ -1,4 +1,4 @@
 #!/bin/bash
 cd src
-python chflow.py "$@"
+python2.7 chflow.py "$@"
 cd ..
