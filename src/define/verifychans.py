@@ -42,7 +42,7 @@ def IsQuantumChannel(channel, rep = "process"):
 	# Hermitian condition
 	conditions[2] = np.allclose(HermitianConjugate(densmat), densmat, atol = 1E-08)
 	if (np.prod(conditions, dtype = np.int8) == 0):
-		print("! E = \n%s\nis not a valid quantum channel because" % (np.array_str(channel, max_line_width = 100, precision = "%.3e")))
+		print("! E = \n%s\nis not a valid quantum channel because" % (np.array_str(channel, max_line_width = 100)))
 		if (conditions[0] == 0):
 			print("\tX Tr(E(rho)) is not 1.")
 		if (conditions[1] == 0):
