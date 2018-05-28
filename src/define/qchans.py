@@ -105,7 +105,7 @@ def GenChannelsForCalibration(chname, rangeinfo):
 	# where li,hi,ni specify the range of the variable i in the channel.
 	# Store the channels as a 3D array of size (number of channels) x 4 x 4.
 	noiserange = np.array(map(lambda intv: map(np.float, intv.split(",")), rangeinfo.split(";")), dtype = np.float)
-	pvalues = np.array(list(it.product(*map(lambda intv: np.linspace(intv[0], intv[1], int(intv[2]), dtype = np.float), noiserange))), dtype = np.float)
+	pvalues = np.array(list(it.product(*map(lambda intv: np.linspace(intv[0], intv[1], int(intv[2])).astype(np.float), noiserange))), dtype = np.float)
 	channels = np.zeros((np.prod(noiserange[:, 2], dtype = np.int), 4, 4), dtype = np.complex128)
 	for i in range(channels.shape[0]):
 		channels[i, :, :] = crep.ConvertRepresentations(chdef.GetKraussForChannel(chname, *pvalues[i, :]), "krauss", "choi")

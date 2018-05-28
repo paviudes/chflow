@@ -22,33 +22,31 @@
 \begin{document}
 \section{Converting between channel representations}
 
+\begin{center}
 \begin{tikzpicture}[node distance=1cm,auto]
 \node[ellipse, fill=blue!20] (p1) {Choi};
-\node[ellipse, left=1cm of p1, fill=blue!20] (p2) {Krauss};
+\node[ellipse, below left=3cm of p1, fill=blue!20] (p2) {Krauss};
 \node[ellipse, left=1.5cm of p2, fill=blue!20] (p3) {Stinespring};
-\node[ellipse, right=1cm of p1, fill=blue!20] (p4) {Pauli Liouville};
-\node[ellipse, right=1cm of p4, fill=blue!20] (p5) {Chi};
-\path[draw,ultra thick,->] (p1) to[out=210,in=-30] node[below=0.2em]{Eq. \ref{choi_krauss}} (p2);
-\path[draw,ultra thick,->] (p2) to[out=30,in=150] node[above=0.2em]{Eq. \ref{krauss_choi}} (p1);
+\node[ellipse, below right=3cm of p1, fill=blue!20] (p4) {Pauli Liouville};
+\node[ellipse, below=3cm of p1, fill=blue!20] (p5) {Chi};
+\path[draw,ultra thick,->] (p1) to[out=210,in=30] node[right=0.2em]{Eq. \ref{choi_krauss}} (p2);
+\path[draw,ultra thick,->] (p2) to[out=120,in=180] node[left=0.2em]{Eq. \ref{krauss_choi}} (p1);
 \path[draw,ultra thick,->] (p3) to[out=0,in=180] node[above=0.2em]{Eq. \ref{stine_krauss}} (p2);
-\path[draw,ultra thick,->] (p1) to[out=30,in=150] node[above=0.2em]{Eq. \ref{choi_process}} (p4);
-\path[draw,ultra thick,->] (p4) to[out=210,in=-30] node[below=0.2em]{Eq. \ref{process_choi}} (p1);
-\path[draw,ultra thick,->] (p4) to[out=30,in=150] node[above=0.2em]{Eq. \ref{process_chi}} (p5);
-\path[draw,ultra thick,->] (p5) to[out=210,in=-30] node[below=0.2em]{Eq. \ref{chi_process}} (p4);
+\path[draw,ultra thick,->] (p1) to[out=0,in=30] node[above=0.2em]{Eq. \ref{choi_process}} (p4);
+\path[draw,ultra thick,->] (p4) to[out=150,in=-30] node[right=0.2em]{Eq. \ref{process_choi}} (p1);
+\path[draw,ultra thick,->] (p4) to[out=180,in=90] node[above=0.2em]{Eq. \ref{process_chi}} (p5);
+\path[draw,ultra thick,->] (p5) to[out=0,in=270] node[above=0.2em]{Eq. \ref{chi_process}} (p4);
 \end{tikzpicture}
-
+\end{center}
 
 \begin{enumerate}
 \item Krauss operators $\rightarrow$ Pauli Liouville matrix.
 
-Input: $\{K_{i}\}_{k=1}^{r}$, where each of $K_{i}$ are $2 \times 2$ matrices.
-Output: $\Gamma$, a $4 \times 4$ real matrix.
+Input: $\{K_{i}\}_{k=1}^{r}$, where each of $K_{i}$ are $2 \times 2$ matrices describing the CPTP map $\cE$ given by eq. \ref{eq:krauss}.
 
-The entries of $\Gamma$ are given by the following expression.
-\begin{gather}
-\Gamma_{i,j} = \tr(\cE(P_{i})P_{j}) \label{process}
-\end{gather}
-where $\cE$ is the CPTP map described by the input Krauss operators, as in (Eq. \ref{krauss}) and $P_{i}$ is one of the Pauli matrices $\{I, X, Y, Z\}$. So, the process matrix can be expressed in terms of the Krauss operators as
+Output: $\Gamma_{\cE}$, as defined in eq. \ref{eq:fano}.
+
+Method: Combining eqs. \ref{eq:krauss} and \ref{eq:fano}, we find
 \begin{gather}
 \Gamma_{i,j} = \sum_{k = 1}^{r}\tr(K_{k}P_{i}K^{\dagger}_{k}P_{j}) . \label{krauss_process}
 \end{gather}

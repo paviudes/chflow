@@ -205,7 +205,7 @@ if __name__ == '__main__':
 			# Construct the syndrome projectors
 			print("\033[2mConstructing syndrome projectors.\033[0m")
 			qec.ConstructSyndromeProjectors(qeccode)
-			print("\033[2mDone, saved to code/%s_syndproj.txt. Reshape the array to (%d, %d, %d) after importing it elsewhere.\033[0m" % (qeccode.name, 2**(qeccode.N - qeccode.K), 2**qeccode.N, 2**qeccode.N))
+			print("\033[2mDone, saved to code/%s_syndproj.npy.\033[0m" % (qeccode.name))
 
 		#####################################################################
 

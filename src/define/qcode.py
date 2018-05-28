@@ -401,7 +401,7 @@ def ConstructSyndromeProjectors(qecc):
 		stabilizers[s, :, :] = stabph * PauliOperatorToMatrix(stabop)
 	projectors = np.einsum("ij,jkl->ikl", qecc.syndsigns, stabilizers)
 	# Save the projectors on to a file in chflow/code
-	np.savetxt("./../code/%s_syndproj.txt" % (qecc.name), np.reshape(projectors, 2**(3 * qecc.N - qecc.K)))
+	np.save("./../code/%s_syndproj.npy" % (qecc.name), projectors)
 	return None
 
 	
