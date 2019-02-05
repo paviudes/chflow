@@ -6,7 +6,7 @@ try:
 	import multiprocessing as mp
 except:
 	pass
-from benchmark import Benchmark
+from simulate.benchmark import Benchmark
 from define import qcode as qec
 from define import qchans as qch
 from define import submission as sub
@@ -16,7 +16,6 @@ def SimulateSampleIndex(submit, rate, sample, coreidx, results):
 	# channel, rate, sample, nlevels, nstats, ecmode, metricsToCompute, qcodeinfo, importance, decoder, coreidx, results):
 	start = time.time()
 	## Load the physical channel and the reference (noisier) channel if importance sampling is selected.
-	# print("Physical channel for noise = %g, sample = %d\n%s" % (rate, sample, np.load("physical/%s_%g.npy" % (submit.channel, rate))[sample, :, :]))
 	physchan = np.load(fn.PhysicalChannel(submit, rate, loc = "local"))[sample, :, :]
 	if (submit.importance == 2):
 		refchan = np.load(fn.PhysicalChannel(submit, rate, sample, loc = "local"))[sample, :, :]
@@ -38,8 +37,10 @@ def LogResultsToStream(submit, stream, endresults):
 		logchans = np.load(fn.LogicalChannel(submit, rate, sample))
 		# Load the metrics
 		metvals = np.zeros((len(submit.metrics), 1 + submit.levels), dtype = np.longdouble)
+		variance = np.zeros((len(submit.metrics), 1 + submit.levels), dtype = np.longdouble)
 		for m in range(len(submit.metrics)):
 			metvals[m, :] = np.load(fn.LogicalErrorRate(submit, rate, sample, submit.metrics[m]))
+			variance[m, :] = np.load(fn.LogErrVariance(submit, rate, sample, submit.metrics[m]))
 		stream.write("Core %d:\n" % (coreindex + 1))
 		stream.write("    Noise rate: %s\n" % (np.array_str(rate)))
 		stream.write("    sample = %d\n" % (sample))
@@ -53,7 +54,8 @@ def LogResultsToStream(submit, stream, endresults):
 		for l in range(submit.levels + 1):
 			stream.write("\t\033[92m{:<10}\033[0m".format("%d" % (l)))
 			for m in range(len(submit.metrics)):
-				stream.write("\033[92m {:<20}\033[0m".format("%g" % (metvals[m, l]))),
+				stream.write("\033[92m {:<12}\033[0m".format("%g" % (metvals[m, l]))),
+				stream.write("\033[92m {:<12}\033[0m".format(" +/- %g" % (variance[m, l]))),
 			stream.write("\n")
 		stream.write("\033[92m xxxxxxxxxxxxxxx\n\033[0m")
 		stream.write("\033[92mAverage logical channels\033[0m\n")
@@ -75,17 +77,18 @@ def LocalSimulations(submit, node, stream = sys.stdout):
 				if (isfound == 1):
 					if (line.strip("\n").strip(" ")[0] == "!"):
 						break
-					params.append(map(np.float, line.strip("\n").strip(" ").split(" ")))
+					params.append(list(map(np.float, line.strip("\n").strip(" ").split(" "))))
 				if (line.strip("\n").strip(" ") == ("!!node %d!!" % (node))):
 					isfound = 1
 
 	params = np.array(params)
+	# print("params: {}".format(params))
 	submit.cores[0] = min(submit.cores[0], params.shape[0])
 	# print("Parameters to be simulated in node %d with %d cores.\n%s" % (submit.current, min(params.shape[0], submit.cores[0]), np.array_str(params)))
 	if (submit.host == "local"):
 		availcores = mp.cpu_count()
 	else:
-		exce("from cluster import %s as cl" % (submit.host))
+		exec("from cluster import %s as cl" % (submit.host), globals())
 		availcores = cl.GetCoresInNode()
 	finished = 0
 	while (finished < submit.cores[0]):
@@ -96,7 +99,7 @@ def LocalSimulations(submit, node, stream = sys.stdout):
 		stream.write("\033[2mImportance: %g\n\033[0m" % (submit.importance))
 		stream.write("\033[2mDecoder: %d\n\033[0m" % (submit.decoder))
 		stream.write("\033[2mConcatenation levels: %d\n\033[0m" % (submit.levels))
-		stream.write("\033[2mDecoding trials per level: %d\n\033[0m" % (submit.stats))
+		stream.write("\033[2mDecoding trials per level: %s\n\033[0m" % (np.array_str(submit.stats)))
 		stream.write("\033[2mMetrics to be computed at every level: %s\n\033[0m" % (", ".join(submit.metrics)))
 		stream.write("\033[2m---------------------------\n\033[0m")
 		stream.write("\033[2mCalculating...\n\033[0m")
@@ -106,6 +109,7 @@ def LocalSimulations(submit, node, stream = sys.stdout):
 		results.cancel_join_thread()
 		for p in range(nproc):
 			processes.append(mp.Process(target = SimulateSampleIndex, args = (submit, params[finished + p, :-1], np.int(params[finished + p, -1]), p, results)))
+			# SimulateSampleIndex(submit, params[finished + p, :-1], np.int(params[finished + p, -1]), p, results)
 		for p in range(nproc):
 			processes[p].start()
 		# wait for all the processes to finish

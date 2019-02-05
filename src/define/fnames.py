@@ -1,6 +1,6 @@
 def PhysicalChannel(dbs, noise, loc = "local"):
 	# Name of the file containing the physical channel
-	noisedes = "_".join(map(lambda p: ("%g" % p), noise))
+	noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
 	if (loc == "local"):
 		fname = ("./../physical/%s_%s.npy" % (dbs.channel, noisedes))
 	else:
@@ -14,19 +14,31 @@ def OutputDirectory(path, dbs):
 
 def LogicalChannel(dbs, noise, samp):
 	# File containing the logical channels
-	noisedes = "_".join(map(lambda p: ("%g" % p), noise))
+	noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
 	fname = ("%s/channels/logchan_%s_s%d.npy" % (dbs.outdir, noisedes, samp))
+	return fname
+
+def LogChanVariance(dbs, noise, samp):
+	# File containing the logical channels
+	noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
+	fname = ("%s/channels/chanvar_%s_s%d.npy" % (dbs.outdir, noisedes, samp))
 	return fname
 
 def LogicalErrorRate(dbs, noise, samp, metric):
 	# File containing the logical error rates for a given physical channel and logical metric.
-	noisedes = "_".join(map(lambda p: ("%g" % p), noise))
+	noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
 	fname = ("%s/metrics/%s_%s_s%d.npy" % (dbs.outdir, metric, noisedes, samp))
+	return fname
+
+def LogErrVariance(dbs, noise, samp, metric):
+	# File containing the logical error rates for a given physical channel and logical metric.
+	noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
+	fname = ("%s/metrics/var_%s_%s_s%d.npy" % (dbs.outdir, metric, noisedes, samp))
 	return fname
 
 def SyndromeBins(dbs, noise, samp, metric):
 	# File containing the syndrome-metric bins.
-	noisedes = "_".join(map(lambda p: ("%g" % p), noise))
+	noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
 	fname = ("%s/metrics/bins_%s_%s_s%d.npy" % (dbs.outdir, metric, noisedes, samp))
 	return fname
 
@@ -103,6 +115,50 @@ def PredictedPhyRates(dbs):
 def PredictComparePlot(dbs, lmet, pmet):
 	# File containing the comparisons between the machine learnt metric and a standard metric -- by studying both their correlations with the logical error rate.
 	fname = ("%s/results/val_%s_vs_%s.pdf" % (dbs.outdir, pmet, lmet))
+	return fname
+
+def RFECVRankings(dbs, deg):
+	# File containing the Regression rankings
+	fname = ("%s/results/rfecv_%d.npy" % (dbs.outdir, deg))
+	return fname
+
+def MCStatsPlot(dbs, lmet, pmet):
+	# File containing the plot of average logical error rate with different syndrome samples
+	fname = ("%s/results/mcplot_%s_%s.pdf" % (dbs.outdir, pmet, lmet))
+	return fname
+
+def RunningAverageCh(dbs, noise, samp, metric):
+	# File containing the data for running averages for top level metric values for a specific channel.
+	noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
+	fname = ("%s/metrics/running_%s_%s_s%d.npy" % (dbs.outdir, metric, noisedes, samp))
+	return fname
+
+def RunningAverages(dbs, lmet):
+	# File containing the data for running averages of top level metrics for all channels
+	fname = ("%s/results/runavg_%s.npy" % (dbs.outdir, lmet))
+	return fname
+
+def SyndromeBinsPlot(dbs, lmet, pvals):
+	# File containing the plot of syndrome bins for specific logical error metric and physical error rate.
+	if (pvals == -1):
+		fname = ("%s/results/bplot_%s_all.pdf" % (dbs.outdir, lmet))	
+	else:
+		fname = ("%s/results/bplot_%s_%s.pdf" % (dbs.outdir, lmet, "_".join(map(str, pvals))))
+	return fname
+
+def VarianceBins(dbs, lmet, pmet):
+	# File containing the bar plot of variance in each bin of a scatter plot.
+	fname = ("%s/results/scatbins_%s_%s.pdf" % (dbs.outdir, str(pmet), lmet))
+	return fname
+
+def CompressionMatrix(dbs, lmet, level):
+	# File containing the compression matrix.
+	fname = ("%s/results/compmat_%s_l%d.npy" % (dbs.outdir, lmet, level))
+	return fname
+
+def CompressedParams(dbs, lmet, level):
+	# File containing the compression matrix.
+	fname = ("%s/results/compressed_%s_l%d.npy" % (dbs.outdir, lmet, level))
 	return fname
 
 # =====================================================================================================================================

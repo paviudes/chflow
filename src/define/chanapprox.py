@@ -8,7 +8,7 @@ try:
 except:
 	pass
 
-import chanreps as crep
+from define import chanreps as crep
 
 
 def HermitianConjugate(mat):

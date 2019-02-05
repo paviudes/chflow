@@ -4,11 +4,11 @@ try:
 	import itertools as it
 except:
 	pass
-import chanreps as crep
-import randchans as rchan
-import chandefs as chdef
-import chanapprox as capp
-import metrics as ml
+from define import chanreps as crep
+from define import randchans as rchan
+from define import chandefs as chdef
+from define import chanapprox as capp
+from define import metrics as ml
 
 Channels = {'idn':["Identity channel",
 					"No parameters.",
@@ -40,19 +40,23 @@ Channels = {'idn':["Identity channel",
 					"red"],
 			'rtz':["Rotation about Z-axis",
 					"Rotation angle as a fraction of pi",
-					["$\\frac{\\theta}{2\\pi}$"],
+					["$\\theta/2\\pi}$"],
+					"black"],
+			'rtzpert':["Inexact Rotation about Z-axis",
+					"Mean rotation angle as a fraction of pi",
+					["$\\theta/2\\pi}$"],
 					"black"],
 			'strtz':["Stochastic rotation about Z-axis",
 					"Rotation angle as a fraction of pi",
-					["$\\frac{\\theta}{2\\pi}$"],
+					["$\\theta/2\\pi}$"],
 					"black"],
 			'rtx':["Rotation about X-axis",
 					"Rotation angle as a fraction of pi",
-					["$\\frac{\\theta}{2\\pi}$"],
+					["$\\theta/2\\pi}$"],
 					"darkviolet"],
 			'rty':["Rotation about Y-axis",
 					"Rotation angle as a fraction of pi",
-					["$\\frac{\\theta}{2\\pi}$"],
+					["$\\theta/2\\pi}$"],
 					"darkorchid"],
 			'rtpd':["Z-Rotation with Phase dampling",
 					"Damping rate, Rotation angle as a fraction of pi.",

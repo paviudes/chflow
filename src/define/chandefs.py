@@ -3,11 +3,11 @@ try:
 	from scipy import linalg as linalg
 except:
 	pass
-import globalvars as gv
-import randchans as rchan
-import photonloss as pl
-import gendamp as gd
-import chanreps as crep
+from define import globalvars as gv
+from define import randchans as rchan
+from define import photonloss as pl
+from define import gendamp as gd
+from define import chanreps as crep
 
 
 def GetKraussForChannel(chType, *params):
@@ -73,6 +73,7 @@ def GetKraussForChannel(chType, *params):
 		# Rotation about the Z-axis
 		krauss = np.zeros((1, 2, 2), dtype = np.complex128)
 		krauss[0, :, :] = linalg.expm(-1j * np.pi * params[0] * gv.Pauli[3, :, :])
+		# print("krauss\n%s" % (np.array_str(krauss)))
 
 	elif chType == "rtzpert":
 		# Inexact rotations about the Z-axis -- the rotation angle is a gaussian random number with mean = theta and variance = 1.

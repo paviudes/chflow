@@ -13,12 +13,14 @@ try:
 	import matplotlib.pyplot as plt
 	from scipy.interpolate import griddata
 	import multiprocessing as mp
+	import picos as pic
+	import cvxopt as cvx
 except:
 	pass
-import globalvars as gv
-import chanreps as crep
-import qchans as qc
-import fnames as fn
+from define import globalvars as gv
+from define import chanreps as crep
+from define import qchans as qc
+from define import fnames as fn
 
 ########################################## GLOBAL VARIABLES ##########################################
 
@@ -51,7 +53,7 @@ Metrics = {'dnorm':["Diamond norm",
 						"1 - Fidelity between the input Choi matrix and the Choi matrix corresponding to the identity state.",
 						"lambda J, ch: Infidelity(J, ch)"],
 			'np1':["Non Pauliness (Chi)",
-				   "$np(\\mathcal{J})$",
+				   "$\\mathcal{W}(\\mathcal{E})$",
 				   u'v',
 				   'lavender',
 				   "L2 norm of the difference between the channel\'s Chi matrix and it's twirled approximation.",
@@ -69,19 +71,19 @@ Metrics = {'dnorm':["Diamond norm",
 				   "Maximum \"amount\" of Pauli channel that can be subtracted from the input Pauli channel, such that what remains is still a valid quantum channel.",
 				   "lambda J, ch: NonPaulinessRemoval(J, ch)"],
 			'trn':["Trace norm",
-				   "$\left|\left|\\mathcal{J} - \\mathsf{id}\\right|\\right|_{1}$",
+				   "$\\left|\\left|\\mathcal{J} - \\mathsf{id}\\right|\\right|_{1}$",
 				   u'8',
 				   'black',
-				   "Trace norm of the difference between the channel\'s Choi matrix and the input Bell state, Trace norm of A is defined as: Trace(Sqrt(A^\dagger . A)).",
+				   "Trace norm of the difference between the channel\'s Choi matrix and the input Bell state, Trace norm of A is defined as: Trace(Sqrt(A^\\dagger . A)).",
 				   "lambda J, ch: TraceNorm(J, ch)"],
 			'frb':["Frobenious norm",
-				   "$\left|\left|\\mathcal{J} - \\mathsf{id}\\right|\\right|_{2}$",
+				   "$\\left|\\left|\\mathcal{J} - \\mathsf{id}\\right|\\right|_{2}$",
 				   u'd',
 				   'chocolate',
-				   "Frobenious norm of the difference between the channel\'s Choi matrix and the input Bell state, Frobenious norm of A is defined as: Sqrt(Trace(A^\dagger . A)).",
+				   "Frobenious norm of the difference between the channel\'s Choi matrix and the input Bell state, Frobenious norm of A is defined as: Sqrt(Trace(A^\\dagger . A)).",
 				   "lambda J, ch: FrobeniousNorm(J, ch)"],
 			'bd':["Bures distance",
-				  "$\Delta_{B}(\\mathcal{J})$",
+				  "$\\Delta_{B}(\\mathcal{J})$",
 				  u'<',
 				  'goldenrod',
 				  "Bures distance between the channel\'s Choi matrix and the input Bell state. Bures distance between A and B is defined as: sqrt( 2 - 2 * sqrt( F ) ), where F is the Uhlmann-Josza fidelity between A and B.",
@@ -118,17 +120,23 @@ def DiamondNorm(choi, channel = "unknown"):
 		# 0			0		p/3	0
 		# 1/2-(2 p)/3	0		0	1/2-p/3
 		# and it's Diamond norm is p, in other words, it is 3 * Choi[1,1]/3
-		dnorm = 3 * choi[1,1]
+		dnorm = 3 * np.real(choi[1,1])
 	# 2. Rotation about the Z axis
-	elif (channel == "rtz"):
+	elif (channel == "broken"):
 		# The Choi matrix of the Rotation channel is in the form
-		# 1 						0 	0 	cos(t) - i sin(t)
-		# 0 						0 	0 	0
-		# 0 						0 	0 	0
-		# cos(t) + i sin(t) 	0 	0 	1
-		# and it's diamond norm is sin(t).
-		dnorm = np.abs(np.imag(choi[3, 0]))
+		# 1/2 							0 	0 	(cos(2 t) - i sin(2 t))/2
+		# 0 							0 	0 	0
+		# 0 							0 	0 	0
+		# (cos(2 t) + i sin(2 t))/2 	0 	0 	1/2
+		# and its diamond norm is sin(t).
+		if (np.real(choi[3, 0]) <= 0.0):
+			angle = np.pi - np.arcsin(2 * np.imag(choi[3, 0]))
+		else:
+			angle = np.arcsin(2 * np.imag(choi[3, 0]))
+		dnorm = np.abs(np.sin(angle/np.float(2)))
+		# print("channel\n%s\n2 t = %g and dnorm = %g" % (np.array_str(choi, max_line_width = 150), (np.pi - np.arcsin(2 * np.imag(choi[3, 0]))), dnorm))
 	else:
+		# print("Function: dnorm")
 		diff = (choi - gv.bell[0, :, :]).astype(complex)
 		#### picos optimization problem
 		prob = pic.Problem()
@@ -146,6 +154,7 @@ def DiamondNorm(choi, channel = "unknown"):
 		# solving the problem
 		sol = prob.solve(verbose = 0, maxit = 500)
 		dnorm = sol['obj']*2
+		# print("SDP dnorm = %g" % (dnorm))
 	return dnorm
 
 
@@ -184,7 +193,7 @@ def Entropy(choi, channel = "unknown"):
 
 def Infidelity(choi, channel = "unknown"):
 	# Compute the Fidelity between the input Choi matrix and the Choi matrix corresponding to the identity state.
-	fidelity = (1/np.longdouble(2)) * np.longdouble(np.real(choi[0][0] + choi[3][0] + choi[0][3] + choi[3][3]))
+	fidelity = (1/np.longdouble(2)) * np.longdouble(np.real(choi[0, 0] + choi[3, 0] + choi[0, 3] + choi[3, 3]))
 	# print("Infidelity for\n%s\n is %g." % (np.array_str(choi), 1 - fidelity))
 	return (1 - fidelity)
 
@@ -248,22 +257,31 @@ def NonUnitarity(choi, channel = "unknown"):
 def NonPaulinessChi(choi, channel = "unknown"):
 	# Quantify the behaviour of a quantum channel by its difference from a Pauli channel
 	# Convert the input Choi matrix to it's Chi-representation
-	# Compute the L2 norm of the difference between the input Chi matrix and it's twirled approximation.
-	proba = Twirl(choi, rep = "choi")
-	twirled = np.diag(np.concatenate((np.array([1.0 - np.sum(proba, dtype = np.float)], dtype = np.float), proba)))
-	nonpauli = np.linalg.norm(twirled - chgen.ConvertRepresentations(choi, "choi", "chi"), ord = "fro")/np.float(4)
+	# Compute the ration between the  sum of offdiagonal entries to the sum of disgonal entries.
+	# While computing the sums, consider the absolution values of the entries.
+	chi = crep.ConvertRepresentations(choi, "choi", "chi")
+	# print("chi\n%s" % (np.array_str(chi, max_line_width=150)))
+	atol = 10E-20
+	nonpauli = 0.0
+	for i in range(4):
+		for j in range(4):
+			if (not (i == j)):
+				if (np.abs(chi[i, i]) * np.abs(chi[j, j]) >= atol):
+					# print("contribution = %g" % (np.power(np.abs(chi[i, j]), 2.0)/(np.abs(chi[i, i]) * np.abs(chi[j, j]))))
+					nonpauli = nonpauli + np.power(np.abs(chi[i, j]), 2.0)/(np.abs(chi[i, i]) * np.abs(chi[j, j]))
+	# print("nonpauli = %g." % (nonpauli))
 	return nonpauli
 
 
-def NonPaulinessChoi(choi):
+def NonPaulinessChoi(choi, channel = "unknown"):
 	# Quantify the behaviour of a quantum channel by its difference from a Pauli channel
-	# Compute the least fidelity between the input Choi matrix and a bell state.
+	# Compute the least fidelity between the input Choi matrix and any of the bell states.
 	overlaps = map(np.abs, map(np.trace, np.tensordot(gv.bell, choi, axes = [[1],[1]])))
 	nonpauli = 1 - max(overlaps)
 	return nonpauli
 
 
-def NonPaulinessRemoval(choi):
+def NonPaulinessRemoval(choi, channel = "unknown"):
 	# Quantify the behaviour of a quantum channel by its difference from a Pauli channel
 	# Pauliness is defined as the maximum "amount" of Pauli channel that can be subtracted from the input Pauli channel, such that what remains is still a valid quantum channel.
 	bellstates = np.zeros((4, 4, 4), dtype = np.complex128)
@@ -284,19 +302,19 @@ def NonPaulinessRemoval(choi):
 	p = prob.add_variable('p')
 	# specifying constraints
 	# probabilities sum to 1. Each is bounded above by 1, below by 0.
-	for pi in range(4):
-		prob.add_constraint(pp[pi] >= 0)
-		prob.add_constraint(pp[pi] <= 1)
+	for i in range(4):
+		prob.add_constraint(pp[i] >= 0)
+		prob.add_constraint(pp[i] <= 1)
 	prob.add_constraint(np.sum(pp) == 1)
 	# Fraction of Pauli channel that can to be removed
-	prob.add_constraint(p > 0)
-	prob.add_constraint(p < 1)
+	prob.add_constraint(p >= 0)
+	prob.add_constraint(p <= 1)
 	# What remains after subtracting a Pauli channel is a valid Choi matrix, up to normalization
 	prob.add_constraint(JI*pp[0] + JX*pp[1] + JY*pp[2] + JZ*pp[3] - p*J >> 0)
 	# objective function --- maximize the sum of Probabilities of I, X, Y and Z errors
 	prob.set_objective('max', p)
 	# Solve the problem
-	sol = prob.solve(verbose = 0, maxit = 25)
+	sol = prob.solve(verbose = 0, maxit = 100)
 	nonPauli = 1 - sol['obj']
 	return nonPauli
 
@@ -322,32 +340,34 @@ def GenCalibrationData(chname, channels, noiserates, metrics):
 		calibdata = np.zeros((channels.shape[0], 1 + noiserates.shape[1]), dtype = np.longdouble)
 		for i in range(channels.shape[0]):
 			calibdata[i, :noiserates.shape[1]] = noiserates[i, :]
-			calibdata[i, noiserates.shape[1]] = eval(Metrics[metrics[m]][-1])(channels[i, :, :], "unknown")
+			calibdata[i, noiserates.shape[1]] = eval(Metrics[metrics[m]][-1])(channels[i, :, :], chname)
 		# Save the calibration data
 		np.savetxt(fn.CalibrationData(chname, metrics[m]), calibdata)
 	return None
 
-def ComputeNorms(channel, metrics):
+def ComputeNorms(channel, metrics, name = "unknown"):
 	# Compute a set of metrics for a channel (in the choi matrix form) and return the metric values
 	# print("Function ComputeNorms(\n%s,\n%s)" % (np.array_str(channel, max_line_width = 150, precision = 3), metrics))
 	mets = np.zeros(len(metrics), dtype = np.longdouble)
 	for m in range(len(metrics)):
-		mets[m] = eval(Metrics[metrics[m]][-1])(channel, "unknown")
+		mets[m] = eval(Metrics[metrics[m]][-1])(channel, name)
 	return mets
 
 def ChannelMetrics(submit, physmetrics, start, end, results, rep, loc):
 	# Compute the various metrics for all channels with a given noise rate
 	for i in range(start, end):
 		physical = np.load(fn.PhysicalChannel(submit, submit.available[i, :-1], loc))[int(submit.available[i, -1]), :, :]
+		# print("Channel %d: Function ComputeNorms(\n%s,\n%s)" % (i, np.array_str(physical, max_line_width = 150, precision = 3), physmetrics))
 		if (not (rep == "choi")):
 			physical = crep.ConvertRepresentations(physical, "process", "choi")
-		# print("Channel %d: Function ComputeNorms(\n%s,\n%s)" % (i, np.array_str(physical, max_line_width = 150, precision = 3), physmetrics))
 		for m in range(len(physmetrics)):
-			results[i * len(physmetrics) + m] = eval(Metrics[physmetrics[m]][-1])(physical, "unknown")
+			results[i * len(physmetrics) + m] = eval(Metrics[physmetrics[m]][-1])(physical, submit.channel)
+			# print("%g" % (results[i * len(physmetrics) + m]))
 	return None
 
-def ComputePhysicalMetrics(submit, physmetrics, ncpu = 1, loc = "local"):
+def ComputePhysicalMetrics(submit, physmetrics, ncpu = 4, loc = "local"):
 	# Compute metrics for all physical channels in a submission.
+	ncpu = 1
 	nproc = min(ncpu, mp.cpu_count())
 	chunk = int(np.ceil(submit.channels/np.float(nproc)))
 	processes = []
@@ -372,19 +392,19 @@ def PlotCalibrationData1D(chname, metrics, xcol = 0):
 	# "noiserates" is a 2D array of size (number of channels) x m that contains the parameter combinations corresponding to every channel index.
 	# "xcol" indicates the free variable of the noise model that distinguishes various channels in the plot. (This is the X-axis.)
 	# All metrics will be in the same plot.
-	fig = plt.figure(figsize = gv.canvas_size)
+	fig = plt.figure(figsize = (gv.canvas_size[0] * 1.2, gv.canvas_size[1] * 1.2))
 	plt.title("%s" % (qc.Channels[chname][0]), fontsize = gv.title_fontsize, y = 1.01)
 	for m in range(len(metrics)):
 		calibdata = np.loadtxt(fn.CalibrationData(chname, metrics[m]))
 		# print("calibdata\n%s" % (np.array_str(calibdata)))
-		plt.plot(calibdata[:, xcol], calibdata[:, -1], label = Metrics[metrics[m]][1], marker = Metrics[metrics[m]][2], color = Metrics[metrics[m]][3], markersize = gv.marker_size, linestyle = "-")
+		plt.plot(calibdata[:, xcol], calibdata[:, -1], label = Metrics[metrics[m]][1], marker = Metrics[metrics[m]][2], color = Metrics[metrics[m]][3], markersize = gv.marker_size + 5, linestyle = "-", linewidth = 7.0)
 	ax = plt.gca()
-	ax.set_xlabel(qc.Channels[chname][2][xcol], fontsize = gv.axes_labels_fontsize)
-	ax.set_xscale('log')
-	ax.set_ylabel("$\\mathcal{N}_{0}$", fontsize = gv.axes_labels_fontsize)
-	ax.set_yscale('log')
+	ax.set_xlabel(qc.Channels[chname][2][xcol], fontsize = gv.axes_labels_fontsize + 20)
+	# ax.set_xscale('log')
+	ax.set_ylabel("$\\mathcal{N}_{0}$", fontsize = gv.axes_labels_fontsize + 20)
+	# ax.set_yscale('log')
 	# separate the axes labels from the plot-frame
-	ax.tick_params(axis = 'both', direction = "inout", which = 'both', pad = gv.ticks_pad, labelsize = gv.ticks_fontsize, length = gv.ticks_length, width = gv.ticks_width)
+	ax.tick_params(axis = 'both', direction = "inout", which = 'both', pad = gv.ticks_pad, labelsize = gv.ticks_fontsize + 10, length = gv.ticks_length, width = gv.ticks_width)
 	# Legend
 	plt.legend(numpoints = 1, loc = 4, shadow = True, fontsize = gv.legend_fontsize, markerscale = gv.legend_marker_scale)
 	# Save the plot

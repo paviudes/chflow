@@ -2,7 +2,7 @@ try:
 	import numpy as np
 except:
 	pass
-import chanreps as crep
+from define import chanreps as crep
 
 def HermitianConjugate(mat):
 	# Return the Hermitian conjugate of a matrix

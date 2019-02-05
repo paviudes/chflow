@@ -2,7 +2,7 @@ try:
 	import numpy as np
 except:
 	pass
-import globalvars as gv
+from define import globalvars as gv
 
 def HermitianConjugate(mat):
 	# Return the Hermitian conjugate of a matrix
@@ -76,20 +76,21 @@ def ConvertRepresentations(channel, initial, final):
 	# 7. choi to krauss
 	# 8. process to chi
 	# 9. chi to process
+	# 10. choi to chi
 	# 			Krauss 	Choi 	Chi 	Process 	Stine
 	# Krauss 	 0 		 6 		-1 		 5 			 4
-	# Choi 	 	 7		 0 		-1 		 1 			-1
+	# Choi 	 	 7		 0 		 10 	 1 			-1
 	# Chi 	 	-1		-1		 0 		 9 			-1
 	# Process  	-1		 2		 8		 0 			-1
 	# Stine 	 3		-1		-1		-1			 0
 
 	mappings = np.array([[0, 6, -1, 5, 4],
-						 [7, 0, -1, 1, -1],
+						 [7, 0, 10, 1, -1],
 						 [-1, -1, 0, 9, -1],
 						 [-1, 2, 8, 0, -1],
 						 [3, -1, -1, -1, 0]], dtype = np.int8)
 	costs = np.array([[0, 1, -1, 1, 5],
-					  [1, 0, -1, 1, -1],
+					  [1, 0, 1, 1, -1],
 					  [-1, -1, 0, 1, -1],
 					  [-1, 1, 1, 0, -1],
 					  [5, -1, -1, -1, 0]], dtype = np.int8)
@@ -184,9 +185,9 @@ def ConvertRepresentations(channel, initial, final):
 			outrep = np.copy(krauss)
 		
 		elif (initial == 'process' and final == 'chi'):
-			# Convert from the process matrix representation to the Chi matrix representation
+			# Convert from the process matrix to the chi matrix
 			# The process matrix is the action of the channel on the Pauli basis whereas the Chi matrix describes the amplitude of applying a pair of gv.Pauli operators (on the left and right) to the input state
-			# X_ij = \sum_(k,l) W_ijkl * Lambda_(k,l)
+			# Lambda_ij = \sum_(k,l) W_ijkl * Chi_(k,l)
 			# where W_ijkl = Trace(P_k P_j P_l P_i)
 			basis = np.zeros((4, 4, 4, 4), dtype = np.complex128)
 			for i in range(4):
@@ -198,9 +199,9 @@ def ConvertRepresentations(channel, initial, final):
 			outrep = np.copy(chi)
 
 		elif (initial == 'chi' and final == 'process'):
-			# Convert from the process matrix to the Chi matrix
+			# Convert from the chi matrix to the process matrix
 			# The process matrix is the action of the channel on the Pauli basis whereas the Chi matrix describes the amplitude of applying a pair of Pauli operators (on the left and right) to the input state
-			# X_ij = \sum_(k,l) W_ijkl * Lambda_(k,l)
+			# Lambda_ij = \sum_(k,l) W_ijkl * Chi_(k,l)
 			# where W_ijkl = Trace(P_k P_j P_l P_i)
 			basis = np.zeros((4, 4, 4, 4), dtype = np.complex128)
 			for i in range(4):
@@ -210,6 +211,27 @@ def ConvertRepresentations(channel, initial, final):
 							basis[i, j, k, l] = 0.5 * np.trace(Dot(gv.Pauli[[k, j, l, i], :, :]))
 			process = np.reshape(np.dot(np.reshape(basis, [16, 16]), np.reshape(inprep, [16, 1])), [4, 4])
 			outrep = np.copy(process)
+		
+		elif (initial == 'choi' and final == 'chi'):
+			# Convert from the Choi matrix to the Chi matrix
+			# Tr(J(E) . (Pa o Pb^T)) = 1/2 \sum_(ij) X_(ij) W_((ij)(ab))
+			# where W_(ijab) = 1/2 * Tr(Pi Pb Pj Pa).
+			# Let v_(ab) = Tr(J(E) . (Pa o Pb^T)), then we have
+			# v_(ab) = X_(ij) W_((ij)(ab)). which is the relation: <v| = <x|W.
+			# We can rewrite this as: <x| = <v|W^{-1}.
+			basis = np.zeros((4, 4, 4, 4), dtype = np.complex128)
+			for i in range(4):
+				for j in range(4):
+					for a in range(4):
+						for b in range(4):
+							basis[i, j, a, b] = 0.5 * np.trace(Dot(gv.Pauli[[i, b, j, a], :, :]))
+			choivec = np.zeros((1, 16), dtype = np.complex128)
+			for a in range(4):
+				for b in range(4):
+					choivec[0, a * 4 + b] = np.trace(np.dot(inprep, np.kron(gv.Pauli[a, :, :], np.transpose(gv.Pauli[b, :, :]))))
+			chi = np.reshape(np.dot(choivec, np.linalg.inv(np.reshape(basis, [16, 16]))), [4, 4])
+			outrep = np.copy(chi)
+
 		else:
 			sys.stderr.write("\033[91mUnknown conversion task.\n\033[0m")
 		

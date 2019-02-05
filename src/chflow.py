@@ -22,6 +22,7 @@ from define import chanreps as crep
 # Files from the "analyze" module.
 from analyze import collect as cl
 from analyze import plots as pl
+from analyze import bestfit as bf
 
 def DisplayLogoLicense():
 	# Display logo as ascii drawing from http://ascii.mastervb.net with font = xcourb.tiff
@@ -41,7 +42,7 @@ def DisplayLogoLicense():
 	All rights reserved.
 	"""
 	url = "https://github.com/paviudes/chflow/wiki"
-	print("%s\n\tWelcome to chflow version \033[1mv1.0\033[0m\n\tCheck out %s for help.\n%s" % (logo, url, license))
+	print("%s\n\tWelcome to chflow version \033[1mv2.0\033[0m\n\tCheck out %s for help.\n%s" % (logo, url, license))
 	return None
 
 
@@ -127,8 +128,16 @@ if __name__ == '__main__':
 			   		   "lplot s11(string)[,s12(string),s13(string),...] s2(string) [s31(string),s32(string),...]\nwhere each of s1i are either metric names or indices of indepenent parameters in the defition of the physical noise model; s2 is the name of the logical metric; s3i are time stamps of other simulation records that also need to be plotted alongside."],
 			   "lplot2d":["Level-wise 2D (density) plots of the logical error rates vs. a pair of physical noise rates in the current (and/or other) database(s).",
 			   		   "lplot2d s11(string),s12(string) s2(string)\nwhere each of s1i are either metric names or indices of indepenent parameters in the defition of the physical noise model; s2 is the name of the logical metric."],
-			   "sbfit":["Fit the logical error rates in the database with an ansatz and plot the results.",
+			   "mcplot":["Plot showing running average logical error rate with the number of syndrome samples for current and other databases.",
+			   			"mcplot [s1(string)] [s2(string)] [s31(string),s32(string),...]\nwhere s1 and s2 are the logical and physical error metric names. s2 can either be a name or an index to denote the physical noise parameter. s3i are time stamps of additional databases."],
+			   "bplot":["Plot the number of syndromes counted for a particular syndrome probability and a conditional logical error.",
+			   			"bplot [s1(string)] [s2(string)] [s3(string)]\nwhere s1 is the name of a logical metric and s2 are values of the physical metrics for which the syndrome counts have to be ploted."],
+			   "varplot":["Plot the variance in a scatter plot (of the logical error rates vs. physical metrics)",
+			   			"varplot [s1(string)] [s2(string)] [i3(int)] [s3(string)]\nwhere s1 and s2 are logical and physical metrics (parameter index), respectively. i3 is the number of bins"],
+			   "sbfit":["Fit the logical error rates in the database with an ansatz and plot the results. s3 are time stamps of additional databases (separated by a comma) whose scatter plots must be combined with the current submission.",
 			   			"sbfit [s1(string)] [s2(string)] [s31(string),s32(string),...]\nwhere s1 and s2 are physical and logical error metric names respectively; s3i are time stamp of additional simulation datasets that need to be fitted with the same ansatz."],
+			   "compress":["Compute a compression matrix for the channel parameters such that compressed parameters vary whenever the logical error rates vary. If the compression matrix exists, simply compute the bin variance.",
+			   			"compress i1(int) [s1(string)] [i2(int)] [i3(int)] [i4(int)]\nwhere i1 is the level whose logical error rates need to be compared for compression. s1 is the logical error metric. i3 is the number of parameters in the compressed version. i4 is the number of bins for dividing the parameter space to compute the variance."],
 			   "sblearn":["Derive new noise rates for physical channels using machine learnning.",
 			   			"sblearn s1(string) s2(string) s31(string)[,s32(string),...] [s4(string)] [s5(string)]\nwhere s1 is the name of a testing database; s2 is the name of a logical metric; s3i are the names of physical metrics to be included in the training set; s4 is the name of the machine learning method to be used; s5 is the name of a mask."],
 			   "build":["Compile Cython files or C extension files.",
@@ -141,6 +150,7 @@ if __name__ == '__main__':
 			   		   "No parameters."],
 			   "exit":["Quit",
 			   		   "No parameters."]}
+
 	
 	# Display the logo and license information
 	DisplayLogoLicense()
@@ -164,7 +174,7 @@ if __name__ == '__main__':
 			# The simulations are to be run remotely.
 			timestamp = sys.argv[1].strip("\n").strip(" ")
 			if (len(sys.argv) > 2):
-				node = int(sys.argv[1].strip("\n").strip(" "))
+				node = int(sys.argv[2].strip("\n").strip(" "))
 			else:
 				node = -1
 			RemoteExecution(timestamp, node)
@@ -180,12 +190,12 @@ if __name__ == '__main__':
 		print(">>"),
 		if (fileinput == 0):
 			try:
-				user = map(lambda val: val.strip("\n").strip(" "), raw_input().strip(" ").strip("\n").split(" "))
+				user = list(map(lambda val: val.strip("\n").strip(" "), input().strip(" ").strip("\n").split(" ")))
 			except KeyboardInterrupt:
 				user = ["quit"]
 				print("")
 		else:
-			user = map(lambda val: val.strip("\n").strip(" "), infp.readline().strip(" ").strip("\n").split(" "))
+			user = list(map(lambda val: val.strip("\n").strip(" "), infp.readline().strip(" ").strip("\n").split(" ")))
 
 		
 		if (user[0] == "qcode"):
@@ -331,7 +341,6 @@ if __name__ == '__main__':
 				# 		for j in range(submit.samps):
 				# 			submit.params[i * submit.samps + j, :-1] = submit.noiserates[i, :]
 				# 			submit.params[i * submit.samps + j, -1] = j
-			
 		#####################################################################
 
 		elif (user[0] == "build"):
@@ -389,12 +398,12 @@ if __name__ == '__main__':
 							qec.PrepareSyndromeLookUp(submit.eccs[l])
 					print("\033[2mHard decoding tables built in %d seconds.\033[0m" % (time.time() - start))
 				# Files from the "simulate" module.
-				os.system("cd simulate/;python compile.py build_ext --inplace > compiler_output.txt 2>&1;cd ..")
+				os.system("python simulate/compile.py build_ext --inplace > simulate/compiler_output.txt 2>&1")
 				from simulate import simulate as sim
 				# Error correction simulation
 				start = time.time()
 				print("\033[2mPlease wait ...\033[0m")
-				stream = open("perf.txt", "w")
+				stream = open("./../perf.txt", "w")
 				try:
 					for i in range(submit.nodes):
 						stnode = time.time()
@@ -455,6 +464,114 @@ if __name__ == '__main__':
 			print("\033[2m"),
 			pl.LevelWisePlot2D(user[1], user[2], submit)
 			print("\033[0m"),
+
+		#####################################################################
+
+		elif (user[0] == "mcplot"):
+			# Plot the average logical error rate with the number of syndrome samples.
+			# This plot is only useful for knowing the rate of convergence of the average as a function of the number of syndrome samples.
+			# While specifying more than one database, care must be taken to ensure that all the databases have the same
+				# physical noise process
+				# number of concatenation levels
+			# To use this feature, submit.stats must be a list.
+			dbses = [submit]
+			check = 1
+			if (len(user) > 3):
+				lmet = user[1]
+				pmet = user[2]
+				maxlev = max([dbses[d].levels for d in range(len(dbses))])
+				for (i, ts) in enumerate(user[3].split(",")):
+					dbses.append(sub.Submission())
+					sub.LoadSub(dbses[i + 1], ts, 0)
+					if (dbses[i].levels == maxlev):
+						cl.IsComplete(dbses[i + 1])
+						if (dbses[i + 1].complete > 0):
+							cl.GatherLogErrData(dbses[i + 1])
+						else:
+							check = 0
+							break
+					else:
+						check = 0
+						break
+			else:
+				if (len(user) > 2):
+					pmet = user[2]
+					lmet = user[1]
+				else:
+					pmet = -1
+					if (len(user) > 1):
+						lmet = user[1]
+					else:
+						lmet = submit.metrics[0]	
+			if (check == 1):
+				pl.MCStatsPlot(dbses, lmet, pmet)
+			else:
+				print("\033[2mOne of the databases does not have logical error data up to %d levels.\033[0m" % (maxlev))
+
+		#####################################################################
+
+		elif (user[0] == "bplot"):
+			# Plot the number of syndromes counted for a particular syndrome probability and a conditional logical error.
+			# Produce a 2D plot where X axis is the syndrome probability and Y axis the conditional logical error.
+			# A plot is produced for every concatenation level.
+			# The number of syndromes counted for fixed values of the X and Y values is represented by the intensity of a color.
+			# The plot is produced for the currently loaded database.
+			# The logical metric should be supplied, else it is taken as the first available metric for the database.
+			# If no physical noise rate and sample is specified, a 2D plot as described above is produced for every channel in the database.
+			if (len(user) > 2):
+				pvals = np.array(map(np.longdouble, user[2].split(",")), dtype = np.longdouble)
+				lmet = user[1]
+			else:
+				pvals = -1
+				if (len(user) > 1):
+					lmet = user[1]
+				else:
+					lmet = submit.metrics[0]
+			pl.BinsPlot(submit, lmet, pvals)
+
+		#####################################################################
+
+		elif (user[0] == "varplot"):
+			# Plot the variance in a scatter plot (of the logical error rates vs. physical metrics)
+			# PlotBinVariance(submit, lmet, pmet, nbins = 10)
+			# varplot <pmet> <lment> <number of bins> <additional database time-stamps>
+			# default number of bins is 10.
+			dbses = [submit]
+			check = 1
+			maxlev = 0
+			if (len(user) > 4):
+				for (i, ts) in enumerate(user[4].split(",")):
+					dbses.append(sub.Submission())
+					sub.LoadSub(dbses[i + 1], ts, 0)
+					cl.IsComplete(dbses[i + 1])
+					if (dbses[i + 1].complete > 0):
+						cl.GatherLogErrData(dbses[i + 1])
+					else:
+						check = 0
+						break
+				pmet = user[1]
+				lmet = user[2]
+				nbins = int(user[3])
+			else:
+				if (len(user) > 3):
+					pmet = user[1]
+					lmet = user[2]
+					nbins = int(user[3])
+				else:
+					nbins = 10
+					if (len(user) > 2):
+						pmet = user[1]
+						lmet = user[2]
+					else:
+						lmet = submit.metrics[0]
+						if (len(user) > 1):
+							pmet = user[1]
+						else:
+							pmet = 0
+			if (check == 1):
+				pl.PlotBinVariance(dbses, lmet, pmet, nbins)
+			else:
+				print("\033[2mOne of the databases does not have logical error data up to %d levels.\033[0m" % (maxlev))
 
 		#####################################################################
 
@@ -521,12 +638,62 @@ if __name__ == '__main__':
 				pl.CompareAnsatzToMetrics(submit, pmet, lmet)
 			else:
 				if (check == 1):
-					os.system("cd analyze/;python compile.py build_ext --inplace > compiler_output.txt 2>&1;cd ..")
-					from analyze import bestfit as bf
+					# os.system("cd analyze/;python compile.py build_ext --inplace > compiler_output.txt 2>&1;cd ..")
 					bf.FitPhysErr(pmet, lmet, *dbses)
 					pl.CompareAnsatzToMetrics(submit, pmet, lmet)
 				else:
 					print("\033[2mSome of the databases do not have simulation data.\033[0m")
+
+		
+		#####################################################################
+
+		elif (user[0] == "compress"):
+			# Compute a compression matrix for the channel parameters such that compressed parameters vary whenever the logical error rates vary.
+			# If the compression matrix exists, simply compute the bin variance.
+			# compress level [lmet] [ncomp] [nbins]
+			lmet = submit.metrics[0]
+			ncomp = 3
+			nbins = 10
+			check = int(submit.complete > 0)
+			if (len(user) > 4):
+				level = np.int(user[1])
+				lmet = user[2]
+				ncomp = np.int(user[3])
+				nbins = np.int(user[4])
+			else:
+				if (len(user) > 3):
+					level = np.int(user[1])
+					lmet = user[2]
+					ncomp = np.int(user[3])
+				else:
+					if (len(user) > 2):
+						level = np.int(user[1])
+						lmet = user[2]
+					else:
+						if (len(user) > 1):
+							level = np.int(user[1])
+						else:
+							check = 0
+
+			if (check == 1):
+				if (os.path.isfile(fn.CompressedParams(submit, lmet, level))):
+					# Compute the bin averages
+					# xdata = compressed parameters
+					# ydata = logical error rates
+					xdata = np.load(fn.CompressedParams(submit, lmet, level))
+					ydata = np.load(fn.LogicalErrorRates(submit, lmet))[:, level]
+					pl.ComputeNDimBinVariance(xdata, ydata, nbins, space = "linear")
+				else:
+					bf.Compress(submit, lmet, level, ncomp)
+			else:
+				print("\033[2mUsage: compress level [lmet] [nbins]. Ensure that the logical error data exists for all levels.\033[0m")
+
+		#####################################################################
+
+		elif (user[0] == "synclog"):
+			# Add the physical error rates to the level-0 logical error data.
+			# This is only relevant for backward compatibility since earlier the logical error rates at level-0 were not computed and left as 0.
+			cl.AddPhysicalRates(submit)
 
 		#####################################################################
 
@@ -552,7 +719,7 @@ if __name__ == '__main__':
 				method = "mplr"
 				if (len(user) > 4):
 					method = user[4]
-				os.system("cd analyze/;python compile.py build_ext --inplace > compiler_output.txt 2>&1;cd ..")
+				# os.system("cd analyze/;python compile.py build_ext --inplace > compiler_output.txt 2>&1;cd ..")
 				from analyze import learning as mac
 				# prepare training set
 				mac.PrepareMLData(submit, user[2].split(","), user[3], 0, mask)
@@ -574,7 +741,10 @@ if __name__ == '__main__':
 				elif (user[1] in ml.Metrics):
 					print("\t\033[2m\"%s\"\n\tDescription: %s\n\tExpression: %s\033[0m" % (user[1], ml.Metrics[user[1]][0], ml.Metrics[user[1]][-2]))
 				else:
-					pass
+					# Try to auto complete and ask for possible suggestions.
+					similar = [entry for entry in mannual if user[1] in entry]
+					if (len(similar) > 0):
+						print("\033[2mDid you mean %s ?\033[0m" % (", ".join(similar)))
 			else:
 				print("\tList of commands and thier functions.")
 				for (i, item) in enumerate(mannual):
@@ -599,6 +769,9 @@ if __name__ == '__main__':
 
 		else:
 			print("\033[2mNo action.\033[0m")
+			similar = [entry for entry in mannual if user[0] in entry]
+			if (len(similar) > 0):
+				print("\033[2mDid you mean %s ?\033[0m" % (", ".join(similar)))
 			pass
 
 	if (fileinput == 1):

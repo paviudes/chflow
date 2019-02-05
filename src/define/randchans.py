@@ -3,8 +3,8 @@ try:
 	from scipy import linalg as linalg
 except:
 	pass
-import globalvars as gv
-import chanreps as crep
+from define import globalvars as gv
+from define import chanreps as crep
 
 def HermitianConjugate(mat):
 	# Return the Hermitian conjugate of a matrix
@@ -48,19 +48,19 @@ def RandomUnitary(prox, dim, method = "qr", randH = None):
 		# So, this reduces to sampling over points in a hypersphere of radius p.
 		# The desired Hermitian matrix is simply: \sum_i (xi * Pi) where Pi is the i-th Pauli matrix in the basis.
 		if (randH is None):
-			paulibasis = np.load("codedata/paulibasis_3qubits.npy")
-			nelems = np.power(dim, 2, dtype = np.int)
-			hypersphere = np.zeros(nelems, dtype = np.longdouble)
+			# paulibasis = np.load("codedata/paulibasis_3qubits.npy")
+			npoints = np.power(dim, 2, dtype = np.int)
 			#### This part of the code is to ensure that there are only a few (determined by the number of distinct classes) degress of freedom in the random hermitian matrix.
 			## Here we force the Hermitian matrix to have non-zero equal contributions from the X,Y and Z Pauli matrices.
 			## If we assign the same index to two Pauli matrices in the linear combination, we essentially cut a degree of freedom.
 			## Alternatively we can also set one of the indices to -1, in which case that component is set to zero.
-			forcedClassification = np.arange(nelems, dtype = np.int)
-			HyperSphereSampling(hypersphere, nelems, center = 0.0, radius = prox, classification = forcedClassification)
+			hypersphere = HyperSphereSampling(npoints, center = 0.0, radius = prox)
 			# print("hypersphere\n%s\nsum = %g. (desired values = %g)" % (np.array_str(hypersphere, max_line_width = 150, precision = 3), np.sum(np.power(hypersphere, 2.0, dtype = np.longdouble), dtype = np.longdouble), prox))
-			randH = np.zeros((dim, dim), dtype = np.complex128)
-			for i in range(nelems):
-				randH = randH + hypersphere[i] * paulibasis[i, :, :]
+			#randH = np.zeros((dim, dim), dtype = np.complex128)
+			#for i in range(nelems):
+			#	randH = randH + hypersphere[i] * paulibasis[i, :, :]
+			# print("hypersphere = {}".format(hypersphere))
+			randH = np.einsum('i,ikl->kl', hypersphere.astype(np.complex128), gv.paulibasis, dtype = np.complex128)
 			# print("Random Hermitian\n%s" % (np.array_str(randH, max_line_width = 150, precision = 3)))
 		randU = linalg.expm(1j * randH)
 		# print("Random Unitary\n%s" % (np.array_str(randU, max_line_width = 150, precision = 3)))
@@ -75,8 +75,7 @@ def RandomPauliChannel(perr):
 	# All notions of distances are identical for Pauli channels, it is essentially: 1 - p_I.
 	# Generate 3 random numbers x, y, z, such that: x^2 + y^2 + z^2 = r^2, where r^2 = perr.
 	# Finally, the Krauss operators are: sqrt(1 - perr) I, x X, y Y, z Z.
-	pauliamps = np.zeros(3, dtype = np.longdouble)
-	HyperSphereSampling(pauliamps, 3, center = 0.0, radius = np.sqrt(perr), classification = None)
+	pauliamps = HyperSphereSampling(3, center = 0.0, radius = np.sqrt(perr))
 	# print("p_I = %g, p_X = %g, p_Y = %g and p_Z = %g." % (1 - np.power(pauliamps[0], 2.0) - np.power(pauliamps[1], 2.0) - np.power(pauliamps[2], 2.0), np.power(pauliamps[0], 2.0), np.power(pauliamps[1], 2.0), np.power(pauliamps[2], 2.0)))
 	krops = np.zeros((4, 2, 2), dtype = np.complex128)
 	krops[0, :, :] = np.sqrt(1 - perr) * gv.Pauli[0, :, :]
@@ -98,13 +97,13 @@ def RandomCPTP(dist, meth):
 	if (method == "pauli"):
 		krauss = RandomPauliChannel(dist)
 	else:
-		randU = RandomUnitary(dist, 8, method, randH = None)
+		randU = RandomUnitary(dist, 8, method, None)
 		krauss = crep.ConvertRepresentations(randU, 'stine', 'krauss')
 	return krauss
 
 
 
-def HyperSphereSampling(surface, npoints, center = 0.0, radius = 1.0, classification = None):
+def HyperSphereSampling(npoints, center = 0.0, radius = 1.0, classification = None):
 	# Sample points on a hypersphere of given radius and center.
 	# We use the algorithm outlined in https://dl.acm.org/citation.cfm?id=377946.
 	## Sketch of the algorithm:
@@ -116,6 +115,7 @@ def HyperSphereSampling(surface, npoints, center = 0.0, radius = 1.0, classifica
 		classification = np.arange(npoints, dtype = np.int)
 	normalization = 0
 	normalvariates = np.random.normal(loc = center, scale = 1.0, size = np.unique(classification[np.where(classification > -1)]).shape[0])
+	surface = np.zeros(npoints, dtype = np.longdouble)
 	for i in range(npoints):
 		if (classification[i] == -1):
 			surface[i] = 0.0
@@ -124,4 +124,4 @@ def HyperSphereSampling(surface, npoints, center = 0.0, radius = 1.0, classifica
 		normalization = normalization + np.power(surface[i], 2.0, dtype = np.longdouble)
 	for i in range(npoints):
 		surface[i] = surface[i] * radius/np.sqrt(normalization, dtype = np.longdouble)
-	return None
+	return surface

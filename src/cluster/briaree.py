@@ -47,6 +47,6 @@ def CreateLaunchScript(submit):
 
 		# Command to be run
 		bq.write("cd $PBS_O_WORKDIR\n")
-		bq.write("eval chflow.sh %s $PBS_ARRAYID\n" % (submit.timestamp))
+		bq.write("./chflow.sh %s $PBS_ARRAYID\n" % (submit.timestamp))
         print("\033[2mCompile using\ncd src/simulate;python compile.py build_ext --inplace;cd ./../../\nSubmit the job using\nqsub %s.pbs\nSee https://wiki.calculquebec.ca/w/Running_jobs#tab=tab7 for details.\033[0m" % (submit.host))
 	return None
