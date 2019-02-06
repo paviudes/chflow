@@ -1,15 +1,16 @@
 import sys
 import os
 try:
+	from tqdm import tqdm
 	import numpy as np
 	from scipy import linalg as linalg
 except:
 	pass
-import metrics as ml
-import randchans as rchan
-import chandefs as chdef
-import chanreps as crep
-import fnames as fn
+from define import metrics as ml
+from define import randchans as rchan
+from define import chandefs as chdef
+from define import chanreps as crep
+from define import fnames as fn
 
 def ChannelPair(chtype, rates, dim, method = "qr"):
 	# Generate process matrices for two channels that can be associated to the same "family".
@@ -37,32 +38,25 @@ def ChannelPair(chtype, rates, dim, method = "qr"):
 
 def PreparePhysicalChannels(submit):
 	# Prepare a file for each noise rate, that contains all single qubit channels, one for each sample.
-	completed = 1
-	if (not (os.path.exists("./../physical/"))):
-		os.mkdir("./../physical/")
+	os.system("mkdir -p %s/physical" % (submit.outdir))
 	# Create quantum channels for various noise parameters and store them in the process matrix formalism.
 	channels = np.zeros((submit.samps, 4, 4), dtype = np.longdouble)
 	# submit.params = np.zeros((submit.noiserates.shape[0] * submit.samps, submit.noiserates.shape[1] + 1), dtype = np.longdouble)
 	noise = np.zeros(submit.noiserates.shape[1], dtype = np.longdouble)
-	for i in range(submit.noiserates.shape[0]):
+	for i in tqdm(range(submit.noiserates.shape[0]), ascii=True, desc = "\033[2mPreparing physical channels:"):
 		for j in range(submit.noiserates.shape[1]):
 			if (submit.scales[j] == 1):
 				noise[j] = submit.noiserates[i, j]
 			else:
 				noise[j] = np.power(submit.scales[j], submit.noiserates[i, j])
 		for j in range(submit.samps):
-			# submit.params[i * submit.samps + j, :-1] = submit.noiserates[i, :]
-			# submit.params[i * submit.samps + j, -1] = j
 			# To create a random quantum channel, construct a random unitary operator by exponentiating a hertimitan operator and do a Krauss decomposition.
 			channels[j, :, :] = crep.ConvertRepresentations(chdef.GetKraussForChannel(submit.channel, *noise), 'krauss', 'process')
-			print("\r\033[2mPreparing physical channels... %d (%d%%) done.\033[0m" % (completed, 100*completed/float(submit.noiserates.shape[0]  * submit.samps))),
-			sys.stdout.flush()
-			completed = completed + 1
 		# Write all the process matrices corresponding to all samples
-		chanfile = fn.PhysicalChannel(submit, submit.noiserates[i], loc = "local")
+		chanfile = fn.PhysicalChannel(submit, submit.noiserates[i])
 		np.save(chanfile, channels)
 		submit.chfiles.append(chanfile)
-	print("")
+	print("\033[0m")
 	if (submit.nodes > 0):
 		submit.cores[0] = int(np.ceil(submit.noiserates.shape[0] * submit.samps/np.longdouble(submit.nodes)))
 	submit.nodes = int(np.ceil(submit.noiserates.shape[0] * submit.samps/np.longdouble(submit.cores[0])))

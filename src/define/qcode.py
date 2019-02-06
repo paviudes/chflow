@@ -4,7 +4,7 @@ try:
 	import numpy as np
 except:
 	pass
-import globalvars as gv
+from define import globalvars as gv
 
 class QuantumErrorCorrectingCode():
 	"""
@@ -146,7 +146,7 @@ def ConvertToSympectic(gens):
 def ConvertToOperator(sympmat):
 	# Convert a matrix of symplectic vectors to operators in the encoding: I --> 0, X --> 1, Y --> 2, Z --> 3.
 	encoding = np.array([[0, 3], [1, 2]], dtype = np.int8)
-	nq = sympmat.shape[1]/2
+	nq = sympmat.shape[1]//2
 	pauliops = np.zeros((sympmat.shape[0], nq), dtype = np.int8)
 	for i in range(sympmat.shape[0]):
 		for j in range(nq):
@@ -169,7 +169,7 @@ def IsCommuting(pauli1, pauli2):
 
 def SymplecticProduct(sympvec1, sympvec2):
 	# return the symplectic product of two vectors.
-	nq = sympvec1.shape[0]/2
+	nq = sympvec1.shape[0]//2
 	return np.mod(np.dot(sympvec1[:nq], sympvec2[nq:]) + np.dot(sympvec1[nq:], sympvec2[:nq]), 2)
 
 # Constructing the canonical Pauli basis
@@ -180,7 +180,7 @@ def NullSpace(mat):
 	# Hence we need to find the kernel of (HZ | HX) over GF_2.
 	# If we have a matrix A over GF_2, the kernel of A consists of vectors v such that: A.v = 0 (mod 2).
 	# If we row reduce A to the format [I|P] where I is an identity matrix, then the kernel of A are columns of the matrix [P \\ I].
-	nq = mat.shape[1]/2
+	nq = mat.shape[1]//2
 	cols = np.arange(mat.shape[1], dtype = np.int8)
 	
 	# Reflect the matrix about its center column: HX <--> HZ
@@ -396,7 +396,7 @@ def ConstructSyndromeProjectors(qecc):
 	stabilizers = np.zeros((2**(qecc.N - qecc.K), 2**qecc.N, 2**qecc.N), dtype = np.complex128)
 	stabilizers[0, :, :] = np.identity(2**qecc.N, dtype = np.complex128)
 	for s in range(1, 2**(qecc.N - qecc.K)):
-		sgens = np.array(map(np.int8, np.binary_repr(s, width = qecc.N - qecc.K)), dtype = np.int8)
+		sgens = np.array(list(map(np.int8, np.binary_repr(s, width = qecc.N - qecc.K))), dtype = np.int8)
 		(stabop, stabph) = PauliProduct(*qecc.S[np.nonzero(sgens)])
 		stabilizers[s, :, :] = stabph * PauliOperatorToMatrix(stabop)
 	projectors = np.einsum("ij,jkl->ikl", qecc.syndsigns, stabilizers)
@@ -548,7 +548,7 @@ def ConstructSyndProjSigns(qecc):
 	# For each syndrome, construct the operators that projects on to the subspace containing Pauli errors with that syndrome
 	# The syndrome projector can be expanded as a linear sum over all the stabilizers, with coefficients that depend on the syndrome.
 	# Here we only need these coefficients, they are numbers in {+1, -1}. The coefficient of the stabilizer is +1(-1) if it commutes (anti-commutes) with the Pure error of that particular syndrome.
-	seqs = np.array(map(lambda t: map(np.int8, np.binary_repr(t, width = (qecc.N - qecc.K))), range(2**(qecc.N - qecc.K))), dtype = np.int8)
+	seqs = np.array(list(map(lambda t: list(map(np.int8, np.binary_repr(t, width = (qecc.N - qecc.K)))), range(2**(qecc.N - qecc.K)))), dtype = np.int8)
 	qecc.syndsigns = (-1)**np.dot(seqs, np.transpose(seqs))
 	return None
 
@@ -559,14 +559,14 @@ def ConstructNormalizer(qecc):
 	qecc.normphases = np.zeros((4**qecc.K, 2**(qecc.N - qecc.K)), dtype = np.complex128)
 	ordering = np.array([[0, 3], [1, 2]], dtype = np.int8)
 	for l in range(4**qecc.K):
-		lgens = np.array(map(np.int8, np.binary_repr(l, width = (2 * qecc.K))), dtype = np.int8)
+		lgens = np.array(list(map(np.int8, np.binary_repr(l, width = (2 * qecc.K)))), dtype = np.int8)
 		if (l > 0):
 			(logop, logph) = PauliProduct(*qecc.L[np.nonzero(lgens)])
 		else:
 			(logop, logph) = (np.zeros(qecc.N, dtype = np.int8), 1)
 		for s in range(2**(qecc.N - qecc.K)):
 			if (s > 0):
-				sgens = np.array(map(np.int8, np.binary_repr(s, width = (qecc.N - qecc.K))), dtype = np.int8)
+				sgens = np.array(list(map(np.int8, np.binary_repr(s, width = (qecc.N - qecc.K)))), dtype = np.int8)
 				(stabop, stabph) = PauliProduct(*qecc.S[np.nonzero(sgens)])
 			else:
 				(stabop, stabph) = (np.zeros(qecc.N, dtype = np.int8), 1)
@@ -589,21 +589,21 @@ def PrepareSyndromeLookUp(qecc):
 	qecc.lookup = np.zeros((2**(qecc.N - qecc.K), 2), dtype = np.int8)
 	for t in range(2**(qecc.N - qecc.K)):
 		if (t > 0):
-			tgens = np.array(map(np.int8, np.binary_repr(t, width = (qecc.N - qecc.K))), dtype = np.int8)
+			tgens = np.array(list(map(np.int8, np.binary_repr(t, width = (qecc.N - qecc.K)))), dtype = np.int8)
 			(peop, __) = PauliProduct(*qecc.T[np.nonzero(tgens)])
 		else:
 			peop = np.zeros(qecc.N, dtype = np.int8)
 		qecc.lookup[t, 0] = 0
 		qecc.lookup[t, 1] = qecc.N
 		for l in range(4**qecc.K):
-			lgens = np.array(map(np.int8, np.binary_repr(l, width = (2 * qecc.K))), dtype = np.int8)
+			lgens = np.array(list(map(np.int8, np.binary_repr(l, width = (2 * qecc.K)))), dtype = np.int8)
 			if (l > 0):
 				(logop, __) = PauliProduct(*qecc.L[np.nonzero(lgens)])
 			else:
 				logop = np.zeros(qecc.N, dtype = np.int8)
 			for s in range(2**(qecc.N - qecc.K)):
 				if (s > 0):
-					sgens = np.array(map(np.int8, np.binary_repr(s, width = (qecc.N - qecc.K))), dtype = np.int8)
+					sgens = np.array(list(map(np.int8, np.binary_repr(s, width = (qecc.N - qecc.K)))), dtype = np.int8)
 					(stabop, __) = PauliProduct(*qecc.S[np.nonzero(sgens)])
 				else:
 					stabop = np.zeros(qecc.N, dtype = np.int8)
@@ -621,7 +621,7 @@ def GenerateGroup(gens):
 	group = np.zeros(2**gens.shape[0], gens.shape[1], dtype = np.int8)
 	phase = np.ones(2**gens.shape[0], dtype = np.complex128)
 	for i in range(1, group.shape[0]):
-		comb = np.array(map(np.int8, np.binary_repr(i, width = (2 * qecc.K))), dtype = np.int8)
+		comb = np.array(list(map(np.int8, np.binary_repr(i, width = (2 * qecc.K)))), dtype = np.int8)
 		(group[i], phase[i]) = PauliProduct(*gens[np.nonzero(comb)])
 	return group
 

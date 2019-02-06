@@ -7,8 +7,8 @@ try:
 except:
 	pass
 # Files from the define module
-import fnames as fn
-import qcode as qec
+from define import fnames as fn
+from define import qcode as qec
 
 class Submission():
 	def __init__(self):
@@ -56,9 +56,11 @@ class Submission():
 		self.ecfiles = []
 		
 		# Sampling options
-		self.stats = 0
-		self.samplingOptions = {"N": 0, "A": 1, "B": 2}
+		self.stats = np.array([])
+		self.samplingOptions = {"Direct": 0, "Importance": 1, "Bravyi": 2}
 		self.importance = 0
+		self.nbins = 50
+		self.maxbin = 50
 		
 		# Advanced options
 		self.isAdvanced = 0
@@ -68,6 +70,14 @@ class Submission():
 
 		# Output options
 		self.outdir = fn.OutputDirectory(os.path.abspath("./../../"), self)
+
+def IsNumber(numorstr):
+	# test if the input is a number.
+	try:
+		float(numorstr)
+		return 1
+	except:
+		return 0
 		
 def Scheduler(timestamp):
 	# name of the scheduler file.
@@ -95,8 +105,8 @@ def Schedule(submit):
 		for i in range(submit.nodes):
 			sch.write("!!node %d!!\n" % (i))
 			for j in range(submit.cores[0]):
-				sch.write("%s %d\n" % (" ".join(map(lambda num: ("%g" % num), submit.noiserates[(i * submit.cores[0] + j)/submit.samps, :-1])), (i * submit.cores[0] + j) % submit.samps))
-				if (i * submit.cores[0] + j == (submit.noiserates[0] * submit.samps - 1)):
+				sch.write("%s %d\n" % (" ".join(list(map(lambda num: ("%g" % num), submit.noiserates[(i * submit.cores[0] + j)//submit.samps, :]))), (i * submit.cores[0] + j) % submit.samps))
+				if (i * submit.cores[0] + j == (submit.noiserates.shape[0] * submit.samps - 1)):
 					break
 	return None
 
@@ -135,14 +145,14 @@ def Update(submit, pname, newvalue):
 		if (os.path.isfile("./../input/%s.txt" % (newvalue)) == 1):
 			submit.noiserates = np.loadtxt("./../input/%s.txt" % (newvalue), comments="#", dtype = np.longdouble)
 		else:
-			newRanges = map(lambda arr: map(np.longdouble, arr.split(",")), newvalue.split(";"))
+			newRanges = list(map(lambda arr: list(map(np.longdouble, arr.split(","))), newvalue.split(";")))
 			submit.noiserange = []
 			for i in range(len(newRanges)):
 				if (len(newRanges[i]) == 3):
 					submit.noiserange.append(np.linspace(np.longdouble(newRanges[i][0]), np.longdouble(newRanges[i][1]), np.int(newRanges[i][2])))
 				else:
 					submit.noiserange.append(newRanges[i])
-			submit.noiserates = np.array(map(list, it.product(*submit.noiserange)), dtype = np.float)
+			submit.noiserates = np.array(list(map(list, it.product(*submit.noiserange))), dtype = np.float)
 
 	elif (pname == "samples"):
 		# The value must be an integer
@@ -166,9 +176,18 @@ def Update(submit, pname, newvalue):
 			submit.filter['upper'] = np.float(filterDetails[2])
 
 	elif (pname == "stats"):
-		# The value must be an integer
+		# The value can be
+			# an integer
+			# an explicit range of numbers -- [<list of values separated by commas>]
+			# compact range of numbers -- lower,upper,number_of_steps
+		if (IsNumber(newvalue) == 1):
+			submit.stats = np.array([int(newvalue)], dtype = np.int)
+		else:
+			if ("[" in newvalue):
+				submit.stats = np.array(list(map(int, newvalue[1:-1].split(","))), dtype = np.int)
+			else:
+				submit.stats = np.geomspace(*np.array(list(map(int, newvalue.split(","))), dtype = np.int), dtype = np.int)
 		submit.isSubmission = 1
-		submit.stats = int(newvalue)
 
 	elif (pname == "metrics"):
 		# The metrics to be computed at the logical level
@@ -199,7 +218,7 @@ def Update(submit, pname, newvalue):
 		submit.queue = newvalue
 
 	elif (pname == "cores"):
-		submit.cores = map(int, newvalue.split(","))
+		submit.cores = list(map(int, newvalue.split(",")))
 
 	elif (pname == "nodes"):
 		submit.isSubmission = 1
@@ -218,7 +237,7 @@ def Update(submit, pname, newvalue):
 		submit.outdir = fn.OutputDirectory(newvalue, submit)
 
 	elif (pname == "scale"):
-		submit.scales = np.array(map(np.longdouble, newvalue.split(",")), dtype = np.longdouble)
+		submit.scales = np.array(list(map(np.longdouble, newvalue.split(","))), dtype = np.longdouble)
 
 	elif (pname == "plot"):
 		submit.plotsettings = newvalue.split(",")
@@ -256,10 +275,10 @@ def PrintSub(submit):
 	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("QECC", "%s" % (" X ".join([submit.eccs[i].name for i in range(len(submit.eccs))]))))
 	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("[[N, K, D]]", "[[%d, %d, %d]]" % (reduce((lambda x,y: x * y), [submit.eccs[i].N for i in range(len(submit.eccs))]), reduce((lambda x,y: x * y), [submit.eccs[i].K for i in range(len(submit.eccs))]), reduce((lambda x,y: x * y), [submit.eccs[i].D for i in range(len(submit.eccs))]))))
 	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Levels of concatenation", "%d" % (submit.levels)))
-	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("ECC frame", "%s" % (submit.eccframes.keys()[submit.eccframes.values().index(submit.frame)])))
+	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("ECC frame", "%s" % (list(submit.eccframes.keys())[list(submit.eccframes.values()).index(submit.frame)])))
 	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Decoder", "%d" % (submit.decoder)))
-	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Syndrome samples at level %d" % (submit.levels), "%d" % (submit.stats)))
-	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Type of syndrome sampling", "%s" % (submit.samplingOptions.keys()[submit.samplingOptions.values().index(submit.importance)])))
+	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Syndrome samples at level %d" % (submit.levels), "%s" % (np.array_str(submit.stats))))
+	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Type of syndrome sampling", "%s" % (list(submit.samplingOptions.keys())[list(submit.samplingOptions.values()).index(submit.importance)])))
 	
 	if (not (submit.host == "local")):
 		print("Cluster")
@@ -295,7 +314,7 @@ def Save(submit):
 			infid.write(";%g,%g,%g" % (submit.noiserange[i][0], submit.noiserange[i][-1], submit.noiserange[i].shape[0]))
 		infid.write("\n")
 		# Scale of noise range
-		infid.write("# Scales of noise range.\nscale %s\n" % (",".join(map(str, submit.scales))))
+		infid.write("# Scales of noise range.\nscale %s\n" % (",".join(list(map(str, submit.scales)))))
 		# Number of samples
 		infid.write("# Number of samples\nsamples %d\n" % submit.samps)
 		# File name containing the parameters to be run on the particular node
@@ -303,15 +322,15 @@ def Save(submit):
 		# Decoder
 		infid.write("# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.\ndecoder %d\n" % (submit.decoder))
 		# ECC frame to be used
-		infid.write("# Logical frame for error correction (Available options: \"[P] Pauli\", \"[C] Clifford\", \"[PC] Pauli + Logical Clifford\").\nframe %s\n" % (submit.eccframes.keys()[submit.eccframes.values().index(submit.frame)]))
+		infid.write("# Logical frame for error correction (Available options: \"[P] Pauli\", \"[C] Clifford\", \"[PC] Pauli + Logical Clifford\").\nframe %s\n" % (list(submit.eccframes.keys())[list(submit.eccframes.values()).index(submit.frame)]))
 		# Number of decoding trials per level
-		infid.write("# Number of syndromes to be sampled at top level\nstats %d\n" % submit.stats)
+		infid.write("# Number of syndromes to be sampled at top level\nstats [%s]\n" % (",".join(list(map(lambda num: ("%d" % num), submit.stats)))))
 		# Importance distribution
-		infid.write("# Importance sampling methods (Available options: [\"N\"] None, [\"A\"] Power law sampling, [\"B\"] Noisy channel)\nimportance %s\n" % (submit.samplingOptions.keys()[submit.samplingOptions.values().index(submit.importance)]))
+		infid.write("# Importance sampling methods (Available options: [\"N\"] None, [\"A\"] Power law sampling, [\"B\"] Noisy channel)\nimportance %s\n" % (list(submit.samplingOptions.keys())[list(submit.samplingOptions.values()).index(submit.importance)]))
 		# Metrics to be computed on the logical channel
 		infid.write("# Metrics to be computed on the effective channels at every level.\nmetrics %s\n" % ",".join(submit.metrics))
 		# Load distribution on cores.
-		infid.write("# Load distribution on cores.\ncores %s\n" % (",".join(map(str, submit.cores))))
+		infid.write("# Load distribution on cores.\ncores %s\n" % (",".join(list(map(str, submit.cores)))))
 		# Number of nodes
 		infid.write("# Number of nodes\nnodes %d\n" % submit.nodes)
 		# Host

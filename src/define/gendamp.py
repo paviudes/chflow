@@ -10,9 +10,9 @@ try:
 	from scipy.interpolate import griddata
 except:
 	pass
-import globalvars as gv
-import fnames as fn
-import metrics as ml
+from define import globalvars as gv
+from define import fnames as fn
+from define import metrics as ml
 
 def GeneralizedDamping(relax, dephase):
 	# Return the Krauss operators of the generalized daping channel given the dephasing and relaxation rates
