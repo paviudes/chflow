@@ -13,7 +13,7 @@ samples 200
 # Number of syndromes to be sampled at top level
 stats 100000
 # Metrics to be computed on the effective channels at every level.
-metrics fidelity
+metrics infid
 # Load distribution on cores.
 cores 96,1
 # Name of the host computer.

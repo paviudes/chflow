@@ -1,0 +1,44 @@
+# Time stamp
+timestamp 04_02_2019_19_58_03
+# Type of quantum error correcting code
+ecc Steane,Steane,Steane
+# Type of quantum channel
+channel rand
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 5,10,11;5,5,1
+# Scales of noise range.
+scale 0.66,1.0
+# Number of samples
+samples 1000
+# Parameters schedule
+scheduler ./../input/scheduler_04_02_2019_19_58_03.txt
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of syndromes to be sampled at top level
+stats [10000000]
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance Direct
+# Metrics to be computed on the effective channels at every level.
+metrics infid
+# Load distribution on cores.
+cores 1200,1
+# Number of nodes
+nodes 10
+# Name of the host computer.
+host graham
+# Name of the account.
+account def-jemerson
+# Batch name.
+job dptest
+# Wall time in hours.
+wall 24
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue rand
+# Email notifications.
+email pavithran.sridhar@gmail.com
+# Output result's directory.
+outdir /home/pavi/projects/def-jemerson/pavi/chbank

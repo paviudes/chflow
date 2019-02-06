@@ -15,6 +15,10 @@ class Submission():
 		# Logging options
 		self.timestamp = time.strftime("%d/%m/%Y %H:%M:%S").replace("/", "_").replace(":", "_").replace(" ", "_")
 		
+		# Output options
+		self.outdir = "."
+		# fn.OutputDirectory(os.path.abspath("./../../"), self)
+	
 		# Cluster options
 		self.job = "X"
 		self.host = "local"
@@ -27,9 +31,9 @@ class Submission():
 		
 		# Run time options
 		self.cores = [1, 1]
-		self.inputfile = InputFile(self.timestamp)
+		self.inputfile = fn.SubmissionInputs(self)
 		self.isSubmission = 0
-		self.scheduler = Scheduler(self.timestamp)
+		self.scheduler = fn.SubmissionSchedule(self)
 		self.complete = -1
 
 		# Channel options
@@ -68,9 +72,6 @@ class Submission():
 		# Plot settings -- color, marker, linestyle
 		self.plotsettings = ["k", "o", "--"]
 
-		# Output options
-		self.outdir = fn.OutputDirectory(os.path.abspath("./../../"), self)
-
 def IsNumber(numorstr):
 	# test if the input is a number.
 	try:
@@ -78,23 +79,14 @@ def IsNumber(numorstr):
 		return 1
 	except:
 		return 0
-		
-def Scheduler(timestamp):
-	# name of the scheduler file.
-	return ("./../input/scheduler_%s.txt" % (timestamp))
-
-def InputFile(timestamp):
-	# name of the script containing the commands to be run
-	return ("./../input/%s.txt" % timestamp)
-
 
 def ChangeTimeStamp(submit, timestamp):
 	# change the timestamp of a submission and all the related values to the timestamp.
 	submit.timestamp = timestamp
 	# Re define the variables that depend on the time stamp
-	submit.inputfile = InputFile(submit.timestamp)
-	submit.scheduler = Scheduler(submit.timestamp)
 	submit.outdir = fn.OutputDirectory(os.path.dirname(submit.outdir), submit)
+	submit.inputfile = fn.SubmissionInputs(submit)
+	submit.scheduler = fn.SubmissionSchedule(submit)
 	return None
 
 
@@ -357,19 +349,11 @@ def Save(submit):
 def PrepOutputDir(submit):
 	# Prepare the output directory -- create it, put the input files.
 	# Copy the necessary input files, error correcting code.
-	if (not (os.path.exists(submit.outdir))):
-		os.mkdir(submit.outdir)
 	for subdir in ["input", "code", "physical", "channels", "metrics", "results"]:
-		if (not (os.path.exists("%s/%s" % (subdir, submit.outdir)))):
-			os.mkdir("%s/%s" % (submit.outdir, subdir))
+		os.system("mkdir -p %s/%s" % (submit.outdir, subdir))
 	# Copy the relevant code data
 	for l in range(submit.levels):
 		os.system("cp %s %s/code/" % (submit.eccs[l].defnfile, submit.outdir))
-	# Copy the physical channels data
-	for i in range(submit.noiserates.shape[0]):
-		os.system("cp ./../physical/%s %s/physical/" % (fn.PhysicalChannel(submit, submit.noiserates[i, :], loc = "local"), submit.outdir))
-	os.system("cp ./../input/%s.txt %s/input/" % (submit.timestamp, submit.outdir))
-	os.system("cp ./../input/scheduler_%s.txt %s/input/" % (submit.timestamp, submit.outdir))
 	return None
 
 
@@ -377,8 +361,11 @@ def LoadSub(submit, subid, isgen):
 	# Load the parameters of a submission from an input file
 	# If the input file is provided as the submission id, load from that input file.
 	# Else if the time stamp is provided, search for the corresponding input file and load from that.
-	inputfile = ("./../input/%s.txt" % (subid))
-	exists = 0
+	inputfile = "./../input/%s.txt" % (subid)
+	print("inputfile: {}".format(inputfile))
+	if (not os.path.exists(inputfile)):
+		ChangeTimeStamp(submit, subid)
+		inputfile = ("%s" % submit.inputfile)
 	if (os.path.exists(inputfile)):
 		with open(inputfile, 'r') as infp:
 			for (lno, line) in enumerate(infp):
@@ -387,8 +374,7 @@ def LoadSub(submit, subid, isgen):
 				else:
 					(variable, value) = line.strip("\n").strip(" ").split(" ")
 					Update(submit, variable.strip("\n").strip(" "), value.strip("\n").strip(" "))
-		exists = 1
+		return 1
 	else:
 		print("\033[2mInput file not found.\033[0m")
-		exists = 0
-	return exists
+	return 0

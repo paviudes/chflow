@@ -41,7 +41,6 @@ def PreparePhysicalChannels(submit):
 	os.system("mkdir -p %s/physical" % (submit.outdir))
 	# Create quantum channels for various noise parameters and store them in the process matrix formalism.
 	channels = np.zeros((submit.samps, 4, 4), dtype = np.longdouble)
-	# submit.params = np.zeros((submit.noiserates.shape[0] * submit.samps, submit.noiserates.shape[1] + 1), dtype = np.longdouble)
 	noise = np.zeros(submit.noiserates.shape[1], dtype = np.longdouble)
 	for i in tqdm(range(submit.noiserates.shape[0]), ascii=True, desc = "\033[2mPreparing physical channels:"):
 		for j in range(submit.noiserates.shape[1]):

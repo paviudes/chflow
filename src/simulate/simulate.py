@@ -16,7 +16,11 @@ def SimulateSampleIndex(submit, rate, sample, coreidx, results):
 	# channel, rate, sample, nlevels, nstats, ecmode, metricsToCompute, qcodeinfo, importance, decoder, coreidx, results):
 	start = time.time()
 	## Load the physical channel and the reference (noisier) channel if importance sampling is selected.
+<<<<<<< HEAD
 	physchan = np.load(fn.PhysicalChannel(submit, rate))[sample, :, :]
+=======
+	physchan = np.load(fn.PhysicalChannel(submit, rate, loc = "local"))[sample, :, :]
+>>>>>>> 9af037bddc3655debfc0e4e56e92e8df9eb481e2
 	if (submit.importance == 2):
 		refchan = np.load(fn.PhysicalChannel(submit, rate, sample))[sample, :, :]
 	else:

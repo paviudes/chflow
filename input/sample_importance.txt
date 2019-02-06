@@ -1,20 +1,22 @@
 # Time stamp
 timestamp sample
 # Type of quantum error correcting code
-ecc Steane,Steane,Steane
+ecc Steane,Steane
 # Type of quantum channel
-channel rtz
+channel dp
 # Noise rate exponents. The actual noise rate is (scale)^exponent.
-noiserange 5,12,15
+noiserange 9,12,4
 # Scale of the noise range
 scale 0.66
 # Number of samples
 samples 1
 # Number of syndromes to be sampled at top level
-stats 10000
+stats 10,1000000,20
 # Metrics to be computed on the effective channels at every level.
 metrics infid
 # Load distribution on cores.
-cores 12,1
+cores 4,1
+# Importance sampling
+importance Power
 # Output directory
-outdir /Users/pavi/Documents/Channel_Flow
+outdir /Users/pavithran/Documents/LDPC/Channel_Flow

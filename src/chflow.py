@@ -365,9 +365,9 @@ if __name__ == '__main__':
 
 		elif (user[0] == "submit"):
 			sub.ChangeTimeStamp(submit, time.strftime("%d/%m/%Y %H:%M:%S").replace("/", "_").replace(":", "_").replace(" ", "_"))
+			sub.PrepOutputDir(submit)
 			sub.Save(submit)
 			sub.Schedule(submit)
-			sub.PrepOutputDir(submit)
 			if (submit.host == "local"):
 				print("\033[2mFor remote execution, run: \"./chflow.sh %s\"\033[0m" % (submit.timestamp))
 			else:
