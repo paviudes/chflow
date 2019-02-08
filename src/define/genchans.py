@@ -40,7 +40,7 @@ def PreparePhysicalChannels(submit):
 	# Prepare a file for each noise rate, that contains all single qubit channels, one for each sample.
 	os.system("mkdir -p %s/physical" % (submit.outdir))
 	# Create quantum channels for various noise parameters and store them in the process matrix formalism.
-	channels = np.zeros((submit.samps, 4, 4), dtype = np.longdouble)
+	submit.phychans = np.zeros((submit.noiserates.shape[0], submit.samps, 4, 4), dtype = np.longdouble)
 	noise = np.zeros(submit.noiserates.shape[1], dtype = np.longdouble)
 	for i in tqdm(range(submit.noiserates.shape[0]), ascii=True, desc = "\033[2mPreparing physical channels:"):
 		for j in range(submit.noiserates.shape[1]):
@@ -50,11 +50,7 @@ def PreparePhysicalChannels(submit):
 				noise[j] = np.power(submit.scales[j], submit.noiserates[i, j])
 		for j in range(submit.samps):
 			# To create a random quantum channel, construct a random unitary operator by exponentiating a hertimitan operator and do a Krauss decomposition.
-			channels[j, :, :] = crep.ConvertRepresentations(chdef.GetKraussForChannel(submit.channel, *noise), 'krauss', 'process')
-		# Write all the process matrices corresponding to all samples
-		chanfile = fn.PhysicalChannel(submit, submit.noiserates[i])
-		np.save(chanfile, channels)
-		submit.chfiles.append(chanfile)
+			submit.phychans[i, j, :, :] = crep.ConvertRepresentations(chdef.GetKraussForChannel(submit.channel, *noise), 'krauss', 'process')
 	print("\033[0m")
 	if (submit.nodes > 0):
 		submit.cores[0] = int(np.ceil(submit.noiserates.shape[0] * submit.samps/np.longdouble(submit.nodes)))

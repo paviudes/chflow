@@ -53,7 +53,7 @@ def RemoteExecution(timestamp, node):
 	sub.LoadSub(submit, timestamp, 0)
 
 	# Prepare syndrome look-up table for hard decoding.
-	if (submit.decoder == 1):
+	if (submit.decode_table == 1):
 		start = time.time()
 		for l in range(submit.levels):
 			if (submit.ecc[l].lookup is None):
@@ -151,10 +151,10 @@ if __name__ == '__main__':
 			   "exit":["Quit",
 			   		   "No parameters."]}
 
-	
+
 	# Display the logo and license information
 	DisplayLogoLicense()
-	
+
 	# Check if all the packages exist
 	st.CheckDependencies()
 
@@ -185,7 +185,7 @@ if __name__ == '__main__':
 	channel = np.zeros((4, 4), dtype = np.longdouble)
 	qeccode = None
 	submit = sub.Submission()
-	
+
 	while (isquit == 0):
 		print(">>"),
 		if (fileinput == 0):
@@ -197,7 +197,7 @@ if __name__ == '__main__':
 		else:
 			user = list(map(lambda val: val.strip("\n").strip(" "), infp.readline().strip(" ").strip("\n").split(" ")))
 
-		
+
 		if (user[0] == "qcode"):
 			# define a quantum code
 			qeccode = qec.QuantumErrorCorrectingCode(user[1])
@@ -306,7 +306,7 @@ if __name__ == '__main__':
 				out = user[3]
 				xcol = int(user[4])
 				ycol = int(user[5])
-			qc.Calibrate(user[1], user[2], out, xcol = xcol, ycol = ycol)	
+			qc.Calibrate(user[1], user[2], out, xcol = xcol, ycol = ycol)
 
 		#####################################################################
 
@@ -317,9 +317,9 @@ if __name__ == '__main__':
 
 		elif (user[0] == "sbprint"):
 			sub.PrintSub(submit)
-		
+
 		#####################################################################
-		
+
 		elif (user[0] == "sbload"):
 			if (len(user) == 1):
 				# no file name or time stamp was provided.
@@ -360,14 +360,16 @@ if __name__ == '__main__':
 
 		elif (user[0] == "sbmerge"):
 			sub.MergeSubs(submit, *user[1].split(","))
-		
+
 		#####################################################################
 
 		elif (user[0] == "submit"):
 			sub.ChangeTimeStamp(submit, time.strftime("%d/%m/%Y %H:%M:%S").replace("/", "_").replace(":", "_").replace(" ", "_"))
-			sub.PrepOutputDir(submit)
 			sub.Save(submit)
 			sub.Schedule(submit)
+			sub.PrepOutputDir(submit)
+			# Write the physical channels to folder
+			sub.SavePhysicalChannels(submit)
 			if (submit.host == "local"):
 				print("\033[2mFor remote execution, run: \"./chflow.sh %s\"\033[0m" % (submit.timestamp))
 			else:
@@ -380,7 +382,7 @@ if __name__ == '__main__':
 						print("\033[2mError importing %s.py. Ensure CreateLaunchScript(<submission object>) and Usage(<submission object>) are defined.\033[0m" % (submit.host))
 				else:
 					print("\033[2mNo submission rules for \"%s\". See wiki for details.\033[0m" % (submit.host))
-		
+
 		#####################################################################
 
 		elif (user[0] == "ecc"):
@@ -390,7 +392,7 @@ if __name__ == '__main__':
 				# Compile the cythonizer file to be able to perform error correction simulations
 				# Syndrome look-up table for hard decoding.
 				start = time.time()
-				if (submit.decoder == 1):
+				if (submit.decode_table == 1):
 					start = time.time()
 					for l in range(submit.levels):
 						if (submit.ecc[l].lookup is None):
@@ -398,7 +400,6 @@ if __name__ == '__main__':
 							qec.PrepareSyndromeLookUp(submit.eccs[l])
 					print("\033[2mHard decoding tables built in %d seconds.\033[0m" % (time.time() - start))
 				# Files from the "simulate" module.
-				os.system("python simulate/compile.py build_ext --inplace > simulate/compiler_output.txt 2>&1")
 				from simulate import simulate as sim
 				# Error correction simulation
 				start = time.time()
@@ -424,7 +425,7 @@ if __name__ == '__main__':
 			# Collect the logical failure rates into one file.
 			if (submit.complete > 0):
 				cl.GatherLogErrData(submit)
-			
+
 		#####################################################################
 
 		elif (user[0] == "tplot"):
@@ -502,7 +503,7 @@ if __name__ == '__main__':
 					if (len(user) > 1):
 						lmet = user[1]
 					else:
-						lmet = submit.metrics[0]	
+						lmet = submit.metrics[0]
 			if (check == 1):
 				pl.MCStatsPlot(dbses, lmet, pmet)
 			else:
@@ -577,7 +578,7 @@ if __name__ == '__main__':
 
 		elif (user[0] == "sbsave"):
 			sub.Save(submit)
-		
+
 		#####################################################################
 
 		elif (user[0] == "metrics"):
@@ -587,7 +588,7 @@ if __name__ == '__main__':
 				ml.ComputePhysicalMetrics(submit, physmetrics, loc = "local")
 			else:
 				ml.ComputePhysicalMetrics(submit, physmetrics, loc = "storage")
-		
+
 		#####################################################################
 
 		elif (user[0] == "threshold"):
@@ -596,7 +597,7 @@ if __name__ == '__main__':
 				print("The estimated threshold for the %s code over the %s channel is %g." % (" X ".join([submit.eccs[i].name for i in range(len(submit.eccs))]), submit.channel, thresh))
 			else:
 				print("Only %s are computed at the logical levels." % (", ".join([ml.Metrics[met][0] for met in submit.metrics])))
-		
+
 		#####################################################################
 
 		elif (user[0] == "compare"):
@@ -610,7 +611,7 @@ if __name__ == '__main__':
 					print("Logical error rates data is not available for one of the simulations.")
 			else:
 				print("The logical metrics that are available in both simulation data are %s." % (", ".join([ml.Metrics[met][0] for met in tocompare[0].metrics if met in tocompare[1].metrics])))
-		
+
 		#####################################################################
 
 		elif (user[0] == "sbfit"):
@@ -644,7 +645,7 @@ if __name__ == '__main__':
 				else:
 					print("\033[2mSome of the databases do not have simulation data.\033[0m")
 
-		
+
 		#####################################################################
 
 		elif (user[0] == "compress"):
@@ -727,7 +728,7 @@ if __name__ == '__main__':
 				mac.PrepareMLData(sbtest, user[2].split(","), user[3], 1, mask)
 				# predict using machine learning
 				mac.Predict(sbtest, submit, method)
-				# validate machine learning predictions using a plot 
+				# validate machine learning predictions using a plot
 				pl.ValidatePrediction(sbtest, user[2].split(",")[0], user[3])
 
 		#####################################################################
@@ -759,7 +760,7 @@ if __name__ == '__main__':
 				if (user[1] == "git"):
 					git = 1
 			st.Clean(git)
-			
+
 		#####################################################################
 
 		elif (user[0] in ["quit", "exit"]):

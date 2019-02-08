@@ -56,6 +56,29 @@ void AllocSimParamsQECC(struct simul_t *simul, int nphys, int nenc){
 	// printf("_/ effective, effprocess\n");
 }
 
+void AllocDecoderBins(struct simul_t *simul, int* nphys){
+	// Channels to be averaged over, at intermediate levels of the decoding process.
+	// Channels will be averaged in the Coarsegrain(...) method of effective.c.
+	// The channels to be averaged all have the same index in this array.
+	int *chans = malloc(sizeof(int) * simul->nlevels);
+	CountIndepLogicalChannels(chans, nphys, simul->nlevels);
+	simul->decbins = malloc(sizeof(int *) * simul->nlevels);
+	simul->ndecbins = malloc(sizeof(int) * simul->nlevels);
+	int l;
+	for (l = 0; l < simul->nlevels; l ++)
+		(simul->decbins)[l] = malloc(sizeof(int) * chans[l]);
+	free(chans);
+}
+
+void FreeDecoderBins(struct simul_t *simul){
+	// Free the memory allocated to decoder bins
+	int l;
+	for (l = 0; l < simul->nlevels; l ++)
+		free((simul->decbins)[l]);
+	free(simul->decbins);
+	free(simul->ndecbins);
+}
+
 void AllocSimParams(struct simul_t *simul, int nphys, int nenc){
 	// Initialize the elements that pertain to the montecarlo simulation of channels.
 	// Physical channels.
@@ -65,7 +88,7 @@ void AllocSimParams(struct simul_t *simul, int nphys, int nenc){
 	simul->physical = malloc(nlogs * sizeof(double *));
 	for (i = 0; i < nlogs; i ++)
 		(simul->physical)[i] = malloc(nlogs * sizeof(double));
-	
+
 	// Metrics to be computed at every level.
 	int m, l;
 	simul->metricsToCompute = malloc(simul->nmetrics * sizeof(char *));
@@ -77,7 +100,7 @@ void AllocSimParams(struct simul_t *simul, int nphys, int nenc){
 		for (m = 0; m < simul->nmetrics; m ++)
 			(simul->metricValues)[l][m] = 0;
 	}
-	
+
 	// Average logical channel at top level.
 	simul->logical = malloc((simul->nlevels + 1) * sizeof(double **));
 	int j;
@@ -89,7 +112,7 @@ void AllocSimParams(struct simul_t *simul, int nphys, int nenc){
 				(simul->logical)[l][i][j] = 0;
 		}
 	}
-	
+
 	// Syndrome sampling.
 	simul->levelOneSynds = malloc(nstabs * sizeof(double));
 	simul->levelOneImpDist = malloc(nstabs * sizeof(double));
@@ -98,11 +121,11 @@ void AllocSimParams(struct simul_t *simul, int nphys, int nenc){
 	simul->statsperlevel = malloc((simul->nlevels + 1) * sizeof(long));
 	for (l = 0; l < simul->nlevels + 1; l ++)
 		(simul->statsperlevel)[l] = 0;
-	
+
 	// Upper and lower limits for the probability of the outlier syndromes.
 	(simul->outlierprobs)[0] = 0.2;
 	(simul->outlierprobs)[1] = 0.25;
-	
+
 	// Syndrome-metric bins.
 	simul->bins = malloc((simul->nlevels + 1) * sizeof(int ***));
 	for (l = 0; l < simul->nlevels + 1; l ++){
@@ -116,7 +139,7 @@ void AllocSimParams(struct simul_t *simul, int nphys, int nenc){
 			}
 		}
 	}
-	
+
 	// Variance measures.
 	simul->sumsq = malloc((simul->nlevels + 1) * sizeof(double *));
 	simul->variance = malloc((simul->nlevels + 1) * sizeof(double *));
@@ -128,10 +151,10 @@ void AllocSimParams(struct simul_t *simul, int nphys, int nenc){
 			(simul->variance)[l][i] = 0;
 		}
 	}
-			
+
 	// fprintf(stderr, "_/ sumsq, variance.\n");
 	// PrintDoubleArray2D(simul[0].sumsq, "sumsq", simul[0].nlevels + 1, simul[0].nmetrics + nlogs * nlogs).
-	
+
 	// Running statistics
 	simul->runstats = malloc(sizeof(long) * simul->nbreaks);
 	simul->runavg = malloc(sizeof(double *) * simul->nmetrics);
@@ -140,7 +163,7 @@ void AllocSimParams(struct simul_t *simul, int nphys, int nenc){
 		for (i = 0; i < simul->nbreaks + 1; i ++)
 			(simul->runavg)[m][i] = 0;
 	}
-	
+
 	// Quantum error correction.
 	simul->levelOneChannels = malloc(nstabs * sizeof(double **));
 	int s;

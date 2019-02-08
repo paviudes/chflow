@@ -33,9 +33,9 @@ class QuantumErrorCorrectingCode():
 		self.normalizer = None
 		self.normphases = None
 		self.conjugations = None
-		self.defnfile = ("./../code/%s.txt" % (name))
+		self.defnfile = ("%s.txt" % (name))
 		eof = 0
-		with open(self.defnfile, "r") as fp:
+		with open(("./../code/%s" % self.defnfile), "r") as fp:
 			while (eof == 0):
 				line = fp.readline()
 				if (not (line)):
@@ -79,7 +79,7 @@ def Load(qecc):
 			if (IsCanonicalBasis(qecc.S, qecc.L, qecc.T, verbose = 1) == 0):
 				ComputeLogicals(qecc)
 				ComputePureErrors(qecc)
-	
+
 	# Signs in front of each stabilizer element in the syndrome projectors
 	ConstructSyndProjSigns(qecc)
 	# Elements in the cosets of the normalizer and their phases
@@ -182,11 +182,11 @@ def NullSpace(mat):
 	# If we row reduce A to the format [I|P] where I is an identity matrix, then the kernel of A are columns of the matrix [P \\ I].
 	nq = mat.shape[1]//2
 	cols = np.arange(mat.shape[1], dtype = np.int8)
-	
+
 	# Reflect the matrix about its center column: HX <--> HZ
 	for i in range(nq):
 		mat[:, [i, nq + i]] = mat[:, [nq + i, i]]
-	
+
 	for i in range(mat.shape[0]):
 		if (mat[i, i] == 0):
 			# look for a row below that has 1 in the i-th column.
@@ -230,7 +230,7 @@ def ComputeLogicals(qecc):
 	# Given the stabilizer, compute a canonical basis for the normalizer consisting of the stabilizer and logical operators.
 	# We will use the Symplectic Gram Schmidt Orthogonialization method mentioned in arXiv: 0903.5526v1.
 	normalizer = NullSpace(ConvertToSympectic(qecc.S))
-	
+
 	used = np.zeros(normalizer.shape[0], dtype = np.int8)
 	# If logs[i] = 0, the i-th normalizer is is a stabilizer.
 	# If logs[i] = l, the i-th normalizer is the logical operator Z_l.
@@ -404,7 +404,7 @@ def ConstructSyndromeProjectors(qecc):
 	np.save("./../code/%s_syndproj.npy" % (qecc.name), projectors)
 	return None
 
-	
+
 def ConstructPauliBasis(nqubits):
 	# Construct the list of all (4^n) Pauli matrices that act on a given number (n) of qubits.
 	pbasis = np.zeros((4**nqubits, 2**nqubits, 2**nqubits), dtype = np.complex128)

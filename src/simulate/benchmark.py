@@ -67,6 +67,21 @@ def Benchmark(submit, noise, sample, physical, refchan):
 		normphases_imag[normphase_count:(normphase_count + 2**(submit.eccs[l].N + submit.eccs[l].K))] = np.imag(submit.eccs[l].normphases.ravel()).astype(np.float64)
 		normphase_count = normphase_count + 2**(submit.eccs[l].N + submit.eccs[l].K)
 
+	# Hybrid decoding -- channels that must be averaged in the intermediate levels
+	if (submit.hybrid == 0):
+		decoderbins = np.zeros(1, dtype = np.int32)
+		ndecoderbins = np.zeros(1, dtype = np.int32)
+	else:
+		chans = [np.prod([submit.eccs[nlevels-l-1].N for l in range(inter)], dtype=np.int) 
+		for inter in range(nlevels+1)][::-1]
+		decoderbins = np.zeros(sum(chans), dtype = np.int32)
+		ndecoderbins = np.zeros(nlevels, dtype = np.int32)
+		chan_count = 0
+		for l in range(nlevels):
+			decoderbins[chan_count:(chan_count + chans[l])] = submit.decoderbins[l][:]
+			chan_count = chan_count + chans[l]
+			ndecoderbins[l] = np.unique(submit.decoderbins[l]).shape[0]
+
 	# Error channel parameters
 	metrics = (ctypes.c_char_p * nmetrics)()
 	metrics[:] = list(map(lambda str: str.encode('utf-8'), submit.metrics))
@@ -82,7 +97,9 @@ def Benchmark(submit, noise, sample, physical, refchan):
 								 ndpointer(dtype = np.float64, ndim = 1, flags = 'C_CONTIGUOUS'), # physical
 								 ctypes.c_int, # nmetrics
 								 ctypes.c_char_p * nmetrics, # metrics
-								 ctypes.c_int, # decoder
+								 ctypes.c_int, # hybrid
+								 ndpointer(dtype = np.int32, ndim = 1, flags = 'C_CONTIGUOUS'), # decoderbins
+								 ndpointer(dtype = np.int32, ndim = 1, flags = 'C_CONTIGUOUS'), # ndecoderbins
 								 ctypes.c_int, # frame
 								 ctypes.c_int, # nbreaks
 								 ndpointer(dtype = np.long, ndim = 1, flags = 'C_CONTIGUOUS'), # stats
@@ -103,14 +120,16 @@ def Benchmark(submit, noise, sample, physical, refchan):
 							physical.astype(np.float64).ravel(), # arg 8
 							ctypes.c_int(nmetrics), # arg 9
 							metrics, # arg 10
-							submit.decoder, # arg 11
-							submit.frame, # arg 12
-							len(submit.stats), # arg 13
-							submit.stats.astype(np.long), # arg 14
-							submit.nbins, # arg 15
-							submit.maxbin, # arg 16
-							submit.importance, # arg 17
-							refchan.astype(np.float64).ravel()) # arg 18
+							submit.hybrid, # arg 11
+							decoderbins, # arg 12
+							ndecoderbins, # arg 13
+							submit.frame, # arg 14
+							len(submit.stats), # arg 15
+							submit.stats.astype(np.long), # arg 16
+							submit.nbins, # arg 17
+							submit.maxbin, # arg 18
+							submit.importance, # arg 19
+							refchan.astype(np.float64).ravel()) # arg 20
 	# print("bout: {}\nfields: {}".format(bout, bout._fields_))
 	# The output arrays are all vectorized. We need to reshape them.
 	logchans = Unpack("logchans", bout.logchans, nlevels, nmetrics, nlogs, submit.nbins, len(submit.stats))

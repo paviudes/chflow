@@ -8,10 +8,11 @@ from simulate import simulate as sim
 # Load a submission record
 submit = sub.Submission()
 timestamp = sys.argv[1].strip("\n").strip(" ")
+# sub.ChangeTimestamp(submit, timestamp)
 sub.LoadSub(submit, timestamp, 0)
 
 # Prepare syndrome look-up table for hard decoding.
-if (submit.decoder == 1):
+if (submit.decode_table == 1):
 	start = time.time()
 	for l in range(submit.levels):
 		if (submit.ecc[l].lookup is None):

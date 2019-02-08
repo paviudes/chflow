@@ -213,6 +213,53 @@ void ComputeLevelOneChannels(struct simul_t *sim, struct qecc_t *qcode, struct c
 	FreeSimParamsQECC(sim, qcode->N, qcode->K);
 }
 
+void Coarsegrain(int level, struct simul_t **sims, double *****channels, int nchans, int nlogs){
+	// We would like to average over some of the channels in the given level.
+	// This averaging provides a coarse-grained information on the different channels in the level.
+	// The decbins contains a number for every channel in the level, such that the number for those channels which must be averaged are identical.
+	// printf("Function: Coarsegrain(%d, sims, channels, %d, %d)\n", level, nchans, nlogs);
+	int b, i, j, s, c;
+	int *binsizes;
+	double ***avgchans;
+	for (s = 0; s < 1 + (int)(sims[0]->importance == 2); s ++){
+		// printf("sims[%d]->hybrid = %d, sims[%d]->importance = %d\n", s, sims[s]->hybrid, s, sims[s]->importance);
+		if (sims[s]->hybrid > 0){
+			// printf("Coarse graining process with %d bins.\n", (sims[s]->ndecbins)[level]);
+			// PrintIntArray1D((sims[s]->decbins)[level], "decoder bins", nchans);
+			binsizes = malloc(sizeof(int) * (sims[s]->ndecbins)[level]);
+			avgchans = malloc(sizeof(double **) * (sims[s]->ndecbins)[level]);
+			for (b = 0; b < (sims[s]->ndecbins)[level]; b ++){
+				binsizes[b] = 0;
+				avgchans[b] = malloc(sizeof(double *) * nlogs);
+				for (i = 0; i < nlogs; i ++){
+					avgchans[b][i] = malloc(sizeof(double) * nlogs);
+					for(j = 0; j < nlogs; j ++)
+						avgchans[b][i][j] = 0;
+				}
+			}
+			for (c  = 0; c < nchans; c ++){
+				for (i = 0; i < nlogs; i ++)
+					for (j = 0; j < nlogs; j ++)
+						avgchans[(sims[s]->decbins)[level][c]][i][j] += channels[level][c][s][i][j];
+				binsizes[(sims[s]->decbins)[level][c]] ++;
+			}
+			for (c = 0; c < nchans; c ++)
+				for (i = 0; i < nlogs; i ++)
+					for (j = 0; j < nlogs; j ++)
+						channels[level][c][s][i][j] = avgchans[(sims[s]->decbins)[level][c]][i][j]/((double) binsizes[(sims[s]->decbins)[level][c]]);
+			// Free memory
+			free(binsizes);
+			for (b = 0; b < (sims[0]->ndecbins)[level]; b ++){
+				for (i = 0; i < nlogs; i ++)
+					free(avgchans[b][i]);
+				free(avgchans[b]);
+			}
+			free(avgchans);
+		}
+	}
+	// printf("Completed coarse-graining.\n");
+}
+
 
 void ComputeLogicalChannels(struct simul_t **sims, struct qecc_t **qcode, struct constants_t *consts, double *****channels){
 	// Compute a logical channel for the required concatenation level.
@@ -225,7 +272,7 @@ void ComputeLogicalChannels(struct simul_t **sims, struct qecc_t **qcode, struct
 	// PrintIntArray1D(nphys, "nphys", sims[0]->nlevels);
 	int *chans = malloc(sizeof(int) * (sims[0]->nlevels + 1));
 	CountIndepLogicalChannels(chans, nphys, sims[0]->nlevels);
-	// PrintIntArray1D(chans, "chans", sims[0]->nlevels + 1);	
+	// PrintIntArray1D(chans, "chans", sims[0]->nlevels + 1);
 
 	// At every level, select a set of n channels, consider them as physical channels and perform qcode to output a logical channel.
 	// Place this logical channel in the channels array, at the succeeding level.
@@ -237,22 +284,23 @@ void ComputeLogicalChannels(struct simul_t **sims, struct qecc_t **qcode, struct
 	double *impcumul = malloc(sizeof(double) * qcode[0]->nstabs);
 	double ****inputchannels = malloc(sizeof(double ***));
 	int *isPauli = malloc(sizeof(int) * (int)(1 + (int)(sims[0]->importance == 2)));
-	
+
 	// printf("Computing logical channels for %d levels.\n", sims[0]->nlevels);
 
 	for (l = 1; l < sims[0]->nlevels; l ++){
 		// Allocate memory for the simulation parameters which depend on the error correcting code
 		for (s = 0; s < 1 + (int)(sims[0]->importance == 2); s ++)
 			AllocSimParamsQECC(sims[s], qcode[l]->N, qcode[l]->K);
-		
+
 		// Allocate memory for inputchannels
 		inputchannels = (double ****)realloc(inputchannels, sizeof(double ***) * qcode[l]->N);
 		MemManageInputChannels(inputchannels, qcode[l]->N, qcode[l]->nlogs, sims[0]->importance, 0);
 
 		for (b = 0; b < chans[l + 1]; b ++){
-			bias = 1.0;
-			history = 1.0;
 			// printf("batch = %d of %d\n", b, chans[l]);
+			/*
+			bias = 1;
+			history = 1;
 			for (q = 0; q < qcode[l]->N; q ++){
 				// inputchannels[q] = {channels[l][n*b], ..., channels[l][n*(b+1)]}
 				for (s = 0; s < 1 + (int)(sims[0]->importance == 2); s ++){
@@ -262,21 +310,27 @@ void ComputeLogicalChannels(struct simul_t **sims, struct qecc_t **qcode, struct
 					inputchannels[q][s][qcode[l]->nlogs][0] = channels[l - 1][qcode[l]->N * b + q][s][qcode[l]->nlogs][0];
 					inputchannels[q][s][qcode[l]->nlogs][1] = channels[l - 1][qcode[l]->N * b + q][s][qcode[l]->nlogs][1];
 				}
-				bias = bias * inputchannels[q][0][qcode[l]->nlogs][0];
-				history = history * inputchannels[q][0][qcode[l]->nlogs][1];
+				bias *= inputchannels[q][0][qcode[l]->nlogs][0];
+				history *= inputchannels[q][0][qcode[l]->nlogs][1];
 			}
-
+			*/
 			// Load the input channels on to the simulation structures and perform qcode.
+			// Perform coarsegraining of logical channels
+			Coarsegrain(l, sims, channels, chans[l], qcode[l]->nlogs);
 			for (s = 0; s < 1 + (int)(sims[0]->importance == 2); s ++){
+				bias = 1;
+				history = 1;
 				isPauli[s] = 1;
 				for (q = 0; q < qcode[l]->N; q ++){
 					for (i = 0; i < qcode[l]->nlogs; i ++)
 						for (j = 0; j < qcode[l]->nlogs; j ++)
-							(sims[s]->virtchan)[q][i][j] = inputchannels[q][s][i][j];
+							(sims[s]->virtchan)[q][i][j] = channels[l - 1][qcode[l]->N * b + q][s][i][j];
 					if (isPauli[s] > 0)
 						isPauli[s] = isPauli[s] * IsDiagonal((sims[s]->virtchan)[q], qcode[l]->nlogs);
 					// printf("qubit %d:\n", q);
 					// PrintDoubleArray2D((sims[s]->virtchan)[q], "virtual channel", qcode[l]->nlogs, qcode[l]->nlogs);
+					bias *= channels[l - 1][qcode[l]->N * b + q][s][qcode[l]->nlogs][0];
+					history *= channels[l - 1][qcode[l]->N * b + q][s][qcode[l]->nlogs][1];
 				}
 				// printf("Going to perform SingleShotErrorCorrection on s = %d, isPauli = %d and frame = %d.\n", s, isPauli[s], (sims[s]->frames)[l]);
 				SingleShotErrorCorrection(isPauli[s], (sims[s]->frames)[l], qcode[l], sims[s], consts);
@@ -389,7 +443,7 @@ void Performance(struct qecc_t **qcode, struct simul_t **sims, struct constants_
 	if (sims[0]->nlevels > 1){
 		for (t = 0; t < sims[0]->nstats; t ++){
 			// Fill the lowest level of the channels array with "nchans" samples of level-1 channels.
-			// printf("Stat %ld, nchans = %d.\n", t, nchans);
+			printf("Stat %ld, nchans = %d.\n", t, nchans);
 			for (c = 0; c < nchans; c ++){
 				if (sims[0]->importance == 0){
 					// Direct sampling

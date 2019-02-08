@@ -13,14 +13,10 @@ from define import submission as sub
 from define import fnames as fn
 
 def SimulateSampleIndex(submit, rate, sample, coreidx, results):
-	# channel, rate, sample, nlevels, nstats, ecmode, metricsToCompute, qcodeinfo, importance, decoder, coreidx, results):
+	# Simulate each noise rate and sample
 	start = time.time()
 	## Load the physical channel and the reference (noisier) channel if importance sampling is selected.
-<<<<<<< HEAD
 	physchan = np.load(fn.PhysicalChannel(submit, rate))[sample, :, :]
-=======
-	physchan = np.load(fn.PhysicalChannel(submit, rate, loc = "local"))[sample, :, :]
->>>>>>> 9af037bddc3655debfc0e4e56e92e8df9eb481e2
 	if (submit.importance == 2):
 		refchan = np.load(fn.PhysicalChannel(submit, rate, sample))[sample, :, :]
 	else:
@@ -101,7 +97,9 @@ def LocalSimulations(submit, node, stream = sys.stdout):
 		stream.write("\033[2mNoise rates: %s\n\033[0m" % (np.array_str(params[finished:min(submit.cores[0], finished + availcores), :-1])))
 		stream.write("\033[2mSamples: %s\n\033[0m" % (np.array_str(params[finished:min(submit.cores[0], finished + availcores), -1])))
 		stream.write("\033[2mImportance: %g\n\033[0m" % (submit.importance))
-		stream.write("\033[2mDecoder: %d\n\033[0m" % (submit.decoder))
+		stream.write("\033[2mHybrid: %d\n\033[0m" % (submit.hybrid))
+		if (submit.hybrid > 0):
+			stream.write("\033[2mDecoding bins: {}\n\033[0m".format(submit.decoderbins))
 		stream.write("\033[2mConcatenation levels: %d\n\033[0m" % (submit.levels))
 		stream.write("\033[2mDecoding trials per level: %s\n\033[0m" % (np.array_str(submit.stats)))
 		stream.write("\033[2mMetrics to be computed at every level: %s\n\033[0m" % (", ".join(submit.metrics)))

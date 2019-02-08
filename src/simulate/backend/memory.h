@@ -6,7 +6,6 @@
 struct simul_t{
 	// Quantum error correction.
 	char *chname;
-	int decoder;
 	double **physical;
 	double ***virtchan;
 	double ***logical;
@@ -42,6 +41,10 @@ struct simul_t{
 	long *runstats;
 	double **runavg;
 	double threshold;
+	// Decoder
+	int hybrid;
+	int **decbins;
+	int *ndecbins;
 };
 
 // Initialize the elements that pertain to the montecarlo simulation of channels.
@@ -69,5 +72,11 @@ extern int MemManageChannels(double *****channels, int *nphys, int *nencs, int n
 
 // Allocate and free memory for the input channels structure in ComputeLogicalChannels(...).
 extern void MemManageInputChannels(double ****inputchannels, int nphys, int nlogs, int importance, int tofree);
+
+// Allocate memory for the bins according to which logical (effective) channels must be averaged at intermediate decoding levels.
+extern void AllocDecoderBins(struct simul_t *simul, int *nphys);
+
+// Free memory allocated for decoding bins.
+extern void FreeDecoderBins(struct simul_t *simul);
 
 #endif /* MEMORY_H */

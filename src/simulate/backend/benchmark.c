@@ -32,7 +32,7 @@ void FreeBenchOut(struct BenchOut *pbout){
 	free(pbout->running);
 }
 
-struct BenchOut Benchmark(int nlevels, int *nkd, int *SS, int *normalizer, double *normphases_real, double *normphases_imag, const char *chname, double *physical, int nmetrics, char **metrics, int decoder, int frame, int nbreaks, long *stats, int nbins, int maxbin, int importance, double *refchan){
+struct BenchOut Benchmark(int nlevels, int *nkd, int *SS, int *normalizer, double *normphases_real, double *normphases_imag, const char *chname, double *physical, int nmetrics, char **metrics, int hybrid, int *decoderbins, int *ndecoderbins, int frame, int nbreaks, long *stats, int nbins, int maxbin, int importance, double *refchan){
 	/*
 	Benchmark an error correcting scheme.
 	Inputs:
@@ -64,7 +64,10 @@ struct BenchOut Benchmark(int nlevels, int *nkd, int *SS, int *normalizer, doubl
 			3. Number of syndrome metric bins: int nbins
 			4. Maximum order of magnitude for a bin: int maxbin
 			5. Quantum error correction frame: int frame
-			6. Decoding technique, hard or soft: int decoder.
+		(e).
+			1. Decoding technique, soft or hybrid: int hybrid: int hybrid
+			2. Channels at intermediate levels that need to be averaged: int **decoderbins
+			3. Number of distinct (bins) channels at each intermediate level: int *ndecoderbins
 	*/
 	struct constants_t *consts = malloc(sizeof(struct constants_t));
 	InitConstants(consts);
@@ -104,16 +107,23 @@ struct BenchOut Benchmark(int nlevels, int *nkd, int *SS, int *normalizer, doubl
 
 	// printf("QECC assigned.\n");
 
+	// Record the number of physical qubits -- this is for setting the sizes of the decoder bins.
+	int *nphys = malloc(sizeof(int) * nlevels);
+	for (l = 0; l < nlevels; l ++)
+		nphys[l] = qcode[l]->N;
+	int *chans = malloc(sizeof(int) * nlevels);
+	CountIndepLogicalChannels(chans, nphys, nlevels);
+
 	// Parameters that are specific to the Montecarlo simulations to estimate the logical error rate.
 	struct simul_t **sims = malloc(sizeof(struct simul_t*) * (1 + (int)(importance == 2)));
-	int m, j;
+	int m, j, c, chan_count = 0;
 	for (s = 0; s < 1 + (int)(importance == 2); s ++){
 		// printf("s = %d\n", s);
 		sims[s] = malloc(sizeof(struct simul_t));
 		sims[s]->nlevels = nlevels;
 		sims[s]->nmetrics = nmetrics;
 		sims[s]->importance = importance;
-		sims[s]->decoder = decoder;
+		sims[s]->hybrid = hybrid;
 		sims[s]->nbins = nbins;
 		sims[s]->maxbin = maxbin;
 		sims[s]->nbreaks = nbreaks;
@@ -134,6 +144,18 @@ struct BenchOut Benchmark(int nlevels, int *nkd, int *SS, int *normalizer, doubl
 			for (l = 0 ; l < nlevels - 1; l ++)
 				(sims[s]->frames)[l] = 4;
 			(sims[s]->frames)[nlevels - 1] = consts->nclifford;
+		}
+
+		// Prescription for averaging channels at intermediate decoding levels
+		if (sims[s]->hybrid > 0){
+			AllocDecoderBins(sims[s], nphys);
+			chan_count = 0;
+			for (l = 0; l < nlevels; l ++){
+				for (c = 0; c < chans[l]; c ++)
+					(sims[s]->decbins)[l][c] = decoderbins[chan_count + c];
+				chan_count += chans[l];
+				(sims[s]->ndecbins)[l] = ndecoderbins[l];
+			}
 		}
 
 		// Error model and metrics
@@ -159,7 +181,7 @@ struct BenchOut Benchmark(int nlevels, int *nkd, int *SS, int *normalizer, doubl
 
 	}
 
-	// printf("Going to start Performance.\n");
+	printf("Going to start Performance.\n");
 
 	// ###################################
 
@@ -167,7 +189,7 @@ struct BenchOut Benchmark(int nlevels, int *nkd, int *SS, int *normalizer, doubl
 
 	// ###################################
 
-	// printf("Loading outputs on to BenchOut.\n");
+	printf("Loading outputs on to BenchOut.\n");
 
 	int nlogs = qcode[0]->nlogs;
 	struct BenchOut bout;
@@ -214,9 +236,13 @@ struct BenchOut Benchmark(int nlevels, int *nkd, int *SS, int *normalizer, doubl
 	// printf("Freeing memory.\n");
 
 	// Free memory
+	free(nphys);
+	free(chans);
 	// printf("Freeing %d simulation structures.\n", 1 + (int)(importance == 2));
 	for (s = 0; s < 1 + (int)(importance == 2); s ++){
 		FreeSimParams(sims[s], qcode[0]->N, qcode[0]->K);
+		if (sims[s]->hybrid > 0)
+			FreeDecoderBins(sims[s]);
 		free(sims[s]);
 	}
 	free(sims);

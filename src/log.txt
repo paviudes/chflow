@@ -4103,3 +4103,828 @@ queue X
 email pavithran.sridhar@gmail.com
 # Output result's directory.
 outdir /home/pavi/projects/def-jemerson/pavi/chbank\n++++++++++\nbqsubmit file\n++++++++++\nNot provided\n\n
+
+****************** Created on 06_02_2019_17_38_15 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 06_02_2019_17_38_15
+# Type of quantum error correcting code
+ecc Steane
+# Type of quantum channel
+channel rtz
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 5,5,1
+# Scales of noise range.
+scale 0.66
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler /Users/pavi/Documents/Channel_Flow/06_02_2019_17_38_15/input/scheduler_06_02_2019_17_38_15.txt
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of syndromes to be sampled at top level
+stats [100]
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance Direct
+# Metrics to be computed on the effective channels at every level.
+metrics infid
+# Load distribution on cores.
+cores 1,1
+# Number of nodes
+nodes 0
+# Name of the host computer.
+host local
+# Name of the account.
+account default
+# Batch name.
+job X
+# Wall time in hours.
+wall 0
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue X
+# Email notifications.
+email X
+# Output result's directory.
+outdir /Users/pavi/Documents/Channel_Flow
+++++++++++
+bqsubmit file
+++++++++++
+Not provided
+
+
+
+****************** Created on 06_02_2019_18_03_29 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 06_02_2019_18_03_29
+# Type of quantum error correcting code
+ecc Steane
+# Type of quantum channel
+channel rtz
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 5,5,1
+# Scales of noise range.
+scale 0.66
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler ./../input/schedule_06_02_2019_18_03_29.txt
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of syndromes to be sampled at top level
+stats [100]
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance Direct
+# Metrics to be computed on the effective channels at every level.
+metrics infid
+# Load distribution on cores.
+cores 1,1
+# Number of nodes
+nodes 0
+# Name of the host computer.
+host local
+# Name of the account.
+account default
+# Batch name.
+job X
+# Wall time in hours.
+wall 0
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue X
+# Email notifications.
+email X
+# Output result's directory.
+outdir /Users/pavi/Documents/Channel_Flow
+++++++++++
+bqsubmit file
+++++++++++
+Not provided
+
+
+
+****************** Created on 06_02_2019_18_06_15 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 06_02_2019_18_06_15
+# Type of quantum error correcting code
+ecc Steane
+# Type of quantum channel
+channel rtz
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 5,5,1
+# Scales of noise range.
+scale 0.66
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler ./../input/schedule_06_02_2019_18_06_15.txt
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of syndromes to be sampled at top level
+stats [100]
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance Direct
+# Metrics to be computed on the effective channels at every level.
+metrics infid
+# Load distribution on cores.
+cores 1,1
+# Number of nodes
+nodes 1
+# Name of the host computer.
+host local
+# Name of the account.
+account default
+# Batch name.
+job X
+# Wall time in hours.
+wall 0
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue X
+# Email notifications.
+email X
+# Output result's directory.
+outdir /Users/pavi/Documents/Channel_Flow
+++++++++++
+bqsubmit file
+++++++++++
+Not provided
+
+
+
+****************** Created on 06_02_2019_18_07_42 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 06_02_2019_18_07_42
+# Type of quantum error correcting code
+ecc Steane
+# Type of quantum channel
+channel rtz
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 5,5,1
+# Scales of noise range.
+scale 0.66
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler ./../input/schedule_06_02_2019_18_07_42.txt
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of syndromes to be sampled at top level
+stats [100]
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance Direct
+# Metrics to be computed on the effective channels at every level.
+metrics infid
+# Load distribution on cores.
+cores 1,1
+# Number of nodes
+nodes 0
+# Name of the host computer.
+host local
+# Name of the account.
+account default
+# Batch name.
+job X
+# Wall time in hours.
+wall 0
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue X
+# Email notifications.
+email X
+# Output result's directory.
+outdir /Users/pavi/Documents/Channel_Flow
+++++++++++
+bqsubmit file
+++++++++++
+Not provided
+
+
+
+****************** Created on 06_02_2019_18_20_13 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 06_02_2019_18_20_13
+# Type of quantum error correcting code
+ecc Steane
+# Type of quantum channel
+channel rtz
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 5,5,1
+# Scales of noise range.
+scale 0.66
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler ./../input/schedule_06_02_2019_18_20_13.txt
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of syndromes to be sampled at top level
+stats [100]
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance Direct
+# Metrics to be computed on the effective channels at every level.
+metrics infid
+# Load distribution on cores.
+cores 1,1
+# Number of nodes
+nodes 0
+# Name of the host computer.
+host local
+# Name of the account.
+account default
+# Batch name.
+job X
+# Wall time in hours.
+wall 0
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue X
+# Email notifications.
+email X
+# Output result's directory.
+outdir /Users/pavi/Documents/Channel_Flow
+++++++++++
+bqsubmit file
+++++++++++
+Not provided
+
+
+
+****************** Created on 06_02_2019_18_23_02 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 06_02_2019_18_23_02
+# Type of quantum error correcting code
+ecc Steane
+# Type of quantum channel
+channel rtz
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 5,5,1
+# Scales of noise range.
+scale 0.66
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler ./../input/schedule_06_02_2019_18_23_02.txt
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of syndromes to be sampled at top level
+stats [100]
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance Direct
+# Metrics to be computed on the effective channels at every level.
+metrics infid
+# Load distribution on cores.
+cores 1,1
+# Number of nodes
+nodes 1
+# Name of the host computer.
+host local
+# Name of the account.
+account default
+# Batch name.
+job X
+# Wall time in hours.
+wall 0
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue X
+# Email notifications.
+email X
+# Output result's directory.
+outdir /Users/pavi/Documents/Channel_Flow
+++++++++++
+bqsubmit file
+++++++++++
+Not provided
+
+
+
+****************** Created on 06_02_2019_18_27_26 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 06_02_2019_18_27_26
+# Type of quantum error correcting code
+ecc Steane
+# Type of quantum channel
+channel rtz
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 5,5,1
+# Scales of noise range.
+scale 0.66
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler ./../input/schedule_06_02_2019_18_27_26.txt
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of syndromes to be sampled at top level
+stats [100]
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance Direct
+# Metrics to be computed on the effective channels at every level.
+metrics infid
+# Load distribution on cores.
+cores 1,1
+# Number of nodes
+nodes 0
+# Name of the host computer.
+host local
+# Name of the account.
+account default
+# Batch name.
+job X
+# Wall time in hours.
+wall 0
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue X
+# Email notifications.
+email X
+# Output result's directory.
+outdir /Users/pavi/Documents/Channel_Flow
+++++++++++
+bqsubmit file
+++++++++++
+Not provided
+
+
+
+****************** Created on 06_02_2019_18_28_02 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 06_02_2019_18_28_02
+# Type of quantum error correcting code
+ecc Steane
+# Type of quantum channel
+channel rtz
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 5,5,1
+# Scales of noise range.
+scale 0.66
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler ./../input/schedule_06_02_2019_18_28_02.txt
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of syndromes to be sampled at top level
+stats [100]
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance Direct
+# Metrics to be computed on the effective channels at every level.
+metrics infid
+# Load distribution on cores.
+cores 1,1
+# Number of nodes
+nodes 1
+# Name of the host computer.
+host local
+# Name of the account.
+account default
+# Batch name.
+job X
+# Wall time in hours.
+wall 0
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue X
+# Email notifications.
+email X
+# Output result's directory.
+outdir /Users/pavi/Documents/Channel_Flow
+++++++++++
+bqsubmit file
+++++++++++
+Not provided
+
+
+
+****************** Created on 06_02_2019_18_41_15 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 06_02_2019_18_41_15
+# Type of quantum error correcting code
+ecc Steane
+# Type of quantum channel
+channel rtz
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 5,5,1
+# Scales of noise range.
+scale 0.66
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler ./../input/schedule_06_02_2019_18_41_15.txt
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of syndromes to be sampled at top level
+stats [100]
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance Direct
+# Metrics to be computed on the effective channels at every level.
+metrics infid
+# Load distribution on cores.
+cores 1,1
+# Number of nodes
+nodes 0
+# Name of the host computer.
+host local
+# Name of the account.
+account default
+# Batch name.
+job X
+# Wall time in hours.
+wall 0
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue X
+# Email notifications.
+email X
+# Output result's directory.
+outdir /Users/pavi/Documents/Channel_Flow
+++++++++++
+bqsubmit file
+++++++++++
+Not provided
+
+
+
+****************** Created on 06_02_2019_18_41_50 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 06_02_2019_18_41_50
+# Type of quantum error correcting code
+ecc Steane
+# Type of quantum channel
+channel rtz
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 5,5,1
+# Scales of noise range.
+scale 0.66
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler ./../input/schedule_06_02_2019_18_41_50.txt
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of syndromes to be sampled at top level
+stats [100]
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance Direct
+# Metrics to be computed on the effective channels at every level.
+metrics infid
+# Load distribution on cores.
+cores 1,1
+# Number of nodes
+nodes 0
+# Name of the host computer.
+host local
+# Name of the account.
+account default
+# Batch name.
+job X
+# Wall time in hours.
+wall 0
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue X
+# Email notifications.
+email X
+# Output result's directory.
+outdir /Users/pavi/Documents/Channel_Flow
+++++++++++
+bqsubmit file
+++++++++++
+Not provided
+
+
+
+****************** Created on 06_02_2019_18_41_59 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 06_02_2019_18_41_59
+# Type of quantum error correcting code
+ecc Steane
+# Type of quantum channel
+channel rtz
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 5,5,1
+# Scales of noise range.
+scale 0.66
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler ./../input/schedule_06_02_2019_18_41_59.txt
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of syndromes to be sampled at top level
+stats [100]
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance Direct
+# Metrics to be computed on the effective channels at every level.
+metrics infid
+# Load distribution on cores.
+cores 1,1
+# Number of nodes
+nodes 1
+# Name of the host computer.
+host local
+# Name of the account.
+account default
+# Batch name.
+job X
+# Wall time in hours.
+wall 0
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue X
+# Email notifications.
+email X
+# Output result's directory.
+outdir /Users/pavi/Documents/Channel_Flow
+++++++++++
+bqsubmit file
+++++++++++
+Not provided
+
+
+
+****************** Created on 06_02_2019_18_51_58 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 06_02_2019_18_51_58
+# Type of quantum error correcting code
+ecc Steane
+# Type of quantum channel
+channel rtz
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 5,5,1
+# Scales of noise range.
+scale 0.66
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler ./../input/schedule_06_02_2019_18_51_58.txt
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of syndromes to be sampled at top level
+stats [100]
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance Direct
+# Metrics to be computed on the effective channels at every level.
+metrics infid
+# Load distribution on cores.
+cores 1,1
+# Number of nodes
+nodes 1
+# Name of the host computer.
+host local
+# Name of the account.
+account default
+# Batch name.
+job X
+# Wall time in hours.
+wall 0
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue X
+# Email notifications.
+email X
+# Output result's directory.
+outdir /Users/pavi/Documents/Channel_Flow
+++++++++++
+bqsubmit file
+++++++++++
+Not provided
+
+
+
+****************** Created on 06_02_2019_19_40_23 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 06_02_2019_19_40_23
+# Type of quantum error correcting code
+ecc Steane,Steane
+# Type of quantum channel
+channel rtz
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 5,5,1
+# Scales of noise range.
+scale 0.66
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler ./../input/schedule_06_02_2019_19_40_23.txt
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of syndromes to be sampled at top level
+stats [100]
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance Direct
+# Metrics to be computed on the effective channels at every level.
+metrics infid
+# Load distribution on cores.
+cores 1,1
+# Number of nodes
+nodes 0
+# Name of the host computer.
+host local
+# Name of the account.
+account default
+# Batch name.
+job X
+# Wall time in hours.
+wall 0
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue X
+# Email notifications.
+email X
+# Output result's directory.
+outdir /Users/pavi/Documents/Channel_Flow
+++++++++++
+bqsubmit file
+++++++++++
+Not provided
+
+
+
+****************** Created on 06_02_2019_19_40_41 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 06_02_2019_19_40_41
+# Type of quantum error correcting code
+ecc Steane,Steane
+# Type of quantum channel
+channel rtz
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 5,5,1
+# Scales of noise range.
+scale 0.66
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler ./../input/schedule_06_02_2019_19_40_41.txt
+# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.
+decoder 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of syndromes to be sampled at top level
+stats [100]
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance Direct
+# Metrics to be computed on the effective channels at every level.
+metrics infid
+# Load distribution on cores.
+cores 1,1
+# Number of nodes
+nodes 1
+# Name of the host computer.
+host local
+# Name of the account.
+account default
+# Batch name.
+job X
+# Wall time in hours.
+wall 0
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue X
+# Email notifications.
+email X
+# Output result's directory.
+outdir /Users/pavi/Documents/Channel_Flow
+++++++++++
+bqsubmit file
+++++++++++
+Not provided
+
+
+
+****************** Created on 08_02_2019_12_00_29 *************
+++++++++++
+Input file
+++++++++++
+# Time stamp
+timestamp 08_02_2019_12_00_29
+# Type of quantum error correcting code
+ecc Steane,Steane
+# Type of quantum channel
+channel rtz
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 0.05,0.05,1
+# Scales of noise range.
+scale 1
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler ./../input/schedule_08_02_2019_12_00_29.txt
+# Decoder to be used -- 0 for soft decoding and 1 for hybrid decoding.
+hybrid 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of syndromes to be sampled at top level
+stats [100]
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance Direct
+# Metrics to be computed on the effective channels at every level.
+metrics infid
+# Load distribution on cores.
+cores 1,1
+# Number of nodes
+nodes 1
+# Name of the host computer.
+host local
+# Name of the account.
+account default
+# Batch name.
+job X
+# Wall time in hours.
+wall 0
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue X
+# Email notifications.
+email X
+# Output result's directory.
+outdir /Users/pavithran/Documents/LDPC/Channel_Flow
+++++++++++
+bqsubmit file
+++++++++++
+Not provided
+
+

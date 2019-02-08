@@ -17,7 +17,7 @@ struct BenchOut{
 			bins = 4D array of shape:nmetrics x nlevels x nbins x nbins
 	4. Running average of average metric values for topmost level.
 			running = 1D array of shape: nbreaks
-	
+
 	All the arrays are vectorized.
 	*/
 	double *logchans;
@@ -28,7 +28,7 @@ struct BenchOut{
 	double *running;
 };
 
-/*	
+/*
 	Benchmark an error correcting scheme.
 	Inputs:
 		(a). Specifications of the error correcting code
@@ -59,10 +59,13 @@ struct BenchOut{
 			3. Number of syndrome metric bins: int nbins
 			4. Maximum order of magnitude for a bin: int maxbin
 			5. Quantum error correction frame: int frame
-			6. Decoding technique, hard or soft: int decoder.
+		(e). Decoding
+			1. Decoding technique, soft or hybrid: int hybrid
+			2. Channels that must be averaged at intermediate levels: int **decoderbins
+			3. Number of distinct (bins) of channels at intermediate levels: int *ndecoderbins
 
 	All the multi-dimensional arrays are (row) vectorized.
 */
-extern struct BenchOut Benchmark(int nlevels, int *nkd, int *SS, int *normalizer, double *normphases_real, double *normphases_imag, const char *chname, double *physical, int nmetrics, char **metrics, int decoder, int frame, int nbreaks, long *stats, int nbins, int maxbin, int importance, double *refchan);
+extern struct BenchOut Benchmark(int nlevels, int *nkd, int *SS, int *normalizer, double *normphases_real, double *normphases_imag, const char *chname, double *physical, int nmetrics, char **metrics, int hybrid, int *decoderbins, int *ndecoderbins, int frame, int nbreaks, long *stats, int nbins, int maxbin, int importance, double *refchan);
 
 #endif /* BENCHMARK_H */

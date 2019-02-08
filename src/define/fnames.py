@@ -1,11 +1,11 @@
-def SubmissionInputs(dbs):
+def SubmissionInputs(timestamp):
 	# Name of the file containing the submission input
-	fname = ("%s/input/%s.txt" % (dbs.outdir, dbs.timestamp))
+	fname = ("./../input/%s.txt" % (timestamp))
 	return fname
-	
-def SubmissionSchedule(dbs):
+
+def SubmissionSchedule(timestamp):
 	# Name of the file containing the submission parameters schedule
-	fname = ("%s/input/scheduler_%s.txt" % (dbs.outdir, dbs.timestamp))
+	fname = ("./../input/schedule_%s.txt" % (timestamp))
 	return fname
 
 def PhysicalChannel(dbs, noise):

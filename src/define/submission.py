@@ -14,11 +14,11 @@ class Submission():
 	def __init__(self):
 		# Logging options
 		self.timestamp = time.strftime("%d/%m/%Y %H:%M:%S").replace("/", "_").replace(":", "_").replace(" ", "_")
-		
+
 		# Output options
 		self.outdir = "."
 		# fn.OutputDirectory(os.path.abspath("./../../"), self)
-	
+
 		# Cluster options
 		self.job = "X"
 		self.host = "local"
@@ -28,7 +28,7 @@ class Submission():
 		self.queue = "X"
 		self.email = "X"
 		self.account = "default"
-		
+
 		# Run time options
 		self.cores = [1, 1]
 		self.inputfile = fn.SubmissionInputs(self)
@@ -38,12 +38,12 @@ class Submission():
 
 		# Channel options
 		self.channel = "X"
+		self.phychans = np.array([])
 		self.repr = "process"
 		self.noiserange = []
-		self.noiserates = np.array([[]])
+		self.noiserates = np.array([])
 		self.scales = []
 		self.samps = 1
-		self.chfiles = []
 		self.channels = 0
 		self.available = np.array([])
 
@@ -53,19 +53,25 @@ class Submission():
 
 		# ECC options
 		self.eccs = []
-		self.decoder = 0
 		self.eccframes = {"P":0, "C":1, "PC":2}
 		self.frame = 0
 		self.levels = 0
 		self.ecfiles = []
-		
+
+		# Decoder
+		self.decode_table = 0
+		self.decoder_type = "default_soft"
+		self.hybrid = 0
+		self.decoderbins = []
+		self.ndecoderbins = []
+
 		# Sampling options
 		self.stats = np.array([])
 		self.samplingOptions = {"Direct": 0, "Importance": 1, "Bravyi": 2}
 		self.importance = 0
 		self.nbins = 50
 		self.maxbin = 50
-		
+
 		# Advanced options
 		self.isAdvanced = 0
 
@@ -85,14 +91,16 @@ def ChangeTimeStamp(submit, timestamp):
 	submit.timestamp = timestamp
 	# Re define the variables that depend on the time stamp
 	submit.outdir = fn.OutputDirectory(os.path.dirname(submit.outdir), submit)
-	submit.inputfile = fn.SubmissionInputs(submit)
-	submit.scheduler = fn.SubmissionSchedule(submit)
+	submit.inputfile = fn.SubmissionInputs(timestamp)
+	submit.scheduler = fn.SubmissionSchedule(timestamp)
+	# print("New time stamp: {}, output directory: {}, input file: {}, scheduler: {}".format(timestamp, submit.outdir, submit.inputfile, submit.scheduler))
 	return None
 
 
 def Schedule(submit):
 	# List all the parameters that must be run in every node, explicity.
 	# For every node, list out all the parameter values in a two-column format.
+	# print("Time stamp: {}, output directory: {}, input file: {}, scheduler: {}".format(submit.timestamp, submit.outdir, submit.inputfile, submit.scheduler))
 	with open(submit.scheduler, 'w') as sch:
 		for i in range(submit.nodes):
 			sch.write("!!node %d!!\n" % (i))
@@ -113,12 +121,12 @@ def Update(submit, pname, newvalue):
 		# Read all the Parameters of the error correcting code
 		names = newvalue.split(",")
 		submit.ecfiles = []
-		submit.levels = len(names) 
+		submit.levels = len(names)
 		for i in range(submit.levels):
 			submit.eccs.append(qec.QuantumErrorCorrectingCode(names[i]))
 			qec.Load(submit.eccs[i])
 			submit.ecfiles.append(submit.eccs[i].defnfile)
-	
+
 	elif (pname == "channel"):
 		submit.channel = newvalue
 
@@ -193,9 +201,16 @@ def Update(submit, pname, newvalue):
 		submit.isSubmission = 1
 		submit.importance = submit.samplingOptions[newvalue]
 
-	elif (pname == "decoder"):
+	elif (pname == "hybrid"):
 		submit.isSubmission = 1
-		submit.decoder = int(newvalue)
+		submit.hybrid = int(newvalue)
+
+	elif (pname == "decbins"):
+		# Set the bins of channels that must be averged at intermediate levels
+		# The bins shall be provided in a new file, whose name must be specified here.
+		submit.isSubmission = 1
+		submit.hybrid = 1
+		ParseDecodingBins(submit, newvalue)
 
 	elif (pname == "job"):
 		submit.isSubmission = 1
@@ -221,7 +236,7 @@ def Update(submit, pname, newvalue):
 
 	elif (pname == "account"):
 		submit.account = newvalue
-	
+
 	elif (pname == "scheduler"):
 		submit.scheduler = newvalue
 
@@ -237,6 +252,40 @@ def Update(submit, pname, newvalue):
 	else:
 		pass
 
+	return None
+
+
+def ParseDecodingBins(submit, fname):
+	# Read the channels which must be averaged while decoding the intermediate concatenation levels
+	submit.decoder_type = fname
+	if (os.path.isfile(fname)):
+		# Read the bins information form a file.
+		# The file should contain one line for each concatenation level.
+		# Each line should contain N columns (separated by spaces) where N is the number of encoded qubits at that level.
+		# Every column entry should be an index of a bin into which that channel must be placed. Channels in the same bin are averaged.
+		with open(fname, "r") as bf:
+			for l in range(submit.levels):
+				submit.decoderbins.append(list(map(int, bf.readline().strip("\n").strip(" ").split(" "))))
+	else:
+		chans = [np.prod([submit.eccs[submit.levels-l-1].N for l in range(inter)], dtype=np.int) for inter in range(submit.levels+1)][::-1]
+		if (fname == "soft"):
+			# Choose to put every channel in its own bin -- this is just soft decoding.
+			for l in range(submit.levels):
+				submit.decoderbins.append(np.arange(chans[l], dtype = np.int))
+		elif ("random" in fname):
+			# Choose to have random bins
+			n_rand_decbins = int(fname.split("_")[1])
+			if (n_rand_decbins < 1):
+				print("\033[2mNumber of bins for channels cannot be less than 1, resetting this number to 1.\033[0m")
+				n_rand_decbins = 1
+			for l in range(submit.levels):
+				submit.decoderbins.append(np.random.randint(0, min(n_rand_decbins, chans[l]) - 1, size=chans[l]))
+		elif (fname == "hard"):
+			# All channels in one bin -- this is hard decoding.
+			for l in range(submit.levels):
+				submit.decoderbins.append(np.zeros(chans[l], dtype = np.int))
+		else:
+			pass
 	return None
 
 
@@ -271,7 +320,7 @@ def PrintSub(submit):
 	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Decoder", "%d" % (submit.decoder)))
 	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Syndrome samples at level %d" % (submit.levels), "%s" % (np.array_str(submit.stats))))
 	print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Type of syndrome sampling", "%s" % (list(submit.samplingOptions.keys())[list(submit.samplingOptions.values()).index(submit.importance)])))
-	
+
 	if (not (submit.host == "local")):
 		print("Cluster")
 		print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Host", "%s" % (submit.host)))
@@ -280,7 +329,7 @@ def PrintSub(submit):
 		print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Number of nodes", "%d" % (submit.nodes)))
 		print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Walltime per node", "%d" % (submit.wall)))
 		print(("{:<%d} {:<%d}" % (colwidth, colwidth)).format("Submission queue", "%s" % (submit.queue)))
-	
+
 		print("Usage")
 		mam.Usage(submit)
 	print("\033[0m"),
@@ -312,7 +361,9 @@ def Save(submit):
 		# File name containing the parameters to be run on the particular node
 		infid.write("# Parameters schedule\nscheduler %s\n" % (submit.scheduler))
 		# Decoder
-		infid.write("# Decoder to be used -- 0 for soft decoding and 1 for Hard decoding.\ndecoder %d\n" % (submit.decoder))
+		infid.write("# Decoder to be used -- 0 for soft decoding and 1 for hybrid decoding.\nhybrid %d\n" % (submit.hybrid))
+		if (submit.hybrid > 0):
+			infid.write("# Channels to be averaged at intermediate levels by a hybrid decoder Either a file name containing bins for channels or a keyword from \{\"soft\", \"random <number of bins>\", \"hard\"\}.\nhybrid %d\n" % (submit.hybrid))
 		# ECC frame to be used
 		infid.write("# Logical frame for error correction (Available options: \"[P] Pauli\", \"[C] Clifford\", \"[PC] Pauli + Logical Clifford\").\nframe %s\n" % (list(submit.eccframes.keys())[list(submit.eccframes.values()).index(submit.frame)]))
 		# Number of decoding trials per level
@@ -353,7 +404,13 @@ def PrepOutputDir(submit):
 		os.system("mkdir -p %s/%s" % (submit.outdir, subdir))
 	# Copy the relevant code data
 	for l in range(submit.levels):
-		os.system("cp %s %s/code/" % (submit.eccs[l].defnfile, submit.outdir))
+		os.system("cp ./../code/%s %s/code/" % (submit.eccs[l].defnfile, submit.outdir))
+	return None
+
+def SavePhysicalChannels(submit):
+	# Save the physical channels generated to a file.
+	for i in range(submit.phychans.shape[0]):
+		np.save(fn.PhysicalChannel(submit, submit.noiserates[i]), submit.phychans[i, :, :, :])
 	return None
 
 
@@ -361,13 +418,10 @@ def LoadSub(submit, subid, isgen):
 	# Load the parameters of a submission from an input file
 	# If the input file is provided as the submission id, load from that input file.
 	# Else if the time stamp is provided, search for the corresponding input file and load from that.
-	inputfile = "./../input/%s.txt" % (subid)
-	print("inputfile: {}".format(inputfile))
-	if (not os.path.exists(inputfile)):
-		ChangeTimeStamp(submit, subid)
-		inputfile = ("%s" % submit.inputfile)
-	if (os.path.exists(inputfile)):
-		with open(inputfile, 'r') as infp:
+	ChangeTimeStamp(submit, subid)
+	# print("inputfile: {}, scheduler: {}".format(submit.inputfile, submit.scheduler))
+	if (os.path.exists(submit.inputfile)):
+		with open(submit.inputfile, 'r') as infp:
 			for (lno, line) in enumerate(infp):
 				if (line[0] == "#"):
 					pass
