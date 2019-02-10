@@ -3,6 +3,7 @@ import sys
 import time
 try:
 	import numpy as np
+	from scipy import linalg as la
 	from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 	from sklearn.linear_model import RidgeCV, ElasticNet, LassoCV, MultiTaskLassoCV
 	from sklearn import neighbors
@@ -11,9 +12,16 @@ try:
 except:
 	pass
 from define import fnames as fn
+from define import chanreps as chrep
 
+def LargestEigenVector(process):
+	# Extract the largest eigenvalue of the Choi matrix corresponding to the channel. This is also the first Krauss operator.
+	choi = chrep.ConvertRepresentations(process, "process", "choi")
+	(eval, evec) = la.scipy.linalg.eigh(a, eigvals=(4,4))
+	firstkrauss = np.sqrt(np.real(eval)) * np.real(evec))
+	return firstkrauss
 
-def PrepareMLData(dbs, physmets, lmet, step, mask):
+def PrepareMLData(dbs, physmets, lmet, step, mask, neigs = 1):
 	# Prepare a training set and a testing set for machine learning.
 	# The value given to "step" must be one of "train" or "test".
 	# The training set consists of features (for every channel) allowed by the mask and thier repective target (fit obtained physical error rates).
@@ -30,8 +38,11 @@ def PrepareMLData(dbs, physmets, lmet, step, mask):
 			print("\033[2mReusing existing testing data.\033[0m")
 			return None
 
+	if (neigs == 1):
+		nelms = 4
+	else:
+		nelms = np.count_nonzero(mask)
 	nmetrics = len(physmets)
-	nelms = np.count_nonzero(mask)
 	mldata = np.zeros((dbs.channels, nelms + nmetrics + 1), dtype = np.double)
 	phyerr = np.zeros((dbs.channels, nmetrics), dtype = np.double)
 	# fiterr = np.zeros(dbs.channels, dtype = np.double)
@@ -42,9 +53,12 @@ def PrepareMLData(dbs, physmets, lmet, step, mask):
 	for m in range(nmetrics):
 		phyerr[:, m] = np.load(fn.PhysicalErrorRates(dbs, physmets[m]))
 	for i in range(dbs.channels):
-		phychan = np.load(fn.PhysicalChannel(dbs, dbs.available[i, :np.int(dbs.available.shape[1] - 1)], loc = "storage"))[np.int(dbs.available[i, dbs.available.shape[1] - 1]), :, :]
+		phychan = np.load(fn.PhysicalChannel(dbs, dbs.available[i, :np.int(dbs.available.shape[1] - 1)]))[np.int(dbs.available[i, dbs.available.shape[1] - 1]), :, :]
 		# phychan = np.load(fn.LogicalChannel(dbs, dbs.available[i, :(dbs.available.shape[1] - 1)], dbs.available[i, dbs.available.shape[1] - 1]))[0, :, :]
-		mldata[i, :nelms] = phychan[np.nonzero(mask)].flatten(order = 'C')
+		if (neigs == 1):
+			mldata[i, :nelems] = FirstKrauss(phychan)
+		else:
+			mldata[i, :nelms] = phychan[np.nonzero(mask)].flatten(order = 'C')
 		# mldata[i, :nelms] = phychan[np.nonzero(mask)].flatten('C')
 		mldata[i, nelms:(nelms + nmetrics)] = phyerr[i, :]
 		if (step == 0):
@@ -68,7 +82,7 @@ def Predict(dbstest, dbstrain, learning):
 	# 			 http://scikit-learn.org/dev/modules/generated/sklearn.neural_network.MLPRegressor.html#sklearn.neural_network.MLPRegressor
 	# 5. nn -- Nearest neighbours or Instance based learning
 	# 		   http://scikit-learn.org/stable/auto_examples/neighbors/plot_regression.html#example-neighbors-plot-regression-py
-	
+
 	# if the predictions are already available, do not repeat.
 	if (os.path.isfile(fn.PredictedPhyRates(dbstest))):
 		print("\033[2mReusing existing machine learnt data.\033[0m")
@@ -102,7 +116,7 @@ def Predict(dbstest, dbstrain, learning):
 			return None
 	else:
 		if (learning == "nn"):
-			estimator = neighbors.KNeighborsRegressor(15, weights = 'distance')			
+			estimator = neighbors.KNeighborsRegressor(15, weights = 'distance')
 		elif (learning == "mplr"):
 			estimator = MLPRegressor(activation = 'relu', solver = 'adam', early_stopping = True, verbose = True, learning_rate = 'adaptive', hidden_layer_sizes = (100, 100, 100, 100))
 		else:
