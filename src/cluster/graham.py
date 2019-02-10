@@ -47,7 +47,7 @@ def CreateLaunchScript(submit):
 
 		# Command to be executed for each job step
 		fp.write("module load gcc/7.3.0 python/3.7.0 scipy-stack/2019a\n")
-		fp.write("cd $SLURM_SUBMIT_DIR\n")
+		fp.write("cd /home/pavi/projects/def-jemerson/pavi/chflow\n")
 		fp.write("export OMP_NUM_THREADS=%d\n" % (submit.cores[1]))
 		fp.write("export MKL_NUM_THREADS=1\n")
 		fp.write("./chflow.sh %s ${SLURM_ARRAY_TASK_ID}\n" % (submit.timestamp))

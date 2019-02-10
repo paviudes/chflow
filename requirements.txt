@@ -1,3 +1,4 @@
 # Install the missing packages using pip install -r requirements.txt
 picos>=1.0
 cvxopt>=1.0
+sklearn>=1.0

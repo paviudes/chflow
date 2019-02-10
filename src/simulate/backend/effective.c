@@ -278,7 +278,7 @@ void ComputeLogicalChannels(struct simul_t **sims, struct qecc_t **qcode, struct
 	// Place this logical channel in the channels array, at the succeeding level.
 	// To start with, we will only initialize the last level with samples of the level-1 channels.
 	int s, b, i, j, q, randsynd;
-	double bias, history, expo;
+	double bias = 1, history = 1, expo;
 	double *searchin = malloc(sizeof(double) * 2);
 	double *impdist = malloc(sizeof(double) * qcode[0]->nstabs);
 	double *impcumul = malloc(sizeof(double) * qcode[0]->nstabs);
@@ -443,7 +443,7 @@ void Performance(struct qecc_t **qcode, struct simul_t **sims, struct constants_
 	if (sims[0]->nlevels > 1){
 		for (t = 0; t < sims[0]->nstats; t ++){
 			// Fill the lowest level of the channels array with "nchans" samples of level-1 channels.
-			printf("Stat %ld, nchans = %d.\n", t, nchans);
+			// printf("Stat %ld, nchans = %d.\n", t, nchans);
 			for (c = 0; c < nchans; c ++){
 				if (sims[0]->importance == 0){
 					// Direct sampling
