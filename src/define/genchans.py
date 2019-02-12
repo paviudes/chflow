@@ -2,6 +2,9 @@ import sys
 import os
 try:
 	from tqdm import tqdm
+except:
+	pass
+try:
 	import numpy as np
 	from scipy import linalg as linalg
 except:

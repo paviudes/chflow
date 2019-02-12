@@ -1,32 +1,31 @@
 # Type of quantum error correcting code
 ecc Steane,Steane,Steane
 # Type of quantum channel
-channel rand
-# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
-repr process
+channel rtz
 # Noise rate exponents. The actual noise rate is (2/3)^exponent.
-noiserange 3,12,10;5,5,1
+noiserange 3,12,19
 # Scale of the noise range
-scale 0.66,1
+scale 0.66
 # Number of samples
-samples 200
+samples 1
 # Number of syndromes to be sampled at top level
-stats 100000
+stats 10000
+# Decoding strategy
+hybrid 1
+decbins random_4
 # Metrics to be computed on the effective channels at every level.
 metrics infid
 # Load distribution on cores.
-cores 96,1
+cores 19,1
 # Name of the host computer.
 host cedar
 # Account for the compute cluster
-account def-poulinda
+account def-jemerson
 # Batch name.
-job rand
+job rtz_hybrid
 # Wall time in hours.
-wall 3
-# Submission queue (Available options: see goo.gl/pTdqbV).
-queue test
+wall 1
 # Email notifications
 email pavithran.sridhar@gmail.com
 # Output directory
-outdir /home/pavi/scratch/chbank
+outdir /home/pavi/projects/def-jemerson/pavi/chbank

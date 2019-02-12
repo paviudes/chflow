@@ -1,0 +1,44 @@
+# Time stamp
+timestamp 12_02_2019_10_45_29
+# Type of quantum error correcting code
+ecc Steane,Steane,Steane
+# Type of quantum channel
+channel rtz
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 3,12,19
+# Scales of noise range.
+scale 0.66
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler ./../input/schedule_12_02_2019_10_45_29.txt
+# Decoder to be used -- 0 for soft decoding and 1 for hybrid decoding.
+hybrid 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of syndromes to be sampled at top level
+stats [10000]
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance Direct
+# Metrics to be computed on the effective channels at every level.
+metrics infid
+# Load distribution on cores.
+cores 19,1
+# Number of nodes
+nodes 1
+# Name of the host computer.
+host cedar
+# Name of the account.
+account def-jemerson
+# Batch name.
+job rtz_soft
+# Wall time in hours.
+wall 2
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue X
+# Email notifications.
+email pavithran.sridhar@gmail.com
+# Output result's directory.
+outdir /home/pavi/projects/def-jemerson/pavi/chbank
