@@ -2,4 +2,3 @@
 picos>=1.0
 cvxopt>=1.0
 sklearn>=1.0
-tqdm>=4.31.1
