@@ -5,7 +5,7 @@ physical/*.npy
 # Python compiled files
 __pycache__/
 # All object files from backend
-src/simulate/backend/obj/*.o
+src/simulate/backend/obj/
 # All input files that do not start with sample_...
 !input/sample_*.txt
 # Log file
