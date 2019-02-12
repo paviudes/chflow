@@ -2,10 +2,11 @@
 .ignore/
 # Physical channels -- these can be generated from chflow
 physical/*.npy
-# Temporary clipboard for code snippets
-clipboard.py
-# All build files
-src/simulate/build
-src/analyze/build
+# Python compiled files
+__pycache__/
+# All object files from backend
+src/simulate/backend/obj/*.o
 # All input files that do not start with sample_...
 !input/sample_*.txt
+# Log file
+log.txt
