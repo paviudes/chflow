@@ -15,8 +15,8 @@ TARGET = bmark.so
 
 $(shell mkdir -p obj/)
 
-$(TARGET):obj/main.o obj/sampling.o obj/constants.o obj/printfuns.o obj/mt19937ar.o obj/checks.o obj/logmetrics.o obj/memory.o obj/qecc.o obj/effective.o obj/benchmark.o obj/linalg.o
-	$(CC) $(CFLAGS) $(LDFLAGS) $(LIBS) -o $(TARGET) obj/main.o obj/sampling.o obj/constants.o obj/printfuns.o obj/mt19937ar.o obj/logmetrics.o obj/checks.o obj/memory.o obj/qecc.o obj/effective.o obj/benchmark.o $(LIBS_MKL) obj/linalg.o
+$(TARGET):obj/main.o obj/sampling.o obj/constants.o obj/printfuns.o obj/mt19937ar.o obj/checks.o obj/logmetrics.o obj/memory.o obj/qecc.o obj/effective.o obj/benchmark.o obj/hybrid.o obj/linalg.o
+	$(CC) $(CFLAGS) $(LDFLAGS) $(LIBS) -o $(TARGET) obj/main.o obj/sampling.o obj/constants.o obj/printfuns.o obj/mt19937ar.o obj/logmetrics.o obj/checks.o obj/memory.o obj/qecc.o obj/effective.o obj/benchmark.o obj/hybrid.o $(LIBS_MKL) obj/linalg.o
 
 obj/main.o: backend/main.c Makefile
 	$(CC) $(CFLAGS) -c backend/main.c -o obj/main.o
@@ -29,6 +29,9 @@ obj/linalg.o: backend/linalg.c backend/linalg.h Makefile
 
 obj/benchmark.o: backend/benchmark.c backend/benchmark.h Makefile
 	$(CC) $(CFLAGS) -c backend/benchmark.c -o obj/benchmark.o
+
+obj/hybrid.o: backend/hybrid.c backend/hybrid.h Makefile
+	$(CC) $(CFLAGS) -c backend/hybrid.c -o obj/hybrid.o
 
 obj/effective.o: backend/effective.c backend/effective.h Makefile
 	$(CC) $(CFLAGS) -c backend/effective.c -o obj/effective.o
@@ -55,4 +58,4 @@ obj/sampling.o: backend/sampling.c backend/sampling.h Makefile
 	$(CC) $(CFLAGS) -c backend/sampling.c -o obj/sampling.o
 
 clean:
-	$(RM) $(TARGET) obj/main.o obj/sampling.o obj/constants.o obj/printfuns.o obj/mt19937ar.o obj/checks.o obj/logmetrics.o obj/memory.o obj/qecc.o obj/effective.o obj/benchmark.o obj/linalg.o
+	$(RM) $(TARGET) obj/main.o obj/sampling.o obj/constants.o obj/printfuns.o obj/mt19937ar.o obj/checks.o obj/logmetrics.o obj/memory.o obj/qecc.o obj/effective.o obj/benchmark.o obj/hybrid.o obj/linalg.o

@@ -11,6 +11,8 @@
 #include "sampling.h"
 #include "checks.h"
 #include "logmetrics.h"
+#include "hybrid.h"
+#include "effective.h"
 
 int IsElement(long *arr, int size, long item){
 	// Determine if an item is present in an array
@@ -213,54 +215,6 @@ void ComputeLevelOneChannels(struct simul_t *sim, struct qecc_t *qcode, struct c
 	FreeSimParamsQECC(sim, qcode->N, qcode->K);
 }
 
-void Coarsegrain(int level, struct simul_t **sims, double *****channels, int nchans, int nlogs){
-	// We would like to average over some of the channels in the given level.
-	// This averaging provides a coarse-grained information on the different channels in the level.
-	// The decbins contains a number for every channel in the level, such that the number for those channels which must be averaged are identical.
-	// printf("Function: Coarsegrain(%d, sims, channels, %d, %d)\n", level, nchans, nlogs);
-	int b, i, j, s, c;
-	int *binsizes;
-	double ***avgchans;
-	for (s = 0; s < 1 + (int)(sims[0]->importance == 2); s ++){
-		// printf("sims[%d]->hybrid = %d, sims[%d]->importance = %d\n", s, sims[s]->hybrid, s, sims[s]->importance);
-		if (sims[s]->hybrid > 0){
-			// printf("Coarse graining process with %d bins.\n", (sims[s]->ndecbins)[level]);
-			// PrintIntArray1D((sims[s]->decbins)[level], "decoder bins", nchans);
-			binsizes = malloc(sizeof(int) * (sims[s]->ndecbins)[level]);
-			avgchans = malloc(sizeof(double **) * (sims[s]->ndecbins)[level]);
-			for (b = 0; b < (sims[s]->ndecbins)[level]; b ++){
-				binsizes[b] = 0;
-				avgchans[b] = malloc(sizeof(double *) * nlogs);
-				for (i = 0; i < nlogs; i ++){
-					avgchans[b][i] = malloc(sizeof(double) * nlogs);
-					for(j = 0; j < nlogs; j ++)
-						avgchans[b][i][j] = 0;
-				}
-			}
-			for (c  = 0; c < nchans; c ++){
-				for (i = 0; i < nlogs; i ++)
-					for (j = 0; j < nlogs; j ++)
-						avgchans[(sims[s]->decbins)[level][c]][i][j] += channels[level][c][s][i][j];
-				binsizes[(sims[s]->decbins)[level][c]] ++;
-			}
-			for (c = 0; c < nchans; c ++)
-				for (i = 0; i < nlogs; i ++)
-					for (j = 0; j < nlogs; j ++)
-						channels[level][c][s][i][j] = avgchans[(sims[s]->decbins)[level][c]][i][j]/((double) binsizes[(sims[s]->decbins)[level][c]]);
-			// Free memory
-			free(binsizes);
-			for (b = 0; b < (sims[0]->ndecbins)[level]; b ++){
-				for (i = 0; i < nlogs; i ++)
-					free(avgchans[b][i]);
-				free(avgchans[b]);
-			}
-			free(avgchans);
-		}
-	}
-	// printf("Completed coarse-graining.\n");
-}
-
-
 void ComputeLogicalChannels(struct simul_t **sims, struct qecc_t **qcode, struct constants_t *consts, double *****channels){
 	// Compute a logical channel for the required concatenation level.
 	// The logical channel at a concatenated level l depends on N channels from the previous concatenation level, and so on... until 7^l physical channels.
@@ -296,6 +250,9 @@ void ComputeLogicalChannels(struct simul_t **sims, struct qecc_t **qcode, struct
 		inputchannels = (double ****)realloc(inputchannels, sizeof(double ***) * qcode[l]->N);
 		MemManageInputChannels(inputchannels, qcode[l]->N, qcode[l]->nlogs, sims[0]->importance, 0);
 
+		// Perform coarsegraining of logical channels
+		Coarsegrain(l - 1, sims, channels, chans[l], qcode[l]->nlogs);
+
 		for (b = 0; b < chans[l + 1]; b ++){
 			// printf("batch = %d of %d\n", b, chans[l]);
 			/*
@@ -315,8 +272,6 @@ void ComputeLogicalChannels(struct simul_t **sims, struct qecc_t **qcode, struct
 			}
 			*/
 			// Load the input channels on to the simulation structures and perform qcode.
-			// Perform coarsegraining of logical channels
-			Coarsegrain(l, sims, channels, chans[l], qcode[l]->nlogs);
 			for (s = 0; s < 1 + (int)(sims[0]->importance == 2); s ++){
 				bias = 1;
 				history = 1;

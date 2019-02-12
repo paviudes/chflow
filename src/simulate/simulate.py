@@ -134,8 +134,8 @@ def LocalSimulations(submit, node, stream = sys.stdout):
 			# Print the results to either a file or to stdout.
 			LogResultsToStream(submit, stream, endresults)
 		else:
-			stream.write("\033[91m************** Exited batch **************\n")
+			stream.write("************** Exited batch **************\n")
 
 		finished = finished + availcores
-	stream.write("\033[92m************** Finished all batches **************\n")
+	stream.write("************** Finished all batches **************\n")
 	return None

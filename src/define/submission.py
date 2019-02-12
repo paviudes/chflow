@@ -363,7 +363,7 @@ def Save(submit):
 		# Decoder
 		infid.write("# Decoder to be used -- 0 for soft decoding and 1 for hybrid decoding.\nhybrid %d\n" % (submit.hybrid))
 		if (submit.hybrid > 0):
-			infid.write("# Channels to be averaged at intermediate levels by a hybrid decoder Either a file name containing bins for channels or a keyword from \{\"soft\", \"random <number of bins>\", \"hard\"\}.\nhybrid %d\n" % (submit.hybrid))
+			infid.write("# Channels to be averaged at intermediate levels by a hybrid decoder Either a file name containing bins for channels or a keyword from \{\"soft\", \"random <number of bins>\", \"hard\"\}.\ndecbins %s\n" % (submit.decoder_type))
 		# ECC frame to be used
 		infid.write("# Logical frame for error correction (Available options: \"[P] Pauli\", \"[C] Clifford\", \"[PC] Pauli + Logical Clifford\").\nframe %s\n" % (list(submit.eccframes.keys())[list(submit.eccframes.values()).index(submit.frame)]))
 		# Number of decoding trials per level
