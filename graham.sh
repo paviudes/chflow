@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --account=def-jemerson
 #SBATCH --begin=now
-#SBATCH --time=5-0:00:00
+#SBATCH --time=2-0:00:00
 
 #SBATCH --array=0-17:1
 #SBATCH --cpus-per-task=1
