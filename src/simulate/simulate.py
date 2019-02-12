@@ -45,24 +45,24 @@ def LogResultsToStream(submit, stream, endresults):
 		stream.write("    Noise rate: %s\n" % (np.array_str(rate)))
 		stream.write("    sample = %d\n" % (sample))
 		stream.write("    Runtime: %g seconds.\n" % (runtime))
-		stream.write("\033[92m \tMetrics\033[0m\n")
-		stream.write("\033[92m \txxxxxxxxxxxxxxx\033[0m\n")
-		stream.write("\033[92m\t{:<10}\033[0m".format("Level"))
+		stream.write("\033[92m \tMetrics\n")
+		stream.write("\033[92m \txxxxxxxxxxxxxxx\n")
+		stream.write("\033[92m\t{:<10}".format("Level"))
 		for m in range(len(submit.metrics)):
-			stream.write("\033[92m {:<20}\033[0m".format(submit.metrics[m])),
+			stream.write("\033[92m {:<20}".format(submit.metrics[m])),
 		stream.write("\n")
 		for l in range(submit.levels + 1):
-			stream.write("\t\033[92m{:<10}\033[0m".format("%d" % (l)))
+			stream.write("\t\033[92m{:<10}".format("%d" % (l)))
 			for m in range(len(submit.metrics)):
-				stream.write("\033[92m {:<12}\033[0m".format("%g" % (metvals[m, l]))),
-				stream.write("\033[92m {:<12}\033[0m".format(" +/- %g" % (variance[m, l]))),
+				stream.write("\033[92m {:<12}".format("%g" % (metvals[m, l]))),
+				stream.write("\033[92m {:<12}".format(" +/- %g" % (variance[m, l]))),
 			stream.write("\n")
-		stream.write("\033[92m xxxxxxxxxxxxxxx\n\033[0m")
-		stream.write("\033[92mAverage logical channels\033[0m\n")
+		stream.write("\033[92m xxxxxxxxxxxxxxx\n")
+		stream.write("\033[92mAverage logical channels\n")
 		for l in range(submit.levels + 1):
-			stream.write("\t\033[92mLevel %d\n%s\n\t--------\033[0m\n" % (l, np.array_str(logchans[l, :, :])))
-		stream.write("\033[92m*******************\033[0m\n")
-	stream.write("\033[92m************** Finished batch **************\033[0m\n")
+			stream.write("\t\033[92mLevel %d\n%s\n\t--------\n" % (l, np.array_str(logchans[l, :, :])))
+		stream.write("\033[92m*******************\n")
+	stream.write("\033[92m************** Finished batch **************\n")
 	return None
 
 
@@ -92,19 +92,19 @@ def LocalSimulations(submit, node, stream = sys.stdout):
 		availcores = cl.GetCoresInNode()
 	finished = 0
 	while (finished < submit.cores[0]):
-		stream.write("\033[2mCode: %s\n\033[0m" % (" X ".join([submit.eccs[i].name for i in range(len(submit.eccs))])))
-		stream.write("\033[2mChannel: %s\n\033[0m" % (qch.Channels[submit.channel][0]))
-		stream.write("\033[2mNoise rates: %s\n\033[0m" % (np.array_str(params[finished:min(submit.cores[0], finished + availcores), :-1])))
-		stream.write("\033[2mSamples: %s\n\033[0m" % (np.array_str(params[finished:min(submit.cores[0], finished + availcores), -1])))
-		stream.write("\033[2mImportance: %g\n\033[0m" % (submit.importance))
-		stream.write("\033[2mHybrid: %d\n\033[0m" % (submit.hybrid))
+		stream.write("Code: %s\n" % (" X ".join([submit.eccs[i].name for i in range(len(submit.eccs))])))
+		stream.write("Channel: %s\n" % (qch.Channels[submit.channel][0]))
+		stream.write("Noise rates: %s\n" % (np.array_str(params[finished:min(submit.cores[0], finished + availcores), :-1])))
+		stream.write("Samples: %s\n" % (np.array_str(params[finished:min(submit.cores[0], finished + availcores), -1])))
+		stream.write("Importance: %g\n" % (submit.importance))
+		stream.write("Hybrid: %d\n" % (submit.hybrid))
 		if (submit.hybrid > 0):
-			stream.write("\033[2mDecoding bins: {}\n\033[0m".format(submit.decoderbins))
-		stream.write("\033[2mConcatenation levels: %d\n\033[0m" % (submit.levels))
-		stream.write("\033[2mDecoding trials per level: %s\n\033[0m" % (np.array_str(submit.stats)))
-		stream.write("\033[2mMetrics to be computed at every level: %s\n\033[0m" % (", ".join(submit.metrics)))
-		stream.write("\033[2m---------------------------\n\033[0m")
-		stream.write("\033[2mCalculating...\n\033[0m")
+			stream.write("Decoding bins: {}\n".format(submit.decoderbins))
+		stream.write("Concatenation levels: %d\n" % (submit.levels))
+		stream.write("Decoding trials per level: %s\n" % (np.array_str(submit.stats)))
+		stream.write("Metrics to be computed at every level: %s\n" % (", ".join(submit.metrics)))
+		stream.write("---------------------------\n")
+		stream.write("Calculating...\n")
 		processes = []
 		nproc = min(availcores, submit.cores[0] - finished)
 		results = mp.Queue()
@@ -123,7 +123,7 @@ def LocalSimulations(submit, node, stream = sys.stdout):
 			for p in range(nproc):
 				processes[p].join()
 		except KeyboardInterrupt:
-			stream.write("\033[91mThe user has interrupted the process!\033[0m\n")
+			stream.write("\033[91mThe user has interrupted the process!\n")
 			for p in range(nproc):
 				processes[p].terminate()
 				processes[p].join()
@@ -134,8 +134,8 @@ def LocalSimulations(submit, node, stream = sys.stdout):
 			# Print the results to either a file or to stdout.
 			LogResultsToStream(submit, stream, endresults)
 		else:
-			stream.write("\033[91m************** Exited batch **************\033[0m\n")
+			stream.write("\033[91m************** Exited batch **************\n")
 
 		finished = finished + availcores
-	stream.write("\033[92m************** Finished all batches **************\033[0m\n")
+	stream.write("\033[92m************** Finished all batches **************\n")
 	return None

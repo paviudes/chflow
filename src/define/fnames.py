@@ -8,6 +8,12 @@ def SubmissionSchedule(timestamp):
 	fname = ("./../input/schedule_%s.txt" % (timestamp))
 	return fname
 
+def DecoderBins(dbs, noise, sample):
+	# Name of the file containing the physical channel
+	noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
+	fname = ("%s/channels/decbins_%s_s%d.txt" % (dbs.outdir, noisedes, sample))
+	return fname
+
 def PhysicalChannel(dbs, noise):
 	# Name of the file containing the physical channel
 	noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))

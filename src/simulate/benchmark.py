@@ -147,6 +147,10 @@ def Benchmark(submit, noise, sample, physical, refchan):
 		np.save(fn.LogErrVariance(submit, noise, sample, submit.metrics[m]), logvars[m, :])
 		np.save(fn.SyndromeBins(submit, noise, sample, submit.metrics[m]), bins[m, :, :, :])
 		np.save(fn.RunningAverageCh(submit, noise, sample, submit.metrics[m]), running[m, :])
-
+	# Decoder bins
+	if (submit.hybrid > 0):
+		with open(fn.DecoderBins(submit, noise, sample), "w") as df:
+			for l in range(nlevels):
+				df.write("%s\n" % ",".join(list(map(lambda num: "%d" % num, submit.decoderbins[l]))))
 	# Free the memory allocated to bout by callin FreeBenchOut() method.
 	return None
