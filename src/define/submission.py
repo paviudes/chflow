@@ -276,10 +276,12 @@ def ParseDecodingBins(submit, fname):
 			# Choose to have random bins
 			n_rand_decbins = int(fname.split("_")[1])
 			if (n_rand_decbins < 1):
-				print("\033[2mNumber of bins for channels cannot be less than 1, resetting this number to 1.\033[0m")
+				# print("\033[2mNumber of bins for channels cannot be less than 1, resetting this number to 1.\033[0m")
 				n_rand_decbins = 1
 			for l in range(submit.levels):
-				submit.decoderbins.append(np.random.randint(0, min(n_rand_decbins, chans[l]) - 1, size=chans[l]))
+				# print("l: {}, chans[l] = {}".format(l, chans[l]))
+				submit.decoderbins.append(np.random.randint(0, min(n_rand_decbins, chans[l] - 1), size=chans[l]))
+			# print("decoder bins: {}".format(submit.decoderbins))
 		elif (fname == "hard"):
 			# All channels in one bin -- this is hard decoding.
 			for l in range(submit.levels):

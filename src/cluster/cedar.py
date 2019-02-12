@@ -42,5 +42,5 @@ def CreateLaunchScript(submit):
 		fp.write("module load gcc/7.3.0 python/3.7.0 scipy-stack/2019a\n")
 		fp.write("cd /home/pavi/projects/def-jemerson/pavi/chflow\n")
 		fp.write("./chflow.sh %s ${SLURM_ARRAY_TASK_ID}\n" % (submit.timestamp))
-	print("\033[2mRun the following command to launch the job.\n\tsbatch input/cedar_%s.sh.\033[0m" % (submit.timestamp))
+	print("\033[2mRun the following command to launch the job.\n\tsbatch input/cedar_%s.sh\033[0m" % (submit.timestamp))
 	return None

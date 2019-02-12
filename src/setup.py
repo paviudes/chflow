@@ -10,7 +10,8 @@ def CheckDependencies():
 				["cvxopt", "1.0", "semi-definite programs, eg. Diamond norm"],
 				["multiprocessing", "1.0", "parallel computations"],
 				["sklearn", "1.0", "machine learning"],
-				["matplotlib", "1.0", "plotting"]]
+				["matplotlib", "1.0", "plotting"],
+				["tqdm","4.31.1", "progress bar"]]
 	missing = []
 	for i in range(len(packages)):
 		try:

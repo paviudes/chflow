@@ -45,24 +45,24 @@ def LogResultsToStream(submit, stream, endresults):
 		stream.write("    Noise rate: %s\n" % (np.array_str(rate)))
 		stream.write("    sample = %d\n" % (sample))
 		stream.write("    Runtime: %g seconds.\n" % (runtime))
-		stream.write("\033[92m \tMetrics\n")
-		stream.write("\033[92m \txxxxxxxxxxxxxxx\n")
-		stream.write("\033[92m\t{:<10}".format("Level"))
+		stream.write("\tMetrics\n")
+		stream.write("\txxxxxxxxxxxxxxx\n")
+		stream.write("\t{:<10}".format("Level"))
 		for m in range(len(submit.metrics)):
-			stream.write("\033[92m {:<20}".format(submit.metrics[m])),
+			stream.write(" {:<20}".format(submit.metrics[m])),
 		stream.write("\n")
 		for l in range(submit.levels + 1):
-			stream.write("\t\033[92m{:<10}".format("%d" % (l)))
+			stream.write("\t{:<10}".format("%d" % (l)))
 			for m in range(len(submit.metrics)):
-				stream.write("\033[92m {:<12}".format("%g" % (metvals[m, l]))),
-				stream.write("\033[92m {:<12}".format(" +/- %g" % (variance[m, l]))),
+				stream.write(" {:<12}".format("%g" % (metvals[m, l]))),
+				stream.write(" {:<12}".format(" +/- %g" % (variance[m, l]))),
 			stream.write("\n")
-		stream.write("\033[92m xxxxxxxxxxxxxxx\n")
-		stream.write("\033[92mAverage logical channels\n")
+		stream.write("xxxxxxxxxxxxxxx\n")
+		stream.write("Average logical channels\n")
 		for l in range(submit.levels + 1):
-			stream.write("\t\033[92mLevel %d\n%s\n\t--------\n" % (l, np.array_str(logchans[l, :, :])))
-		stream.write("\033[92m*******************\n")
-	stream.write("\033[92m************** Finished batch **************\n")
+			stream.write("\tLevel %d\n%s\n\t--------\n" % (l, np.array_str(logchans[l, :, :])))
+		stream.write("*******************\n")
+	stream.write("************** Finished batch **************\n")
 	return None
 
 
@@ -123,7 +123,7 @@ def LocalSimulations(submit, node, stream = sys.stdout):
 			for p in range(nproc):
 				processes[p].join()
 		except KeyboardInterrupt:
-			stream.write("\033[91mThe user has interrupted the process!\n")
+			stream.write("The user has interrupted the process!\n")
 			for p in range(nproc):
 				processes[p].terminate()
 				processes[p].join()

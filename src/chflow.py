@@ -169,7 +169,7 @@ if __name__ == '__main__':
 				fileinput = 1
 				infp = open(instructions, "r")
 			else:
-				print("\033[2mInput file not found.\033[0m")	
+				print("\033[2mInput file not found.\033[0m")
 		else:
 			# The simulations are to be run remotely.
 			timestamp = sys.argv[1].strip("\n").strip(" ")
