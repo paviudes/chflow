@@ -3,8 +3,8 @@
 #	source /opt/intel/compilers_and_libraries_2019/mac/bin/compilervars.sh intel64
 # The Random number generator is defined in mt19937ar.c .
 # See https://gist.github.com/xuhdev/1873316.
-CC = gcc-8
-OPTS = -O3 -fopt-info-vec-missed=missed.txt
+CC = icc
+OPTS = -O3
 # -O3 -ffast-math
 CFLAGS = -fPIC -Wall -Wextra -std=c11 $(OPTS)
 CFLAGS_MKL = -m64 -I${MKLROOT}/include
