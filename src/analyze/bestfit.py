@@ -110,9 +110,9 @@ def FitPhysErr(pmet, lmet, *dbses):
 		limits[nchans + ndb * nlevels + i] = (0, None)
 		guess[nchans + ndb * nlevels + i] = 1
 
-	print("guess\n%s\n%s" % (np.array_str(guess), np.array_str(dists)))
-	print("limits")
-	print(limits)
+	# print("guess\n%s\n%s" % (np.array_str(guess), np.array_str(dists)))
+	# print("limits")
+	# print(limits)
 
 	# Objective function and Jacobian
 	# objective = (lambda optvars: Obj(optvars, logerr, dists))

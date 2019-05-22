@@ -95,7 +95,7 @@ def ThresholdPlot(phymets, logmet, dbs):
 		for m in range(len(phylist)):
 			fig = plt.figure(figsize = gv.canvas_size)
 			for p in range(phyerrs.shape[0]):
-				fmtidx = ml.Metrics.keys()[p % len(ml.Metrics)]
+				fmtidx = list(ml.Metrics.keys())[p % len(ml.Metrics)]
 				plt.plot(np.arange(dbs.levels + 1), logErr[p, :], label = ("%s = %s" % (phyparams[m], DisplayForm(phyerrs[p, m], 10))), color = ml.Metrics[fmtidx][3], marker = ml.Metrics[fmtidx][2], markersize = gv.marker_size, linestyle = '--', linewidth = gv.line_width)
 			# Legend
 			plt.legend(numpoints = 1, loc = 3, shadow = True, fontsize = gv.legend_fontsize, markerscale = gv.legend_marker_scale)
@@ -145,7 +145,7 @@ def LevelWisePlot(phymets, logmet, dbses):
 					else:
 						phymet = qc.Channels[dbses[d].channel][2][np.int8(phylist[p])]
 						phyerrs = dbses[d].available[:, np.int8(phylist[p])]
-						plotset = [ml.Metrics[ml.Metrics.keys()[p % len(ml.Metrics)]][3], ml.Metrics[ml.Metrics.keys()[p % len(ml.Metrics)]][2], ['None', '--'][dbses[d].samps == 1]]
+						plotset = [ml.Metrics[list(ml.Metrics.keys())[p % len(ml.Metrics)]][3], ml.Metrics[list(ml.Metrics.keys())[p % len(ml.Metrics)]][2], ['None', '--'][dbses[d].samps == 1]]
 						if (not (dbses[d].scales[p] == 1)):
 							phyerrs = np.power(dbses[d].scales[p], phyerrs)
 					# Plotting
@@ -428,8 +428,8 @@ def MCStatsPlot(dbses, lmet, pmet = -1):
 						else:
 							# print("dbses[d].scales = %s, phyerrs[d][i] = %d and real noise = %s" % (np.array_str(dbses[d].scales), phyerrs[d][i], ", ".join(list(map(lambda num: DisplayForm(num, 10.0), RealNoise(dbses[d].scales, phyerrs[d][i]))))))
 							label = ("%s = %s" % (qc.Channels[dbses[d].channel][2][pmet], ", ".join(list(map(lambda num: DisplayForm(num, 10.0), RealNoise(dbses[d].scales, phyerrs[d][i]))))))
-						marker = ml.Metrics[ml.Metrics.keys()[i % len(ml.Metrics.keys())]][2]
-						color = ml.Metrics[ml.Metrics.keys()[i % len(ml.Metrics.keys())]][3]
+						marker = ml.Metrics[list(ml.Metrics.keys())[i % len(list(ml.Metrics.keys()))]][2]
+						color = ml.Metrics[list(ml.Metrics.keys())[i % len(list(ml.Metrics.keys()))]][3]
 					else:
 						label = ("%s = %g" % (ml.Metrics[pmet][1], phyerrs[d][i]))
 						marker = ml.Metrics[pmet][2]
@@ -443,7 +443,7 @@ def MCStatsPlot(dbses, lmet, pmet = -1):
 					delta = 1/np.log(10) * logerrs[d][i, 1, :, s]/logerrs[d][i, 0, :, s]
 					yerr = np.power(10, np.log10(logerrs[d][i, 0, :, s]) + delta)
 					# print("d = %d, delta\n%s\nyerr\n%s" % (d, np.array_str(delta), np.array_str(yerr)))
-					plt.plot(dbses[d].stats, logerrs[d][i, 0, :, s], label = label, linewidth = gv.line_width, linestyle = gv.line_styles[d % len(gv.line_styles)], color = ml.Metrics[ml.Metrics.keys()[i % len(ml.Metrics.keys())]][3], marker = ml.Metrics[ml.Metrics.keys()[i % len(ml.Metrics.keys())]][2], markersize = gv.marker_size)
+					plt.plot(dbses[d].stats, logerrs[d][i, 0, :, s], label = label, linewidth = gv.line_width, linestyle = gv.line_styles[d % len(gv.line_styles)], color = ml.Metrics[list(ml.Metrics.keys())[i % len(list(ml.Metrics.keys()))]][3], marker = ml.Metrics[list(ml.Metrics.keys())[i % len(list(ml.Metrics.keys()))]][2], markersize = gv.marker_size)
 			# Axes labels
 			ax = plt.gca()
 			ax.set_xlabel("$N$", fontsize = gv.axes_labels_fontsize)
@@ -663,7 +663,7 @@ def AddBinVariancePlot(bins, level, lmet, pmet, pmetname, pdf = None, plotfname 
 	# If a PdfPages object is specified, the plot is simply added to the PDF.
 	# Else, it is a separate plot. In this case, the name of the file to which the plot must be stored, must be specified.
 	if (sub.IsNumber(pmet) == 1):
-		color = ml.Metrics[ml.Metrics.keys()[len(ml.Metrics.keys()) % (1 + pmet)]][3]
+		color = ml.Metrics[list(ml.Metrics.keys())[len(list(ml.Metrics.keys())) % (1 + pmet)]][3]
 	else:
 		color = ml.Metrics[pmet][3]
 	if (pdf is None):

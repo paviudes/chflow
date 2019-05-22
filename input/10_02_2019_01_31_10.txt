@@ -41,4 +41,4 @@ queue X
 # Email notifications.
 email pavithran.sridhar@gmail.com
 # Output result's directory.
-outdir /home/pavi/projects/def-jemerson/pavi/chbank
+outdir /Users/pavi/Documents/chbank

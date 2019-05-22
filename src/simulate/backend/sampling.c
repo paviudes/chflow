@@ -10,14 +10,17 @@ void ConstructImportanceDistribution(double* truedist, double *impdist, int nele
 	// Q(s) = P(s)^k/(sum_s P(s)^k), i.e, a normalized power-law scaled version of P(s).
 	// If k = 0 (i.e, less than 10E-5) then simply set the probability distribution to be flat.
 	int s;
-	double norm = 0.0, atol = 10E-8;
-	for (s = 0; s < nelems; s ++){
-		if (expo > atol)
+	double atol = 10E-8;
+	if (expo > atol)
+		for (s = 0; s < nelems; s ++)
 			impdist[s] = pow(truedist[s], expo);
-		else
+	else
+		for (s = 0; s < nelems; s ++)
 			impdist[s] = 1;
+	// Normalization
+	double norm = 0.0;
+	for (s = 0; s < nelems; s ++)
 		norm = norm + impdist[s];
-	}
 	for (s = 0; s < nelems; s ++)
 		impdist[s] = impdist[s]/norm;
 	// PrintDoubleArray1D(impdist, "impdist", nelems);

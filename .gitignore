@@ -2,6 +2,11 @@
 .ignore/
 # Physical channels -- these can be generated from chflow
 physical/*.npy
+# Python cache files
+**/__pycache__
+*.pyc
+*.py~
+**/.DS_Store
 # Temporary clipboard for code snippets
 clipboard.py
 # All build files

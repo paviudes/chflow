@@ -419,7 +419,6 @@ def LoadSub(submit, subid, isgen):
 	# If the input file is provided as the submission id, load from that input file.
 	# Else if the time stamp is provided, search for the corresponding input file and load from that.
 	ChangeTimeStamp(submit, subid)
-	# print("inputfile: {}, scheduler: {}".format(submit.inputfile, submit.scheduler))
 	if (os.path.exists(submit.inputfile)):
 		with open(submit.inputfile, 'r') as infp:
 			for (lno, line) in enumerate(infp):

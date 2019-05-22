@@ -1,0 +1,95 @@
+Intel(R) Advisor can now assist with vectorization and show optimization
+  report messages with your source code.
+See "https://software.intel.com/en-us/intel-advisor-xe" for details.
+
+Intel(R) C Intel(R) 64 Compiler for applications running on Intel(R) 64, Version 19.0.1.144 Build 20181018
+
+Compiler options: -O2 -qopt-report-phase=vec -qopt-report=5
+
+Begin optimization report for: main(int, const char **)
+
+    Report from: Vector optimizations [vec]
+
+
+LOOP BEGIN at vectorize.c(16,2) inlined into vectorize.c(69,21)
+   remark #15328: vectorization support: irregularly indexed load was emulated for the variable <arr[:]>, part of index is nonlinearly computed   [ vectorize.c(21,10) ]
+   remark #15328: vectorization support: indirect load was emulated for the variable <arr[:][:]>, 64-bit indexed, part of address is read from memory   [ vectorize.c(21,10) ]
+   remark #15328: vectorization support: indirect load was emulated for the variable <arr[:][:][:]>, 64-bit indexed, part of address is read from memory   [ vectorize.c(21,10) ]
+   remark #15328: vectorization support: indirect load was emulated for the variable <(*(*(*(arr+?*8)+?*8)+?*8))[:]>, 64-bit indexed, part of address is read from memory   [ vectorize.c(21,10) ]
+   remark #15305: vectorization support: vector length 4
+   remark #15309: vectorization support: normalized vectorization overhead 0.056
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15462: unmasked indexed (or gather) loads: 4 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 332 
+   remark #15477: vector cost: 181.750 
+   remark #15478: estimated potential speedup: 1.820 
+   remark #15482: vectorized math library calls: 7 
+   remark #15487: type converts: 3 
+   remark #15488: --- end vector cost summary ---
+LOOP END
+
+LOOP BEGIN at vectorize.c(16,2) inlined into vectorize.c(69,21)
+<Remainder loop for vectorization>
+LOOP END
+
+LOOP BEGIN at vectorize.c(30,2) inlined into vectorize.c(75,2)
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed FLOW dependence between (*(contracted+i*8))[j] (35:3) and (*(contracted+i*8))[j] (35:3)
+   remark #15346: vector dependence: assumed ANTI dependence between (*(contracted+i*8))[j] (35:3) and (*(contracted+i*8))[j] (35:3)
+LOOP END
+===========================================================================
+
+Begin optimization report for: Sum(complex128_t ****, const int *)
+
+    Report from: Vector optimizations [vec]
+
+
+LOOP BEGIN at vectorize.c(16,2)
+   remark #15328: vectorization support: irregularly indexed load was emulated for the variable <arr[:]>, part of index is nonlinearly computed   [ vectorize.c(21,10) ]
+   remark #15328: vectorization support: indirect load was emulated for the variable <arr[:][:]>, 64-bit indexed, part of address is read from memory   [ vectorize.c(21,10) ]
+   remark #15328: vectorization support: indirect load was emulated for the variable <arr[:][:][:]>, 64-bit indexed, part of address is read from memory   [ vectorize.c(21,10) ]
+   remark #15328: vectorization support: indirect load was emulated for the variable <(*(*(*(arr+?*8)+?*8)+?*8))[:]>, 64-bit indexed, part of address is read from memory   [ vectorize.c(21,10) ]
+   remark #15305: vectorization support: vector length 4
+   remark #15309: vectorization support: normalized vectorization overhead 0.056
+   remark #15300: LOOP WAS VECTORIZED
+   remark #15462: unmasked indexed (or gather) loads: 4 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 332 
+   remark #15477: vector cost: 181.750 
+   remark #15478: estimated potential speedup: 1.820 
+   remark #15482: vectorized math library calls: 7 
+   remark #15487: type converts: 3 
+   remark #15488: --- end vector cost summary ---
+LOOP END
+
+LOOP BEGIN at vectorize.c(16,2)
+<Remainder loop for vectorization>
+LOOP END
+===========================================================================
+
+Begin optimization report for: Contract(complex128_t ****, const int *, complex128_t **)
+
+    Report from: Vector optimizations [vec]
+
+
+LOOP BEGIN at vectorize.c(30,2)
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed FLOW dependence between (*(contracted+i*8))[j] (35:3) and (*(contracted+i*8))[j] (35:3)
+   remark #15346: vector dependence: assumed ANTI dependence between (*(contracted+i*8))[j] (35:3) and (*(contracted+i*8))[j] (35:3)
+LOOP END
+===========================================================================
+
+Begin optimization report for: Offset(complex128_t ****, const int *)
+
+    Report from: Vector optimizations [vec]
+
+
+LOOP BEGIN at vectorize.c(45,2)
+   remark #15382: vectorization support: call to function rand(void) cannot be vectorized   [ vectorize.c(50,30) ]
+   remark #15382: vectorization support: call to function rand(void) cannot be vectorized   [ vectorize.c(50,58) ]
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed OUTPUT dependence between call:rand(void) (50:30) and call:rand(void) (50:58)
+   remark #15346: vector dependence: assumed OUTPUT dependence between call:rand(void) (50:58) and call:rand(void) (50:30)
+LOOP END
+===========================================================================
