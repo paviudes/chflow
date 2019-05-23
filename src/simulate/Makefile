@@ -4,9 +4,10 @@
 # The Random number generator is defined in mt19937ar.c .
 # See https://gist.github.com/xuhdev/1873316.
 CC = icc
-OPTS = -O3
+OPTS = -O3 -xavx -qopenmp -simd
 # -O3 -ffast-math
-CFLAGS = -fPIC -Wall -Wextra -std=c11 $(OPTS)
+REPORT = -qopt-report-phase=vec -qopt-report=5
+CFLAGS = -fPIC -Wall -Wextra -std=c11 $(OPTS) $(REPORT)
 CFLAGS_MKL = -m64 -I${MKLROOT}/include
 LIBS = -lm
 LIBS_MKL = -L${MKLROOT}/lib -Wl,-rpath,${MKLROOT}/lib -lmkl_rt -lpthread -lm -ldl
@@ -20,40 +21,40 @@ $(TARGET):obj/main.o obj/sampling.o obj/constants.o obj/printfuns.o obj/mt19937a
 	$(CC) $(CFLAGS) $(LDFLAGS) $(LIBS) -o $(TARGET) obj/main.o obj/sampling.o obj/constants.o obj/printfuns.o obj/mt19937ar.o obj/logmetrics.o obj/checks.o obj/memory.o obj/qecc.o obj/effective.o obj/benchmark.o $(LIBS_MKL) obj/linalg.o
 
 obj/main.o: backend/main.c Makefile
-	$(CC) $(CFLAGS) -c backend/main.c -o obj/main.o
+	$(CC) -c $(CFLAGS) backend/main.c -o obj/main.o
 
 obj/mt19937ar.o: backend/mt19937/mt19937ar.c backend/mt19937/mt19937ar.h Makefile
-	$(CC) $(CFLAGS) -c backend/mt19937/mt19937ar.c -o obj/mt19937ar.o
+	$(CC) -c $(CFLAGS) backend/mt19937/mt19937ar.c -o obj/mt19937ar.o
 
 obj/linalg.o: backend/linalg.c backend/linalg.h Makefile
-	$(CC) $(CFLAGS) $(CFLAGS_MKL) -c backend/linalg.c -o obj/linalg.o
+	$(CC) -c $(CFLAGS) $(CFLAGS_MKL) backend/linalg.c -o obj/linalg.o
 
 obj/benchmark.o: backend/benchmark.c backend/benchmark.h Makefile
-	$(CC) $(CFLAGS) -c backend/benchmark.c -o obj/benchmark.o
+	$(CC) -c $(CFLAGS) backend/benchmark.c -o obj/benchmark.o
 
 obj/effective.o: backend/effective.c backend/effective.h Makefile
-	$(CC) $(CFLAGS) -c backend/effective.c -o obj/effective.o
+	$(CC) -c $(CFLAGS) backend/effective.c -o obj/effective.o
 
 obj/memory.o: backend/memory.c backend/memory.h Makefile
-	$(CC) $(CFLAGS) -c backend/memory.c -o obj/memory.o
+	$(CC) -c $(CFLAGS) backend/memory.c -o obj/memory.o
 
 obj/qecc.o: backend/qecc.c backend/qecc.h Makefile
-	$(CC) $(CFLAGS) -c backend/qecc.c -o obj/qecc.o
+	$(CC) -c $(CFLAGS) backend/qecc.c -o obj/qecc.o
 
 obj/logmetrics.o: backend/logmetrics.c backend/logmetrics.h Makefile
-	$(CC) $(CFLAGS) -c backend/logmetrics.c -o obj/logmetrics.o
+	$(CC) -c $(CFLAGS) backend/logmetrics.c -o obj/logmetrics.o
 
 obj/checks.o: backend/checks.c backend/checks.h Makefile
-	$(CC) $(CFLAGS) -c backend/checks.c -o obj/checks.o
+	$(CC) -c $(CFLAGS) backend/checks.c -o obj/checks.o
 
 obj/printfuns.o: backend/printfuns.c backend/printfuns.h Makefile
-	$(CC) $(CFLAGS) -c backend/printfuns.c -o obj/printfuns.o
+	$(CC) -c $(CFLAGS) backend/printfuns.c -o obj/printfuns.o
 
 obj/constants.o: backend/constants.c backend/constants.h Makefile
-	$(CC) $(CFLAGS) -c backend/constants.c -o obj/constants.o
+	$(CC) -c $(CFLAGS) backend/constants.c -o obj/constants.o
 
 obj/sampling.o: backend/sampling.c backend/sampling.h Makefile
-	$(CC) $(CFLAGS) -c backend/sampling.c -o obj/sampling.o
+	$(CC) -c $(CFLAGS) backend/sampling.c -o obj/sampling.o
 
 clean:
 	$(RM) $(TARGET) obj/main.o obj/sampling.o obj/constants.o obj/printfuns.o obj/mt19937ar.o obj/checks.o obj/logmetrics.o obj/memory.o obj/qecc.o obj/effective.o obj/benchmark.o obj/linalg.o

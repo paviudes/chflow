@@ -14,3 +14,5 @@ src/simulate/build
 src/analyze/build
 # All input files that do not start with sample_...
 !input/sample_*.txt
+# Optimization report from icc
+**/*.optrpt
