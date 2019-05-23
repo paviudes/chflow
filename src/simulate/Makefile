@@ -5,7 +5,7 @@
 # See https://gist.github.com/xuhdev/1873316.
 CC = icc
 OPTS = -O3 -xavx -qopenmp -simd
-# -O3 -ffast-math
+# -ffast-math
 REPORT = -qopt-report-phase=vec -qopt-report=5
 CFLAGS = -fPIC -Wall -Wextra -std=c11 $(OPTS) $(REPORT)
 CFLAGS_MKL = -m64 -I${MKLROOT}/include

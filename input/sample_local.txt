@@ -3,9 +3,9 @@ timestamp sample
 # Type of quantum error correcting code
 ecc Steane,Steane
 # Type of quantum channel
-channel rtz
+channel rand
 # Noise rates
-noiserange 0.05,0.05,1
+noiserange 5,5,1;4,4,1
 # Number of syndromes to be sampled at the top level
 stats 100
 # Metrics to be computed on the effective channels at every level.
@@ -13,4 +13,4 @@ metrics infid
 # Load distribution on cores.
 cores 1,1
 # Output directory
-outdir /Users/pavithran/Documents/LDPC/Channel_Flow
+outdir /Users/pavi/Documents/chbank

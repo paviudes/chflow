@@ -321,6 +321,7 @@ if __name__ == '__main__':
 		#####################################################################
 
 		elif (user[0] == "sbload"):
+			exists = 0
 			if (len(user) == 1):
 				# no file name or time stamp was provided.
 				print("Console input is not set up currently.")

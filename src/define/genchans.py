@@ -52,6 +52,7 @@ def PreparePhysicalChannels(submit):
 			# To create a random quantum channel, construct a random unitary operator by exponentiating a hertimitan operator and do a Krauss decomposition.
 			submit.phychans[i, j, :, :] = crep.ConvertRepresentations(chdef.GetKraussForChannel(submit.channel, *noise), 'krauss', 'process')
 	print("\033[0m")
+	# print("Channel: {}".format(submit.phychans[0, 0, :, :]))
 	if (submit.nodes > 0):
 		submit.cores[0] = int(np.ceil(submit.noiserates.shape[0] * submit.samps/np.longdouble(submit.nodes)))
 	submit.nodes = int(np.ceil(submit.noiserates.shape[0] * submit.samps/np.longdouble(submit.cores[0])))
