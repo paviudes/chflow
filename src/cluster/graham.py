@@ -46,7 +46,7 @@ def CreateLaunchScript(submit):
 		fp.write("#SBATCH --mail-user=%s\n\n" % (submit.email))
 
 		# Command to be executed for each job step
-		fp.write("module load gcc/7.3.0 python/3.7.0 scipy-stack/2019a\n")
+		# fp.write("module load gcc/7.3.0 python/3.7.0 scipy-stack/2019a\n")
 		fp.write("cd /home/pavi/projects/def-jemerson/pavi/chflow\n")
 		fp.write("export OMP_NUM_THREADS=%d\n" % (submit.cores[1]))
 		fp.write("export MKL_NUM_THREADS=1\n")
