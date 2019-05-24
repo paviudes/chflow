@@ -5,7 +5,7 @@ ecc Steane,Steane
 # Type of quantum channel
 channel rand
 # Noise rates
-noiserange 5,5,1;4,4,1
+noiserange 5,8,4;4,4,1
 # Number of syndromes to be sampled at the top level
 stats 100
 # Metrics to be computed on the effective channels at every level.

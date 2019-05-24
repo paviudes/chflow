@@ -133,7 +133,6 @@ void ProcessToChoi(double **process, int nlogs, double complex **choi, double co
 	int v, i, j, p, q;
 	for (v = 0; v < nlogs * nlogs; v ++)
 		choi[v/nlogs][v % nlogs] = 0;
-	#pragma omp simd
 	for (v = 0; v < nlogs * nlogs * nlogs * nlogs; v ++){
 		p = v % nlogs;
 		q = (v/nlogs) % nlogs;

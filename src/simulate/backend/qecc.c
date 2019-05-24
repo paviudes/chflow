@@ -4,6 +4,7 @@
 #include <complex.h>
 #include "constants.h"
 #include "printfuns.h"
+#include "linalg.h"
 #include "memory.h"
 #include "qecc.h"
 #include "checks.h" // only for testing purposes.
@@ -60,7 +61,7 @@ void ChoiToProcess(double **process, double complex **choi, double complex ***pa
 	// CHI[a,b] = Trace( Choi * (Pb \otimes Pa^T) ).
 	int v, i, j, k;
 	double complex contribution;
-	#pragma ivdep
+	// #pragma ivdep
 	for (v = 0; v < 16; v ++){
 		j = v % 4;
 		i = v/4;
@@ -79,7 +80,7 @@ void GetFullProcessMatrix(struct qecc_t *qecc, struct simul_t *sim, int isPauli)
 	int v, i, j, k, l, q;
 	double contribution = 1;
 	if (isPauli == 0){
-		#pragma ivdep
+		// #pragma ivdep
 		for (v = 0; v < qecc->nlogs * qecc->nlogs * qecc->nstabs * qecc->nstabs; v ++){
 			l = v % qecc->nstabs;
 			k = (v/qecc->nstabs) % qecc->nstabs;
@@ -93,7 +94,7 @@ void GetFullProcessMatrix(struct qecc_t *qecc, struct simul_t *sim, int isPauli)
 	}
 	else{
 		// For a Pauli channel, the process matrix is diagonal.
-		#pragma ivdep
+		// #pragma ivdep
 		for (v = 0; v < qecc->nlogs * qecc->nstabs; v ++){
 			j = v % qecc->nstabs;
 			i = (v/qecc->nstabs) % qecc->nlogs;
@@ -112,34 +113,17 @@ void ComputeSyndromeDistribution(struct qecc_t *qecc, struct simul_t *sim, int i
 	// Probability of a syndrome s, denoted by P(s) is given by the following expression.
 	// P(s) = 1/2^(n-k) * sum_(i,j: P_i and P_j are stabilizers) CHI[i,j] * (-1)^sign(P_j).
 	const double atol = 10E-15;
-	int i, j, s, g;
-	
+	int s;
 	// Initialize syndrome probabilities
-	for (s = 0; s < qecc->nstabs; s ++)
-		(sim->syndprobs)[s] = 0;
-
-	// Non Pauli channels
 	if (isPauli == 0)
-		for (s = 0; s < qecc->nstabs; s ++){
-			#pragma ivdep
-			for (i = 0; i < qecc->nstabs * qecc->nstabs; i ++)
-				(sim->syndprobs)[s] += (sim->process)[0][0][i/qecc->nstabs][i % qecc->nstabs] * (qecc->projector)[s][i % qecc->nstabs];
-		}
-	// Pauli channels
+		for (s = 0; s < qecc->nstabs; s ++)
+			(sim->syndprobs)[s] = SumDotInt((sim->process)[0][0], (qecc->projector)[s], qecc->nstabs, qecc->nstabs, qecc->nstabs);
 	else
-		for (s = 0; s < qecc->nstabs; s ++){
-			#pragma ivdep
-			for (i = 0; i < qecc->nstabs; i ++)
-				(sim->syndprobs)[s] += (sim->process)[0][0][i][i] * (qecc->projector)[s][i];
-		}
-	
+		for (s = 0; s < qecc->nstabs; s ++)
+			(sim->syndprobs)[s] = DiagGDotIntV((sim->process)[0][0], (qecc->projector)[s], qecc->nstabs, qecc->nstabs, qecc->nstabs);
 	// Normalization
-	for (s = 0; s < qecc->nstabs; s ++){
-		if ((sim->syndprobs)[s] < atol)
-			(sim->syndprobs)[s] = 0;
-		else
-			(sim->syndprobs)[s] /= (double)(qecc->nstabs);
-	}
+	for (s = 0; s < qecc->nstabs; s ++)
+		(sim->syndprobs)[s] /= (double)(qecc->nstabs);
 	
 	// Construct the cumulative distribution
 	(sim->cumulative)[0] = (sim->syndprobs)[0];
@@ -165,23 +149,13 @@ void MLDecoder(struct qecc_t *qecc, struct simul_t *sim, struct constants_t *con
 			maxprob = 0;
 			for (l = 0; l < currentframe; l ++){
 				prob = 0;
-				if (isPauli == 0){
-					#pragma ivdep
-					for (v = 0; v < qecc->nlogs * qecc->nstabs * qecc->nstabs; v ++){
-						j = v % qecc->nstabs;
-						i = (v/qecc->nstabs) % qecc->nstabs;
-						u = (v/(qecc->nstabs * qecc->nstabs)) % qecc->nlogs;
-						prob += (consts->algebra)[1][l][u] * (sim->process)[u][(consts->algebra)[0][l][u]][i][j] * (qecc->projector)[s][j];
-					}
-				}
-				else{
-					#pragma ivdep
-					for (v = 0; v < qecc->nlogs * qecc->nstabs; v ++){
-						i = v % qecc->nstabs;
-						u = (v/qecc->nstabs) % qecc->nlogs;
-						prob += (consts->algebra)[1][l][u] * (sim->process)[u][u][i][i] * (qecc->projector)[s][i];
-					}
-				}
+				if (isPauli == 0)
+					for (u = 0; u < qecc->nlogs; u ++)
+						prob += (consts->algebra)[1][l][u] * SumDotInt((sim->process)[u][(consts->algebra)[0][l][u]], (qecc->projector)[s], qecc->nstabs, qecc->nstabs, qecc->nstabs);
+				else
+					for (u = 0; u < qecc->nlogs; u ++)
+						if ((consts->algebra)[0][l][u] == u)
+							prob += (consts->algebra)[1][l][u] * DiagGDotIntV((sim->process)[u][u], (qecc->projector)[s], qecc->nstabs, qecc->nstabs, qecc->nstabs);
 				if (prob > maxprob){
 					(sim->corrections)[s] = l;
 					maxprob = prob;
@@ -201,36 +175,26 @@ void ComputeEffectiveStates(struct qecc_t *qecc, struct simul_t *sim, struct con
 	// printf("Function: ComputeEffectiveStates with isPauli = %d, nlogs = %d, nstabs = %d.\n", isPauli, qecc->nlogs, qecc->nstabs);
 	// PrintIntArray2D((qecc->projector), "projector", qecc->nstabs, qecc->nstabs);
 	const double atol = 10E-10;
-	int v, r, c, s, a, b, i, j;
+	int v, s, a, b, i, j;
 	for (s = 0; s < qecc->nstabs; s ++){
 		// Initializing all elements to zero
 		for (v = 0; v < qecc->nlogs * qecc->nlogs; v ++)
 			(sim->effective)[s][v/(qecc->nlogs)][v % qecc->nlogs] = 0;
 
 		if ((sim->syndprobs)[s] > atol){
-			if (isPauli == 0){
-				#pragma ivdep
-				for (v = 0; v < qecc->nlogs * qecc->nlogs * qecc->nstabs * qecc->nstabs * qecc->nlogs * qecc->nlogs; v ++){
-					j = v % qecc->nstabs;
-					i = (v/qecc->nstabs) % qecc->nstabs;
-					b = (v/(qecc->nstabs * qecc->nstabs)) % qecc->nlogs;
-					a = (v/(qecc->nstabs * qecc->nstabs * qecc->nlogs)) % qecc->nlogs;
-					c = (v/(qecc->nstabs * qecc->nstabs * qecc->nlogs * qecc->nlogs)) % qecc->nlogs;
-					r = (v/(qecc->nstabs * qecc->nstabs * qecc->nlogs * qecc->nlogs * qecc->nlogs)) % qecc->nlogs;
-					(sim->effective)[s][r][c] += pow(-1, ((int)(b == 2))) * (consts->algebra)[1][(sim->corrections)[s]][a] * (sim->process)[b][(consts->algebra)[0][(sim->corrections)[s]][a]][i][j] * (qecc->projector)[s][j] * (consts->pauli)[a][r/2][c/2] * (consts->pauli)[b][r%2][c%2];
-				}
-			}
-			else{
-				#pragma ivdep
-				for (r = 0; r < qecc->nlogs * qecc->nlogs * qecc->nlogs * qecc->nstabs; r ++){
-					i = v % qecc->nstabs;
-					b = (consts->algebra)[0][(sim->corrections)[s]][a];
-					a = (v/qecc->nstabs) % qecc->nlogs;
-					c = (v/(qecc->nstabs * qecc->nlogs)) % qecc->nlogs;
-					r = (v/(qecc->nstabs * qecc->nlogs * qecc->nlogs)) % qecc->nlogs;
-					(sim->effective)[s][r][c] += pow(-1, ((int)(b == 2))) * (consts->algebra)[1][(sim->corrections)[s]][a] * (sim->process)[b][b][i][i] * (qecc->projector)[s][i] * (consts->pauli)[a][r/2][c/2] * (consts->pauli)[b][r%2][c%2];
-				}
-			}
+			if (isPauli == 0)
+				for (i = 0; i < qecc->nlogs; i ++)
+					for (j = 0; j < qecc->nlogs; j ++)
+						for (a = 0; a < qecc->nlogs; a ++)
+							for (b = 0; b < qecc->nlogs; b ++)
+								(sim->effective)[s][i][j] += pow(-1, ((int)(b == 2))) * (consts->algebra)[1][(sim->corrections)[s]][a] * SumDotInt((sim->process)[b][(consts->algebra)[0][(sim->corrections)[s]][a]], (qecc->projector)[s], qecc->nstabs, qecc->nstabs, qecc->nstabs) * (consts->pauli)[a][i/2][j/2] * (consts->pauli)[b][i % 2][j % 2];
+			else
+				for (i = 0; i < qecc->nlogs; i ++)
+					for (j = 0; j < qecc->nlogs; j ++)
+						for (a = 0; a < qecc->nlogs; a ++)
+							for (b = 0; b < qecc->nlogs; b ++)
+								if ((consts->algebra)[0][(sim->corrections)[s]][a] == b)
+									(sim->effective)[s][i][j] += pow(-1, ((int)(b == 2))) * (consts->algebra)[1][(sim->corrections)[s]][a] * DiagGDotIntV((sim->process)[b][(consts->algebra)[0][(sim->corrections)[s]][a]], (qecc->projector)[s], qecc->nstabs, qecc->nstabs, qecc->nstabs) * (consts->pauli)[a][i/2][j/2] * (consts->pauli)[b][i % 2][j % 2];
 			// Normalization
 			for (v = 0; v < qecc->nlogs * qecc->nlogs; v ++)
 				(sim->effective)[s][v/(qecc->nlogs)][v % qecc->nlogs] /= (4 * (double)((sim->syndprobs)[s] * qecc->nstabs));
@@ -259,7 +223,7 @@ void SingleShotErrorCorrection(int isPauli, int frame, struct qecc_t *qecc, stru
 	// Convert the effective channels from choi representation to the process matrix form.
 	// printf("Converting effective channels to PTM.\n");
 	int s;
-	#pragma ivdep
+	// #pragma ivdep
 	for (s = 0; s < qecc->nstabs; s ++){
 		ChoiToProcess((sim->effprocess)[s], (sim->effective)[s], consts->pauli);
 		// printf("s = %d\n", s);

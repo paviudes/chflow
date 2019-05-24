@@ -17,9 +17,183 @@
 		gcc mt19937/mt19937ar.c printfuns.c -m64 -I${MKLROOT}/include -L${MKLROOT}/lib -Wl,-rpath,${MKLROOT}/lib -lmkl_rt -lpthread -lm -ldl linalg.c -o linalg.o
 */
 
-void Dot(double complex **matA, double complex **matB, double complex **prod, int rowsA, int colsA, int rowsB, int colsB){
+double SumDotInt(double **matA, int *vecB, int rowsA, int colsA, int rowsB){
+	// This is a wrapper for SumDot where the vector has integers.
+	double *dvecB = malloc(sizeof(double) * rowsB);
+	int i;
+	for (i = 0; i < rowsB; i ++)
+		dvecB[i] = (double) vecB[i];
+	double sum = SumDot(matA, dvecB, rowsA, colsA, rowsB);
+	free(dvecB);
+	return sum;
+}
+
+double SumDot(double **matA, double *vecB, int rowsA, int colsA, int rowsB){
+	// Given a matrix A and a vector v, compute the sum of entries in (A.v).
+	// The number of columns in A must be equal to the number of rows in B.
+	const double atol = 10E-12;
+	int i;
+	// Allocate memory for the product matrix
+	double *prod = malloc(sizeof(double *) * rowsA);
+
+	// Compute the product
+	GDotV(matA, vecB, prod, rowsA, colsA, rowsB);
+
+	// Compute the sum of entries
+	double sum = 0;
+	for (i = 0; i < rowsA; i ++)
+		sum += prod[i];
+
+	// Free memory of the product matrix.
+	free(prod);
+
+	if(sum < atol)
+		sum = 0;
+	return sum;
+}
+
+double Trace(double **mat, int nrows){
+	// Compute the trace of a matrix.
+	// We will use a vectorized for loop.
+	int i;
+	double trace = 0;
+	for (i = 0; i < nrows; i ++)
+		trace += mat[i][i];
+	return trace;
+}
+
+double DiagGDotIntV(double **matA, int *vecB, int rowsA, int colsA, int rowsB){
+	// This is a wrapper for DiagGDotV where the vector has integers.
+	double *dvecB = malloc(sizeof(double) * rowsB);
+	int i;
+	for (i = 0; i < rowsB; i ++)
+		dvecB[i] = (double) vecB[i];
+	double diagdot = DiagGDotV(matA, dvecB, rowsA, colsA, rowsB);
+	free(dvecB);
+	return diagdot;
+}
+
+double DiagGDotV(double **matA, double *vecB, int rowsA, int colsA, int rowsB){
+	// Given a matrix A and a vector v, compute the dot product: diag(A).v where diag(A) referes to the 1D vector containing the diagonal of A.
+	// The vector is provided as a 1D array (row vector), but we intend to use it as a column vector and multiply it to the right of the given matrix.
+	// For high-performance, we will use the zgemm function of the BLAS library.
+	// See https://software.intel.com/en-us/mkl-tutorial-c-multiplying-matrices-using-dgemm .
+	const double atol = 10E-12;
+	double prod = 0;
+	if ((rowsA != colsA) && (colsA != rowsB))
+		printf("Cannot multiply a matrix of shape (%d x %d) to a vector of shape (%d x 1).\n", rowsA, colsA, rowsB);
+	else{
+		MKL_INT m = rowsA, n = 1, k = colsA;
+		double A[rowsA], B[rowsB], C[rowsA], alpha, beta;
+		int i;
+		for (i = 0; i < rowsA; i ++)
+			A[i] = matA[i][i];
+
+		for (i = 0; i < rowsB; i ++)
+			B[i] = vecB[i];
+		
+		alpha = 1;
+		beta = 0;
+		// Call the BLAS function.
+		cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, m, n, k, alpha, A, k, B, n, beta, C, n);
+		// Load the product
+		prod = C[0];
+	}
+	if (prod < atol)
+		prod = 0;
+	return prod;
+}
+
+
+void GDotV(double **matA, double *vecB, double *prod, int rowsA, int colsA, int rowsB){
 	/*
-		Multiply two matrices.
+		Multiply a double matrix M with a vector v, as M.v.
+		The vector is provided as a 1D array (row vector), but we intend to use it as a column vector and multiply it to the right of the given matrix.
+		The product is also a 1D array, assumed to be a column vector.
+		For high-performance, we will use the zgemm function of the BLAS library.
+		See https://software.intel.com/en-us/mkl-tutorial-c-multiplying-matrices-using-dgemm .
+		The dgemm function is defined with the following parameters.
+		extern cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
+						   int m, // number of rows of A
+						   int n, // number of columns of B
+						   int k, // number of columns of A = number of rows of B
+						   double alpha, // scalar factor to be multiplied to the product.
+						   double *A, // input matrix A
+						   int k, // leading dimension of A
+						   double *B, // input matrix B
+						   int n, // leading dimension of B
+						   double beta, // relative shift from the product, by a factor of C.
+						   double *C, // product of A and B
+						   int n //leading dimension of C.
+						  );
+	*/
+	if (colsA != rowsB)
+		printf("Cannot multiply a matrix of shape (%d x %d) to a vector of shape (%d x 1).\n", rowsA, colsA, rowsB);
+	else{
+		MKL_INT m = rowsA, n = 1, k = colsA;
+		double A[rowsA * colsA], B[rowsB], C[rowsA], alpha, beta;
+		int i;
+		for (i = 0; i < rowsA * colsA; i ++)
+			A[i] = matA[i/colsA][i % colsA];
+
+		for (i = 0; i < rowsB; i ++)
+			B[i] = vecB[i];
+		
+		alpha = 1;
+		beta = 0;
+		// Call the BLAS function.
+		cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, m, n, k, alpha, A, k, B, n, beta, C, n);
+		// Load the product
+		for (i = 0; i < rowsA; i ++)
+			prod[i] = C[i];
+	}
+}
+
+void GDot(double **matA, double **matB, double **prod, int rowsA, int colsA, int rowsB, int colsB){
+	/*
+		Multiply two double matrices.
+		For high-performance, we will use the zgemm function of the BLAS library.
+		See https://software.intel.com/en-us/mkl-tutorial-c-multiplying-matrices-using-dgemm .
+		The dgemm function is defined with the following parameters.
+		extern cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
+						   int m, // number of rows of A
+						   int n, // number of columns of B
+						   int k, // number of columns of A = number of rows of B
+						   double alpha, // scalar factor to be multiplied to the product.
+						   double *A, // input matrix A
+						   int k, // leading dimension of A
+						   double *B, // input matrix B
+						   int n, // leading dimension of B
+						   double beta, // relative shift from the product, by a factor of C.
+						   double *C, // product of A and B
+						   int n //leading dimension of C.
+						  );
+	*/
+	if (colsA != rowsB)
+		printf("Cannot multiply matrices of shape (%d x %d) and (%d x %d).\n", rowsA, colsA, rowsB, colsB);
+	else{
+		MKL_INT m = rowsA, n = colsB, k = colsA;
+		double A[rowsA * colsA], B[rowsB * colsB], C[rowsA * colsB], alpha, beta;
+		int i;
+		for (i = 0; i < rowsA * colsA; i ++)
+			A[i] = matA[i/colsA][i % colsA];
+
+		for (i = 0; i < rowsB * colsB; i ++)
+			B[i] = matB[i/colsB][i % colsB];
+		
+		alpha = 1;
+		beta = 0;
+		// Call the BLAS function.
+		cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, m, n, k, alpha, A, k, B, n, beta, C, n);
+		// Load the product
+		for (i = 0; i < rowsA * colsB; i ++)
+			prod[i/colsB][i % colsB] = C[i];
+	}
+}
+
+void ZDot(double complex **matA, double complex **matB, double complex **prod, int rowsA, int colsA, int rowsB, int colsB){
+	/*
+		Multiply two complex matrices.
 		For high-performance, we will use the zgemm function of the BLAS library.
 		See https://software.intel.com/en-us/node/520775 .
 		The zgemm function is defined with the following parameters.

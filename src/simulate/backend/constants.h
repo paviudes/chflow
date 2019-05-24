@@ -5,7 +5,7 @@
 
 struct constants_t
 {
-	double complex ***pauli;
+	double complex *** restrict pauli;
 	/*
 		Linear transformation from the Choi matrix respresentation to the Chi matrix respresentation for quantum channels.
 		Read the basis change matrix form the file choi_to_chi.txt.
@@ -99,7 +99,7 @@ struct constants_t
 
 		Encoding to follow: {I: [0, 1], "X":[1, 1], "-X":[1, -1], "Y":[2, 1], "-Y":[2, -1], "Z":[3, 1], "-Z":[3, -1]}
 	*/
-	int ***algebra;
+	int *** restrict algebra;
 
 	// Numerical precision.
 	double atol;

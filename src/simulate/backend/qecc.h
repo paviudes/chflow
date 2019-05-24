@@ -10,9 +10,9 @@ struct qecc_t{
 	int D;
 	int nlogs;
 	int nstabs;
-	int **projector;
-	int ***action;
-	double complex **phases;
+	int ** restrict projector;
+	int *** restrict action;
+	double complex ** restrict phases;
 };
 
 // Allocate memory for the elements of the quantum error correcting code.
