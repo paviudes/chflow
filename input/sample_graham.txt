@@ -5,25 +5,25 @@ channel rand
 # Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
 repr process
 # Noise rate exponents. The actual noise rate is (2/3)^exponent.
-noiserange 5,10.5,12;5,5,1
+noiserange 5,10.5,12;4,4,1
 # Scale of the noise range
 scale 0.66,1
 # Number of samples
-samples 480
+samples 120
 # Number of syndromes to be sampled at top level
-stats 100000
+stats 10000
 # Metrics to be computed on the effective channels at every level.
 metrics infid
 # Load distribution on cores.
-cores 320,1
+cores 120,1
 # Name of the host computer.
 host graham
 # Account for the compute cluster
 account def-jemerson
 # Batch name.
-job pauliRN
+job randhyps
 # Wall time in hours.
-wall 120
+wall 24
 # Email notifications
 email pavithran.sridhar@gmail.com
 # Output directory
