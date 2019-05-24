@@ -9,7 +9,8 @@ OPTS = -O3 -xavx
 #  -xavx -qopenmp -simd
 # -ffast-math
 REPORT = -qopt-report-phase=vec -qopt-report=5
-CFLAGS = -fPIC -Wall -Wextra -std=c11 $(OPTS) $(REPORT)
+CFLAGS = -fPIC -Wall -Wextra -std=c11 $(OPTS)
+# $(REPORT)
 CFLAGS_MKL = -m64 -I${MKLROOT}/include
 LIBS = -lm
 LIBS_MKL = -L${MKLROOT}/lib -Wl,-rpath,${MKLROOT}/lib -lmkl_rt -lpthread -lm -ldl

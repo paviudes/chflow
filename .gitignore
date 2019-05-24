@@ -2,6 +2,8 @@
 .ignore/
 # Physical channels -- these can be generated from chflow
 physical/*.npy
+# Temporary calibration files
+temp/
 # Python cache files
 **/__pycache__
 *.pyc
