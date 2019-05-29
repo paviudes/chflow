@@ -47,7 +47,7 @@ double SumDot(double **matA, double *vecB, int rowsA, int colsA, int rowsB){
 	// Free memory of the product matrix.
 	free(prod);
 
-	if(sum < atol)
+	if(fabs(sum) < atol)
 		sum = 0;
 	return sum;
 }
@@ -62,50 +62,44 @@ double Trace(double **mat, int nrows){
 	return trace;
 }
 
-double DiagGDotIntV(double **matA, int *vecB, int rowsA, int colsA, int rowsB){
+double DiagGDotIntV(double **matA, int *vecB, int rowsA, int colsA, int sizeB){
 	// This is a wrapper for DiagGDotV where the vector has integers.
-	double *dvecB = malloc(sizeof(double) * rowsB);
+	double *dvecB = malloc(sizeof(double) * sizeB);
 	int i;
-	for (i = 0; i < rowsB; i ++)
+	for (i = 0; i < sizeB; i ++)
 		dvecB[i] = (double) vecB[i];
-	double diagdot = DiagGDotV(matA, dvecB, rowsA, colsA, rowsB);
+	double diagdot = DiagGDotV(matA, dvecB, rowsA, colsA, sizeB);
 	free(dvecB);
 	return diagdot;
 }
 
-double DiagGDotV(double **matA, double *vecB, int rowsA, int colsA, int rowsB){
+double DiagGDotV(double **matA, double *vecB, int rowsA, int colsA, int sizeB){
 	// Given a matrix A and a vector v, compute the dot product: diag(A).v where diag(A) referes to the 1D vector containing the diagonal of A.
 	// The vector is provided as a 1D array (row vector), but we intend to use it as a column vector and multiply it to the right of the given matrix.
-	// For high-performance, we will use the zgemm function of the BLAS library.
-	// See https://software.intel.com/en-us/mkl-tutorial-c-multiplying-matrices-using-dgemm .
+	// For high-performance, we will use the cblas_ddot function of the BLAS library.
+	// See https://software.intel.com/en-us/mkl-developer-reference-c-cblas-dot.
 	const double atol = 10E-12;
 	double prod = 0;
-	if ((rowsA != colsA) && (colsA != rowsB))
-		printf("Cannot multiply a matrix of shape (%d x %d) to a vector of shape (%d x 1).\n", rowsA, colsA, rowsB);
+	if ((rowsA != colsA) && (colsA != sizeB))
+		printf("Cannot multiply a matrix of shape (%d x %d) to a vector of shape (%d x 1).\n", rowsA, colsA, sizeB);
 	else{
-		MKL_INT m = rowsA, n = 1, k = colsA;
-		double A[rowsA], B[rowsB], C[rowsA], alpha, beta;
+		MKL_INT n = rowsA;
+		const MKL_INT incx = 1, incy = 1;
+		double x[n], y[n];
 		int i;
 		for (i = 0; i < rowsA; i ++)
-			A[i] = matA[i][i];
-
-		for (i = 0; i < rowsB; i ++)
-			B[i] = vecB[i];
-		
-		alpha = 1;
-		beta = 0;
-		// Call the BLAS function.
-		cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, m, n, k, alpha, A, k, B, n, beta, C, n);
-		// Load the product
-		prod = C[0];
+			x[i] = matA[i][i];
+		for (i = 0; i < sizeB; i ++)
+			y[i] = vecB[i];
+		prod = cblas_ddot(n, x, incx, y, incy);
+		if (fabs(prod) < atol)
+			prod = 0;
 	}
-	if (prod < atol)
-		prod = 0;
 	return prod;
 }
 
 
-void GDotV(double **matA, double *vecB, double *prod, int rowsA, int colsA, int rowsB){
+void GDotV(double **matA, double *vecB, double *prod, int rowsA, int colsA, int sizeB){
 	/*
 		Multiply a double matrix M with a vector v, as M.v.
 		The vector is provided as a 1D array (row vector), but we intend to use it as a column vector and multiply it to the right of the given matrix.
@@ -127,16 +121,16 @@ void GDotV(double **matA, double *vecB, double *prod, int rowsA, int colsA, int 
 						   int n //leading dimension of C.
 						  );
 	*/
-	if (colsA != rowsB)
-		printf("Cannot multiply a matrix of shape (%d x %d) to a vector of shape (%d x 1).\n", rowsA, colsA, rowsB);
+	if (colsA != sizeB)
+		printf("Cannot multiply a matrix of shape (%d x %d) to a vector of shape (%d x 1).\n", rowsA, colsA, sizeB);
 	else{
 		MKL_INT m = rowsA, n = 1, k = colsA;
-		double A[rowsA * colsA], B[rowsB], C[rowsA], alpha, beta;
+		double A[rowsA * colsA], B[sizeB], C[rowsA], alpha, beta;
 		int i;
 		for (i = 0; i < rowsA * colsA; i ++)
 			A[i] = matA[i/colsA][i % colsA];
 
-		for (i = 0; i < rowsB; i ++)
+		for (i = 0; i < sizeB; i ++)
 			B[i] = vecB[i];
 		
 		alpha = 1;
@@ -296,19 +290,19 @@ void Diagonalize(double complex **mat, int nrows, double complex *eigvals, int i
 int main(int argc, char const *argv[]){
 	// Seed random number generator
 	init_genrand(time(NULL));
-	if (strncmp(argv[1], "Dot", 3) == 0){
-		printf("Function: Dot.\n");
-		int rowsA = 4, colsA = 4, rowsB = 4, colsB = 4;
-		int i, j;
+	int i, j;
+	int rowsA = 4, colsA = 4, rowsB = 4, colsB = 4;
+	if (strncmp(argv[1], "ZDot", 4) == 0){
+		printf("Function: ZDot.\n");
 		// Assign random elements to matrices A and B.
-		double complex **matA = malloc(sizeof(double complex) * rowsA);
+		double complex **matA = malloc(sizeof(double complex *) * rowsA);
 		for (i = 0; i < rowsA; i ++){
 			matA[i] = malloc(sizeof(double complex) * colsA);
 			for (j = 0; j < colsA; j ++)
 				matA[i][j] = genrand_real3() + genrand_real3() * I;
 		}
 		PrintComplexArray2D(matA, "A", rowsA, colsA);
-		double complex **matB = malloc(sizeof(double complex) * rowsB);
+		double complex **matB = malloc(sizeof(double complex *) * rowsB);
 		for (i = 0; i < rowsB; i ++){
 			matB[i] = malloc(sizeof(double complex) * colsB);
 			for (j = 0; j < colsB; j ++)
@@ -316,12 +310,103 @@ int main(int argc, char const *argv[]){
 		}
 		PrintComplexArray2D(matB, "B", rowsB, colsB);
 		// Initialize the product
-		double complex **matC = malloc(sizeof(double complex) * rowsA);
+		double complex **matC = malloc(sizeof(double complex *) * rowsA);
 		for (i = 0; i < rowsA; i ++)
 			matC[i] = malloc(sizeof(double complex) * colsB);
 		// Call the matrix product
-		Dot(matA, matB, matC, rowsA, colsA, rowsB, colsB);
+		ZDot(matA, matB, matC, rowsA, colsA, rowsB, colsB);
 		PrintComplexArray2D(matC, "C = A . B", rowsA, colsB);
+		// Free all matrices
+		for (i = 0; i < rowsA; i ++)
+			free(matA[i]);
+		free(matA);
+		for (i = 0; i < rowsB; i ++)
+			free(matB[i]);
+		free(matB);
+		for (i = 0; i < rowsA; i ++)
+			free(matC[i]);
+		free(matC);
+	}
+	if (strncmp(argv[1], "GDot", 4) == 0){
+		printf("Function: GDot.\n");
+		// Assign random elements to matrices A and B.
+		double **matA = malloc(sizeof(double *) * rowsA);
+		for (i = 0; i < rowsA; i ++){
+			matA[i] = malloc(sizeof(double) * colsA);
+			for (j = 0; j < colsA; j ++)
+				matA[i][j] = genrand_real3();
+		}
+		PrintDoubleArray2D(matA, "A", rowsA, colsA);
+		double **matB = malloc(sizeof(double *) * rowsB);
+		for (i = 0; i < rowsB; i ++){
+			matB[i] = malloc(sizeof(double) * colsB);
+			for (j = 0; j < colsB; j ++)
+				matB[i][j] = genrand_real3();
+		}
+		PrintDoubleArray2D(matB, "B", rowsB, colsB);
+		// Initialize the product
+		double **matC = malloc(sizeof(double *) * rowsA);
+		for (i = 0; i < rowsA; i ++)
+			matC[i] = malloc(sizeof(double) * colsB);
+		// Call the matrix product
+		GDot(matA, matB, matC, rowsA, colsA, rowsB, colsB);
+		PrintDoubleArray2D(matC, "C = A . B", rowsA, colsB);
+		// Free all matrices
+		for (i = 0; i < rowsA; i ++)
+			free(matA[i]);
+		free(matA);
+		for (i = 0; i < rowsB; i ++)
+			free(matB[i]);
+		free(matB);
+		for (i = 0; i < rowsA; i ++)
+			free(matC[i]);
+		free(matC);
+	}
+	if (strncmp(argv[1], "DiagGDotV", 9) == 0){
+		printf("Function: DiagGDotV.\n");
+		// Assign random elements to matrices A and B.
+		double **matA = malloc(sizeof(double *) * rowsA);
+		for (i = 0; i < rowsA; i ++){
+			matA[i] = malloc(sizeof(double) * colsA);
+			for (j = 0; j < colsA; j ++)
+				matA[i][j] = genrand_real3();
+		}
+		PrintDoubleArray2D(matA, "A", rowsA, colsA);
+		double *vecB = malloc(sizeof(double) * rowsB);
+		for (i = 0; i < rowsB; i ++)
+			vecB[i] = genrand_real3();
+		PrintDoubleArray1D(vecB, "v", rowsB);
+		// Initialize the product
+		double prod = DiagGDotV(matA, vecB, rowsA, colsA, rowsB);
+		printf("diag(A).v = %g.\n", prod);
+		// Free all matrices
+		for (i = 0; i < rowsA; i ++)
+			free(matA[i]);
+		free(matA);
+		free(vecB);
+	}
+	if (strncmp(argv[1], "DiagGDotIntV", 12) == 0){
+		printf("Function: DiagGDotIntV.\n");
+		// Assign random elements to matrices A and B.
+		double **matA = malloc(sizeof(double *) * rowsA);
+		for (i = 0; i < rowsA; i ++){
+			matA[i] = malloc(sizeof(double) * colsA);
+			for (j = 0; j < colsA; j ++)
+				matA[i][j] = genrand_real3();
+		}
+		PrintDoubleArray2D(matA, "A", rowsA, colsA);
+		int *vecB = malloc(sizeof(int) * rowsB);
+		for (i = 0; i < rowsB; i ++)
+			vecB[i] = (int) (100 * genrand_real3());
+		PrintIntArray1D(vecB, "v", rowsB);
+		// Initialize the product
+		double prod = DiagGDotIntV(matA, vecB, rowsA, colsA, rowsB);
+		printf("diag(A).v = %g.\n", prod);
+		// Free all matrices
+		for (i = 0; i < rowsA; i ++)
+			free(matA[i]);
+		free(matA);
+		free(vecB);
 	}
 	return 0;
 }
