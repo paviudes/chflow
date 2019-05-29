@@ -1,0 +1,30 @@
+# Directory containing all files removed by "clean"
+.ignore/
+
+# Physical channels -- these can be generated from chflow
+physical/*.npy
+
+# Temporary calibration files
+temp/
+
+# Python cache files
+**/__pycache__
+*.pyc
+*.py~
+**/.DS_Store
+
+# Temporary clipboard for code snippets
+clipboard.py
+
+# All object files
+*.o
+
+# Test files
+**/test/*
+
+# All input files that do not start with sample_...
+!input/
+!input/sample_*.txt
+
+# Optimization report from icc
+**/*.optrpt
