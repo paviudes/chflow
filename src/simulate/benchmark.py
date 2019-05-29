@@ -86,7 +86,7 @@ def Benchmark(submit, noise, sample, physical, refchan):
 	metrics = (ctypes.c_char_p * nmetrics)()
 	metrics[:] = list(map(lambda str: str.encode('utf-8'), submit.metrics))
 
-	_bmark = ctypes.cdll.LoadLibrary(os.path.abspath("simulate/bmark.so"))
+	_bmark = ctypes.cdll.LoadLibrary("/home/pavi/projects/def-jemerson/pavi/chflow/src/simulate/bmark.so")
 	_bmark.Benchmark.argtypes = (ctypes.c_int, # nlevels
 								 ndpointer(dtype = np.int32, ndim = 1, flags = 'C_CONTIGUOUS'), # nkd
 								 ndpointer(dtype = np.int32, ndim = 1, flags = 'C_CONTIGUOUS'), # SS

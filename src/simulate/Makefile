@@ -21,7 +21,7 @@ TARGET = bmark.so
 $(shell mkdir -p obj/)
 
 $(TARGET):obj/main.o obj/sampling.o obj/constants.o obj/printfuns.o obj/mt19937ar.o obj/checks.o obj/logmetrics.o obj/memory.o obj/qecc.o obj/effective.o obj/benchmark.o obj/linalg.o
-	$(CC) $(CFLAGS) obj/main.o obj/sampling.o obj/constants.o obj/printfuns.o obj/mt19937ar.o obj/logmetrics.o obj/checks.o obj/memory.o obj/qecc.o obj/effective.o obj/benchmark.o obj/linalg.o -o $(TARGET) $(LIBS_MKL)
+	$(CC) $(CFLAGS) $(LDFLAGS) obj/main.o obj/sampling.o obj/constants.o obj/printfuns.o obj/mt19937ar.o obj/logmetrics.o obj/checks.o obj/memory.o obj/qecc.o obj/effective.o obj/benchmark.o obj/linalg.o $(LIBS) $(LIBS_MKL) -o $(TARGET)
 
 obj/main.o: backend/main.c Makefile
 	$(CC) -c $(CFLAGS) backend/main.c -o obj/main.o
