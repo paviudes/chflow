@@ -1,0 +1,81 @@
+===========================================================================
+
+Begin optimization report for: GetFullProcessMatrix(struct qecc_t *, struct simul_t *, int)
+
+    Report from: Vector optimizations [vec]
+
+
+LOOP BEGIN at backend/qecc.c(123,3)
+   remark #15328: vectorization support: indirect load was emulated for the variable <qecc->action[i]>, 64-bit indexed, part of address is nonlinearly computed   [ backend/qecc.c(130,41) ]
+   remark #15328: vectorization support: indirect load was emulated for the variable <qecc->action[i][k]>, 64-bit indexed, part of address is read from memory   [ backend/qecc.c(130,41) ]
+   remark #15328: vectorization support: indirect load was emulated for the variable <qecc->action[i][k][q]>, 64-bit indexed, part of address is read from memory   [ backend/qecc.c(130,41) ]
+   remark #15328: vectorization support: indirect load was emulated for the variable <sim->virtchan[q][*(*(*(qecc->action+i*8)+k*8)+q*4)]>, 64-bit indexed, part of address is read from memory   [ backend/qecc.c(130,22) ]
+   remark #15328: vectorization support: indirect load was emulated for the variable <qecc->action[j]>, 64-bit indexed, part of address is nonlinearly computed   [ backend/qecc.c(130,66) ]
+   remark #15328: vectorization support: indirect load was emulated for the variable <qecc->action[j][l]>, 64-bit indexed, part of address is read from memory   [ backend/qecc.c(130,66) ]
+   remark #15328: vectorization support: indirect load was emulated for the variable <qecc->action[j][l][q]>, 64-bit indexed, part of address is read from memory   [ backend/qecc.c(130,66) ]
+   remark #15328: vectorization support: indirect load was emulated for the variable <*(*(*(sim->virtchan+q*8)+(*(*(*(qecc->action+i*8)+k*8)+q*4))*8)+>, 64-bit indexed, part of address is read from memory   [ backend/qecc.c(130,22) ]
+   remark #15328: vectorization support: irregularly indexed load was emulated for the variable <qecc->phases[i]>, part of index is nonlinearly computed   [ backend/qecc.c(131,40) ]
+   remark #15328: vectorization support: indirect load was emulated for the variable <(*(qecc->phases+i*8))[k]>, 64-bit indexed, part of address is read from memory   [ backend/qecc.c(131,40) ]
+   remark #15328: vectorization support: irregularly indexed load was emulated for the variable <qecc->phases[j]>, part of index is nonlinearly computed   [ backend/qecc.c(131,63) ]
+   remark #15328: vectorization support: indirect load was emulated for the variable <(*(qecc->phases+j*8))[l]>, 64-bit indexed, part of address is read from memory   [ backend/qecc.c(131,63) ]
+   remark #15328: vectorization support: irregularly indexed load was emulated for the variable <sim->process[i]>, part of index is nonlinearly computed   [ backend/qecc.c(131,5) ]
+   remark #15328: vectorization support: indirect load was emulated for the variable <sim->process[i][j]>, 64-bit indexed, part of address is read from memory   [ backend/qecc.c(131,5) ]
+   remark #15328: vectorization support: indirect load was emulated for the variable <sim->process[i][j][k]>, 64-bit indexed, part of address is read from memory   [ backend/qecc.c(131,5) ]
+   remark #15329: vectorization support: indirect store was emulated for the variable <sim->process[i][j][k][l]>, 64-bit indexed, part of address is read from memory   [ backend/qecc.c(131,5) ]
+   remark #15305: vectorization support: vector length 4
+   remark #15309: vectorization support: normalized vectorization overhead 0.029
+   remark #15301: OpenMP SIMD LOOP WAS VECTORIZED
+   remark #15462: unmasked indexed (or gather) loads: 15 
+   remark #15463: unmasked indexed (or scatter) stores: 1 
+   remark #15475: --- begin vector cost summary ---
+   remark #15476: scalar cost: 225 
+   remark #15477: vector cost: 375.750 
+   remark #15478: estimated potential speedup: 0.590 
+   remark #15482: vectorized math library calls: 7 
+   remark #15487: type converts: 11 
+   remark #15488: --- end vector cost summary ---
+
+   LOOP BEGIN at backend/qecc.c(129,4)
+      remark #25460: No loop optimizations reported
+   LOOP END
+LOOP END
+
+LOOP BEGIN at backend/qecc.c(123,3)
+<Remainder loop for vectorization>
+
+   LOOP BEGIN at backend/qecc.c(129,4)
+      remark #25460: No loop optimizations reported
+   LOOP END
+LOOP END
+
+LOOP BEGIN at backend/qecc.c(136,3)
+   remark #15344: loop was not vectorized: vector dependence prevents vectorization
+   remark #15346: vector dependence: assumed ANTI dependence between *(*(*(sim->virtchan+q*8)+(*(*(*(qecc->action+i*8)+j*8)+q*4))*8)+ (141:5) and sim->process[i][i][j][j] (142:5)
+   remark #15346: vector dependence: assumed FLOW dependence between sim->process[i][i][j][j] (142:5) and *(*(*(sim->virtchan+q*8)+(*(*(*(qecc->action+i*8)+j*8)+q*4))*8)+ (141:5)
+
+   LOOP BEGIN at backend/qecc.c(140,4)
+      remark #15389: vectorization support: reference sim->virtchan[q] has unaligned access   [ backend/qecc.c(141,22) ]
+      remark #15389: vectorization support: reference qecc->action[i][j][q] has unaligned access   [ backend/qecc.c(141,41) ]
+      remark #15389: vectorization support: reference qecc->action[i][j][q] has unaligned access   [ backend/qecc.c(141,66) ]
+      remark #15381: vectorization support: unaligned access used inside loop body
+      remark #15335: loop was not vectorized: vectorization possible but seems inefficient. Use vector always directive or -vec-threshold0 to override 
+      remark #15328: vectorization support: indirect load was emulated for the variable <sim->virtchan[q][*(*(*(qecc->action+i*8)+j*8)+q*4)]>, 64-bit indexed, part of address is read from memory   [ backend/qecc.c(141,22) ]
+      remark #15328: vectorization support: indirect load was emulated for the variable <*(*(*(sim->virtchan+q*8)+(*(*(*(qecc->action+i*8)+j*8)+q*4))*8)+>, 64-bit indexed, part of address is read from memory   [ backend/qecc.c(141,22) ]
+      remark #15305: vectorization support: vector length 2
+      remark #15399: vectorization support: unroll factor set to 4
+      remark #15309: vectorization support: normalized vectorization overhead 0.152
+      remark #15450: unmasked unaligned unit stride loads: 3 
+      remark #15462: unmasked indexed (or gather) loads: 2 
+      remark #15475: --- begin vector cost summary ---
+      remark #15476: scalar cost: 16 
+      remark #15477: vector cost: 23.000 
+      remark #15478: estimated potential speedup: 0.690 
+      remark #15487: type converts: 2 
+      remark #15488: --- end vector cost summary ---
+   LOOP END
+
+   LOOP BEGIN at backend/qecc.c(140,4)
+   <Remainder>
+   LOOP END
+LOOP END
+===========================================================================
