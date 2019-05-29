@@ -22,6 +22,9 @@ clipboard.py
 # Test files
 **/test/*
 
+# References for reading
+refs/
+
 # All input files that do not start with sample_...
 !input/
 !input/sample_*.txt
