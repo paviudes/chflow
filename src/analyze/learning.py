@@ -13,13 +13,7 @@ except:
 	pass
 from define import fnames as fn
 from define import chanreps as chrep
-
-def LargestEigenVector(process):
-	# Extract the largest eigenvalue of the Choi matrix corresponding to the channel. This is also the first Krauss operator.
-	choi = chrep.ConvertRepresentations(process, "process", "choi")
-	(eval, evec) = la.scipy.linalg.eigh(a, eigvals=(4,4))
-	firstkrauss = np.sqrt(np.real(eval)) * np.real(evec))
-	return firstkrauss
+from analyze import leadkraus as lk
 
 def PrepareMLData(dbs, physmets, lmet, step, mask, neigs = 1):
 	# Prepare a training set and a testing set for machine learning.
@@ -39,11 +33,11 @@ def PrepareMLData(dbs, physmets, lmet, step, mask, neigs = 1):
 			return None
 
 	if (neigs == 1):
-		nelms = 4
+		nelems = 4
 	else:
-		nelms = np.count_nonzero(mask)
+		nelems = np.count_nonzero(mask)
 	nmetrics = len(physmets)
-	mldata = np.zeros((dbs.channels, nelms + nmetrics + 1), dtype = np.double)
+	mldata = np.zeros((dbs.channels, nelems + nmetrics + 1), dtype = np.double)
 	phyerr = np.zeros((dbs.channels, nmetrics), dtype = np.double)
 	# fiterr = np.zeros(dbs.channels, dtype = np.double)
 	# np.ndarray[np.longdouble_t, ndim = 2] phychan = np.zeros((4, 4), dtype = np.longdouble)
@@ -56,18 +50,18 @@ def PrepareMLData(dbs, physmets, lmet, step, mask, neigs = 1):
 		phychan = np.load(fn.PhysicalChannel(dbs, dbs.available[i, :np.int(dbs.available.shape[1] - 1)]))[np.int(dbs.available[i, dbs.available.shape[1] - 1]), :, :]
 		# phychan = np.load(fn.LogicalChannel(dbs, dbs.available[i, :(dbs.available.shape[1] - 1)], dbs.available[i, dbs.available.shape[1] - 1]))[0, :, :]
 		if (neigs == 1):
-			mldata[i, :nelems] = FirstKrauss(phychan)
+			mldata[i, :nelems] = lk.GetLeadingKrauss(phychan)
 		else:
-			mldata[i, :nelms] = phychan[np.nonzero(mask)].flatten(order = 'C')
-		# mldata[i, :nelms] = phychan[np.nonzero(mask)].flatten('C')
-		mldata[i, nelms:(nelms + nmetrics)] = phyerr[i, :]
+			mldata[i, :nelems] = phychan[np.nonzero(mask)].flatten(order = 'C')
+		# mldata[i, :nelems] = phychan[np.nonzero(mask)].flatten('C')
+		mldata[i, nelems:(nelems + nmetrics)] = phyerr[i, :]
 		if (step == 0):
-			mldata[i, (nelms + nmetrics)] = fiterr[i]
+			mldata[i, (nelems + nmetrics)] = fiterr[i]
 	# Write the machine learning data set on to a file.
 	if (step == 0):
 		np.save(fn.TrainingSet(dbs), mldata)
 	else:
-		np.save(fn.TestingSet(dbs), mldata[:, :(nelms + nmetrics)])
+		np.save(fn.TestingSet(dbs), mldata[:, :(nelems + nmetrics)])
 	return None
 
 

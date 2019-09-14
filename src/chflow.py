@@ -321,6 +321,7 @@ if __name__ == '__main__':
 		#####################################################################
 
 		elif (user[0] == "sbload"):
+			exists = 0
 			if (len(user) == 1):
 				# no file name or time stamp was provided.
 				print("Console input is not set up currently.")
@@ -440,22 +441,27 @@ if __name__ == '__main__':
 			# Plot the logical error rate with respect to a physical noise strength, with a new figure for every concatenation layer.
 			# One or more simulation data can be plotted in the same figure with a new curve for every dataset.
 			# One of more measures of physical noise strength can be plotted on the same figure with a new curve for each definition.
-			dbses = [submit]
-			check = 1
-			if (len(user) > 3):
-				for (i, ts) in enumerate(user[3].split(",")):
-					dbses.append(sub.Submission())
-					sub.LoadSub(dbses[i + 1], ts, 0)
-					cl.IsComplete(dbses[i + 1])
-					if (dbses[i + 1].complete > 0):
-						cl.GatherLogErrData(dbses[i + 1])
+			if (len(user) >= 3):
+				dbses = [submit]
+				if (len(user) > 3):
+					for (i, ts) in enumerate(user[3].split(",")):
+						dbses.append(sub.Submission())
+						sub.LoadSub(dbses[i + 1], ts, 0)
+				check = 1
+				for d in range(len(dbses)):
+					cl.IsComplete(dbses[d])
+					if (dbses[d].complete > 0):
+						if (not os.path.isfile(fn.LogicalErrorRates(dbses[d], user[2], fmt = "npy"))):
+							cl.GatherLogErrData(dbses[d])
 					else:
 						check = 0
 						break
-			if (check == 1):
-				pl.LevelWisePlot(user[1], user[2], dbses)
+				if (check == 1):
+					pl.LevelWisePlot(user[1], user[2], dbses)
+				else:
+					print("\033[2mOne of the databases does not have logical error data.\033[0m")
 			else:
-				print("\033[2mOne of the databases does not have logical error data.\033[0m")
+				print("\033[2mUsage: %s\033[0m" % mannual["lplot"][1])
 
 		#####################################################################
 
@@ -583,11 +589,14 @@ if __name__ == '__main__':
 
 		elif (user[0] == "metrics"):
 			# compute level-0 metrics.
-			physmetrics = user[1].split(",")
-			if (submit.complete == 0):
-				ml.ComputePhysicalMetrics(submit, physmetrics, loc = "local")
+			if (len(user) > 1):
+				physmetrics = user[1].split(",")
+				if (submit.complete == 0):
+					ml.ComputePhysicalMetrics(submit, physmetrics, loc = "local")
+				else:
+					ml.ComputePhysicalMetrics(submit, physmetrics, loc = "storage")
 			else:
-				ml.ComputePhysicalMetrics(submit, physmetrics, loc = "storage")
+				print("\033[2mUsage: %s\033[0m" % mannual["metrics"][1])
 
 		#####################################################################
 

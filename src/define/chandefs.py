@@ -1,3 +1,4 @@
+import os
 try:
 	import numpy as np
 	from scipy import linalg as linalg
@@ -25,7 +26,7 @@ def GetKraussForChannel(chType, *params):
 		krauss[0, :, :] = np.array([[1, 0], [0, np.sqrt(1 - params[0])]])
 		krauss[1, :, :] = np.array([[0, np.sqrt(params[0])], [0, 0]])
 
-	elif chType == "bp":
+	elif chType == "bf":
 		# Bit flip channel
 		krauss = np.zeros((2, 2, 2), dtype = np.complex128)
 		krauss[0, :, :] = np.sqrt(1 - params[0]) * np.eye(2)

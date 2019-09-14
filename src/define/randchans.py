@@ -92,6 +92,7 @@ def RandomCPTP(dist, meth):
 		# 3. Haar random unitary
 		# 4. Hypersphere sampling for generating a random Hermitian and then exponetial to determine unitary.
 		# 5. Generating random Pauli amplitudes for X, Y and Z errors, given a probability for no error.
+	# print("RandomCPTP({}, {})".format(dist, meth))
 	availmethods = ["exp", "qr", "haar", "hyps", "pauli"]
 	method = availmethods[meth]
 	if (method == "pauli"):

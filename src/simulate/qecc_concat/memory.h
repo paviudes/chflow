@@ -5,46 +5,46 @@
 
 struct simul_t{
 	// Quantum error correction.
-	char *chname;
-	double **physical;
-	double ***virtchan;
-	double ***logical;
-	double ****process;
-	double *syndprobs;
-	double *cumulative;
-	double *levelOneSynds;
-	double *levelOneCumul;
-	int *corrections;
-	double complex ***effective;
-	double ***effprocess;
-	double ***levelOneChannels;
-	int *frames;
+	char * restrict chname;
+	double ** restrict physical;
+	double *** restrict virtchan;
+	double *** restrict logical;
+	double **** restrict process;
+	double * restrict syndprobs;
+	double * restrict cumulative;
+	double * restrict levelOneSynds;
+	double * restrict levelOneCumul;
+	int * restrict corrections;
+	double complex *** restrict effective;
+	double *** restrict effprocess;
+	double *** restrict levelOneChannels;
+	int * restrict frames;
 	// Metrics.
 	int nmetrics;
-	char **metricsToCompute;
-	double **metricValues;
+	char ** restrict metricsToCompute;
+	double ** restrict metricValues;
 	// Syndrome sampling.
 	long nstats;
 	int nlevels;
 	int maxbin;
 	int importance;
-	double *levelOneImpDist;
-	double *levelOneImpCumul;
+	double * restrict levelOneImpDist;
+	double * restrict levelOneImpCumul;
 	double outlierprobs[2];
-	double **sampling;
-	long *statsperlevel;
+	double ** restrict sampling;
+	long * restrict statsperlevel;
 	int nbins;
-	int ****bins;
-	double **sumsq;
-	double **variance;
+	int **** restrict bins;
+	double ** restrict sumsq;
+	double ** restrict variance;
 	int nbreaks;
-	long *runstats;
-	double **runavg;
+	long * restrict runstats;
+	double ** restrict runavg;
 	double threshold;
 	// Decoder
 	int hybrid;
-	int **decbins;
-	int *ndecbins;
+	int ** restrict decbins;
+	int * restrict ndecbins;
 };
 
 // Initialize the elements that pertain to the montecarlo simulation of channels.

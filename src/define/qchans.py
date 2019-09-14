@@ -108,8 +108,8 @@ def GenChannelsForCalibration(chname, rangeinfo):
 	# Load a set of channels from thier symbolic description as: <channel type> l1,h1,n1;l2,h2,n2;...
 	# where li,hi,ni specify the range of the variable i in the channel.
 	# Store the channels as a 3D array of size (number of channels) x 4 x 4.
-	noiserange = np.array(map(lambda intv: map(np.float, intv.split(",")), rangeinfo.split(";")), dtype = np.float)
-	pvalues = np.array(list(it.product(*map(lambda intv: np.linspace(intv[0], intv[1], int(intv[2])).astype(np.float), noiserange))), dtype = np.float)
+	noiserange = np.array(list(map(lambda intv: list(map(np.float, intv.split(","))), rangeinfo.split(";"))), dtype = np.float)
+	pvalues = np.array(list(it.product(*list(map(lambda intv: np.linspace(intv[0], intv[1], int(intv[2])).astype(np.float), noiserange)))), dtype = np.float)
 	channels = np.zeros((np.prod(noiserange[:, 2], dtype = np.int), 4, 4), dtype = np.complex128)
 	for i in range(channels.shape[0]):
 		channels[i, :, :] = crep.ConvertRepresentations(chdef.GetKraussForChannel(chname, *pvalues[i, :]), "krauss", "choi")
@@ -118,7 +118,7 @@ def GenChannelsForCalibration(chname, rangeinfo):
 
 def Calibrate(chname, rangeinfo, metinfo, xcol = 0, ycol = -1):
 	# Plot various metrics for channels corresponding to a noise model with a range of different parameter values.
-	metrics = map(lambda met: met.strip(" "), metinfo.split(","))
+	metrics = list(map(lambda met: met.strip(" "), metinfo.split(",")))
 	(noiserates, channels) = GenChannelsForCalibration(chname, rangeinfo)
 	ml.GenCalibrationData(chname, channels, noiserates, metrics)
 	if (ycol == -1):
