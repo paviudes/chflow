@@ -383,9 +383,9 @@ def Print(qecc):
 	# IsCanonicalBasis(qecc.S, qecc.L, qecc.T, verbose = 1)
 	print("\033[2m")
 	if (not (qecc.lookup is None)):
-		print(("{:<%d} {:<%d}" % (tab, tab)).format("Look up table", "{:<5} {:<5}".format("s", "L")))
+		print(("{:<%d} {:<%d}" % (tab, tab)).format("Look up table", "{:<5} {:<5} {:<25}".format("s", "L", "R")))
 		for i in range(2**(qecc.N - qecc.K)):
-			print(("{:<%d} {:<%d}" % (tab, tab)).format("", "{:<5} {:<5}".format("%d" % (i), "%s" % (encoding[qecc.lookup[i, 0]]))))
+			print(("{:<%d} {:<%d}" % (tab, tab)).format("", "{:<5} {:<5} {:<25}".format("%d" % (i), "%s" % (encoding[qecc.lookup[i, 0]]), "%s" % (" ".join([encoding[qecc.lookup[i, 2 + j]] for j in range(qecc.N)])))))
 	print("xxxxx\033[0m")
 	return None
 
@@ -585,8 +585,10 @@ def PrepareSyndromeLookUp(qecc):
 	# For every syndrome
 	# 	generate the pure error T
 	# 	find the logical operator L such that (T.L.S) has least weight over all L and for some S.
+	# Each row of the constructed lookup table corresponds to a syndrome outcome.
+		# The row entries are the logical correction, weight of the minimum weight operator and the full minimum weight correction.
 	ordering = np.array([[0, 3], [1, 2]], dtype = np.int8)
-	qecc.lookup = np.zeros((2**(qecc.N - qecc.K), 2), dtype = np.int8)
+	qecc.lookup = np.zeros((2**(qecc.N - qecc.K), 2 + qecc.N), dtype = np.int8)
 	for t in range(2**(qecc.N - qecc.K)):
 		if (t > 0):
 			tgens = np.array(list(map(np.int8, np.binary_repr(t, width = (qecc.N - qecc.K)))), dtype = np.int8)
@@ -613,9 +615,9 @@ def PrepareSyndromeLookUp(qecc):
 				if (weight <= qecc.lookup[t, 1]):
 					qecc.lookup[t, 0] = ordering[lgens[0], lgens[1]]
 					qecc.lookup[t, 1] = weight
+					qecc.lookup[t, 2:] = correction
 		# print("Syndrome %d: %s\n\tPure error\n\t%s\n\tCorrection\n\t%s" % (i, np.array_str(combTGens), np.array_str(pureError), np.array_str(recoveries[i])))
 	return None
-
 
 def GenerateGroup(gens):
 	group = np.zeros(2**gens.shape[0], gens.shape[1], dtype = np.int8)

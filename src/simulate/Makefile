@@ -12,50 +12,51 @@ LIBS_MKL = -L${MKLROOT}/lib -Wl,-rpath,${MKLROOT}/lib -lmkl_rt -lpthread -lm -ld
 LDFLAGS = -shared
 RM = rm
 TARGET = bmark.so
+SRC_DIR = qecc_concat
 
 $(shell mkdir -p obj/)
 
 $(TARGET):obj/main.o obj/sampling.o obj/constants.o obj/printfuns.o obj/mt19937ar.o obj/checks.o obj/logmetrics.o obj/memory.o obj/qecc.o obj/effective.o obj/benchmark.o obj/hybrid.o obj/linalg.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $(LIBS) -o $(TARGET) obj/main.o obj/sampling.o obj/constants.o obj/printfuns.o obj/mt19937ar.o obj/logmetrics.o obj/checks.o obj/memory.o obj/qecc.o obj/effective.o obj/benchmark.o obj/hybrid.o $(LIBS_MKL) obj/linalg.o
 
-obj/main.o: backend/main.c Makefile
-	$(CC) $(CFLAGS) -c backend/main.c -o obj/main.o
+obj/main.o: $(SRC_DIR)/main.c Makefile
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/main.c -o obj/main.o
 
-obj/mt19937ar.o: backend/mt19937/mt19937ar.c backend/mt19937/mt19937ar.h Makefile
-	$(CC) $(CFLAGS) -c backend/mt19937/mt19937ar.c -o obj/mt19937ar.o
+obj/mt19937ar.o: $(SRC_DIR)/mt19937/mt19937ar.c $(SRC_DIR)/mt19937/mt19937ar.h Makefile
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/mt19937/mt19937ar.c -o obj/mt19937ar.o
 
-obj/linalg.o: backend/linalg.c backend/linalg.h Makefile
-	$(CC) $(CFLAGS) $(CFLAGS_MKL) -c backend/linalg.c -o obj/linalg.o
+obj/linalg.o: $(SRC_DIR)/linalg.c $(SRC_DIR)/linalg.h Makefile
+	$(CC) $(CFLAGS) $(CFLAGS_MKL) -c $(SRC_DIR)/linalg.c -o obj/linalg.o
 
-obj/benchmark.o: backend/benchmark.c backend/benchmark.h Makefile
-	$(CC) $(CFLAGS) -c backend/benchmark.c -o obj/benchmark.o
+obj/benchmark.o: $(SRC_DIR)/benchmark.c $(SRC_DIR)/benchmark.h Makefile
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/benchmark.c -o obj/benchmark.o
 
-obj/hybrid.o: backend/hybrid.c backend/hybrid.h Makefile
-	$(CC) $(CFLAGS) -c backend/hybrid.c -o obj/hybrid.o
+obj/hybrid.o: $(SRC_DIR)/hybrid.c $(SRC_DIR)/hybrid.h Makefile
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/hybrid.c -o obj/hybrid.o
 
-obj/effective.o: backend/effective.c backend/effective.h Makefile
-	$(CC) $(CFLAGS) -c backend/effective.c -o obj/effective.o
+obj/effective.o: $(SRC_DIR)/effective.c $(SRC_DIR)/effective.h Makefile
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/effective.c -o obj/effective.o
 
-obj/memory.o: backend/memory.c backend/memory.h Makefile
-	$(CC) $(CFLAGS) -c backend/memory.c -o obj/memory.o
+obj/memory.o: $(SRC_DIR)/memory.c $(SRC_DIR)/memory.h Makefile
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/memory.c -o obj/memory.o
 
-obj/qecc.o: backend/qecc.c backend/qecc.h Makefile
-	$(CC) $(CFLAGS) -c backend/qecc.c -o obj/qecc.o
+obj/qecc.o: $(SRC_DIR)/qecc.c $(SRC_DIR)/qecc.h Makefile
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/qecc.c -o obj/qecc.o
 
-obj/logmetrics.o: backend/logmetrics.c backend/logmetrics.h Makefile
-	$(CC) $(CFLAGS) -c backend/logmetrics.c -o obj/logmetrics.o
+obj/logmetrics.o: $(SRC_DIR)/logmetrics.c $(SRC_DIR)/logmetrics.h Makefile
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/logmetrics.c -o obj/logmetrics.o
 
-obj/checks.o: backend/checks.c backend/checks.h Makefile
-	$(CC) $(CFLAGS) -c backend/checks.c -o obj/checks.o
+obj/checks.o: $(SRC_DIR)/checks.c $(SRC_DIR)/checks.h Makefile
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/checks.c -o obj/checks.o
 
-obj/printfuns.o: backend/printfuns.c backend/printfuns.h Makefile
-	$(CC) $(CFLAGS) -c backend/printfuns.c -o obj/printfuns.o
+obj/printfuns.o: $(SRC_DIR)/printfuns.c $(SRC_DIR)/printfuns.h Makefile
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/printfuns.c -o obj/printfuns.o
 
-obj/constants.o: backend/constants.c backend/constants.h Makefile
-	$(CC) $(CFLAGS) -c backend/constants.c -o obj/constants.o
+obj/constants.o: $(SRC_DIR)/constants.c $(SRC_DIR)/constants.h Makefile
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/constants.c -o obj/constants.o
 
-obj/sampling.o: backend/sampling.c backend/sampling.h Makefile
-	$(CC) $(CFLAGS) -c backend/sampling.c -o obj/sampling.o
+obj/sampling.o: $(SRC_DIR)/sampling.c $(SRC_DIR)/sampling.h Makefile
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/sampling.c -o obj/sampling.o
 
 clean:
 	$(RM) $(TARGET) obj/main.o obj/sampling.o obj/constants.o obj/printfuns.o obj/mt19937ar.o obj/checks.o obj/logmetrics.o obj/memory.o obj/qecc.o obj/effective.o obj/benchmark.o obj/hybrid.o obj/linalg.o
