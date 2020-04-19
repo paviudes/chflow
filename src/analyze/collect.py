@@ -34,6 +34,26 @@ def IsComplete(submit):
 		print("\033[2mSimulation data is available for %d%% of the channels.\033[0m" % (submit.complete))
 	return submit.complete
 
+def CollectPhysicalChannels(submit):
+	"""
+	Get the physical channels for a database.
+	"""
+	if submit.iscorr == 0:
+		nparams = 4 ** submit.eccs[0].K * 4 ** submit.eccs[0].K
+	else:
+		submit.rawchans = np.zeros((submit.noiserates.shape[0], submit.samps, 4 ** submit.eccs[0].N), dtype=np.longdouble)
+		nparams = 2 ** (submit.eccs[0].N + submit.eccs[0].K)
+
+	submit.phychans = np.zeros(
+		(submit.noiserates.shape[0], submit.samps, nparams), dtype=np.longdouble
+	)
+	for i in range(submit.noiserates.shape[0]):
+		(folder, fname) = os.path.split(fn.PhysicalChannel(submit, submit.noiserates[i]))
+		if (os.path.isfile("%s/%s" % (folder, fname)) == 1):
+			submit.phychans[i, :, :] = np.load("%s/%s" % (folder, fname))
+			if submit.iscorr == 1:
+				submit.rawchans[i, :, :] = np.load("%s/raw_%s" % (folder, fname))
+	return None
 
 def GatherLogErrData(submit):
 	# Gather the logical error rates data from all completed simulations and save as a 2D array in a file.
