@@ -75,6 +75,8 @@ class Submission:
         self.isAdvanced = 0
         # Plot settings -- color, marker, linestyle
         self.plotsettings = {"color": "k", "marker": "o", "linestyle": "--"}
+        # Randomized compiling of quantum gates
+        self.rc = 0
 
 
 def IsNumber(numorstr):
@@ -148,6 +150,9 @@ def Update(submit, pname, newvalue):
         submit.channel = newvalue
         if submit.channel in ["pcorr"]:
             submit.iscorr = 1
+
+    elif pname == "rc":
+        submit.rc = int(newvalue)
 
     elif pname == "repr":
         submit.repr = newvalue
@@ -291,7 +296,7 @@ def Update(submit, pname, newvalue):
         settings_info = [sg.split(",") for sg in newvalue.split(";")]
         for i in range(len(settings_info)):
             if settings_info[i][0] not in submit.plotsettings:
-                submit.plotsettings.update({settings_info[i][0]:None})
+                submit.plotsettings.update({settings_info[i][0]: None})
             submit.plotsettings[settings_info[i][0]] = settings_info[i][1].strip(" ")
     else:
         pass
@@ -635,6 +640,8 @@ def Save(submit):
             "# Output result's directory.\noutdir %s\n"
             % (os.path.dirname(submit.outdir))
         )
+        # Ranodmized compiling of quantum gates
+        infid.write("# Randomized compiling of quantum gates.\nrc %d\n" % (submit.rc))
     # Append the content of the input file to the log file.
     if os.path.isfile("bqsubmit.dat"):
         os.system(
@@ -650,6 +657,8 @@ def Save(submit):
                 % (submit.timestamp, submit.inputfile)
             )
         )
+    # Save the physical channels
+    SavePhysicalChannels(submit)
     return None
 
 
@@ -690,7 +699,8 @@ def LoadSub(submit, subid, isgen):
                 if line[0] == "#":
                     pass
                 else:
-                    (variable, value) = line.strip("\n").strip(" ").split(" ")
+                    linecontents = line.strip("\n").strip(" ").split(" ")
+                    (variable, value) = (linecontents[0], " ".join(linecontents[1:]))
                     Update(
                         submit,
                         variable.strip("\n").strip(" "),

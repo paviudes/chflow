@@ -42,3 +42,5 @@ queue X
 email X
 # Output result's directory.
 outdir /Users/pavi/Documents/chbank
+# Custom plot settings
+plot xlabel,Physical noise strength;ylabel,Logical infidelity

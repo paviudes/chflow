@@ -1,178 +1,221 @@
 def SubmissionInputs(timestamp):
-	# Name of the file containing the submission input
-	fname = ("./../input/%s.txt" % (timestamp))
-	return fname
+    # Name of the file containing the submission input
+    fname = "./../input/%s.txt" % (timestamp)
+    return fname
+
 
 def SubmissionSchedule(timestamp):
-	# Name of the file containing the submission parameters schedule
-	fname = ("./../input/schedule_%s.txt" % (timestamp))
-	return fname
+    # Name of the file containing the submission parameters schedule
+    fname = "./../input/schedule_%s.txt" % (timestamp)
+    return fname
+
 
 def DecoderBins(dbs, noise, sample):
-	# Name of the file containing the physical channel
-	noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
-	fname = ("%s/channels/decbins_%s_s%d.txt" % (dbs.outdir, noisedes, sample))
-	return fname
+    # Name of the file containing the physical channel
+    noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
+    fname = "%s/channels/decbins_%s_s%d.txt" % (dbs.outdir, noisedes, sample)
+    return fname
+
 
 def PhysicalChannel(dbs, noise):
-	# Name of the file containing the physical channel
-	noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
-	fname = ("%s/physical/%s_%s.npy" % (dbs.outdir, dbs.channel, noisedes))
-	return fname
+    # Name of the file containing the physical channel
+    noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
+    fname = "%s/physical/%s_%s.npy" % (dbs.outdir, dbs.channel, noisedes)
+    return fname
+
 
 def OutputDirectory(path, dbs):
-	# Directory containing the simulation results
-	dirname = ("%s/%s" % (path, dbs.timestamp))
-	return dirname
+    # Directory containing the simulation results
+    dirname = "%s/%s" % (path, dbs.timestamp)
+    return dirname
+
 
 def LogicalChannel(dbs, noise, samp):
-	# File containing the logical channels
-	noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
-	fname = ("%s/channels/logchan_%s_s%d.npy" % (dbs.outdir, noisedes, samp))
-	return fname
+    # File containing the logical channels
+    noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
+    fname = "%s/channels/logchan_%s_s%d.npy" % (dbs.outdir, noisedes, samp)
+    return fname
+
 
 def LogChanVariance(dbs, noise, samp):
-	# File containing the logical channels
-	noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
-	fname = ("%s/channels/chanvar_%s_s%d.npy" % (dbs.outdir, noisedes, samp))
-	return fname
+    # File containing the logical channels
+    noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
+    fname = "%s/channels/chanvar_%s_s%d.npy" % (dbs.outdir, noisedes, samp)
+    return fname
 
-def LogicalErrorRate(dbs, noise, samp, metric):
-	# File containing the logical error rates for a given physical channel and logical metric.
-	noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
-	fname = ("%s/metrics/%s_%s_s%d.npy" % (dbs.outdir, metric, noisedes, samp))
-	return fname
+
+def LogicalErrorRate(dbs, noise, samp, metric, average=0):
+    # File containing the logical error rates for a given physical channel and logical metric.
+    noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
+    if average == 0:
+        fname = "%s/metrics/%s_%s_s%d.npy" % (dbs.outdir, metric, noisedes, samp)
+    else:
+        fname = "%s/metrics/ave_%s_%s_s%d.npy" % (dbs.outdir, metric, noisedes, samp)
+    return fname
+
 
 def LogErrVariance(dbs, noise, samp, metric):
-	# File containing the logical error rates for a given physical channel and logical metric.
-	noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
-	fname = ("%s/metrics/var_%s_%s_s%d.npy" % (dbs.outdir, metric, noisedes, samp))
-	return fname
+    # File containing the logical error rates for a given physical channel and logical metric.
+    noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
+    fname = "%s/metrics/var_%s_%s_s%d.npy" % (dbs.outdir, metric, noisedes, samp)
+    return fname
+
 
 def SyndromeBins(dbs, noise, samp, metric):
-	# File containing the syndrome-metric bins.
-	noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
-	fname = ("%s/metrics/bins_%s_%s_s%d.npy" % (dbs.outdir, metric, noisedes, samp))
-	return fname
+    # File containing the syndrome-metric bins.
+    noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
+    fname = "%s/metrics/bins_%s_%s_s%d.npy" % (dbs.outdir, metric, noisedes, samp)
+    return fname
 
-def LogicalErrorRates(dbs, metric, fmt = "npy"):
-	# File containing all the logical error rates for the physical channels in the database
-	fname = ("%s/results/log_%s.%s" % (dbs.outdir, metric, fmt))
-	return fname
+
+def LogicalErrorRates(dbs, metric, fmt="npy"):
+    # File containing all the logical error rates for the physical channels in the database
+    fname = "%s/results/log_%s.%s" % (dbs.outdir, metric, fmt)
+    return fname
+
 
 def PhysicalErrorRates(dbs, metric):
-	# File containing all the logical error rates for the physical channels in the database
-	fname = ("%s/results/phy_%s.npy" % (dbs.outdir, metric))
-	return fname
+    # File containing all the logical error rates for the physical channels in the database
+    fname = "%s/results/phy_%s.npy" % (dbs.outdir, metric)
+    return fname
+
 
 def ThreshPlot(submit, pmet, lmet):
-	# File containing the plots of the logical error rate
-	fname = ("%s/results/thresh_%s_vs_%s.pdf" % (submit.outdir, lmet, pmet))
-	return fname
+    # File containing the plots of the logical error rate
+    fname = "%s/results/thresh_%s_vs_%s.pdf" % (submit.outdir, lmet, pmet)
+    return fname
+
 
 def LevelWise(submit, pmet, lmet):
-	# File containing the plots of the logical error rate
-	fname = ("%s/results/%s_vs_%s.pdf" % (submit.outdir, lmet, pmet))
-	return fname
+    # File containing the plots of the logical error rate
+    fname = "%s/results/%s_vs_%s.pdf" % (submit.outdir, lmet, pmet)
+    return fname
+
 
 def CompareLogErrRates(dbses, lmet):
-	# File containing the plot of comparing the logical error rates from two (or more) submission records.
-	fname = ("%s/results/compare_%s_%s.pdf" % (dbses[0].outdir, "_".join([dbses[i].timestamp for i in range(1, len(dbses))])))
-	return fname
+    # File containing the plot of comparing the logical error rates from two (or more) submission records.
+    fname = "%s/results/compare_%s_%s.pdf" % (
+        dbses[0].outdir,
+        "_".join([dbses[i].timestamp for i in range(1, len(dbses))]),
+    )
+    return fname
+
 
 def CalibrationData(chname, metric):
-	# File containing the data for calibrating a channel with a particular output metric.
-	fname = ("./../temp/calib_%s_%s.txt" % (chname, metric))
-	return fname
+    # File containing the data for calibrating a channel with a particular output metric.
+    fname = "./../temp/calib_%s_%s.txt" % (chname, metric)
+    return fname
+
 
 def CalibrationPlot(chname, metric):
-	# File containing the data for calibrating a channel with a particular output metric.
-	fname = ("./../temp/calib_%s_%s.pdf" % (chname, metric))
-	return fname
+    # File containing the data for calibrating a channel with a particular output metric.
+    fname = "./../temp/calib_%s_%s.pdf" % (chname, metric)
+    return fname
+
 
 def FitPhysRates(dbs, lmet):
-	# File containing the fit obtained physical error rates
-	fname = ("%s/results/pfit_%s.npy" % (dbs.outdir, lmet))
-	return fname
+    # File containing the fit obtained physical error rates
+    fname = "%s/results/pfit_%s.npy" % (dbs.outdir, lmet)
+    return fname
+
 
 def FitWtEnums(dbs, lmet):
-	# File containing the fit obtained weight enumerator coefficients (combinatorial factors)
-	fname = ("%s/results/wefit_%s.npy" % (dbs.outdir, lmet))
-	return fname
+    # File containing the fit obtained weight enumerator coefficients (combinatorial factors)
+    fname = "%s/results/wefit_%s.npy" % (dbs.outdir, lmet)
+    return fname
+
 
 def FitExpo(dbs, lmet):
-	# File containing the fit obtained exponents for the physical error rate
-	fname = ("%s/results/expofit_%s.npy" % (dbs.outdir, lmet))
-	return fname
+    # File containing the fit obtained exponents for the physical error rate
+    fname = "%s/results/expofit_%s.npy" % (dbs.outdir, lmet)
+    return fname
+
 
 def AnsatzComparePlot(dbs, lmet, pmet):
-	# File containing the plot comparing physical error metric with a fit obtained error metric
-	fname = ("%s/results/%s_fit_vs_%s.pdf" % (dbs.outdir, pmet, lmet))
-	return fname
+    # File containing the plot comparing physical error metric with a fit obtained error metric
+    fname = "%s/results/%s_fit_vs_%s.pdf" % (dbs.outdir, pmet, lmet)
+    return fname
+
 
 def TrainingSet(dbs):
-	# File containing the training set -- physical channel parameters with the fit error rates
-	fname = ("%s/results/mltrain.npy" % (dbs.outdir))
-	return fname
+    # File containing the training set -- physical channel parameters with the fit error rates
+    fname = "%s/results/mltrain.npy" % (dbs.outdir)
+    return fname
+
 
 def TestingSet(dbs):
-	# File containing the testing set -- physical channel parameters
-	fname = ("%s/results/mltest.npy" % (dbs.outdir))
-	return fname
+    # File containing the testing set -- physical channel parameters
+    fname = "%s/results/mltest.npy" % (dbs.outdir)
+    return fname
+
 
 def PredictedPhyRates(dbs):
-	# File containing the predictions of the physical error rates
-	fname = ("%s/results/pred.npy" % (dbs.outdir))
-	return fname
+    # File containing the predictions of the physical error rates
+    fname = "%s/results/pred.npy" % (dbs.outdir)
+    return fname
+
 
 def PredictComparePlot(dbs, lmet, pmet):
-	# File containing the comparisons between the machine learnt metric and a standard metric -- by studying both their correlations with the logical error rate.
-	fname = ("%s/results/val_%s_vs_%s.pdf" % (dbs.outdir, pmet, lmet))
-	return fname
+    # File containing the comparisons between the machine learnt metric and a standard metric -- by studying both their correlations with the logical error rate.
+    fname = "%s/results/val_%s_vs_%s.pdf" % (dbs.outdir, pmet, lmet)
+    return fname
+
 
 def RFECVRankings(dbs, deg):
-	# File containing the Regression rankings
-	fname = ("%s/results/rfecv_%d.npy" % (dbs.outdir, deg))
-	return fname
+    # File containing the Regression rankings
+    fname = "%s/results/rfecv_%d.npy" % (dbs.outdir, deg)
+    return fname
+
 
 def MCStatsPlot(dbs, lmet, pmet):
-	# File containing the plot of average logical error rate with different syndrome samples
-	fname = ("%s/results/mcplot_%s_%s.pdf" % (dbs.outdir, pmet, lmet))
-	return fname
+    # File containing the plot of average logical error rate with different syndrome samples
+    fname = "%s/results/mcplot_%s_%s.pdf" % (dbs.outdir, pmet, lmet)
+    return fname
+
 
 def RunningAverageCh(dbs, noise, samp, metric):
-	# File containing the data for running averages for top level metric values for a specific channel.
-	noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
-	fname = ("%s/metrics/running_%s_%s_s%d.npy" % (dbs.outdir, metric, noisedes, samp))
-	return fname
+    # File containing the data for running averages for top level metric values for a specific channel.
+    noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
+    fname = "%s/metrics/running_%s_%s_s%d.npy" % (dbs.outdir, metric, noisedes, samp)
+    return fname
+
 
 def RunningAverages(dbs, lmet):
-	# File containing the data for running averages of top level metrics for all channels
-	fname = ("%s/results/runavg_%s.npy" % (dbs.outdir, lmet))
-	return fname
+    # File containing the data for running averages of top level metrics for all channels
+    fname = "%s/results/runavg_%s.npy" % (dbs.outdir, lmet)
+    return fname
+
 
 def SyndromeBinsPlot(dbs, lmet, pvals):
-	# File containing the plot of syndrome bins for specific logical error metric and physical error rate.
-	if (pvals == -1):
-		fname = ("%s/results/bplot_%s_all.pdf" % (dbs.outdir, lmet))	
-	else:
-		fname = ("%s/results/bplot_%s_%s.pdf" % (dbs.outdir, lmet, "_".join(map(str, pvals))))
-	return fname
+    # File containing the plot of syndrome bins for specific logical error metric and physical error rate.
+    if pvals == -1:
+        fname = "%s/results/bplot_%s_all.pdf" % (dbs.outdir, lmet)
+    else:
+        fname = "%s/results/bplot_%s_%s.pdf" % (
+            dbs.outdir,
+            lmet,
+            "_".join(map(str, pvals)),
+        )
+    return fname
+
 
 def VarianceBins(dbs, lmet, pmet):
-	# File containing the bar plot of variance in each bin of a scatter plot.
-	fname = ("%s/results/scatbins_%s_%s.pdf" % (dbs.outdir, str(pmet), lmet))
-	return fname
+    # File containing the bar plot of variance in each bin of a scatter plot.
+    fname = "%s/results/scatbins_%s_%s.pdf" % (dbs.outdir, str(pmet), lmet)
+    return fname
+
 
 def CompressionMatrix(dbs, lmet, level):
-	# File containing the compression matrix.
-	fname = ("%s/results/compmat_%s_l%d.npy" % (dbs.outdir, lmet, level))
-	return fname
+    # File containing the compression matrix.
+    fname = "%s/results/compmat_%s_l%d.npy" % (dbs.outdir, lmet, level)
+    return fname
+
 
 def CompressedParams(dbs, lmet, level):
-	# File containing the compression matrix.
-	fname = ("%s/results/compressed_%s_l%d.npy" % (dbs.outdir, lmet, level))
-	return fname
+    # File containing the compression matrix.
+    fname = "%s/results/compressed_%s_l%d.npy" % (dbs.outdir, lmet, level)
+    return fname
+
 
 # =====================================================================================================================================
 
@@ -197,7 +240,7 @@ def CompressedParams(dbs, lmet, level):
 # 	if (isAveraged == 0):
 # 		fname = ("%s/channels/%s_DB_%g_%d_%d_s%d.npy" % (dbsObj.dirname, dbsObj.pertType, noise, dbsObj.nStats, dbsObj.nLevels, sampIndex))
 # 	else:
-# 		fname = ("%s/channels/%s_ave_DB_%g_%d_%d_s%d.npy" % (dbsObj.dirname, dbsObj.pertType, noise, dbsObj.nStats, dbsObj.nLevels, sampIndex))	
+# 		fname = ("%s/channels/%s_ave_DB_%g_%d_%d_s%d.npy" % (dbsObj.dirname, dbsObj.pertType, noise, dbsObj.nStats, dbsObj.nLevels, sampIndex))
 # 	return fname
 
 # def DatabaseDir(dbsObj):
@@ -328,7 +371,7 @@ def CompressedParams(dbs, lmet, level):
 # def MetricHistogramData(dbsObj, metName, noiseRateExp, sampIndex, li):
 # 	# File containing the metric values of all the logical channels, at a given level.
 # 	fname = ("%s/metrics/hist_%s_%s_%g_%d_l%d_s%d.npy" % (dbsObj.dirname, dbsObj.pertType, metName, noiseRateExp, dbsObj.nStats, li, sampIndex))
-# 	return fname 
+# 	return fname
 
 # def HistogramPlot(dbsObj, metName, noiseRateExp):
 # 	# File containing the Histogram plots (for each of the levels) showing the number of channels for every window of the logical metric

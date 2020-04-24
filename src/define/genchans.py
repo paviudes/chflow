@@ -44,7 +44,7 @@ def ChannelPair(chtype, rates, dim, method="qr"):
     return channels
 
 
-def PreparePhysicalChannels(submit, nproc=8):
+def PreparePhysicalChannels(submit, nproc=1):
     # Prepare a file for each noise rate, that contains all single qubit channels, one for each sample.
     nproc = min(nproc, mp.cpu_count())
     chunk = int(np.ceil(submit.samps / nproc))

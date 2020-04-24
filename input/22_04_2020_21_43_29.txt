@@ -1,33 +1,33 @@
 # Time stamp
-timestamp 16_04_2020_18_29_34
+timestamp 22_04_2020_21_43_29
 # Type of quantum error correcting code
-ecc Steane,Steane,Steane
+ecc Steane,Steane
 # Type of quantum channel
-channel pcorr
+channel rand
 # Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
 repr process
 # Noise rate exponents. The actual noise rate is (2/3)^exponent.
-noiserange 0.05,0.25,11
+noiserange 5,5,1;1,1,1
 # Scales of noise range.
-scale 1.0,1.0
+scale 0.66,1.0
 # Number of samples
-samples 1000
+samples 1
 # Parameters schedule
-scheduler ./../input/schedule_16_04_2020_18_29_34.txt
+scheduler ./../input/schedule_22_04_2020_21_43_29.txt
 # Decoder to be used -- 0 for soft decoding and 1 for hybrid decoding.
 hybrid 0
 # Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
 frame P
 # Number of syndromes to be sampled at top level
-stats [1000]
+stats [100]
 # Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
 importance Direct
 # Metrics to be computed on the effective channels at every level.
 metrics infid
 # Load distribution on cores.
-cores 8,1
+cores 1,1
 # Number of nodes
-nodes 1375
+nodes 1
 # Name of the host computer.
 host local
 # Name of the account.
@@ -42,5 +42,3 @@ queue X
 email X
 # Output result's directory.
 outdir /Users/pavi/Documents/chbank
-# Custom plot settings
-plot xlabel,Physical noise strength;ylabel,Logical infidelity

@@ -4,7 +4,7 @@ import numpy as np
 from numpy.ctypeslib import ndpointer
 from define import fnames as fn
 
-DEBUG = 0
+DEBUG = 1
 
 
 def GetBMOutput(nlevels, nmetrics, nlogs, nbins, nbreaks):
@@ -174,6 +174,7 @@ def Benchmark(submit, noise, sample, physical, refchan):
             submit.channel,
             iscorr,
             physical.astype(np.float64).ravel(),
+            submit.rc,
             nmetrics,
             metrics,
             submit.hybrid,
@@ -199,6 +200,7 @@ def Benchmark(submit, noise, sample, physical, refchan):
         ctypes.POINTER(ctypes.c_char),  # chname
         ctypes.c_int,  # iscorr
         ndpointer(dtype=np.float64, ndim=1, flags="C_CONTIGUOUS"),  # physical
+        ctypes.c_int,
         ctypes.c_int,  # nmetrics
         ctypes.c_char_p * nmetrics,  # metrics
         ctypes.c_int,  # hybrid
@@ -227,6 +229,7 @@ def Benchmark(submit, noise, sample, physical, refchan):
         ctypes.c_char_p(submit.channel.encode("utf-8")),  # arg 7
         iscorr,
         physical.astype(np.float64).ravel(),  # arg 8
+        submit.rc,
         nmetrics,  # arg 9
         metrics,  # arg 10
         submit.hybrid,  # arg 11
@@ -329,6 +332,7 @@ def SaveBenchmarkInput(
     channel,
     iscorr,
     physical,
+    rc,
     nmetrics,
     metrics,
     hybrid,
@@ -367,7 +371,7 @@ def SaveBenchmarkInput(
         newline=" ",
     )
     np.savetxt(
-        "%s/physical.txt" % (outdir), physical, fmt="%g", delimiter=" ", newline=" "
+        "%s/physical.txt" % (outdir), physical, fmt="%.4f", delimiter=" ", newline=" "
     )
     np.savetxt("%s/stats.txt" % (outdir), stats, fmt="%d", delimiter=" ", newline=" ")
     return None

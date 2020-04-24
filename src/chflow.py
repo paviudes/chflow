@@ -78,6 +78,7 @@ def RemoteExecution(timestamp, node):
     # If no node information is specified, then simulate all nodes in serial.
     # Else simulate only the given node.
     if node > -1:
+        print("Running local simulations")
         sim.LocalSimulations(submit, node)
     else:
         for i in range(submit.nodes):
@@ -87,11 +88,11 @@ def RemoteExecution(timestamp, node):
 
 if __name__ == "__main__":
     # This is the starting point for the "chflow" shell command.
-    avchreps = map(
-        lambda rep: ('"%s"' % (rep)), ["krauss", "choi", "chi", "process", "stine"]
+    avchreps = list(
+        map(lambda rep: ('"%s"' % (rep)), ["krauss", "choi", "chi", "process", "stine"])
     )
-    avmets = map(lambda met: '"%s"' % (met), ml.Metrics.keys())
-    avch = map(lambda chan: '"%s"' % (chan), qc.Channels.keys())
+    avmets = list(map(lambda met: '"%s"' % (met), ml.Metrics.keys()))
+    avch = list(map(lambda chan: '"%s"' % (chan), qc.Channels.keys()))
     mannual = {
         "qcode": [
             "Load a quantum error correcting code.",
@@ -158,9 +159,14 @@ if __name__ == "__main__":
             "No parameters.",
         ],
         "sbsave": ["Save the current simulation parameters.", "No parameters."],
-        "metrics": [
+        "pmetrics": [
             "Compute metrics for the physical channels in the current submission.",
-            "metrics m1(string)[,m2(string),m3(string),...]\nwhere m1,m2,... should be one of %s."
+            "pmetrics m1(string)[,m2(string),m3(string),...]\nwhere m1,m2,... should be one of %s."
+            % (avmets),
+        ],
+        "lmetrics": [
+            "Compute metrics for the average logical channels (for all levels) in the current submission.",
+            "lmetrics m1(string)[,m2(string),m3(string),...]\nwhere m1,m2,... should be one of %s."
             % (avmets),
         ],
         "threshold": [
@@ -369,7 +375,9 @@ if __name__ == "__main__":
             metrics = user[1].split(",")
             if not (rep == "choi"):
                 metvals = ml.ComputeNorms(
-                    crep.ConvertRepresentations(channel, rep, "choi"), metrics, {"qcode": qeccode}
+                    crep.ConvertRepresentations(channel, rep, "choi"),
+                    metrics,
+                    {"qcode": qeccode},
                 )
             else:
                 metvals = ml.ComputeNorms(channel, metrics, {"qcode": qeccode})
@@ -430,10 +438,26 @@ if __name__ == "__main__":
             if exists == 1:
                 if len(submit.scales) == 0:
                     submit.scales = [1 for __ in range(submit.noiserates.shape[1])]
-                # Generate new physical channels if needed
                 cl.IsComplete(submit)
-                if submit.complete == 0:
+                # Generate new physical channels if needed
+                reuse = 1
+                for i in range(submit.noiserates.shape[0]):
+                    if reuse == 1:
+                        if not os.path.isfile(
+                            fn.PhysicalChannel(submit, submit.noiserates[i, :])
+                        ):
+                            reuse = 0
+                if reuse == 0:
+                    print("Physical channels not found")
                     chgen.PreparePhysicalChannels(submit)
+                else:
+                    submit.nodes = int(
+                        np.ceil(
+                            submit.noiserates.shape[0]
+                            * submit.samps
+                            / np.longdouble(submit.cores[0])
+                        )
+                    )
                 # else:
                 # 	# prepare the set of parameters
                 # 	submit.params = np.zeros((submit.noiserates.shape[0] * submit.samps, submit.noiserates.shape[1] + 1), dtype = np.longdouble)
@@ -729,16 +753,27 @@ if __name__ == "__main__":
 
         #####################################################################
 
-        elif user[0] == "metrics":
+        elif user[0] == "sbtwirl":
+            crep.TwirlChannels(submit)
+
+        #####################################################################
+
+        elif user[0] == "pmetrics":
             # compute level-0 metrics.
             if len(user) > 1:
                 physmetrics = user[1].split(",")
-                if submit.complete == 0:
-                    ml.ComputePhysicalMetrics(submit, physmetrics, loc="local")
-                else:
-                    ml.ComputePhysicalMetrics(submit, physmetrics, loc="storage")
+                ml.ComputeMetrics(submit, physmetrics, chtype="physical")
             else:
-                print("\033[2mUsage: %s\033[0m" % mannual["metrics"][1])
+                print("\033[2mUsage: %s\033[0m" % mannual["pmetrics"][1])
+        #####################################################################
+
+        elif user[0] == "lmetrics":
+            # compute metrics of the average logical channel.
+            if len(user) > 1:
+                logmetrics = user[1].split(",")
+                ml.ComputeMetrics(submit, logmetrics, chtype="logical")
+            else:
+                print("\033[2mUsage: %s\033[0m" % mannual["lmetrics"][1])
 
         #####################################################################
 

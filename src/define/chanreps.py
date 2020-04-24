@@ -8,6 +8,7 @@ except:
     pass
 import ctypes as ct
 import multiprocessing as mp
+from define import fnames as fn
 from define import globalvars as gv
 from define import qcode as qc
 
@@ -364,4 +365,22 @@ def GetTransferMatrixElements(logidx, pauliprobs, qcode, ptm):
             pauliprobs[indices["anticommuting"]]
         )
     print("\033[0m")
+    return None
+
+
+def TwirlChannels(submit):
+    r"""
+    Twirl all the channels in a database, in place.
+    """
+    submit.phychans = np.zeros(
+        (submit.noiserates.shape[0], submit.samps, 4 ** (2 * submit.eccs[0].K)),
+        dtype=np.double,
+    )
+    for i in range(submit.noiserates.shape[0]):
+        chans = np.load(fn.PhysicalChannel(submit, submit.noiserates[i, :]))
+        for j in range(submit.samps):
+            submit.phychans[i, j, :] = (
+                chans[j, :] * np.eye(4 ** submit.eccs[0].K, dtype=np.int).ravel()
+            )
+
     return None

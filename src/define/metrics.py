@@ -234,13 +234,20 @@ def Infidelity(choi, kwargs):
     # Compute the Fidelity between the input channel and the identity channel.
     # For independent errors, the single qubit channel must be in the Choi matrix representation.
     # For correlated Pauli channel, the channel is represented as a vector of diagonal elements of the respective Pauli trnsfer matrix.
-    if kwargs["corr"] == 0:
-        fidelity = (1 / np.longdouble(2)) * np.longdouble(
-            np.real(choi[0, 0] + choi[3, 0] + choi[0, 3] + choi[3, 3])
-        )
+    if kwargs["chtype"] == "physical":
+        if kwargs["corr"] == 0:
+            fidelity = (1 / np.longdouble(2)) * np.longdouble(
+                np.real(choi[0, 0] + choi[3, 0] + choi[0, 3] + choi[3, 3])
+            )
+        else:
+            fidelity = choi[0]
+        # print("Infidelity for\n%s\n is %g." % (np.array_str(choi), 1 - fidelity))
     else:
-        fidelity = choi[0]
-    # print("Infidelity for\n%s\n is %g." % (np.array_str(choi), 1 - fidelity))
+        fidelity = np.zeros(choi.shape[0], dtype=np.double)
+        for l in range(choi.shape[0]):
+            fidelity[l] = (1 / np.longdouble(2)) * np.longdouble(
+                np.real(choi[l, 0, 0] + choi[l, 3, 0] + choi[l, 0, 3] + choi[l, 3, 3])
+            )
     return 1 - fidelity
 
 
@@ -248,7 +255,14 @@ def TraceNorm(choi, kwargs):
     # Compute the trace norm of the difference between the input Choi matrix and the Choi matrix corresponding to the Identity channel
     # trace norm of A is defined as: Trace(Sqrt(A^\dagger . A))
     # https://quantiki.org/wiki/trace-norm
-    trnorm = np.linalg.norm((choi - gv.bell[0, :, :]).astype(np.complex), ord="nuc")
+    if kwargs["chtype"] == "physical":
+        trnorm = np.linalg.norm((choi - gv.bell[0, :, :]).astype(np.complex), ord="nuc")
+    else:
+        trnorm = np.zeros(choi.shape[0], dtype=np.double)
+        for l in range(choi.shape[0]):
+            trnorm[l] = np.linalg.norm(
+                (choi[l, :, :] - gv.bell[0, :, :]).astype(np.complex), ord="nuc"
+            )
     return trnorm
 
 
@@ -432,56 +446,93 @@ def ComputeNorms(channel, metrics, **kwargs):
     return mets
 
 
-def ChannelMetrics(submit, physmetrics, start, end, results, rep):
+def ChannelMetrics(submit, metrics, start, end, results, rep, chtype):
     # Compute the various metrics for all channels with a given noise rate
     args = submit.channel
     for i in range(start, end):
-        (folder, fname) = os.path.split(
-            fn.PhysicalChannel(submit, submit.available[i, :-1])
-        )
-        if submit.iscorr == 0:
-            physical = np.load("%s/%s" % (folder, fname))[
-                int(submit.available[i, -1]), :
-            ].reshape(4, 4)
-            # print("Channel %d: Function ComputeNorms(\n%s,\n%s)" % (i, np.array_str(physical, max_line_width = 150, precision = 3), physmetrics))
-            if not (rep == "choi"):
-                physical = crep.ConvertRepresentations(physical, "process", "choi")
-        else:
-            physical = np.load("%s/raw_%s" % (folder, fname))[
-                int(submit.available[i, -1]), :
-            ]
-        for m in range(len(physmetrics)):
-            results[i * len(physmetrics) + m] = eval(Metrics[physmetrics[m]][-1])(
-                physical,
-                {
-                    "qcode": submit.eccs[0],
-                    "levels": submit.levels,
-                    "corr": submit.iscorr,
-                    "channel": "unknown",
-                },
+        if chtype == "physical":
+            (folder, fname) = os.path.split(
+                fn.PhysicalChannel(submit, submit.available[i, :-1])
             )
+            if submit.iscorr == 0:
+                chan = np.load("%s/%s" % (folder, fname))[
+                    int(submit.available[i, -1]), :
+                ].reshape(4, 4)
+                # print("Channel %d: Function ComputeNorms(\n%s,\n%s)" % (i, np.array_str(physical, max_line_width = 150, precision = 3), metrics))
+                if not (rep == "choi"):
+                    chan = crep.ConvertRepresentations(chan, "process", "choi")
+            else:
+                chan = np.load("%s/raw_%s" % (folder, fname))[
+                    int(submit.available[i, -1]), :
+                ]
+        else:
+            lchans = np.load(
+                fn.LogicalChannel(
+                    submit, submit.available[i, :-1], submit.available[i, -1]
+                )
+            )
+            chan = np.zeros(
+                (lchans.shape[0], lchans.shape[1], lchans.shape[2]), dtype=np.complex128
+            )
+            for l in range(chan.shape[0]):
+                chan[l, :, :] = crep.ConvertRepresentations(
+                    lchans[l, :, :], "process", "choi"
+                )
+        for m in range(len(metrics)):
+            if chtype == "physical":
+                results[i * len(metrics) + m] = eval(Metrics[metrics[m]][-1])(
+                    chan,
+                    {
+                        "qcode": submit.eccs[0],
+                        "levels": submit.levels,
+                        "corr": submit.iscorr,
+                        "channel": "unknown",
+                        "chtype": chtype,
+                    },
+                )
+            else:
+                results[
+                    (i * len(metrics) * submit.levels + m * submit.levels) : (
+                        i * len(metrics) * submit.levels + (m + 1) * submit.levels
+                    )
+                ] = eval(Metrics[metrics[m]][-1])(
+                    chan,
+                    {
+                        "qcode": submit.eccs[0],
+                        "levels": submit.levels,
+                        "corr": submit.iscorr,
+                        "channel": "unknown",
+                        "chtype": chtype,
+                    },
+                )
             # print("%g" % (results[i * len(physmetrics) + m]))
     return None
 
 
-def ComputePhysicalMetrics(submit, physmetrics, ncpu=4, loc="local"):
+def ComputeMetrics(submit, metrics, chtype="physical"):
     # Compute metrics for all physical channels in a submission.
     ncpu = 1
     nproc = min(ncpu, mp.cpu_count())
     chunk = int(np.ceil(submit.channels / np.float(nproc)))
     processes = []
-    results = mp.Array(ct.c_longdouble, submit.channels * len(physmetrics))
+    if chtype == "physical":
+        results = mp.Array(ct.c_longdouble, submit.channels * len(metrics))
+    else:
+        results = mp.Array(
+            ct.c_longdouble, submit.channels * len(metrics) * submit.levels
+        )
     for i in range(nproc):
         processes.append(
             mp.Process(
                 target=ChannelMetrics,
                 args=(
                     submit,
-                    physmetrics,
+                    metrics,
                     i * chunk,
                     min(submit.channels, (i + 1) * chunk),
                     results,
                     "process",
+                    chtype,
                 ),
             )
         )
@@ -490,11 +541,27 @@ def ComputePhysicalMetrics(submit, physmetrics, ncpu=4, loc="local"):
     for i in range(nproc):
         processes[i].join()
 
-    metvals = np.reshape(results, [len(physmetrics), submit.channels], order="c")
-    # print("Metric values for metric = %s\n%s" % (physmetrics, np.array_str(metvals)))
-    # Write the physical metrics on to a file
-    for m in range(len(physmetrics)):
-        np.save(fn.PhysicalErrorRates(submit, physmetrics[m]), metvals[m, :])
+    if chtype == "physical":
+        metvals = np.reshape(results, [submit.channels, len(metrics)], order="c")
+        # print("Metric values for metric = %s\n%s" % (metrics, np.array_str(metvals)))
+        # Write the physical metrics on to a file
+        for m in range(len(metrics)):
+            np.save(fn.PhysicalErrorRates(submit, metrics[m]), metvals[:, m])
+    else:
+        metvals = np.reshape(
+            results, [submit.channels, len(metrics), submit.levels], order="c"
+        )
+        # Write the logical metrics on to a file
+        for i in range(submit.channels):
+            for m in range(len(metrics)):
+                fname = fn.LogicalErrorRate(
+                    submit,
+                    submit.available[i, :-1],
+                    submit.available[i, -1],
+                    metrics[m],
+                    average=1,
+                )
+                np.save(fname, metvals[i, m, :])
     return None
 
 
