@@ -772,6 +772,8 @@ if __name__ == "__main__":
             if len(user) > 1:
                 logmetrics = user[1].split(",")
                 ml.ComputeMetrics(submit, logmetrics, chtype="logical")
+                submit.metrics = list(set().union(submit.metrics, logmetrics))
+                cl.GatherLogErrData(submit)
             else:
                 print("\033[2mUsage: %s\033[0m" % mannual["lmetrics"][1])
 

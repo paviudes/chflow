@@ -59,7 +59,7 @@ Metrics = {
     ],
     "infid": [
         "Infidelity",
-        "$1 - F(\\mathcal{J})$",
+        "$1 - F$",
         u"s",
         "forestgreen",
         "1 - Fidelity between the input Choi matrix and the Choi matrix corresponding to the identity state.",
@@ -122,7 +122,7 @@ Metrics = {
         "lambda J, kwargs: UhlmanFidelity(J, kwargs)",
     ],
     "unitarity": [
-        "NonUnitarity",
+        "Non unitarity",
         "$1-\\mathcal{u}(\\mathcal{E})$",
         u"^",
         "fuchsia",
@@ -130,12 +130,20 @@ Metrics = {
         "lambda J, kwargs: NonUnitarity(J, kwargs)",
     ],
     "uncorr": [
-        "UncorrectableProb",
+        "Uncorrectable error probability",
         "$p_{u}$",
         u">",
         "blue",
         "The total probability of uncorrectable (Pauli) errors.",
         "lambda P, kwargs: UncorrectableProb(P, kwargs)",
+    ],
+    "anisotropy": [
+        "Anisotropy",
+        "$2 p_{Y} - (p_{X} + p_{Z})$",
+        u"d",
+        "goldenrod",
+        "Anisotropy between Y errors and X, Z errors.",
+        "lambda J, kwargs: Anisotropy(J, kwargs)",
     ],
 }
 ######################################################################################################
@@ -401,6 +409,32 @@ def UncorrectableProb(channel, kwargs):
     return uc.ComputeUnCorrProb(pauliProbs, kwargs["qcode"], kwargs["levels"])
 
 
+def Anisotropy(channel, kwargs):
+    # Compute the anisotropy in the noise process.
+    # The anisotropy is simply the 2 * Prob(Y) - (Prob(X) + Prob(Z))
+    atol = 10e-8
+    if kwargs["chtype"] == "physical":
+        if kwargs["rep"] == "choi":
+            chichan = np.real(crep.ConvertRepresentations(channel, "choi", "chi"))
+        else:
+            chichan = channel
+        probs = np.diag(chichan)
+        anisotropy = 0
+        if (probs[1] > atol) and (probs[3] > atol):
+            anisotropy = probs[2] / probs[1] + probs[2] / probs[3]
+        # np.dot(np.diag(chichan), np.array([0, -1, 2, -1], dtype=np.double))
+    else:
+        anisotropy = np.zeros(kwargs["levels"], dtype=np.double)
+        for l in range(kwargs["levels"]):
+            chichan = np.real(
+                crep.ConvertRepresentations(channel[l, :, :], "choi", "chi")
+            )
+            probs = np.diag(chichan)
+            if (probs[1] > atol) and (probs[3] > atol):
+                anisotropy[l] = probs[2] / probs[1] + probs[2] / probs[3]
+    return anisotropy
+
+
 ########################################################################################
 
 
@@ -448,7 +482,7 @@ def ComputeNorms(channel, metrics, **kwargs):
 
 def ChannelMetrics(submit, metrics, start, end, results, rep, chtype):
     # Compute the various metrics for all channels with a given noise rate
-    args = submit.channel
+    nlevels = submit.levels + 1
     for i in range(start, end):
         if chtype == "physical":
             (folder, fname) = os.path.split(
@@ -484,25 +518,27 @@ def ChannelMetrics(submit, metrics, start, end, results, rep, chtype):
                     chan,
                     {
                         "qcode": submit.eccs[0],
-                        "levels": submit.levels,
+                        "levels": nlevels,
                         "corr": submit.iscorr,
                         "channel": "unknown",
                         "chtype": chtype,
+                        "rep": "choi",
                     },
                 )
             else:
                 results[
-                    (i * len(metrics) * submit.levels + m * submit.levels) : (
-                        i * len(metrics) * submit.levels + (m + 1) * submit.levels
+                    (i * len(metrics) * nlevels + m * nlevels) : (
+                        i * len(metrics) * nlevels + (m + 1) * nlevels
                     )
                 ] = eval(Metrics[metrics[m]][-1])(
                     chan,
                     {
                         "qcode": submit.eccs[0],
-                        "levels": submit.levels,
+                        "levels": nlevels,
                         "corr": submit.iscorr,
                         "channel": "unknown",
                         "chtype": chtype,
+                        "rep": "choi",
                     },
                 )
             # print("%g" % (results[i * len(physmetrics) + m]))
@@ -519,7 +555,7 @@ def ComputeMetrics(submit, metrics, chtype="physical"):
         results = mp.Array(ct.c_longdouble, submit.channels * len(metrics))
     else:
         results = mp.Array(
-            ct.c_longdouble, submit.channels * len(metrics) * submit.levels
+            ct.c_longdouble, submit.channels * len(metrics) * (submit.levels + 1)
         )
     for i in range(nproc):
         processes.append(
@@ -549,7 +585,7 @@ def ComputeMetrics(submit, metrics, chtype="physical"):
             np.save(fn.PhysicalErrorRates(submit, metrics[m]), metvals[:, m])
     else:
         metvals = np.reshape(
-            results, [submit.channels, len(metrics), submit.levels], order="c"
+            results, [submit.channels, len(metrics), submit.levels + 1], order="c"
         )
         # Write the logical metrics on to a file
         for i in range(submit.channels):

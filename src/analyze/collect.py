@@ -101,12 +101,16 @@ def GatherLogErrData(submit):
             dtype=np.longdouble,
         )
         for i in range(submit.channels):
-            fname = fn.LogicalErrorRate(
-                submit,
-                submit.available[i, :-1],
-                submit.available[i, -1],
-                submit.metrics[m],
-            )
+            for quant in range(2):
+                fname = fn.LogicalErrorRate(
+                    submit,
+                    submit.available[i, :-1],
+                    submit.available[i, -1],
+                    submit.metrics[m],
+                    average=quant,
+                )
+                if os.path.isfile(fname):
+                    break
             logerr[i, :] = np.load(fname)
             fname = fn.RunningAverageCh(
                 submit,

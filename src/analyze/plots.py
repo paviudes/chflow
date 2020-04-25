@@ -208,14 +208,28 @@ def LevelWisePlot(phymets, logmet, dbses):
                         if not (dbses[d].scales[p] == 1):
                             phyerrs = np.power(dbses[d].scales[p], phyerrs)
                     # Plotting
+                    # Plot the X=Y line denoting the quantum error correction trade-off
+                    # plt.plot(phyerrs, phyerrs, linestyle="--", color="k")
                     if d == 0:
+                        if "color" in dbses[d].plotsettings:
+                            color = dbses[d].plotsettings["color"]
+                        else:
+                            color = plotset[0]
+                        if "marker" in dbses[d].plotsettings:
+                            marker = dbses[d].plotsettings["marker"]
+                        else:
+                            marker = plotset[1]
+                        if "linestyle" in dbses[d].plotsettings:
+                            linestyle = dbses[d].plotsettings["linestyle"]
+                        else:
+                            linestyle = plotset[2]
                         plotobj = plt.plot(
                             phyerrs,
                             logErrs,
-                            color=plotset[0],
-                            marker=plotset[1],
+                            color=color,
+                            marker=marker,
                             markersize=gv.marker_size,
-                            linestyle=plotset[2],
+                            linestyle=linestyle,
                             linewidth=gv.line_width,
                         )
                     else:
@@ -239,24 +253,33 @@ def LevelWisePlot(phymets, logmet, dbses):
                                 [
                                     dbses[d].timestamp,
                                     (
-                                        ("N = 1, D = 1, %s")
+                                        ("Physical channel: %s")
                                         % (qc.Channels[dbses[d].channel][0])
                                     ),
                                 ]
                             )
-                        dbnames.append(
-                            [
-                                dbses[d].timestamp,
-                                (
-                                    ("N = %d, D = %d, %s")
-                                    % (
-                                        np.prod([dbses[d].eccs[j].N for j in range(l)]),
-                                        np.prod([dbses[d].eccs[j].D for j in range(l)]),
-                                        qc.Channels[dbses[d].channel][0],
-                                    )
-                                ),
-                            ]
-                        )
+                        if "name" in dbses[d].plotsettings:
+                            dbnames.append(
+                                [dbses[d].timestamp, dbses[d].plotsettings["name"]]
+                            )
+                        else:
+                            dbnames.append(
+                                [
+                                    dbses[d].timestamp,
+                                    (
+                                        ("N = %d, D = %d, %s")
+                                        % (
+                                            np.prod(
+                                                [dbses[d].eccs[j].N for j in range(l)]
+                                            ),
+                                            np.prod(
+                                                [dbses[d].eccs[j].D for j in range(l)]
+                                            ),
+                                            qc.Channels[dbses[d].channel][0],
+                                        )
+                                    ),
+                                ]
+                            )
 
             # Title
             # plt.title(("%s vs. physical error metrics for the %s channel." % (ml.Metrics[logmet][0], qc.Channels[dbses[0].channel][0])), fontsize = gv.title_fontsize, y = 1.03)
@@ -298,20 +321,20 @@ def LevelWisePlot(phymets, logmet, dbses):
                 handles=dblines,
                 labels=[name[1] for name in dbnames],
                 numpoints=1,
-                loc=1,
+                loc=2,
                 shadow=True,
                 fontsize=gv.legend_fontsize,
                 markerscale=gv.legend_marker_scale,
             )
-            plt.legend(
-                handles=phlines,
-                labels=phynames,
-                numpoints=1,
-                loc=4,
-                shadow=True,
-                fontsize=gv.legend_fontsize,
-                markerscale=gv.legend_marker_scale,
-            )
+            # plt.legend(
+            #     handles=phlines,
+            #     labels=phynames,
+            #     numpoints=1,
+            #     loc=4,
+            #     shadow=True,
+            #     fontsize=gv.legend_fontsize,
+            #     markerscale=gv.legend_marker_scale,
+            # )
             ax.add_artist(dblegend)
             # Save the plot
             pdf.savefig(fig)

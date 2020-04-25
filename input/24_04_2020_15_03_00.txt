@@ -38,7 +38,9 @@ job twirled
 wall 48
 # Email notifications.
 email pavithran.sridhar@gmail.com
-# Output result's directory. /home/pavi/projects/def-jemerson/pavi/chbank
+# Output result's directory.
 outdir /Users/pavi/Documents/chbank
 # Randomized compiling of quantum gates.
 rc 0
+# Plot settings
+plot xlabel,Diamond distance of the physical channel;ylabel,Infidelity of the logical channel;name,With randomized compiling;color,green;marker,+

@@ -74,7 +74,7 @@ class Submission:
         # Advanced options
         self.isAdvanced = 0
         # Plot settings -- color, marker, linestyle
-        self.plotsettings = {"color": "k", "marker": "o", "linestyle": "--"}
+        self.plotsettings = {"color": "k", "marker": "o", "linestyle": "None"}
         # Randomized compiling of quantum gates
         self.rc = 0
 
