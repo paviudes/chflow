@@ -1,3 +1,14 @@
+def BinSummary(submit, phymet, logmet, level):
+    # Name of the file containing the summary of bins
+    fname = "%s/results/bins_summary_%s_%s_l%d.txt" % (
+        submit.outdir,
+        phymet,
+        logmet,
+        level,
+    )
+    return fname
+
+
 def SubmissionInputs(timestamp):
     # Name of the file containing the submission input
     fname = "./../input/%s.txt" % (timestamp)
@@ -83,6 +94,12 @@ def PhysicalErrorRates(dbs, metric):
 def ThreshPlot(submit, pmet, lmet):
     # File containing the plots of the logical error rate
     fname = "%s/results/thresh_%s_vs_%s.pdf" % (submit.outdir, lmet, pmet)
+    return fname
+
+
+def ChannelWise(submit, pmet, lmet):
+    # File containing the plots of the logical error rate
+    fname = "%s/results/chan_%s_vs_%s.pdf" % (submit.outdir, lmet, pmet)
     return fname
 
 

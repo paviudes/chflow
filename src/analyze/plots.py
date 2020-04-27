@@ -169,6 +169,110 @@ def ThresholdPlot(phymets, logmet, dbs):
     return None
 
 
+def ChannelWisePlot(phymet, logmet, dbses):
+    # Plot each channel in the database with a different color.
+    # Channels of similar type in different databases will be distinguished using different markers.
+    plotfname = fn.ChannelWise(dbses[0], phymet, logmet)
+    colors = ["b", "g", "r", "k", "c", "y"]
+    markers = ["*", "^", "s"]
+    annotations = [
+        "$\\mathcal{E}_{1}$",
+        "$\\mathcal{E}_{2}$",
+        "$\\mathcal{E}_{3}$",
+        "$\\mathcal{E}_{3}$",
+        "$\\mathcal{E}_{4}$",
+        "$\\mathcal{E}_{5}$",
+    ]
+    maxlevel = max([db.levels for db in dbses])
+    with PdfPages(plotfname) as pdf:
+        for l in range(1 + maxlevel):
+            fig = plt.figure(figsize=gv.canvas_size)
+            ax = plt.gca()
+            # plt.axvline(x=0.06, linestyle="--")
+            for d in range(len(dbses)):
+                marker = markers[d % len(markers)]
+                plt.plot(
+                    [],
+                    [],
+                    marker=marker,
+                    color="k",
+                    label=dbses[d].plotsettings["name"],
+                    markersize=gv.marker_size,
+                )
+                logerrs = np.load(fn.LogicalErrorRates(dbses[d], logmet))[:, l]
+                phyerrs = np.load(fn.PhysicalErrorRates(dbses[d], phymet))
+                unitarity = np.load(fn.PhysicalErrorRates(dbses[0], "np1"))
+                for i in range(dbses[d].channels):
+                    if not (i == 3):
+                        plt.plot(
+                            phyerrs[i],
+                            logerrs[i],
+                            color=colors[i % len(colors)],
+                            marker=marker,
+                            markersize=2 * gv.marker_size,
+                        )
+                        # if d == 0:
+                        #     # Text annotations at data points
+                        #     print("{}). nu = {}".format(annotations[i], unitarity[i]))
+                        #     ax.annotate(
+                        #         "%.2f, %s" % (unitarity[i], annotations[i]),
+                        #         (1.03 * phyerrs[i], logerrs[i]),
+                        #         color=colors[i % len(colors)],
+                        #         fontsize=gv.ticks_fontsize,
+                        #     )
+                        # Text annotations at data points
+                        ax.annotate(
+                            annotations[i],
+                            (1.03 * phyerrs[i], logerrs[i]),
+                            color=colors[i % len(colors)],
+                            fontsize=gv.ticks_fontsize,
+                        )
+            # Axes labels
+            if "xlabel" in dbses[d].plotsettings:
+                ax.set_xlabel(
+                    "%s" % (dbses[d].plotsettings["xlabel"]),
+                    fontsize=gv.axes_labels_fontsize,
+                )
+            else:
+                ax.set_xlabel(
+                    "$\\mathcal{N}_{0}$: Physical noise strength",
+                    fontsize=gv.axes_labels_fontsize,
+                )
+            # ax.set_xscale("log")
+            if "ylabel" in dbses[d].plotsettings:
+                ax.set_ylabel(
+                    "%s" % (dbses[d].plotsettings["ylabel"]),
+                    fontsize=gv.axes_labels_fontsize,
+                )
+            else:
+                ax.set_ylabel(
+                    "$\\mathcal{N}_{%d}$: %s" % (l, ml.Metrics[logmet][1]),
+                    fontsize=gv.axes_labels_fontsize,
+                )
+            # ax.set_yscale("log")
+            ax.tick_params(
+                axis="both",
+                which="both",
+                pad=gv.ticks_pad,
+                direction="inout",
+                length=gv.ticks_length,
+                width=gv.ticks_width,
+                labelsize=gv.ticks_fontsize,
+            )
+            # Legend
+            plt.legend(
+                numpoints=1,
+                loc=2,
+                shadow=True,
+                fontsize=gv.legend_fontsize,
+                markerscale=gv.legend_marker_scale,
+            )
+            # Save the plot
+            pdf.savefig(fig)
+            plt.close()
+    return None
+
+
 def LevelWisePlot(phymets, logmet, dbses):
     # Plot logical error rates vs. physical error rates.
     # Use a new figure for every new concatenated level.
@@ -326,15 +430,15 @@ def LevelWisePlot(phymets, logmet, dbses):
                 fontsize=gv.legend_fontsize,
                 markerscale=gv.legend_marker_scale,
             )
-            # plt.legend(
-            #     handles=phlines,
-            #     labels=phynames,
-            #     numpoints=1,
-            #     loc=4,
-            #     shadow=True,
-            #     fontsize=gv.legend_fontsize,
-            #     markerscale=gv.legend_marker_scale,
-            # )
+            plt.legend(
+                handles=phlines,
+                labels=phynames,
+                numpoints=1,
+                loc=4,
+                shadow=True,
+                fontsize=gv.legend_fontsize,
+                markerscale=gv.legend_marker_scale,
+            )
             ax.add_artist(dblegend)
             # Save the plot
             pdf.savefig(fig)
@@ -1044,9 +1148,18 @@ def PlotBinVariance(dbses, lmet, pmet, nbins=10):
         for l in range(maxlevel + 1):
             # print("logerr[%d]" % (l))
             # print logerr[:, l]
-            bins = ComputeBinVariance(
-                np.abs(phyerr), -np.log10(np.abs(logerr[:, l])), nbins
-            )
+            if l == 0:
+                bins = ComputeBinVariance(
+                    np.abs(phyerr),
+                    -np.log10(np.abs(logerr[:, l])),
+                    nbins,
+                    binfile=fn.BinSummary(dbses[0], pmet, lmet, l),
+                    submit=dbses[0],
+                )
+            else:
+                bins = ComputeBinVariance(
+                    np.abs(phyerr), -np.log10(np.abs(logerr[:, l])), nbins
+                )
             # bins = ComputeBinVariance(-np.log10(np.abs(phyerr)), np.abs(logerr[:, l]), nbins)
             # bins = ComputeBinVariance(np.abs(phyerr), np.abs(logerr[:, l]), nbins)
             # print "bins"
@@ -1063,7 +1176,7 @@ def PlotBinVariance(dbses, lmet, pmet, nbins=10):
     return None
 
 
-def ComputeBinVariance(xdata, ydata, nbins=10, space="log"):
+def ComputeBinVariance(xdata, ydata, nbins=10, space="log", binfile=None, submit=None):
     # Compute the amount of scater of data in a plot.
     # Divide the X axis range into bins and compute the variance of Y-data in each bin.
     # The bins must divide the axes on a linear scale -- because they signify the confidence interval in measuring the values of the parameters.
@@ -1091,6 +1204,11 @@ def ComputeBinVariance(xdata, ydata, nbins=10, space="log"):
     bins[:, 0] = window[:-1]
     bins[:, 1] = window[1:]
 
+    if binfile is not None:
+        bf = open(binfile, "w")
+        bf.write(
+            "# index from to npoints var min chan nrate samp max chan nrate samp\n"
+        )
     for i in range(nbins - 1):
         points = np.nonzero(np.logical_and(xdata >= bins[i, 0], xdata < bins[i, 1]))[0]
         bins[i, 2] = np.longdouble(points.shape[0])
@@ -1101,10 +1219,46 @@ def ComputeBinVariance(xdata, ydata, nbins=10, space="log"):
         # bins[i, 3] = np.sqrt(np.sum(np.power(ydata[points] - mean, 2)))/((bins[i, 2] - 1) * mean)
         # bins[i, 3] = np.sqrt(np.var(ydata[points])/np.power(np.mean(ydata[points]), 2))
         # print("bin %d: %d points\n\t[%g, %g] -- max = %g and min = %g, U = %g, D = %g." % (i, bins[i, 2], bins[i, 0], bins[i, 1], np.max(ydata[points]), np.min(ydata[points]), np.mean(ydata[points]), bins[i, 3]))
+        if binfile is not None:
+            minchan = points[np.argmin(ydata[points])]
+            maxchan = points[np.argmax(ydata[points])]
+            # print(
+            #     "points = {}, minchan = {}, maxchan = {}".format(
+            #         points, minchan, maxchan
+            #     )
+            # )
+            bf.write(
+                "%d %g %g %d %g %g %d %s %d %g %d %s %d\n"
+                % (
+                    i,
+                    bins[i, 0],
+                    bins[i, 1],
+                    bins[i, 2],
+                    bins[i, 3],
+                    np.min(ydata[points]),
+                    minchan,
+                    " ".join(
+                        list(
+                            map(lambda num: "%g" % num, submit.available[minchan, :-1])
+                        )
+                    ),
+                    submit.available[minchan, -1],
+                    np.max(ydata[points]),
+                    maxchan,
+                    " ".join(
+                        list(
+                            map(lambda num: "%g" % num, submit.available[maxchan, :-1])
+                        )
+                    ),
+                    submit.available[maxchan, -1],
+                )
+            )
     print(
         "\033[2mTotal: %d points and average variance = %g and maximum variance = %g.\033[0m"
         % (np.sum(bins[:, 2], dtype=int), np.mean(bins[:, 3]), np.max(bins[:, 3]))
     )
+    if binfile is not None:
+        bf.close()
     return bins
 
 

@@ -159,31 +159,8 @@ def DiamondNorm(choi, kwargs):
     # The semidefinite program outlined in Sec. 4 of DOI: 10.4086/toc.2009.v005a011 is used here.
     # See also: https://github.com/BBN-Q/matlab-diamond-norm/blob/master/src/dnorm.m
     # For some known types of channels, the Diamond norm can be computed efficiently
-    # 1. Depolarizing channel
-    if kwargs["channel"] == "dp":
-        # The choi matrix of the channel is in the form
-        # 1/2-p/3	0		0	1/2-(2 p)/3
-        # 0			p/3		0	0
-        # 0			0		p/3	0
-        # 1/2-(2 p)/3	0		0	1/2-p/3
-        # and it's Diamond norm is p, in other words, it is 3 * Choi[1,1]/3
-        dnorm = 3 * np.real(choi[1, 1])
-    # 2. Rotation about the Z axis
-    elif kwargs["channel"] == "broken":
-        # The Choi matrix of the Rotation channel is in the form
-        # 1/2 							0 	0 	(cos(2 t) - i sin(2 t))/2
-        # 0 							0 	0 	0
-        # 0 							0 	0 	0
-        # (cos(2 t) + i sin(2 t))/2 	0 	0 	1/2
-        # and its diamond norm is sin(t).
-        if np.real(choi[3, 0]) <= 0.0:
-            angle = np.pi - np.arcsin(2 * np.imag(choi[3, 0]))
-        else:
-            angle = np.arcsin(2 * np.imag(choi[3, 0]))
-        dnorm = np.abs(np.sin(angle / np.float(2)))
-        # print("channel\n%s\n2 t = %g and dnorm = %g" % (np.array_str(choi, max_line_width = 150), (np.pi - np.arcsin(2 * np.imag(choi[3, 0]))), dnorm))
-    else:
-        # print("Function: dnorm")
+    # print("Function: dnorm")
+    if kwargs["chtype"] == "physical":
         diff = (choi - gv.bell[0, :, :]).astype(complex)
         #### picos optimization problem
         prob = pic.Problem()
@@ -202,6 +179,27 @@ def DiamondNorm(choi, kwargs):
         sol = prob.solve(verbose=0, maxit=500)
         dnorm = sol["obj"] * 2
         # print("SDP dnorm = %g" % (dnorm))
+    else:
+        dnorm = np.zeros(kwargs["levels"], dtype=np.double)
+        for l in range(kwargs["levels"]):
+            diff = (choi[l, :, :] - gv.bell[0, :, :]).astype(complex)
+            #### picos optimization problem
+            prob = pic.Problem()
+            # variables and parameters in the problem
+            J = pic.new_param("J", cvx.matrix(diff))
+            rho = prob.add_variable("rho", (2, 2), "hermitian")
+            W = prob.add_variable("W", (4, 4), "hermitian")
+            # objective function (maximize the hilbert schmidt inner product -- denoted by '|'. Here A|B means trace(A^\dagger * B))
+            prob.set_objective("max", J | W)
+            # adding the constraints
+            prob.add_constraint(W >> 0)
+            prob.add_constraint(rho >> 0)
+            prob.add_constraint(("I" | rho) == 1)
+            prob.add_constraint((W - ((rho & 0) // (0 & rho))) << 0)
+            # solving the problem
+            sol = prob.solve(verbose=0, maxit=500)
+            dnorm[l] = sol["obj"] * 2
+            # print("SDP dnorm = %g" % (dnorm))
     return dnorm
 
 
@@ -322,13 +320,14 @@ def UhlmanFidelity(choi, kwargs):
 def NonUnitarity(choi, kwargs):
     # Compute the unitarity metric for the input choi matrix of a channel
     # Convert from the Choi matrix to the process matrix
-    # For a process matrix P, the unitarity is given by: ( sum_(i,j; i not equal to j) |P_ij|^2 )
+    # For a process matrix P, the unitarity is given by: ( sum_(i,j) |P_ij|^2 )
     # http://iopscience.iop.org/article/10.1088/1367-2630/17/11/113020
     process = crep.ConvertRepresentations(choi, "choi", "process")
-    unitarity = np.sum(
-        np.abs(process[1:, 1:]) * np.abs(process[1:, 1:])
-    ) / np.longdouble(3)
-    return 1 - unitarity
+    unitarity = np.sum(np.abs(process[1:, 1:]) * np.abs(process[1:, 1:])) / (
+        process.shape[0] - 1
+    )
+    # print("unitarity = {}".format(unitarity))
+    return unitarity
 
 
 def NonPaulinessChi(choi, kwargs):
@@ -438,10 +437,11 @@ def Anisotropy(channel, kwargs):
 ########################################################################################
 
 
-def Filter(process, channelType, metric, lower, upper):
+def Filter(process, metric, lower, upper):
     # Test if a channel (described by the process matrix) passes across a filter or not.
     metVal = eval(Metrics[metric][-1])(
-        crep.ConvertRepresentations(process, "process", "choi"), channelType
+        crep.ConvertRepresentations(process, "process", "choi"),
+        {"rep": "process", "channel": "unknown"},
     )
     if (metVal >= lower) and (metVal <= upper):
         return 1
@@ -471,7 +471,7 @@ def GenCalibrationData(chname, channels, noiserates, metrics):
     return None
 
 
-def ComputeNorms(channel, metrics, **kwargs):
+def ComputeNorms(channel, metrics, kwargs):
     # Compute a set of metrics for a channel (in the choi matrix form) and return the metric values
     # print("Function ComputeNorms(\n%s,\n%s)" % (np.array_str(channel, max_line_width = 150, precision = 3), metrics))
     mets = np.zeros(len(metrics), dtype=np.longdouble)

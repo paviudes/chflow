@@ -74,7 +74,8 @@ class Submission:
         # Advanced options
         self.isAdvanced = 0
         # Plot settings -- color, marker, linestyle
-        self.plotsettings = {"color": "k", "marker": "o", "linestyle": "None"}
+        self.plotsettings = {}
+        # {"color": "k", "marker": "o", "linestyle": "None"}
         # Randomized compiling of quantum gates
         self.rc = 0
 
@@ -657,8 +658,6 @@ def Save(submit):
                 % (submit.timestamp, submit.inputfile)
             )
         )
-    # Save the physical channels
-    SavePhysicalChannels(submit)
     return None
 
 
@@ -685,6 +684,31 @@ def SavePhysicalChannels(submit):
         np.save("%s/%s" % (folder, fname), submit.phychans[i, :, :])
         if save_raw == 1:
             np.save("%s/raw_%s" % (folder, fname), submit.rawchans[i, :, :])
+    return None
+
+
+def Select(submit, chan_indices):
+    # Identify the details of the physical noise maps given their channel indices.
+    os.system("mkdir -p %s/physical/selected" % (submit.outdir))
+    print("C   noise   samp")
+    for c in chan_indices:
+        print(
+            "%d   %s     %d"
+            % (
+                c,
+                " ".join(list(map(lambda num: "%g" % num, submit.available[c, :-1]))),
+                submit.available[c, -1],
+            )
+        )
+        chanfile = fn.PhysicalChannel(submit, submit.available[c, :-1])
+        chan = np.reshape(np.load(chanfile)[int(submit.available[c, -1]), :], [4, 4])
+        # Save the channel into a new folder
+        (folder, fname) = os.path.split(chanfile)
+        (name, extn) = os.path.splitext(fname)
+        os.system("mkdir -p %s/selected" % (folder))
+        np.save(
+            "%s/selected/%s_s%d%s" % (folder, name, submit.available[c, -1], extn), chan
+        )
     return None
 
 

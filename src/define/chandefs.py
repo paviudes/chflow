@@ -124,6 +124,8 @@ def GetKraussForChannel(chType, *params):
     elif chType == "rtnp":
         # This is the channel in a generic rotation channel about some axis of the Bloch sphere
         # It represents a Phase damping along an axis in the X-Z plane of the Bloch sphere: n = [sin(theta) cos(phi), sin(theta) sin(phi), cos(theta)]
+        # Note that theta goes from 0 to pi
+        # phi goes from 0 to 2 pi
         # delta represents the rotation angle
         # From https://arxiv.org/abs/1612.02830
         # For Steane code
@@ -135,8 +137,11 @@ def GetKraussForChannel(chType, *params):
         # Rotations about the Hadamard axis: (1 1 0)/sqrt(2)
         # theta = pi/2
         # phi = pi/4
-        phi = params[1]
-        theta = params[2]
+        delta = np.random.normal(params[0], scale=0.1 * params[0])
+        theta = np.random.uniform(0, np.pi)
+        phi = np.random.uniform(0, 2 * np.pi)
+        # phi = params[1]
+        # theta = params[2]
         axis = np.array(
             [np.sin(theta) * np.cos(phi), np.sin(theta) * np.sin(phi), np.cos(theta)],
             dtype=np.longdouble,
@@ -145,7 +150,7 @@ def GetKraussForChannel(chType, *params):
         for i in range(3):
             exponent = exponent + axis[i] * gv.Pauli[i + 1, :, :]
         krauss = np.zeros((1, 2, 2), dtype=np.complex128)
-        krauss[0, :, :] = linalg.expm(-1j * params[0] * np.pi * exponent)
+        krauss[0, :, :] = linalg.expm(-1j * delta * np.pi * exponent)
 
     elif chType == "strtz":
         # Stochastic over-rotation about the Z-axis

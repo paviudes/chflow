@@ -1,3 +1,5 @@
+# Time stamp
+timestamp sample
 # Type of quantum error correcting code
 ecc Steane,Steane,Steane
 # Type of quantum channel

@@ -377,10 +377,14 @@ if __name__ == "__main__":
                 metvals = ml.ComputeNorms(
                     crep.ConvertRepresentations(channel, rep, "choi"),
                     metrics,
-                    {"qcode": qeccode},
+                    {"qcode": qeccode, "chtype": "physical", "corr": 0},
                 )
             else:
-                metvals = ml.ComputeNorms(channel, metrics, {"qcode": qeccode})
+                metvals = ml.ComputeNorms(
+                    channel,
+                    metrics,
+                    {"qcode": qeccode, "chtype": "physical", "corr": 0},
+                )
             print("{:<20} {:<10}".format("Metric", "Value"))
             print("-------------------------------")
             for m in range(len(metrics)):
@@ -438,7 +442,6 @@ if __name__ == "__main__":
             if exists == 1:
                 if len(submit.scales) == 0:
                     submit.scales = [1 for __ in range(submit.noiserates.shape[1])]
-                cl.IsComplete(submit)
                 # Generate new physical channels if needed
                 reuse = 1
                 for i in range(submit.noiserates.shape[0]):
@@ -448,7 +451,7 @@ if __name__ == "__main__":
                         ):
                             reuse = 0
                 if reuse == 0:
-                    print("Physical channels not found")
+                    # print("Physical channels not found")
                     chgen.PreparePhysicalChannels(submit)
                 else:
                     submit.nodes = int(
@@ -458,6 +461,7 @@ if __name__ == "__main__":
                             / np.longdouble(submit.cores[0])
                         )
                     )
+                    cl.IsComplete(submit)
                 # else:
                 # 	# prepare the set of parameters
                 # 	submit.params = np.zeros((submit.noiserates.shape[0] * submit.samps, submit.noiserates.shape[1] + 1), dtype = np.longdouble)
@@ -623,6 +627,33 @@ if __name__ == "__main__":
 
         #####################################################################
 
+        elif user[0] == "cplot":
+            # No documentation provided
+            dbses = [submit]
+            if len(user) > 3:
+                for (i, ts) in enumerate(user[3].split(",")):
+                    dbses.append(sub.Submission())
+                    sub.LoadSub(dbses[i + 1], ts, 0)
+            check = 1
+            for d in range(len(dbses)):
+                cl.IsComplete(dbses[d])
+                if dbses[d].complete > 0:
+                    if not os.path.isfile(
+                        fn.LogicalErrorRates(dbses[d], user[2], fmt="npy")
+                    ):
+                        cl.GatherLogErrData(dbses[d])
+                else:
+                    check = 0
+                    break
+            if check == 1:
+                pl.ChannelWisePlot(user[1], user[2], dbses)
+            else:
+                print(
+                    "\033[2mOne of the databases does not have logical error data.\033[0m"
+                )
+
+        #####################################################################
+
         elif user[0] == "lplot2d":
             # Plot the logical error rates with respect to two parameters of the physical noise rate.
             # The plot will be a 2D density plot with the logical error rates represented by the density of the colors.
@@ -748,8 +779,19 @@ if __name__ == "__main__":
 
         #####################################################################
 
+        elif user[0] == "sbselect":
+            # No documentation provided
+            sub.Select(submit, list(map(int, user[1].split(","))))
+
+        #####################################################################
+
         elif user[0] == "sbsave":
             sub.Save(submit)
+            sub.Schedule(submit)
+            sub.PrepOutputDir(submit)
+            # Save the physical channels
+            if submit.phychans is not None:
+                sub.SavePhysicalChannels(submit)
 
         #####################################################################
 

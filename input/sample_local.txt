@@ -1,24 +1,24 @@
 # Time stamp
 timestamp sample
 # Type of quantum error correcting code
-ecc surf9,surf9
+ecc Steane,Steane
 # Type of quantum channel
-channel rand
+channel rtnp
 # Noise rates
-noiserange 5,9.5,10;1,1,1
+noiserange 0,2.5,6
 # Number of samples
 samples 100
 # Scales
-scale 0.66,1
+scale 0.1
 # Number of syndromes to be sampled at the top level
-stats 1000
+stats 10000
 # Randomized compiling
-rc 1
+rc 0
 # Decoding strategy
 hybrid 0
 # Metrics to be computed on the effective channels at every level.
 metrics infid
 # Load distribution on cores.
-cores 10,1
+cores 12,1
 # Output directory
 outdir /Users/pavi/Documents/chbank

@@ -18,8 +18,9 @@ def IsEmptyFolder(dirname):
     """
 	Check if a folder is empty.
 	"""
-    if len([f for f in os.listdir(dirname) if not f.startswith(".")]) == 0:
-        return 1
+    if os.path.isdir(dirname):
+        if len([f for f in os.listdir(dirname) if not f.startswith(".")]) == 0:
+            return 1
     return 0
 
 
