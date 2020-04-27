@@ -1,31 +1,31 @@
 # Time stamp
-timestamp sample
+timestamp sample_graham
 # Type of quantum error correcting code
 ecc Steane,Steane,Steane
 # Type of quantum channel
-channel rand
+channel rtnp
 # Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
 repr process
 # Noise rate exponents. The actual noise rate is (2/3)^exponent.
-noiserange 4,9.5,12;1,1,1
+noiserange 0.5,3.5,7
 # Scale of the noise range
-scale 0.66,1
+scale 0.1
 # Number of samples
-samples 240
+samples 100
 # Number of syndromes to be sampled at top level
 stats 10000
 # Metrics to be computed on the effective channels at every level.
 metrics infid
 # Load distribution on cores.
-cores 240,1
+cores 1200,1
 # Name of the host computer.
 host graham
 # Account for the compute cluster
 account def-jemerson
 # Batch name.
-job rand
+job rtnp
 # Wall time in hours.
-wall 16
+wall 8
 # Email notifications
 email pavithran.sridhar@gmail.com
 # Output directory
