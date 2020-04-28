@@ -643,6 +643,19 @@ def Save(submit):
         )
         # Ranodmized compiling of quantum gates
         infid.write("# Randomized compiling of quantum gates.\nrc %d\n" % (submit.rc))
+        # Plot settings
+        infid.write(
+            "# Plot settings\nplot %s\n"
+            % (
+                ";".join(
+                    [
+                        "%s,%s" % (key, submit.plotsettings[key])
+                        for key in submit.plotsettings
+                    ]
+                )
+            )
+        )
+
     # Append the content of the input file to the log file.
     if os.path.isfile("bqsubmit.dat"):
         os.system(

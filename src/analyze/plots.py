@@ -11,6 +11,11 @@ try:
     from matplotlib.colors import LogNorm
     from matplotlib.backends.backend_pdf import PdfPages
     import matplotlib.pyplot as plt
+    from mpl_toolkits.axes_grid.inset_locator import (
+        inset_axes,
+        InsetPosition,
+        mark_inset,
+    )
     from scipy.interpolate import griddata
 except:
     pass
@@ -175,23 +180,17 @@ def ChannelWisePlot(phymet, logmet, dbses):
     plotfname = fn.ChannelWise(dbses[0], phymet, logmet)
     colors = ["b", "g", "r", "k", "c", "y"]
     markers = ["*", "^", "s"]
-    annotations = [
-        "$\\mathcal{E}_{1}$",
-        "$\\mathcal{E}_{2}$",
-        "$\\mathcal{E}_{3}$",
-        "$\\mathcal{E}_{3}$",
-        "$\\mathcal{E}_{4}$",
-        "$\\mathcal{E}_{5}$",
-    ]
     maxlevel = max([db.levels for db in dbses])
+    annotations = [("$\\mathcal{E}_{%d}$" % i) for i in range(dbses[0].channels)]
     with PdfPages(plotfname) as pdf:
         for l in range(1 + maxlevel):
-            fig = plt.figure(figsize=gv.canvas_size)
-            ax = plt.gca()
+            fig, ax1 = plt.subplots(figsize=gv.canvas_size)
+            # ax1 = plt.gca()
             # plt.axvline(x=0.06, linestyle="--")
+            logerrs = np.zeros((len(dbses), dbses[0].channels), dtype=np.double)
             for d in range(len(dbses)):
                 marker = markers[d % len(markers)]
-                plt.plot(
+                ax1.plot(
                     [],
                     [],
                     marker=marker,
@@ -199,58 +198,95 @@ def ChannelWisePlot(phymet, logmet, dbses):
                     label=dbses[d].plotsettings["name"],
                     markersize=gv.marker_size,
                 )
-                logerrs = np.load(fn.LogicalErrorRates(dbses[d], logmet))[:, l]
-                phyerrs = np.load(fn.PhysicalErrorRates(dbses[d], phymet))
-                unitarity = np.load(fn.PhysicalErrorRates(dbses[0], "np1"))
+                logerrs[d, :] = np.load(fn.LogicalErrorRates(dbses[d], logmet))[:, l]
+                if sub.IsNumber(phymet):
+                    phyerrs = np.power(
+                        dbses[d].scales[int(phymet)], dbses[d].available[:, int(phymet)]
+                    )
+                else:
+                    phyerrs = np.load(fn.PhysicalErrorRates(dbses[d], phymet))
                 for i in range(dbses[d].channels):
-                    if not (i == 3):
-                        plt.plot(
-                            phyerrs[i],
-                            logerrs[i],
-                            color=colors[i % len(colors)],
-                            marker=marker,
-                            markersize=2 * gv.marker_size,
-                        )
-                        # if d == 0:
-                        #     # Text annotations at data points
-                        #     print("{}). nu = {}".format(annotations[i], unitarity[i]))
-                        #     ax.annotate(
-                        #         "%.2f, %s" % (unitarity[i], annotations[i]),
-                        #         (1.03 * phyerrs[i], logerrs[i]),
-                        #         color=colors[i % len(colors)],
-                        #         fontsize=gv.ticks_fontsize,
-                        #     )
-                        # Text annotations at data points
-                        ax.annotate(
-                            annotations[i],
-                            (1.03 * phyerrs[i], logerrs[i]),
-                            color=colors[i % len(colors)],
-                            fontsize=gv.ticks_fontsize,
-                        )
-            # Axes labels
+                    ax1.plot(
+                        phyerrs[i],
+                        logerrs[d, i],
+                        color=colors[i % len(colors)],
+                        marker=marker,
+                        markersize=2 * gv.marker_size,
+                    )
+                    ax1.annotate(
+                        annotations[i],
+                        (1.03 * phyerrs[i], logerrs[d, i]),
+                        color=colors[i % len(colors)],
+                        fontsize=gv.ticks_fontsize,
+                    )
+            ## Inset plot
+            # https://scipython.com/blog/inset-plots-in-matplotlib/
+            # Create a set of inset Axes: these should fill the bounding box allocated to them.
+            ax2 = plt.axes([0, 0, 1, 1])
+            # Manually set the position and relative size of the inset axes within ax1
+            ip = InsetPosition(ax1, [0.08, 0.67, 0.3, 0.3])
+            ax2.set_axes_locator(ip)
+            # Mark the region corresponding to the inset axes on ax1 and draw lines in grey linking the two axes.
+            mark_inset(ax1, ax2, loc1=2, loc2=4, fc="none")
+            ax2.plot(
+                phyerrs,
+                (logerrs[1, :] - logerrs[0, :]) / logerrs[1, :],
+                color="goldenrod",
+                linestyle="--",
+                marker="o",
+                linewidth=gv.line_width,
+                label="Relative improvement",
+                markersize=gv.marker_size,
+            )
             if "xlabel" in dbses[d].plotsettings:
-                ax.set_xlabel(
+                ax2.set_xlabel(
+                    dbses[d].plotsettings["xlabel"],
+                    fontsize=gv.axes_labels_fontsize / 2,
+                )
+            else:
+                ax2.set_xlabel(
+                    "$\\mathcal{N}_{0}$: Physical noise strength",
+                    fontsize=gv.axes_labels_fontsize,
+                )
+            ax2.set_ylabel("Relative improvement", fontsize=gv.axes_labels_fontsize / 2)
+            ax2.set_xscale("log")
+            # ax2.set_yscale("log")
+            ax2.set_ylim([0, 1])
+            ax2.tick_params(
+                axis="both",
+                which="both",
+                pad=gv.ticks_pad,
+                direction="inout",
+                length=gv.ticks_length,
+                width=gv.ticks_width,
+                labelsize=gv.ticks_fontsize * 0.75,
+            )
+            # ax2.legend(loc=0, fontsize=gv.legend_fontsize / 2)
+
+            # Principal axes labels
+            if "xlabel" in dbses[d].plotsettings:
+                ax1.set_xlabel(
                     "%s" % (dbses[d].plotsettings["xlabel"]),
                     fontsize=gv.axes_labels_fontsize,
                 )
             else:
-                ax.set_xlabel(
+                ax1.set_xlabel(
                     "$\\mathcal{N}_{0}$: Physical noise strength",
                     fontsize=gv.axes_labels_fontsize,
                 )
-            # ax.set_xscale("log")
+            ax1.set_xscale("log")
             if "ylabel" in dbses[d].plotsettings:
-                ax.set_ylabel(
+                ax1.set_ylabel(
                     "%s" % (dbses[d].plotsettings["ylabel"]),
                     fontsize=gv.axes_labels_fontsize,
                 )
             else:
-                ax.set_ylabel(
+                ax1.set_ylabel(
                     "$\\mathcal{N}_{%d}$: %s" % (l, ml.Metrics[logmet][1]),
                     fontsize=gv.axes_labels_fontsize,
                 )
-            # ax.set_yscale("log")
-            ax.tick_params(
+            ax1.set_yscale("log")
+            ax1.tick_params(
                 axis="both",
                 which="both",
                 pad=gv.ticks_pad,
@@ -260,11 +296,11 @@ def ChannelWisePlot(phymet, logmet, dbses):
                 labelsize=gv.ticks_fontsize,
             )
             # Legend
-            plt.legend(
+            ax1.legend(
                 numpoints=1,
-                loc=2,
+                loc=4,
                 shadow=True,
-                fontsize=gv.legend_fontsize,
+                fontsize=gv.legend_fontsize * 0.75,
                 markerscale=gv.legend_marker_scale,
             )
             # Save the plot
