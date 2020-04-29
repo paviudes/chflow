@@ -7,7 +7,7 @@ try:
 except:
     pass
 from define import globalvars as gv
-from define.randchans import RandomCPTP, RandomPauliChannel
+from define.randchans import RandomCPTP, RandomPauliChannel, RandomUnitary
 from define import photonloss as pl
 from define import gendamp as gd
 from define import chanreps as crep
@@ -221,6 +221,15 @@ def GetKraussForChannel(chType, *params):
             krauss = RandomCPTP(params[0], 0)
         else:
             krauss = RandomCPTP(params[0], int(params[1]) - 1)
+
+    elif chType == "randunit":
+        availmethods = ["exp", "qr", "haar", "hyps", "pauli"]
+        if len(params) < 2:
+            krauss = RandomUnitary(params[0], 2, "exp", None)[np.newaxis, :, :]
+        else:
+            krauss = RandomUnitary(
+                params[0], 2, availmethods[int(params[1]) - 1], None
+            )[np.newaxis, :, :]
 
     elif chType == "pcorr":
         # This is a correlated Pauli channel.

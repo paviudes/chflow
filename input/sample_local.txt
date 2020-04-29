@@ -3,13 +3,13 @@ timestamp sample
 # Type of quantum error correcting code
 ecc Steane
 # Type of quantum channel
-channel rtnp
+channel randunit
 # Noise rates
-noiserange 5,10,6
+noiserange 7,9,5;1,1,1
 # Number of samples
-samples 1
+samples 10
 # Scales
-scale 0.5
+scale 0.66,1
 # Number of syndromes to be sampled at the top level
 stats 10000
 # Randomized compiling
@@ -22,4 +22,4 @@ metrics infid
 cores 1,1
 # Output directory
 outdir /Users/pavi/Documents/chbank
-plot name,With Randomized compiling;xlabel,Angle of rotation
+plot name,With Randomized compiling;xlabel,$\delta$;linestyle,None

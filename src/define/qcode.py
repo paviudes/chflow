@@ -31,6 +31,7 @@ class QuantumErrorCorrectingCode:
         self.D = 3
         self.S = None
         self.SSym = None
+        self.LSym = None
         self.L = None
         self.T = None
         self.syndsigns = None
@@ -181,19 +182,21 @@ def Load(qecc):
 
 def populate_symplectic(qcode):
     r"""
-		Populates symplectic description of all the stabilizers
-		Stores a dictionary for each stabilizer with keys "sx","sz" and values as binary lists
-		"""
+        Populates symplectic description of all the stabilizers and logicals.
+        Stores a dictionary for each stabilizer with keys "sx","sz" and values as binary lists
+        """
     qcode.SSym = []
+    qcode.LSym = []
     for S in qcode.S:
         dictS = {"sx": None, "sz": None}
-        dictS["sx"] = np.array(
-            list(map(lambda x: 1 if x == 1 or x == 2 else 0, S)), dtype=np.int8
-        )
-        dictS["sz"] = np.array(
-            list(map(lambda x: 1 if x == 2 or x == 3 else 0, S)), dtype=np.int8
-        )
+        dictS["sx"] = list(map(lambda x: 1 if x == 1 or x == 2 else 0, S))
+        dictS["sz"] = list(map(lambda x: 1 if x == 2 or x == 3 else 0, S))
         qcode.SSym.append(dictS)
+    for L in qcode.L:
+        dictL = {"sx": None, "sz": None}
+        dictL["sx"] = list(map(lambda x: 1 if x == 1 or x == 2 else 0, L))
+        dictL["sz"] = list(map(lambda x: 1 if x == 2 or x == 3 else 0, L))
+        qcode.LSym.append(dictL)
     return None
 
 

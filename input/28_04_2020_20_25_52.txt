@@ -1,5 +1,5 @@
 # Time stamp
-timestamp 27_04_2020_21_04_42
+timestamp 28_04_2020_20_25_52
 # Type of quantum error correcting code
 ecc Steane
 # Type of quantum channel
@@ -7,13 +7,13 @@ channel rtnp
 # Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
 repr process
 # Noise rate exponents. The actual noise rate is (2/3)^exponent.
-noiserange 5,10,6
+noiserange 7,12,11
 # Scales of noise range.
 scale 0.5
 # Number of samples
-samples 1
+samples 5
 # Parameters schedule
-scheduler ./../input/schedule_27_04_2020_21_04_42.txt
+scheduler ./../input/schedule_28_04_2020_20_25_52.txt
 # Decoder to be used -- 0 for soft decoding and 1 for hybrid decoding.
 hybrid 0
 # Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
@@ -27,7 +27,7 @@ metrics infid
 # Load distribution on cores.
 cores 1,1
 # Number of nodes
-nodes 6
+nodes 55
 # Name of the host computer.
 host local
 # Name of the account.
@@ -45,4 +45,4 @@ outdir /Users/pavi/Documents/chbank
 # Randomized compiling of quantum gates.
 rc 0
 # Plot settings
-plot name,Without Randomized compiling;xlabel,Diamond distance of the physical channel;ylabel,Diamond distance of the physical channel
+plot name,With Randomized compiling;xlabel,Angle of rotation $\delta/2\pi$;linestyle,None

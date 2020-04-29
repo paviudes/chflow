@@ -704,25 +704,90 @@ def Select(submit, chan_indices):
     # Identify the details of the physical noise maps given their channel indices.
     os.system("mkdir -p %s/physical/selected" % (submit.outdir))
     print("C   noise   samp")
-    for c in chan_indices:
+    phychans = np.zeros(
+        (len(chan_indices), 4 ** submit.eccs[0].K * 4 ** submit.eccs[0].K),
+        dtype=np.double,
+    )
+    selected = submit.available[chan_indices, :]
+    for c in range(len(chan_indices)):
         print(
             "%d   %s     %d"
             % (
-                c,
-                " ".join(list(map(lambda num: "%g" % num, submit.available[c, :-1]))),
-                submit.available[c, -1],
+                chan_indices[c],
+                " ".join(
+                    list(
+                        map(
+                            lambda num: "%g" % num,
+                            submit.available[chan_indices[c], :-1],
+                        )
+                    )
+                ),
+                submit.available[chan_indices[c], -1],
             )
         )
-        chanfile = fn.PhysicalChannel(submit, submit.available[c, :-1])
-        chan = np.reshape(np.load(chanfile)[int(submit.available[c, -1]), :], [4, 4])
+        chanfile = fn.PhysicalChannel(submit, submit.available[chan_indices[c], :-1])
+        phychans[c, :] = np.load(chanfile)[
+            int(submit.available[chan_indices[c], -1]), :
+        ]
+        chan = np.reshape(phychans[c, :], [4, 4])
         # Save the channel into a new folder
         (folder, fname) = os.path.split(chanfile)
         (name, extn) = os.path.splitext(fname)
         os.system("mkdir -p %s/selected" % (folder))
         np.save(
-            "%s/selected/%s_s%d%s" % (folder, name, submit.available[c, -1], extn), chan
+            "%s/selected/%s_s%d%s"
+            % (folder, name, submit.available[chan_indices[c], -1], extn),
+            chan,
         )
+    print("Total: %d channels." % (selected.shape[0]))
+    # Save all the channels into one file
+    np.save(
+        "%s/physical/selected/%s_%s.npy"
+        % (
+            submit.outdir,
+            submit.channel,
+            "_".join(
+                list(map(str, [1 for __ in range(submit.available.shape[1] - 2)]))
+            ),
+        ),
+        phychans,
+    )
+    # Compute the noise range that will contain the selected channels.
+    noise_range = [
+        [np.min(selected[:, i]), np.max(selected[:, i]), Increment(selected[:, i])]
+        for i in range(selected.shape[1] - 1)
+    ]
+    # print("noise_range: {}".format(noise_range))
+    print(
+        "encapsulating noise noise range:\n{}\nsamples = {}".format(
+            ";".join(
+                list(
+                    map(
+                        lambda nr: "%g,%g,%d"
+                        % (nr[0], nr[1], 1 + (nr[1] - nr[0]) / nr[2]),
+                        noise_range,
+                    )
+                )
+            ),
+            int(np.max(selected[:, -1])),
+        )
+    )
     return None
+
+
+def Increment(arr):
+    r"""
+    Compute the smallest non-zero increment in an array.
+    """
+    min_increment = np.max(arr)
+    atol = 10e-8
+    for i in range(arr.shape[0]):
+        for j in range(i + 1, arr.shape[0]):
+            current_increment = abs(arr[i] - arr[j])
+            if current_increment > atol:
+                if current_increment < min_increment:
+                    min_increment = current_increment
+    return min_increment
 
 
 def LoadSub(submit, subid, isgen):
