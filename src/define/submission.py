@@ -10,6 +10,7 @@ except:
 # Files from the define module
 from define import fnames as fn
 from define import qcode as qec
+from define import qchans as qc
 
 
 class Submission:
@@ -67,7 +68,7 @@ class Submission:
         self.ndecoderbins = []
         # Sampling options
         self.stats = np.array([])
-        self.samplingOptions = {"Direct": 0, "Importance": 1, "Bravyi": 2}
+        self.samplingOptions = {"direct": 0, "power": 1, "bravyi": 2}
         self.importance = 0
         self.nbins = 50
         self.maxbin = 50
@@ -149,8 +150,11 @@ def Update(submit, pname, newvalue):
 
     elif pname == "channel":
         submit.channel = newvalue
-        if submit.channel in ["pcorr"]:
-            submit.iscorr = 1
+        submit.iscorr = qc.Channels[submit.channel][5]
+        # print("submit.iscorr = {}".format(submit.iscorr))
+
+    elif pname == "chtype":
+        qc.Channels[submit.channel][4] = newvalue
 
     elif pname == "rc":
         submit.rc = int(newvalue)
@@ -244,7 +248,7 @@ def Update(submit, pname, newvalue):
 
     elif pname == "importance":
         submit.isSubmission = 1
-        submit.importance = submit.samplingOptions[newvalue]
+        submit.importance = submit.samplingOptions[newvalue.lower()]
 
     elif pname == "hybrid":
         submit.isSubmission = 1
@@ -298,7 +302,7 @@ def Update(submit, pname, newvalue):
         for i in range(len(settings_info)):
             if settings_info[i][0] not in submit.plotsettings:
                 submit.plotsettings.update({settings_info[i][0]: None})
-            submit.plotsettings[settings_info[i][0]] = settings_info[i][1].strip(" ")
+            submit.plotsettings[settings_info[i][0]] = settings_info[i][1]
     else:
         pass
 

@@ -4,7 +4,7 @@ import numpy as np
 from numpy.ctypeslib import ndpointer
 from define import fnames as fn
 
-DEBUG = 1
+DEBUG = 0
 
 
 def GetBMOutput(nlevels, nmetrics, nlogs, nbins, nbreaks):

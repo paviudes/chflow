@@ -3,12 +3,9 @@
 
 # Physical channels -- these can be generated from chflow
 physical/*.npy
-<<<<<<< HEAD
+
 # Python compiled files
 __pycache__/
-# All object files from backend
-src/simulate/backend/obj/
-=======
 
 # Temporary calibration files
 temp/
@@ -31,15 +28,12 @@ clipboard.py
 # References for reading
 refs/
 
->>>>>>> master
 # All input files that do not start with sample_...
 !input/
 !input/sample_*.txt
-<<<<<<< HEAD
+
 # Log file
-log.txt
-=======
+src/log.txt
 
 # Optimization report from icc
 **/*.optrpt
->>>>>>> master

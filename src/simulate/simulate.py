@@ -53,7 +53,10 @@ def LogResultsToStream(submit, stream, endresults):
                 fn.LogErrVariance(submit, rate, sample, submit.metrics[m])
             )
         stream.write("Core %d:\n" % (coreindex + 1))
-        stream.write("    Noise rate: %s\n" % (np.array_str(rate)))
+        stream.write(
+            "    Noise rate: %s or %s\n"
+            % (np.array_str(rate), np.array_str(np.power(submit.scales, rate)))
+        )
         stream.write("    sample = %d\n" % (sample))
         stream.write("    Runtime: %g seconds.\n" % (runtime))
         stream.write("\tMetrics\n")

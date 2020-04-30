@@ -52,12 +52,14 @@ def PreparePhysicalChannels(submit, nproc=1):
     # Create quantum channels for various noise parameters and store them in the process matrix formalism.
     if submit.iscorr == 0:
         nparams = 4 ** submit.eccs[0].K * 4 ** submit.eccs[0].K
-    else:
+    elif submit.iscorr == 1:
         # submit.rawchans = np.zeros(
         #     (submit.noiserates.shape[0], submit.samps, 4 ** submit.eccs[0].N),
         #     dtype=np.longdouble,
         # )
         nparams = 2 ** (submit.eccs[0].N + submit.eccs[0].K)
+    else:
+        nparams = submit.eccs[0].N * 4 ** submit.eccs[0].K * 4 ** submit.eccs[0].K
     phychans = mp.Array(
         ct.c_double,
         np.zeros(
@@ -150,13 +152,53 @@ def GenChannelSamples(noise, noiseidx, samps, submit, nparams, phychans, rawchan
                                 noiseidx * submit.samps * nparams + (j + 1) * nparams
                             )
                         ],
-                        [4, 4],
+                        [4 ** submit.eccs[0].K * 4 ** submit.eccs[0].K],
                         order="c",
                     ),
                     "process",
                     "chi",
                 )
             ).ravel()
+        elif submit.iscorr == 2:
+            noise = np.insert(noise, 0, submit.eccs[0].N)
+            chans = chdef.GetKraussForChannel(submit.channel, *noise)
+            nentries = 4 ** submit.eccs[0].K * 4 ** submit.eccs[0].K
+            for q in range(chans.shape[0]):
+                phychans[
+                    (noiseidx * submit.samps * nparams + j * nparams + q * nentries) : (
+                        noiseidx * submit.samps * nparams
+                        + j * nparams
+                        + (q + 1) * nentries
+                    )
+                ] = crep.ConvertRepresentations(
+                    chans[np.newaxis, q, :, :], "krauss", "process"
+                ).ravel()
+                rawchans[
+                    (noiseidx * submit.samps * nparams + j * nparams + q * nentries) : (
+                        noiseidx * submit.samps * nparams
+                        + j * nparams
+                        + (q + 1) * nentries
+                    )
+                ] = np.real(
+                    crep.ConvertRepresentations(
+                        np.reshape(
+                            phychans[
+                                (
+                                    noiseidx * submit.samps * nparams
+                                    + j * nparams
+                                    + q * nentries
+                                ) : (
+                                    noiseidx * submit.samps * nparams
+                                    + j * nparams
+                                    + (q + 1) * nentries
+                                )
+                            ],
+                            [4 ** submit.eccs[0].K * 4 ** submit.eccs[0].K],
+                        ),
+                        "process",
+                        "chi",
+                    )
+                ).ravel()
         else:
             rawchans[
                 (noiseidx * submit.samps * nparams + j * nparams) : (

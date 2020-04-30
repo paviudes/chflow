@@ -154,13 +154,23 @@ def HermitianConjugate(mat):
     return np.conjugate(np.transpose(mat))
 
 
-def DiamondNorm(choi, kwargs):
+def IsDiagonal(mat):
+    # Check if a matrix is diagonal
+    atol = 10e-16
+    if np.linalg.norm(np.diag(np.diag(mat)) - mat) <= atol:
+        return 1
+    return 0
+
+
+def DiamondNormPhysical(choi, kwargs):
     # computes the diamond norm of the difference between an input Channel and another reference channel, which is by default, the identity channel
     # The semidefinite program outlined in Sec. 4 of DOI: 10.4086/toc.2009.v005a011 is used here.
     # See also: https://github.com/BBN-Q/matlab-diamond-norm/blob/master/src/dnorm.m
     # For some known types of channels, the Diamond norm can be computed efficiently
     # print("Function: dnorm")
-    if kwargs["chtype"] == "physical":
+    if IsDiagonal(crep.ConvertRepresentations(choi, "choi", "process")) == 1:
+        dnorm = Infidelity(choi, kwargs)
+    else:
         diff = (choi - gv.bell[0, :, :]).astype(complex)
         #### picos optimization problem
         prob = pic.Problem()
@@ -179,27 +189,37 @@ def DiamondNorm(choi, kwargs):
         sol = prob.solve(verbose=0, maxit=500)
         dnorm = sol["obj"] * 2
         # print("SDP dnorm = %g" % (dnorm))
+    return dnorm
+
+
+def DiamondNorm(choi, kwargs):
+    # Compute the Diamond norm of a physical channel or a set of logical channels.
+    if qc.Channels[kwargs["channel"]][4] == "Pauli":
+        return Infidelity(choi, kwargs)
+
+    if kwargs["chtype"] == "physical":
+        if kwargs["corr"] == 0:
+            return DiamondNormPhysical(choi, kwargs)
+        elif kwargs["corr"] == 2:
+            chans_ptm = np.reshape(choi, [choi.shape[0], 4, 4])
+            dnorm = 0
+            for q in range(choi.shape[0]):
+                dnorm = dnorm + DiamondNormPhysical(
+                    crep.ConvertRepresentations(chans_ptm[q, :, :], "process", "choi"),
+                    {"corr": 0},
+                )
+        else:
+            print("Diamond form for fully correlated channels is not yet set up.")
     else:
         dnorm = np.zeros(kwargs["levels"], dtype=np.double)
         for l in range(kwargs["levels"]):
-            diff = (choi[l, :, :] - gv.bell[0, :, :]).astype(complex)
-            #### picos optimization problem
-            prob = pic.Problem()
-            # variables and parameters in the problem
-            J = pic.new_param("J", cvx.matrix(diff))
-            rho = prob.add_variable("rho", (2, 2), "hermitian")
-            W = prob.add_variable("W", (4, 4), "hermitian")
-            # objective function (maximize the hilbert schmidt inner product -- denoted by '|'. Here A|B means trace(A^\dagger * B))
-            prob.set_objective("max", J | W)
-            # adding the constraints
-            prob.add_constraint(W >> 0)
-            prob.add_constraint(rho >> 0)
-            prob.add_constraint(("I" | rho) == 1)
-            prob.add_constraint((W - ((rho & 0) // (0 & rho))) << 0)
-            # solving the problem
-            sol = prob.solve(verbose=0, maxit=500)
-            dnorm[l] = sol["obj"] * 2
-            # print("SDP dnorm = %g" % (dnorm))
+            dnorm[l] = DiamondNormPhysical(
+                choi[l, :, :],
+                dict(
+                    [(key, kwargs[key]) for key in kwargs if not (key == "chtype")]
+                    + [("chtype", "physical")]
+                ),
+            )
     return dnorm
 
 
@@ -236,49 +256,92 @@ def Entropy(choi, kwargs):
     return entropy
 
 
-def Infidelity(choi, kwargs):
+def InfidelityPhysical(choi, kwargs):
     # Compute the Fidelity between the input channel and the identity channel.
     # For independent errors, the single qubit channel must be in the Choi matrix representation.
     # For correlated Pauli channel, the channel is represented as a vector of diagonal elements of the respective Pauli trnsfer matrix.
-    if kwargs["chtype"] == "physical":
-        if kwargs["corr"] == 0:
-            fidelity = (1 / np.longdouble(2)) * np.longdouble(
-                np.real(choi[0, 0] + choi[3, 0] + choi[0, 3] + choi[3, 3])
-            )
-        else:
-            fidelity = choi[0]
-        # print("Infidelity for\n%s\n is %g." % (np.array_str(choi), 1 - fidelity))
+    # For a tensor product of CPTP maps, the fidelity is the sum of the fidelities of the maps in the tensor product.
+    if kwargs["corr"] == 0:
+        fidelity = (1 / np.longdouble(2)) * np.longdouble(
+            np.real(choi[0, 0] + choi[3, 0] + choi[0, 3] + choi[3, 3])
+        )
+    elif kwargs["corr"] == 1:
+        fidelity = choi[0]
     else:
-        fidelity = np.zeros(choi.shape[0], dtype=np.double)
-        for l in range(choi.shape[0]):
-            fidelity[l] = (1 / np.longdouble(2)) * np.longdouble(
-                np.real(choi[l, 0, 0] + choi[l, 3, 0] + choi[l, 0, 3] + choi[l, 3, 3])
+        fidelity = 0
+        chans_ptm = np.reshape(choi, [choi.shape[0], 4, 4])
+        for q in range(choi.shape[0]):
+            fidelity = fidelity + InfidelityPhysical(
+                crep.ConvertRepresentations(chans_ptm[q, :, :], "process", "choi"),
+                {"corr": 0},
             )
     return 1 - fidelity
 
 
-def TraceNorm(choi, kwargs):
+def Infidelity(choi, kwargs):
+    # Compute the Infidelity for a physical channel or a set of logical channels.
+    if kwargs["chtype"] == "physical":
+        return InfidelityPhysical(choi, kwargs)
+    else:
+        infids = np.zeros(choi.shape[0], dtype=np.double)
+        for l in range(choi.shape[0]):
+            infids[l] = InfidelityPhysical(
+                choi[l, :, :],
+                dict(
+                    [(key, kwargs[key]) for key in kwargs if not (key == "chtype")]
+                    + [("chtype", "physical")]
+                ),
+            )
+    return infids
+
+
+def TraceNormPhysical(choi, kwargs):
     # Compute the trace norm of the difference between the input Choi matrix and the Choi matrix corresponding to the Identity channel
     # trace norm of A is defined as: Trace(Sqrt(A^\dagger . A))
     # https://quantiki.org/wiki/trace-norm
+    return np.linalg.norm((choi - gv.bell[0, :, :]).astype(np.complex), ord="nuc")
+
+
+def TraceNorm(choi, kwargs):
+    # Compute the trace norm of a physical channel or a set of logical channels.
     if kwargs["chtype"] == "physical":
-        trnorm = np.linalg.norm((choi - gv.bell[0, :, :]).astype(np.complex), ord="nuc")
+        return TraceNormPhysical(choi, kwargs)
     else:
         trnorm = np.zeros(choi.shape[0], dtype=np.double)
         for l in range(choi.shape[0]):
-            trnorm[l] = np.linalg.norm(
-                (choi[l, :, :] - gv.bell[0, :, :]).astype(np.complex), ord="nuc"
+            trnorm[l] = TraceNormPhysical(
+                choi[l, :, :],
+                dict(
+                    [(key, kwargs[key]) for key in kwargs if not (key == "chtype")]
+                    + [("chtype", "physical")]
+                ),
             )
     return trnorm
 
 
-def FrobeniousNorm(choi, kwargs):
+def FrobeniousNormPhysical(choi, kwargs):
     # Compute the Frobenious norm of the difference between the input Choi matrix and the Choi matrix corresponding to the Identity channel
     # Frobenious of A is defined as: sqrt(Trace(A^\dagger . A))
     # https://en.wikipedia.org/wiki/Matrix_norm#Frobenius_norm
     # Optimized in C
-    frob = np.linalg.norm((choi - gv.bell[0, :, :]).astype(np.complex), ord="fro")
-    return frob
+    return np.linalg.norm((choi - gv.bell[0, :, :]).astype(np.complex), ord="fro")
+
+
+def FrobeniousNorm(choi, kwargs):
+    # Compute the Frobenious norm of a physical channel or a set of logical channels.
+    if kwargs["chtype"] == "physical":
+        return FrobeniousNormPhysical(choi, kwargs)
+    else:
+        frbnorm = np.zeros(choi.shape[0], dtype=np.double)
+        for l in range(choi.shape[0]):
+            frbnorm[l] = FrobeniousNormPhysical(
+                choi[l, :, :],
+                dict(
+                    [(key, kwargs[key]) for key in kwargs if not (key == "chtype")]
+                    + [("chtype", "physical")]
+                ),
+            )
+    return frbnorm
 
 
 def BuresDistance(choi, kwargs):
@@ -495,8 +558,12 @@ def ChannelMetrics(submit, metrics, start, end, results, rep, chtype):
                 # print("Channel %d: Function ComputeNorms(\n%s,\n%s)" % (i, np.array_str(physical, max_line_width = 150, precision = 3), metrics))
                 if not (rep == "choi"):
                     chan = crep.ConvertRepresentations(chan, "process", "choi")
-            else:
+            elif submit.iscorr == 1:
                 chan = np.load("%s/raw_%s" % (folder, fname))[
+                    int(submit.available[i, -1]), :
+                ]
+            else:
+                chan = np.load("%s/%s" % (folder, fname))[
                     int(submit.available[i, -1]), :
                 ]
         else:
@@ -520,7 +587,7 @@ def ChannelMetrics(submit, metrics, start, end, results, rep, chtype):
                         "qcode": submit.eccs[0],
                         "levels": nlevels,
                         "corr": submit.iscorr,
-                        "channel": "unknown",
+                        "channel": submit.channel,
                         "chtype": chtype,
                         "rep": "choi",
                     },
@@ -536,7 +603,7 @@ def ChannelMetrics(submit, metrics, start, end, results, rep, chtype):
                         "qcode": submit.eccs[0],
                         "levels": nlevels,
                         "corr": submit.iscorr,
-                        "channel": "unknown",
+                        "channel": submit.channel,
                         "chtype": chtype,
                         "rep": "choi",
                     },

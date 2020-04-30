@@ -188,6 +188,7 @@ def ChannelWisePlot(phymet, logmet, dbses):
             # ax1 = plt.gca()
             # plt.axvline(x=0.06, linestyle="--")
             logerrs = np.zeros((len(dbses), dbses[0].channels), dtype=np.double)
+            phyerrs = np.zeros((len(dbses), dbses[0].channels), dtype=np.double)
             for d in range(len(dbses)):
                 marker = markers[d % len(markers)]
                 ax1.plot(
@@ -200,25 +201,33 @@ def ChannelWisePlot(phymet, logmet, dbses):
                 )
                 logerrs[d, :] = np.load(fn.LogicalErrorRates(dbses[d], logmet))[:, l]
                 if sub.IsNumber(phymet):
-                    phyerrs = np.power(
+                    phyerrs[d, :] = np.power(
                         dbses[d].scales[int(phymet)], dbses[d].available[:, int(phymet)]
                     )
                 else:
-                    phyerrs = np.load(fn.PhysicalErrorRates(dbses[d], phymet))
+                    phyerrs[d, :] = np.load(fn.PhysicalErrorRates(dbses[d], phymet))
                 for i in range(dbses[d].channels):
                     ax1.plot(
-                        phyerrs[i],
+                        phyerrs[d, i],
                         logerrs[d, i],
                         color=colors[i % len(colors)],
                         marker=marker,
                         markersize=2 * gv.marker_size,
                     )
-                    ax1.annotate(
-                        annotations[i],
-                        (1.05 * phyerrs[i], logerrs[d, i]),
-                        color=colors[i % len(colors)],
-                        fontsize=gv.ticks_fontsize,
-                    )
+                    # ax1.annotate(
+                    #     annotations[i],
+                    #     (1.05 * phyerrs[d, i], logerrs[d, i]),
+                    #     color=colors[i % len(colors)],
+                    #     fontsize=gv.ticks_fontsize,
+                    # )
+            for i in range(dbses[d].channels):
+                # Draw lines between the corresponding channels in databases 0 and 1
+                ax1.plot(
+                    [phyerrs[0, i], phyerrs[1, i]],
+                    [logerrs[0, i], logerrs[1, i]],
+                    color="slategrey",
+                    linestyle="--",
+                )
             ## Inset plot
             # https://scipython.com/blog/inset-plots-in-matplotlib/
             # Create a set of inset Axes: these should fill the bounding box allocated to them.
@@ -230,22 +239,22 @@ def ChannelWisePlot(phymet, logmet, dbses):
             mark_inset(ax1, ax2, loc1=2, loc2=4, fc="none")
             for i in range(dbses[0].channels):
                 ax2.plot(
-                    phyerrs[i],
+                    phyerrs[1, i],
                     (logerrs[1, i] - logerrs[0, i]) / logerrs[1, i],
                     color=colors[i % len(colors)],
                     marker="o",
                     label="Relative improvement",
                     markersize=gv.marker_size,
                 )
-                ax2.annotate(
-                    annotations[i],
-                    (
-                        0.92 * phyerrs[i],
-                        0.89 * (logerrs[1, i] - logerrs[0, i]) / logerrs[1, i],
-                    ),
-                    color=colors[i % len(colors)],
-                    fontsize=gv.ticks_fontsize * 0.75,
-                )
+                # ax2.annotate(
+                #     annotations[i],
+                #     (
+                #         0.92 * phyerrs[1, i],
+                #         0.89 * (logerrs[1, i] - logerrs[0, i]) / logerrs[1, i],
+                #     ),
+                #     color=colors[i % len(colors)],
+                #     fontsize=gv.ticks_fontsize * 0.75,
+                # )
             if "xlabel" in dbses[d].plotsettings:
                 ax2.set_xlabel(
                     dbses[d].plotsettings["xlabel"],

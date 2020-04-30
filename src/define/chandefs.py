@@ -121,6 +121,36 @@ def GetKraussForChannel(chType, *params):
             * gv.Pauli[2, :, :]
         )
 
+    elif chType == "rtas":
+        # Asymmetric rotation to n qubits
+        # We mimic the asymmetry by a sum of unitaries
+        nqubits = int(params[0])
+        mean = params[1]
+        if len(params) < 3:
+            std = mean / 10
+        else:
+            std = params[2]
+
+        krauss = np.zeros((nqubits, 2, 2), dtype=np.complex128)
+        for i in range(krauss.shape[0]):
+            delta = np.random.normal(mean, std)
+            theta = np.random.uniform(0, np.pi)
+            phi = np.random.uniform(0, 2 * np.pi)
+            axis = np.array(
+                [
+                    np.sin(theta) * np.cos(phi),
+                    np.sin(theta) * np.sin(phi),
+                    np.cos(theta),
+                ],
+                dtype=np.longdouble,
+            )
+            exponent = np.zeros((2, 2), dtype=np.complex128)
+            for j in range(3):
+                exponent = exponent + axis[j] * gv.Pauli[j + 1, :, :]
+            krauss[i, :, :] = linalg.expm(-1j * delta * np.pi * exponent) / np.sqrt(
+                nqubits
+            )
+
     elif chType == "rtnp":
         # This is the channel in a generic rotation channel about some axis of the Bloch sphere
         # It represents a Phase damping along an axis in the X-Z plane of the Bloch sphere: n = [sin(theta) cos(phi), sin(theta) sin(phi), cos(theta)]
@@ -137,7 +167,7 @@ def GetKraussForChannel(chType, *params):
         # Rotations about the Hadamard axis: (1 1 0)/sqrt(2)
         # theta = pi/2
         # phi = pi/4
-        delta = np.random.normal(params[0], scale=0.1 * params[0])
+        delta = np.random.normal(params[0], params[0])
         theta = np.random.uniform(0, np.pi)
         phi = np.random.uniform(0, 2 * np.pi)
         # phi = params[1]
