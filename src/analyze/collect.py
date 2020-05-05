@@ -87,10 +87,11 @@ def CollectPhysicalChannels(submit):
     return None
 
 
-def GatherLogErrData(submit):
+def GatherLogErrData(submit, additional=[]):
     # Gather the logical error rates data from all completed simulations and save as a 2D array in a file.
     # If no running averages data is found, a zero array is stored in its place.
-    for m in range(len(submit.metrics)):
+    logmetrics = submit.metrics + additional
+    for m in range(len(logmetrics)):
         logerr = np.zeros((submit.channels, submit.levels + 1), dtype=np.longdouble)
         runavg = np.zeros(
             (
@@ -107,28 +108,25 @@ def GatherLogErrData(submit):
                     submit,
                     submit.available[i, :-1],
                     submit.available[i, -1],
-                    submit.metrics[m],
+                    logmetrics[m],
                     average=quant,
                 )
                 if os.path.isfile(fname):
                     break
             logerr[i, :] = np.load(fname)
             fname = fn.RunningAverageCh(
-                submit,
-                submit.available[i, :-1],
-                submit.available[i, -1],
-                submit.metrics[m],
+                submit, submit.available[i, :-1], submit.available[i, -1], logmetrics[m]
             )
             if os.path.isfile(fname):
                 runavg[i, :, :, :] = np.load(fname)
         # Save the gathered date to a numpy file.
-        fname = fn.LogicalErrorRates(submit, submit.metrics[m], fmt="npy")
+        fname = fn.LogicalErrorRates(submit, logmetrics[m], fmt="npy")
         np.save(fname, logerr)
         # Save the running averages to a file
-        fname = fn.RunningAverages(submit, submit.metrics[m])
+        fname = fn.RunningAverages(submit, logmetrics[m])
         np.save(fname, runavg)
         # Save the gathered date to a text file.
-        fname = fn.LogicalErrorRates(submit, submit.metrics[m], fmt="txt")
+        fname = fn.LogicalErrorRates(submit, logmetrics[m], fmt="txt")
         with open(fname, "w") as fp:
             fp.write(
                 "# Channel Noise Sample %s\n"

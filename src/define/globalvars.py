@@ -2,37 +2,95 @@ import numpy as np
 import itertools as it
 
 # Computational basis
-kets = np.array([[[1],[0]], [[0],[1]]])
-bras = np.array([[[1, 0]], [[0,1]]])
+kets = np.array([[[1], [0]], [[0], [1]]])
+bras = np.array([[[1, 0]], [[0, 1]]])
 
 # Pauli matrices
-Pauli = np.array([[[1, 0], [0, 1]],
-				  [[0, 1], [1, 0]],
-				  [[0, -1j], [1j, 0]],
-				  [[1, 0], [0, -1]]], dtype = np.complex128)
+Pauli = np.array(
+    [[[1, 0], [0, 1]], [[0, 1], [1, 0]], [[0, -1j], [1j, 0]], [[1, 0], [0, -1]]],
+    dtype=np.complex128,
+)
 
-paulibasis = np.zeros((np.power(4,3,dtype=int), 8, 8), dtype = np.complex128)
+paulibasis = np.zeros((np.power(4, 3, dtype=int), 8, 8), dtype=np.complex128)
 combinations = it.product(range(4), repeat=3)
 for (i, comb) in enumerate(combinations):
-	paulibasis[i, :, :] = np.kron(np.kron(Pauli[comb[0]], Pauli[comb[1]]), Pauli[comb[2]])
+    paulibasis[i, :, :] = np.kron(
+        np.kron(Pauli[comb[0]], Pauli[comb[1]]), Pauli[comb[2]]
+    )
 
 # Bell states
-bell = np.zeros([4,4,4], dtype = np.float)
+bell = np.zeros([4, 4, 4], dtype=np.float)
 # Bell state |00> + |11>
-bell[0, :, :] = np.dot((np.kron(kets[0], kets[0]) + np.kron(kets[1], kets[1])), (np.kron(bras[0], bras[0]) + np.kron(bras[1], bras[1])))/np.float(2)
+bell[0, :, :] = np.dot(
+    (np.kron(kets[0], kets[0]) + np.kron(kets[1], kets[1])),
+    (np.kron(bras[0], bras[0]) + np.kron(bras[1], bras[1])),
+) / np.float(2)
 # Bell state |01> + |10>
-bell[1, :, :] = np.dot((np.kron(kets[0], kets[1]) + np.kron(kets[1], kets[0])), (np.kron(bras[0], bras[1]) + np.kron(bras[1], bras[0])))/np.float(2)
+bell[1, :, :] = np.dot(
+    (np.kron(kets[0], kets[1]) + np.kron(kets[1], kets[0])),
+    (np.kron(bras[0], bras[1]) + np.kron(bras[1], bras[0])),
+) / np.float(2)
 # Bell state i(|10> - |01>)
-bell[2, :, :] = np.dot((np.kron(kets[0], kets[1]) - np.kron(kets[1], kets[0])), (np.kron(bras[0], bras[1]) - np.kron(bras[1], bras[0])))/np.float(2)
+bell[2, :, :] = np.dot(
+    (np.kron(kets[0], kets[1]) - np.kron(kets[1], kets[0])),
+    (np.kron(bras[0], bras[1]) - np.kron(bras[1], bras[0])),
+) / np.float(2)
 # Bell state |00> - |11>
-bell[3, :, :] = np.dot((np.kron(kets[0], kets[0]) - np.kron(kets[1], kets[1])), (np.kron(bras[0], bras[0]) - np.kron(bras[1], bras[1])))/np.float(2)
+bell[3, :, :] = np.dot(
+    (np.kron(kets[0], kets[0]) - np.kron(kets[1], kets[1])),
+    (np.kron(bras[0], bras[0]) - np.kron(bras[1], bras[1])),
+) / np.float(2)
 
 # Hadamard gate
-hadamard = np.array([[1/np.sqrt(np.longdouble(2)), 1/np.sqrt(np.longdouble(2))], [1/np.sqrt(np.longdouble(2)), -1/np.sqrt(np.longdouble(2))]], dtype = np.complex128)
+hadamard = np.array(
+    [
+        [1 / np.sqrt(np.longdouble(2)), 1 / np.sqrt(np.longdouble(2))],
+        [1 / np.sqrt(np.longdouble(2)), -1 / np.sqrt(np.longdouble(2))],
+    ],
+    dtype=np.complex128,
+)
 
 ## Plot settings
 # linestyles from https://matplotlib.org/gallery/lines_bars_and_markers/linestyles.html
 line_styles = [(0, ()), (0, (5, 5)), (0, (1, 1)), (0, (3, 5, 1, 5, 1, 5))]
+# Markers
+# https://matplotlib.org/2.0.2/api/markers_api.html
+Markers = [
+    "s",
+    "+",
+    "*",
+    "^",
+    "v",
+    "<",
+    ">",
+    "8",
+    "o",
+    "p",
+    "h",
+    "H",
+    "D",
+    "d",
+    "P",
+    "X",
+]
+n_Markers = len(Markers)
+# Colors
+# https://stackoverflow.com/questions/16006572/plotting-different-colors-in-matplotlib
+Colors = [
+    "green",
+    "red",
+    "#1f77b4",
+    "#ff7f0e",
+    "#2ca02c",
+    "#d62728",
+    "#9467bd",
+    "#8c564b",
+    "#e377c2",
+    "#7f7f7f",
+    "#bcbd22",
+    "#17becf",
+]
+n_Colors = len(Colors)
 # Frame
 title_fontsize = 48
 canvas_size = (32, 22)

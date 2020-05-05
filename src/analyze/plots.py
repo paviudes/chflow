@@ -17,6 +17,7 @@ try:
         mark_inset,
     )
     from scipy.interpolate import griddata
+    import PyPDF2 as pp
 except:
     pass
 # Force the module scripts to run locally -- https://stackoverflow.com/questions/279237/import-a-module-from-a-relative-path
@@ -31,6 +32,26 @@ from define import globalvars as gv
 from define import metrics as ml
 from define import submission as sub
 from analyze import collect as cl
+
+
+def ExtractPDFPages(information, save_folder, save_fname):
+    r"""
+    Extract pages from a PDF and save it into a new PDF.
+    """
+    for f in range(len(information)):
+        pdfobj = open("%s" % information[f]["fname"], "rb")
+        pdfReader = pp.PdfFileReader(pdfobj)
+        pdf_writer = pp.PdfFileWriter()
+        from_page = information[f]["start"]
+        to_page = information[f]["end"]
+        for p in range(from_page, to_page + 1):
+            pdf_writer.addPage(pdfReader.getPage(from_page - 1))
+        if not os.path.exists(save_folder):
+            os.makedirs(save_folder)
+        with open("%s/%s" % (save_folder, save_fname), "wb") as out:
+            pdf_writer.write(out)
+    print("\033[2mPDF file written to %s/%s.\033[0m" % (save_folder, save_fname))
+    return None
 
 
 def latex_float(f):
@@ -94,7 +115,7 @@ def ThresholdPlot(phymets, logmet, dbs):
                     dbs.available[sampreps[i] : sampreps[i + 1], np.int8(phylist[m])],
                     dtype=np.longdouble,
                 ) / np.longdouble(sampreps[i + 1] - sampreps[i])
-            phyparams.append(qc.Channels[dbs.channel][2][np.int8(phylist[m])])
+            phyparams.append(qc.Channels[dbs.channel]["latex"][np.int8(phylist[m])])
         else:
             # print("loading: %s" % (fn.PhysicalErrorRates(dbs, phylist[m])))
             phyrates = np.load(fn.PhysicalErrorRates(dbs, phylist[m]))
@@ -104,7 +125,7 @@ def ThresholdPlot(phymets, logmet, dbs):
                 phyerrs[i, m] = np.sum(
                     phyrates[sampreps[i] : sampreps[i + 1]], dtype=np.longdouble
                 ) / np.longdouble(sampreps[i + 1] - sampreps[i])
-            phyparams.append(ml.Metrics[phylist[m]][1])
+            phyparams.append(ml.Metrics[phylist[m]]["latex"])
     # print("phyerrs")
     # print phyerrs
     plotfname = fn.ThreshPlot(dbs, "_".join(phylist), logmet)
@@ -117,8 +138,8 @@ def ThresholdPlot(phymets, logmet, dbs):
                     np.arange(dbs.levels + 1),
                     logErr[p, :],
                     label=("%s = %s" % (phyparams[m], DisplayForm(phyerrs[p, m], 10))),
-                    color=ml.Metrics[fmtidx][3],
-                    marker=ml.Metrics[fmtidx][2],
+                    color=ml.Metrics[fmtidx]["color"],
+                    marker=ml.Metrics[fmtidx]["marker"],
                     markersize=gv.marker_size,
                     linestyle="--",
                     linewidth=gv.line_width,
@@ -134,7 +155,7 @@ def ThresholdPlot(phymets, logmet, dbs):
             # Title
             plt.title(
                 "Threshold of %s channel in %s."
-                % (qc.Channels[dbs.channel][0], phyparams[m]),
+                % (qc.Channels[dbs.channel]["name"], phyparams[m]),
                 fontsize=gv.title_fontsize,
                 y=1.03,
             )
@@ -145,7 +166,7 @@ def ThresholdPlot(phymets, logmet, dbs):
             ax.set_xlabel("$\\ell$", fontsize=gv.axes_labels_fontsize)
             ax.set_ylabel(
                 "$\\widetilde{\\mathcal{N}}_{\\ell}: %s$"
-                % (ml.Metrics[logmet][1].replace("$", "")),
+                % (ml.Metrics[logmet]["latex"].replace("$", "")),
                 fontsize=gv.axes_labels_fontsize,
             )
             # ax.set_yscale('log')
@@ -164,7 +185,7 @@ def ThresholdPlot(phymets, logmet, dbs):
         # Set PDF attributes
         pdfInfo = pdf.infodict()
         pdfInfo["Title"] = "%s at levels %s, with physical %s for %d channels." % (
-            ml.Metrics[logmet][0],
+            ml.Metrics[logmet]["log"],
             ", ".join(map(str, range(1, 1 + dbs.levels))),
             ", ".join(phyparams),
             dbs.channels,
@@ -174,14 +195,109 @@ def ThresholdPlot(phymets, logmet, dbs):
     return None
 
 
+def GetNKDString(dbs, l):
+    r"""
+    Compute N,K,D for the concatenated code and return it as a string.
+    """
+    if l == 0:
+        return ("Physical channel: %s") % (qc.Channels[dbs.channel]["name"])
+    return ("N = %d, D = %d, %s") % (
+        np.prod([dbs.eccs[j].N for j in range(l)]),
+        np.prod([dbs.eccs[j].D for j in range(l)]),
+        qc.Channels[dbs.channel]["name"],
+    )
+
+
+def LoadPhysicalErrorRates(dbs, pmet, settings, override=None, is_override=0):
+    """
+    Load the physical error rates.
+    """
+    if pmet in ml.Metrics:
+        settings["xlabel"] = ml.Metrics[pmet]["phys"]
+        settings["xaxis"] = np.load(fn.PhysicalErrorRates(dbs, pmet))
+        if settings["marker"] == "":
+            settings["marker"] = ml.Metrics[pmet]["marker"]
+        if settings["color"] == "":
+            settings["color"] = ml.Metrics[pmet]["color"]
+    else:
+        settings["xlabel"] = qc.Channels[dbs.channel]["latex"][np.int(pmet)]
+        settings["xaxis"] = dbs.available[:, np.int(pmet)]
+        settings["marker"] = gv.Markers[int(pmet)]
+        settings["color"] = gv.Colors[int(pmet)]
+        if not (dbs.scales[p] == 1):
+            settings["xaxis"] = np.power(dbs.scales[p], phyerrs)
+
+    settings["linestyle"] = ["None", "--"][dbs.samps == 1]
+    if is_override == 1:
+        for key in override:
+            settings[key] = override[value]
+    return None
+
+
+def RelativeImprovement(xaxis, yaxes, plt, ax1, xlabel, annotations=None):
+    """
+    Plot relative improvement from RC, in an inset plot.
+    We will compute the difference: (second row - first row)/(second row)
+    The first row in yaxes refers to RC data while the second row refers to non RC data.
+    https://scipython.com/blog/inset-plots-in-matplotlib/
+    """
+    degrading_indices = yaxes[0, :] > yaxes[1, :]
+    print(
+        "Logical error rates:\n RC: {}\n no RC: {}".format(
+            yaxes[0, degrading_indices], yaxes[1, degrading_indices]
+        )
+    )
+    ax2 = plt.axes([0, 0, 1, 1])
+    # Manually set the position and relative size of the inset axes within ax1
+    ip = InsetPosition(ax1, [0.1, 0.67, 0.33, 0.3])
+    ax2.set_axes_locator(ip)
+    # Mark the region corresponding to the inset axes on ax1 and draw lines in grey linking the two axes.
+    mark_inset(ax1, ax2, loc1=2, loc2=4, fc="none")
+    for i in range(xaxis.shape[0]):
+        ax2.plot(
+            xaxis[i],
+            (yaxes[1, i] - yaxes[0, i]) / yaxes[1, i],
+            color=gv.Colors[i % gv.n_Colors],
+            marker="o",
+            markersize=gv.marker_size,
+        )
+        if annotations is not None:
+            ax2.annotate(
+                annotations[i],
+                (0.92 * xaxis[i], 0.89 * (yaxes[1, i] - yaxes[0, i]) / yaxes[1, i]),
+                color=gv.Colors[i % gv.n_Colors],
+                fontsize=gv.ticks_fontsize * 0.75,
+            )
+    # Draw a horizontal line at Y=0 to show the break-even point RC and no RC.
+    ax2.axhline(y=0, linestyle="--")
+    ax2.set_xlabel(xlabel, fontsize=gv.axes_labels_fontsize / 2)
+    ax2.set_ylabel("Relative improvement", fontsize=gv.axes_labels_fontsize / 2)
+    ax2.set_xscale("log")
+    # ax2.set_yscale("log")
+    ax2.tick_params(
+        axis="both",
+        which="both",
+        pad=gv.ticks_pad,
+        direction="inout",
+        length=gv.ticks_length,
+        width=gv.ticks_width,
+        labelsize=gv.ticks_fontsize * 0.75,
+    )
+    # ax2.legend(loc=0, fontsize=gv.legend_fontsize / 2)
+    return None
+
+
 def ChannelWisePlot(phymet, logmet, dbses):
     # Plot each channel in the database with a different color.
     # Channels of similar type in different databases will be distinguished using different markers.
+    ndb = len(dbses)
     plotfname = fn.ChannelWise(dbses[0], phymet, logmet)
-    colors = ["b", "g", "r", "k", "c", "y"]
-    markers = ["*", "^", "s"]
     maxlevel = max([db.levels for db in dbses])
-    annotations = [("$\\mathcal{U}_{%d}$" % (i + 1)) for i in range(dbses[0].channels)]
+    annotations = None
+    if dbses[0].channels < 7:
+        annotations = [
+            ("$\\mathcal{U}_{%d}$" % (i + 1)) for i in range(dbses[0].channels)
+        ]
     with PdfPages(plotfname) as pdf:
         for l in range(1 + maxlevel):
             fig, ax1 = plt.subplots(figsize=gv.canvas_size)
@@ -189,119 +305,70 @@ def ChannelWisePlot(phymet, logmet, dbses):
             # plt.axvline(x=0.06, linestyle="--")
             logerrs = np.zeros((len(dbses), dbses[0].channels), dtype=np.double)
             phyerrs = np.zeros((len(dbses), dbses[0].channels), dtype=np.double)
-            for d in range(len(dbses)):
-                marker = markers[d % len(markers)]
+            settings = [{} for __ in range(ndb)]
+            for d in range(ndb):
                 ax1.plot(
                     [],
                     [],
-                    marker=marker,
+                    marker=gv.Markers[d % gv.n_Markers],
                     color="k",
                     label=dbses[d].plotsettings["name"],
                     markersize=gv.marker_size,
                 )
-                logerrs[d, :] = np.load(fn.LogicalErrorRates(dbses[d], logmet))[:, l]
-                if sub.IsNumber(phymet):
-                    phyerrs[d, :] = np.power(
-                        dbses[d].scales[int(phymet)], dbses[d].available[:, int(phymet)]
-                    )
-                else:
-                    phyerrs[d, :] = np.load(fn.PhysicalErrorRates(dbses[d], phymet))
+                settings[d] = {
+                    "xaxis": None,
+                    "xlabel": None,
+                    "yaxis": np.load(fn.LogicalErrorRates(dbses[d], logmet))[:, l],
+                    "ylabel": ml.Metrics[logmet]["log"],
+                    "color": "",
+                    "marker": "",
+                    "linestyle": "",
+                }
+                LoadPhysicalErrorRates(dbses[d], phymet, settings[d], d == 0)
+
                 for i in range(dbses[d].channels):
                     ax1.plot(
-                        phyerrs[d, i],
-                        logerrs[d, i],
-                        color=colors[i % len(colors)],
-                        marker=marker,
+                        settings[d]["xaxis"][i],
+                        settings[d]["yaxis"][i],
+                        color=gv.Colors[i % gv.n_Colors],
+                        marker=gv.Markers[d % gv.n_Markers],
                         markersize=2 * gv.marker_size,
                     )
-                    # ax1.annotate(
-                    #     annotations[i],
-                    #     (1.05 * phyerrs[d, i], logerrs[d, i]),
-                    #     color=colors[i % len(colors)],
-                    #     fontsize=gv.ticks_fontsize,
-                    # )
+                    if annotations is not None:
+                        ax1.annotate(
+                            annotations[i],
+                            (1.05 * settings[d]["xaxis"][i], settings[d]["yaxis"][i]),
+                            color=gv.Colors[i % gv.n_Colors],
+                            fontsize=gv.ticks_fontsize,
+                        )
             for i in range(dbses[d].channels):
                 # Draw lines between the corresponding channels in databases 0 and 1
                 ax1.plot(
-                    [phyerrs[0, i], phyerrs[1, i]],
-                    [logerrs[0, i], logerrs[1, i]],
+                    [settings[0]["xaxis"][i], settings[1]["xaxis"][i]],
+                    [settings[0]["yaxis"][i], settings[1]["yaxis"][i]],
                     color="slategrey",
                     linestyle="--",
                 )
-            ## Inset plot
-            # https://scipython.com/blog/inset-plots-in-matplotlib/
-            # Create a set of inset Axes: these should fill the bounding box allocated to them.
-            ax2 = plt.axes([0, 0, 1, 1])
-            # Manually set the position and relative size of the inset axes within ax1
-            ip = InsetPosition(ax1, [0.08, 0.67, 0.33, 0.3])
-            ax2.set_axes_locator(ip)
-            # Mark the region corresponding to the inset axes on ax1 and draw lines in grey linking the two axes.
-            mark_inset(ax1, ax2, loc1=2, loc2=4, fc="none")
-            for i in range(dbses[0].channels):
-                ax2.plot(
-                    phyerrs[1, i],
-                    (logerrs[1, i] - logerrs[0, i]) / logerrs[1, i],
-                    color=colors[i % len(colors)],
-                    marker="o",
-                    label="Relative improvement",
-                    markersize=gv.marker_size,
-                )
-                # ax2.annotate(
-                #     annotations[i],
-                #     (
-                #         0.92 * phyerrs[1, i],
-                #         0.89 * (logerrs[1, i] - logerrs[0, i]) / logerrs[1, i],
-                #     ),
-                #     color=colors[i % len(colors)],
-                #     fontsize=gv.ticks_fontsize * 0.75,
-                # )
-            if "xlabel" in dbses[d].plotsettings:
-                ax2.set_xlabel(
-                    dbses[d].plotsettings["xlabel"],
-                    fontsize=gv.axes_labels_fontsize / 2,
-                )
-            else:
-                ax2.set_xlabel(
-                    "$\\mathcal{N}_{0}$: Physical noise strength",
-                    fontsize=gv.axes_labels_fontsize,
-                )
-            ax2.set_ylabel("Relative improvement", fontsize=gv.axes_labels_fontsize / 2)
-            ax2.set_xscale("log")
-            # ax2.set_yscale("log")
-            ax2.set_ylim([0, 1])
-            ax2.tick_params(
-                axis="both",
-                which="both",
-                pad=gv.ticks_pad,
-                direction="inout",
-                length=gv.ticks_length,
-                width=gv.ticks_width,
-                labelsize=gv.ticks_fontsize * 0.75,
+            # Plot the relative improvements in an inset plot
+            RelativeImprovement(
+                settings[1]["xaxis"],
+                np.concatenate(
+                    (
+                        settings[0]["yaxis"][np.newaxis, :],
+                        settings[1]["yaxis"][np.newaxis, :],
+                    ),
+                    axis=0,
+                ),
+                plt,
+                ax1,
+                settings[1]["xlabel"],
+                annotations,
             )
-            # ax2.legend(loc=0, fontsize=gv.legend_fontsize / 2)
 
             # Principal axes labels
-            if "xlabel" in dbses[d].plotsettings:
-                ax1.set_xlabel(
-                    "%s" % (dbses[d].plotsettings["xlabel"]),
-                    fontsize=gv.axes_labels_fontsize,
-                )
-            else:
-                ax1.set_xlabel(
-                    "$\\mathcal{N}_{0}$: Physical noise strength",
-                    fontsize=gv.axes_labels_fontsize,
-                )
+            ax1.set_xlabel(settings[d]["xlabel"], fontsize=gv.axes_labels_fontsize)
             ax1.set_xscale("log")
-            if "ylabel" in dbses[d].plotsettings:
-                ax1.set_ylabel(
-                    "%s" % (dbses[d].plotsettings["ylabel"]),
-                    fontsize=gv.axes_labels_fontsize,
-                )
-            else:
-                ax1.set_ylabel(
-                    "$\\mathcal{N}_{%d}$: %s" % (l, ml.Metrics[logmet][1]),
-                    fontsize=gv.axes_labels_fontsize,
-                )
+            ax1.set_xlabel(settings[d]["ylabel"], fontsize=gv.axes_labels_fontsize)
             ax1.set_yscale("log")
             ax1.tick_params(
                 axis="both",
@@ -331,6 +398,7 @@ def LevelWisePlot(phymets, logmet, dbses):
     # Use a new figure for every new concatenated level.
     # In each figure, each curve will represent a new physical metric.
     phylist = list(map(lambda phy: phy.strip(" "), phymets.split(",")))
+    nphy = len(phylist)
     ndb = len(dbses)
     maxlevel = max([dbses[i].levels for i in range(ndb)])
     plotfname = fn.LevelWise(dbses[0], "_".join(phylist), logmet)
@@ -341,79 +409,38 @@ def LevelWisePlot(phymets, logmet, dbses):
             dblines = []
             dbnames = []
             fig = plt.figure(figsize=gv.canvas_size)
-            for p in range(len(phylist)):
+            for p in range(nphy):
                 for d in range(ndb):
-                    logErrs = np.load(
-                        fn.LogicalErrorRates(dbses[d], logmet, fmt="npy")
-                    )[:, l]
-                    if phylist[p] in ml.Metrics:
-                        phymet = ml.Metrics[phylist[p]][1]
-                        phyerrs = np.load(fn.PhysicalErrorRates(dbses[d], phylist[p]))
-                        plotset = [
-                            ml.Metrics[phylist[p]][3],
-                            ml.Metrics[phylist[p]][2],
-                            ["None", "--"][dbses[d].samps == 1],
-                        ]
-                    else:
-                        phymet = qc.Channels[dbses[d].channel][2][np.int8(phylist[p])]
-                        phyerrs = dbses[d].available[:, np.int8(phylist[p])]
-                        plotset = [
-                            ml.Metrics[list(ml.Metrics.keys())[p % len(ml.Metrics)]][3],
-                            ml.Metrics[list(ml.Metrics.keys())[p % len(ml.Metrics)]][2],
-                            ["None", "--"][dbses[d].samps == 1],
-                        ]
-                        if not (dbses[d].scales[p] == 1):
-                            phyerrs = np.power(dbses[d].scales[p], phyerrs)
+                    settings = {
+                        "xaxis": None,
+                        "xlabel": None,
+                        "yaxis": np.load(fn.LogicalErrorRates(dbses[d], logmet))[:, l],
+                        "ylabel": ml.Metrics[logmet]["log"],
+                        "color": gv.Colors[d % gv.n_Colors],
+                        "marker": gv.Markers[d % gv.n_Markers],
+                        "linestyle": "",
+                    }
+
+                    LoadPhysicalErrorRates(dbses[d], phylist[p], settings, d == 0)
                     # Plotting
-                    # Plot the X=Y line denoting the quantum error correction trade-off
-                    # plt.plot(phyerrs, phyerrs, linestyle="--", color="k")
-                    if d == 0:
-                        if "color" in dbses[d].plotsettings:
-                            color = dbses[d].plotsettings["color"]
-                        else:
-                            color = plotset[0]
-                        if "marker" in dbses[d].plotsettings:
-                            marker = dbses[d].plotsettings["marker"]
-                        else:
-                            marker = plotset[1]
-                        if "linestyle" in dbses[d].plotsettings:
-                            linestyle = dbses[d].plotsettings["linestyle"]
-                        else:
-                            linestyle = plotset[2]
-                        plotobj = plt.plot(
-                            phyerrs,
-                            logErrs,
-                            color=color,
-                            marker=marker,
-                            markersize=gv.marker_size,
-                            linestyle=linestyle,
-                            linewidth=gv.line_width,
-                        )
-                    else:
-                        plotobj = plt.plot(
-                            phyerrs,
-                            logErrs,
-                            color=dbses[d].plotsettings["color"],
-                            marker=dbses[d].plotsettings["marker"],
-                            markersize=gv.marker_size,
-                            linestyle=dbses[d].plotsettings["linestyle"],
-                            linewidth=gv.line_width,
-                        )
+                    plotobj = plt.plot(
+                        settings["xaxis"],
+                        settings["yaxis"],
+                        color=settings["color"],
+                        marker=settings["marker"],
+                        markersize=gv.marker_size,
+                        linestyle=settings["linestyle"],
+                        linewidth=gv.line_width,
+                    )
                     # if we find a new physical metric, we must add it to metric legend labels
-                    if not (phymet in phynames):
+                    if not (settings["xlabel"] in phynames):
                         phlines.append(plotobj[0])
-                        phynames.append(phymet)
+                        phynames.append(settings["xlabel"])
                     if not (dbses[d].timestamp in [name[0] for name in dbnames]):
                         dblines.append(plotobj[0])
                         if l == 0:
                             dbnames.append(
-                                [
-                                    dbses[d].timestamp,
-                                    (
-                                        ("Physical channel: %s")
-                                        % (qc.Channels[dbses[d].channel][0])
-                                    ),
-                                ]
+                                [dbses[d].timestamp, GetNKDString(dbses[d], l)]
                             )
                         if "name" in dbses[d].plotsettings:
                             dbnames.append(
@@ -421,48 +448,16 @@ def LevelWisePlot(phymets, logmet, dbses):
                             )
                         else:
                             dbnames.append(
-                                [
-                                    dbses[d].timestamp,
-                                    (
-                                        ("N = %d, D = %d, %s")
-                                        % (
-                                            np.prod(
-                                                [dbses[d].eccs[j].N for j in range(l)]
-                                            ),
-                                            np.prod(
-                                                [dbses[d].eccs[j].D for j in range(l)]
-                                            ),
-                                            qc.Channels[dbses[d].channel][0],
-                                        )
-                                    ),
-                                ]
+                                [dbses[d].timestamp, GetNKDString(dbses[d], l)]
                             )
 
             # Title
-            # plt.title(("%s vs. physical error metrics for the %s channel." % (ml.Metrics[logmet][0], qc.Channels[dbses[0].channel][0])), fontsize = gv.title_fontsize, y = 1.03)
+            # plt.title(("%s vs. physical error metrics for the %s channel." % (ml.Metrics[logmet]["log"], qc.Channels[dbses[0].channel][0])), fontsize = gv.title_fontsize, y = 1.03)
             # Axes labels
             ax = plt.gca()
-            if "xlabel" in dbses[d].plotsettings:
-                ax.set_xlabel(
-                    "%s" % (dbses[d].plotsettings["xlabel"]),
-                    fontsize=gv.axes_labels_fontsize,
-                )
-            else:
-                ax.set_xlabel(
-                    "$\\mathcal{N}_{0}$: Physical noise strength",
-                    fontsize=gv.axes_labels_fontsize,
-                )
+            ax.set_xlabel(settings["xlabel"], fontsize=gv.axes_labels_fontsize)
             ax.set_xscale("log")
-            if "ylabel" in dbses[d].plotsettings:
-                ax.set_ylabel(
-                    "%s" % (dbses[d].plotsettings["ylabel"]),
-                    fontsize=gv.axes_labels_fontsize,
-                )
-            else:
-                ax.set_ylabel(
-                    "$\\mathcal{N}_{%d}$: %s" % (l, ml.Metrics[logmet][1]),
-                    fontsize=gv.axes_labels_fontsize,
-                )
+            ax.set_ylabel(settings["ylabel"], fontsize=gv.axes_labels_fontsize)
             ax.set_yscale("log")
             ax.tick_params(
                 axis="both",
@@ -483,15 +478,15 @@ def LevelWisePlot(phymets, logmet, dbses):
                 fontsize=gv.legend_fontsize,
                 markerscale=gv.legend_marker_scale,
             )
-            plt.legend(
-                handles=phlines,
-                labels=phynames,
-                numpoints=1,
-                loc=4,
-                shadow=True,
-                fontsize=gv.legend_fontsize,
-                markerscale=gv.legend_marker_scale,
-            )
+            # plt.legend(
+            #     handles=phlines,
+            #     labels=phynames,
+            #     numpoints=1,
+            #     loc=4,
+            #     shadow=True,
+            #     fontsize=gv.legend_fontsize,
+            #     markerscale=gv.legend_marker_scale,
+            # )
             ax.add_artist(dblegend)
             # Save the plot
             pdf.savefig(fig)
@@ -499,7 +494,7 @@ def LevelWisePlot(phymets, logmet, dbses):
         # Set PDF attributes
         pdfInfo = pdf.infodict()
         pdfInfo["Title"] = "%s at levels %s, with physical %s for %d channels." % (
-            ml.Metrics[logmet][0],
+            ml.Metrics[logmet]["log"],
             ", ".join(map(str, range(1, 1 + maxlevel))),
             ", ".join(phynames),
             dbses[0].channels,
@@ -522,12 +517,12 @@ def LevelWisePlot2D(phymets, logmet, dbs):
         if sub.IsNumber(phylist[m]):
             # If phylist[m] is a number, then it indicates an independent parameter of the channel to serve as a measure of the physical noise strength
             phyerrs[:, m] = dbs.available[:, np.int8(phylist[m])]
-            phyparams.append(qc.Channels[dbs.channel][2][np.int8(phylist[m])])
+            phyparams.append(qc.Channels[dbs.channel]["latex"][np.int8(phylist[m])])
             if not (dbs.scales[m] == 1):
                 phyerrs[:, m] = np.power(dbs.scales[m], phyerrs[:, m])
         else:
             phyerrs[:, m] = np.load(fn.PhysicalErrorRates(dbs, phylist[m]))
-            phyparams.append(ml.Metrics[phylist[m]][1])
+            phyparams.append(ml.Metrics[phylist[m]]["latex"])
         plotdata[:, m] = np.linspace(
             phyerrs[:, m].min(), phyerrs[:, m].max(), plotdata.shape[0]
         )
@@ -601,7 +596,9 @@ def LevelWisePlot2D(phymets, logmet, dbs):
                 drawedges=False,
                 ticks=clevels,
             )
-            cbar.ax.set_xlabel(ml.Metrics[logmet][1], fontsize=gv.colorbar_fontsize)
+            cbar.ax.set_xlabel(
+                ml.Metrics[logmet]["latex"], fontsize=gv.colorbar_fontsize
+            )
             cbar.ax.tick_params(
                 labelsize=gv.legend_fontsize,
                 pad=gv.ticks_pad,
@@ -628,11 +625,11 @@ def LevelWisePlot2D(phymets, logmet, dbs):
         # Set PDF attributes
         pdfInfo = pdf.infodict()
         pdfInfo["Title"] = "%s vs. %s at levels %s, for %d %s channels." % (
-            ml.Metrics[logmet][0],
+            ml.Metrics[logmet]["log"],
             ",".join(phylist),
             ", ".join(list(map(lambda str: "%d" % str, range(1, 1 + dbs.levels)))),
             dbs.channels,
-            qc.Channels[dbs.channel][0],
+            qc.Channels[dbs.channel]["name"],
         )
         pdfInfo["Author"] = "Pavithran Iyer"
         pdfInfo["ModDate"] = dt.datetime.today()
@@ -958,7 +955,7 @@ def MCStatsPlot(dbses, lmet, pmet=-1):
                     if sub.IsNumber(pmet) == 1:
                         if pmet == -1:
                             label = "%s = %s" % (
-                                ", ".join(qc.Channels[dbses[d].channel][2]),
+                                ", ".join(qc.Channels[dbses[d].channel]["latex"]),
                                 ",".join(
                                     list(
                                         map(
@@ -971,7 +968,7 @@ def MCStatsPlot(dbses, lmet, pmet=-1):
                         else:
                             # print("dbses[d].scales = %s, phyerrs[d][i] = %d and real noise = %s" % (np.array_str(dbses[d].scales), phyerrs[d][i], ", ".join(list(map(lambda num: DisplayForm(num, 10.0), RealNoise(dbses[d].scales, phyerrs[d][i]))))))
                             label = "%s = %s" % (
-                                qc.Channels[dbses[d].channel][2][pmet],
+                                qc.Channels[dbses[d].channel]["latex"][pmet],
                                 ", ".join(
                                     list(
                                         map(
@@ -1173,7 +1170,7 @@ def PlotBinVariance(dbses, lmet, pmet, nbins=10):
         phyerr = np.squeeze(
             np.vstack(tuple([dbses[i].available[:, pmet] for i in range(len(dbses))]))
         )
-        pmetname = qc.Channels[dbses[0].channel][2][pmet]
+        pmetname = qc.Channels[dbses[0].channel]["latex"][pmet]
     else:
         phyerr = np.hstack(
             tuple(

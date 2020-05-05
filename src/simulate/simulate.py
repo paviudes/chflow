@@ -17,9 +17,14 @@ from define import fnames as fn
 def SimulateSampleIndex(submit, rate, sample, coreidx, results):
     # Simulate each noise rate and sample
     start = time.time()
+    np.random.seed()
     ## Load the physical channel and the reference (noisier) channel if importance sampling is selected.
     physchan = np.load(fn.PhysicalChannel(submit, rate))[sample, :]
-    # print("Physical channel before simulate\n{}".format(physchan))
+    # print(
+    #     "Core: {}, noise: {}, sample: {}\nPhysical channel before simulate\n{}".format(
+    #         coreidx, rate, sample, physchan.reshape(7, 4, 4)
+    #     )
+    # )
     if submit.importance == 2:
         refchan = np.load(fn.PhysicalChannel(submit, rate, sample))[sample, :]
     else:
@@ -114,7 +119,7 @@ def LocalSimulations(submit, node, stream=sys.stdout):
             "Code: %s\n"
             % (" X ".join([submit.eccs[i].name for i in range(len(submit.eccs))]))
         )
-        stream.write("Channel: %s\n" % (qch.Channels[submit.channel][0]))
+        stream.write("Channel: %s\n" % (qch.Channels[submit.channel]["name"]))
         stream.write(
             "Noise rates: %s\n"
             % (

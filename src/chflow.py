@@ -238,14 +238,15 @@ if __name__ == "__main__":
     fileinput = 0
     infp = None
     if len(sys.argv) > 1:
-        if sys.argv[1] == "<":
+        if sys.argv[1] == "--":
             # Input commands are supplied through a file.
-            if os.path.isfile(sys.argv[2]):
-                instructions = sys.argv[2]
+            if os.path.isfile("./../input/%s" % sys.argv[2]):
+                infp = open("./../input/%s" % sys.argv[2], "r")
                 fileinput = 1
-                infp = open(instructions, "r")
             else:
-                print("\033[2mInput file not found.\033[0m")
+                print(
+                    "\033[2mInput file ./../input/%s not found.\033[0m" % (sys.argv[2])
+                )
         else:
             # The simulations are to be run remotely.
             timestamp = sys.argv[1].strip("\n").strip(" ")
@@ -257,15 +258,17 @@ if __name__ == "__main__":
             sys.exit(0)
 
     isquit = 0
+    n_empty = 0
+    max_empties = 10
     rep = "process"
     channel = np.zeros((4, 4), dtype=np.longdouble)
     qeccode = None
     submit = sub.Submission()
 
     while isquit == 0:
-        print(">>"),
         if fileinput == 0:
             try:
+                print(">>")
                 user = list(
                     map(
                         lambda val: val.strip("\n").strip(" "),
@@ -276,12 +279,12 @@ if __name__ == "__main__":
                 user = ["quit"]
                 print("")
         else:
-            user = list(
-                map(
-                    lambda val: val.strip("\n").strip(" "),
-                    infp.readline().strip(" ").strip("\n").split(" "),
-                )
-            )
+            command = infp.readline().strip("\n").strip(" ")
+            if command[0] == "#":
+                continue
+            print(">>")
+            user = list(map(lambda val: val.strip("\n").strip(" "), command.split(" ")))
+            print(command)
 
         if user[0] == "qcode":
             # define a quantum code
@@ -321,12 +324,17 @@ if __name__ == "__main__":
         elif user[0] == "chan":
             noiserates = []
             if len(user) > 2:
-                noiserates = map(np.longdouble, user[2].split(","))
-            channel = chdef.GetKraussForChannel(user[1], *noiserates)
-            rep = "krauss"
-            print(
-                '\033[2mNote: the current channel is in the "krauss" representation.\033[0m'
-            )
+                noiserates = list(map(np.longdouble, user[2].split(",")))
+            for i in range(10):
+                channel = crep.ConvertRepresentations(
+                    chdef.GetKraussForChannel(user[1], *noiserates), "krauss", "process"
+                )
+                rep = "process"
+                print(
+                    '\033[2mNote: the current channel is in the "process" representation.\033[0m'
+                )
+                qc.Print(channel, rep)
+                print("\033[2mxxxxxx\033[0m")
 
         #####################################################################
 
@@ -390,7 +398,7 @@ if __name__ == "__main__":
             for m in range(len(metrics)):
                 print(
                     "{:<20} {:<10}".format(
-                        ml.Metrics[metrics[m]][0], ("%.2e" % metvals[m])
+                        ml.Metrics[metrics[m]]["name"], ("%.2e" % metvals[m])
                     )
                 )
             print("xxxxxx")
@@ -814,8 +822,9 @@ if __name__ == "__main__":
             if len(user) > 1:
                 logmetrics = user[1].split(",")
                 ml.ComputeMetrics(submit, logmetrics, chtype="logical")
-                submit.metrics = list(set().union(submit.metrics, logmetrics))
-                cl.GatherLogErrData(submit)
+                # submit.metrics = list(set().union(submit.metrics, logmetrics))
+                cl.GatherLogErrData(submit, additional=logmetrics)
+
             else:
                 print("\033[2mUsage: %s\033[0m" % mannual["lmetrics"][1])
 
@@ -837,7 +846,7 @@ if __name__ == "__main__":
             else:
                 print(
                     "Only %s are computed at the logical levels."
-                    % (", ".join([ml.Metrics[met][0] for met in submit.metrics]))
+                    % (", ".join([ml.Metrics[met]["name"] for met in submit.metrics]))
                 )
 
         #####################################################################
@@ -863,7 +872,7 @@ if __name__ == "__main__":
                     % (
                         ", ".join(
                             [
-                                ml.Metrics[met][0]
+                                ml.Metrics[met]["name"]
                                 for met in tocompare[0].metrics
                                 if met in tocompare[1].metrics
                             ]
@@ -980,7 +989,7 @@ if __name__ == "__main__":
                 mask[:, 1:] = 1
                 if len(user) > 5:
                     if user[5] in qc.Channels:
-                        noiserates = np.random.rand(len(qc.Channels[user[5]][2]))
+                        noiserates = np.random.rand(len(qc.Channels[user[5]]["params"]))
                         mask[
                             np.nonzero(
                                 chrep.ConvertRepresentations(
@@ -1019,12 +1028,20 @@ if __name__ == "__main__":
                 elif user[1] in qc.Channels:
                     print(
                         '\t\033[2m"%s"\n\tDescription: %s\n\tParameters: %s\033[0m'
-                        % (user[1], qc.Channels[user[1]][0], qc.Channels[user[1]][1])
+                        % (
+                            user[1],
+                            qc.Channels[user[1]]["desc"],
+                            qc.Channels[user[1]]["params"],
+                        )
                     )
                 elif user[1] in ml.Metrics:
                     print(
                         '\t\033[2m"%s"\n\tDescription: %s\n\tExpression: %s\033[0m'
-                        % (user[1], ml.Metrics[user[1]][0], ml.Metrics[user[1]][-2])
+                        % (
+                            user[1],
+                            ml.Metrics[user[1]]["name"],
+                            ml.Metrics[user[1]]["latex"],
+                        )
                     )
                 else:
                     # Try to auto complete and ask for possible suggestions.
@@ -1056,12 +1073,46 @@ if __name__ == "__main__":
 
         #####################################################################
 
+        elif user[0] == "notes":
+            # Save a page of the plot file as a PDF in a folder.
+            # No documentation provided yet
+            phymet = user[1]
+            logmet = user[2]
+            name = user[3]
+            plot_option = user[4]
+            notes_location = user[5]
+            page = int(user[6])
+            if plot_option == "lplot":
+                plot_file = fn.LevelWise(dbses[0], phymet.replace(",", "_"), logmet)
+            elif plot_option == "cplot":
+                plot_file = fn.ChannelWise(dbses[0], phymet, logmet)
+            else:
+                print("\033[2mUnknown plot option %s.\033[0m" % (plot_option))
+                continue
+            # file_location = "%s/%s" % (submit.outdir, plot_file)
+            # print(
+            #     "pdfseparate -f %d -l %d %s %s_%s_%s_%s.pdf"
+            #     % (page, page, file_location, plot_option, name, phymet, logmet)
+            # )
+            information = [{"fname": plot_file, "start": 2, "end": 2}]
+            output_file = "%s_%s_%s_%s.pdf" % (plot_option, name, phymet, logmet)
+            print(
+                "ExtractPDFPages({}, {}, {})".format(
+                    information, notes_location, output_file
+                )
+            )
+            pl.ExtractPDFPages(information, notes_location, output_file)
+
+        #####################################################################
+
         else:
             print("\033[2mNo action.\033[0m")
             similar = [entry for entry in mannual if user[0] in entry]
             if len(similar) > 0:
                 print("\033[2mDid you mean %s ?\033[0m" % (", ".join(similar)))
-            pass
+            n_empty = n_empty + 1
+            if n_empty > max_empties:
+                isquit = 1
 
     if fileinput == 1:
         infp.close()

@@ -25,128 +25,150 @@ from define import qchans as qc
 from define import fnames as fn
 from define.QECCLfid import uncorrectable as uc
 
-########################################## GLOBAL VARIABLES ##########################################
-
-# Metrics, thier names and the associated functions
-# Usage: Metrics[<metname>][0]: Metric full name
-# 						   [1]: Metric label in tex format
-# 						   [2]: Marker assigned for the metric in the plots
-# 						   [3]: Name of the function function that will compute the metric
+##########################################
 Metrics = {
-    "dnorm": [
-        "Diamond norm",
-        "$|| \\mathcal{E} - \\mathsf{id} ||_{\\diamondsuit}$",
-        u"+",
-        "crimson",
-        "See Sec. 4 of DOI: 10.4086/toc.2009.v005a011.",
-        "lambda J, kwargs: DiamondNorm(J, kwargs)",
-    ],
-    "errp": [
-        "Error probability",
-        "$p_{err}(\\mathcal{J})$",
-        u"*",
-        "darkblue",
-        "1 - p* where p* is the maximum value between 0 and 1 such that J - (p*)*J_id is a valid choi matrix, up to normalization.",
-        "lambda J, kwargs: ErrorProbability(J, kwargs)",
-    ],
-    "entropy": [
-        "Entropy",
-        "$S(\\mathcal{J})$",
-        u"p",
-        "brown",
-        "Von-Neumann entropy of the channel's Choi matrix.",
-        "lambda J, kwargs: Entropy(J, kwargs)",
-    ],
-    "infid": [
-        "Infidelity",
-        "$1 - F$",
-        u"s",
-        "forestgreen",
-        "1 - Fidelity between the input Choi matrix and the Choi matrix corresponding to the identity state.",
-        "lambda J, kwargs: Infidelity(J, kwargs)",
-    ],
-    "np1": [
-        "Non Pauliness (Chi)",
-        "$\\mathcal{W}(\\mathcal{E})$",
-        u"v",
-        "lavender",
-        "L2 norm of the difference between the channel's Chi matrix and it's twirled approximation.",
-        "lambda J, kwargs: NonPaulinessChi(J, kwargs)",
-    ],
-    "np2": [
-        "Non Pauliness (max Fidelity)",
-        "$np_2(\\mathcal{J})$",
-        u"1",
-        "maroon",
-        "least fidelity between the channel's Choi matrix and a bell state.",
-        "lambda J, kwargs: NonPaulinessChoi(J, kwargs)",
-    ],
-    "np4": [
-        "Non Pauliness (closest Pauli)",
-        "$np_4(\\mathcal{J})$",
-        u"3",
-        "turquoise",
-        'Maximum "amount" of Pauli channel that can be subtracted from the input Pauli channel, such that what remains is still a valid quantum channel.',
-        "lambda J, kwargs: NonPaulinessRemoval(J, kwargs)",
-    ],
-    "trn": [
-        "Trace norm",
-        "$\\left|\\left|\\mathcal{J} - \\mathsf{id}\\right|\\right|_{1}$",
-        u"8",
-        "black",
-        "Trace norm of the difference between the channel's Choi matrix and the input Bell state, Trace norm of A is defined as: Trace(Sqrt(A^\\dagger . A)).",
-        "lambda J, kwargs: TraceNorm(J, kwargs)",
-    ],
-    "frb": [
-        "Frobenious norm",
-        "$\\left|\\left|\\mathcal{J} - \\mathsf{id}\\right|\\right|_{2}$",
-        u"d",
-        "chocolate",
-        "Frobenious norm of the difference between the channel's Choi matrix and the input Bell state, Frobenious norm of A is defined as: Sqrt(Trace(A^\\dagger . A)).",
-        "lambda J, kwargs: FrobeniousNorm(J, kwargs)",
-    ],
-    "bd": [
-        "Bures distance",
-        "$\\Delta_{B}(\\mathcal{J})$",
-        u"<",
-        "goldenrod",
-        "Bures distance between the channel's Choi matrix and the input Bell state. Bures distance between A and B is defined as: sqrt( 2 - 2 * sqrt( F ) ), where F is the Uhlmann-Josza fidelity between A and B.",
-        "lambda J, kwargs: BuresDistance(J, kwargs)",
-    ],
-    "uhl": [
-        "Uhlmann Fidelity",
-        "$1 - F_{U}(\\mathcal{J})$",
-        u"h",
-        "midnightblue",
-        "1 - Uhlmann-Jozsa fidelity between the channel's Choi matrix and the input Bell state. The Uhlmann-Jozsa fidelity between A and B is given by: ( Trace( sqrt( sqrt(A) B sqrt(A) ) ) )^2.",
-        "lambda J, kwargs: UhlmanFidelity(J, kwargs)",
-    ],
-    "unitarity": [
-        "Non unitarity",
-        "$1-\\mathcal{u}(\\mathcal{E})$",
-        u"^",
-        "fuchsia",
-        "In the Pauli-Liouville representation of the channel, P, the unitarity is given by: ( sum_(i,j; i not equal to j) |P_ij|^2 ).",
-        "lambda J, kwargs: NonUnitarity(J, kwargs)",
-    ],
-    "uncorr": [
-        "Uncorrectable error probability",
-        "$p_{u}$",
-        u">",
-        "blue",
-        "The total probability of uncorrectable (Pauli) errors.",
-        "lambda P, kwargs: UncorrectableProb(P, kwargs)",
-    ],
-    "anisotropy": [
-        "Anisotropy",
-        "$2 p_{Y} - (p_{X} + p_{Z})$",
-        u"d",
-        "goldenrod",
-        "Anisotropy between Y errors and X, Z errors.",
-        "lambda J, kwargs: Anisotropy(J, kwargs)",
-    ],
+    "dnorm": {
+        "name": "Diamond norm",
+        "phys": "Diamond distance of the physical channel",
+        "log": "Diamond distance of the logical channel",
+        "latex": "$|| \\mathcal{E} - \\mathsf{id} ||_{\\diamondsuit}$",
+        "marker": u"+",
+        "color": "crimson",
+        "desc": "See Sec. 4 of DOI: 10.4086/toc.2009.v005a011.",
+        "func": "lambda J, kwargs: DiamondNorm(J, kwargs)",
+    },
+    "errp": {
+        "name": "Error probability",
+        "phys": "Error probability of the physical channel",
+        "log": "Error probability of the logical channel",
+        "latex": "p_{err}(\\mathcal{E})$",
+        "marker": u"*",
+        "color": "darkblue",
+        "desc": "1 - p* where p* is the maximum value between 0 and 1 such that J - (p*)*J_id is a valid choi matrix, up to normalization.",
+        "func": "lambda J, kwargs: ErrorProbability(J, kwargs)",
+    },
+    "entropy": {
+        "name": "Von Neumann Entropy",
+        "phys": "Entropy of the physical channel",
+        "log": "Entropy of the logical channel",
+        "latex": "$S(\\mathcal{J})$",
+        "marker": u"p",
+        "color": "brown",
+        "desc": "Von-Neumann entropy of the channel's Choi matrix.",
+        "func": "lambda J, kwargs: Entropy(J, kwargs)",
+    },
+    "infid": {
+        "name": "Infidelity",
+        "phys": "Infidelity of the physical channel",
+        "log": "Infidelity of the logical channel",
+        "latex": "$1 - F$",
+        "marker": u"s",
+        "color": "forestgreen",
+        "desc": "1 - Fidelity between the input Choi matrix and the Choi matrix corresponding to the identity state.",
+        "func": "lambda J, kwargs: Infidelity(J, kwargs)",
+    },
+    "np1": {
+        "name": "Non Pauliness",
+        "phys": "Non-Pauliness of the physical channel",
+        "log": "Non-Pauliness of the logical channel",
+        "latex": "$\\mathcal{W}(\\mathcal{E})$",
+        "marker": u"v",
+        "color": "lavender",
+        "desc": "L2 norm of the difference between the channel's Chi matrix and it's twirled approximation.",
+        "func": "lambda J, kwargs: NonPaulinessChi(J, kwargs)",
+    },
+    "np2": {
+        "name": "Non Pauliness",
+        "phys": "Non-Pauliness of the physical channel",
+        "log": "Non-Pauliness of the logical channel",
+        "latex": "$np_{2}(\\mathcal{E})$",
+        "marker": u"1",
+        "color": "maroon",
+        "desc": "Least fidelity between the channel's Choi matrix and a bell state.",
+        "func": "lambda J, kwargs: NonPaulinessChoi(J, kwargs)",
+    },
+    "np4": {
+        "name": "Non Pauliness",
+        "phys": "Non-Pauliness of the physical channel",
+        "log": "Non-Pauliness of the logical channel",
+        "latex": "$np_{4}(\\mathcal{E})$",
+        "marker": u"3",
+        "color": "turquoise",
+        "desc": 'Maximum "amount" of Pauli channel that can be subtracted from the input Pauli channel, such that what remains is still a valid quantum channel.',
+        "func": "lambda J, kwargs: NonPaulinessRemoval(J, kwargs)",
+    },
+    "trn": {
+        "name": "Trace norm",
+        "phys": "Trace-distance of the physical channel",
+        "log": "Trace-distance of the logical channel",
+        "latex": "$\\left|\\left|\\mathcal{J} - \\mathsf{id}\\right|\\right|_{1}$",
+        "marker": u"8",
+        "color": "black",
+        "desc": "Trace norm of the difference between the channel's Choi matrix and the input Bell state, Trace norm of A is defined as: Trace(Sqrt(A^\\dagger . A)).",
+        "func": "lambda J, kwargs: TraceNorm(J, kwargs)",
+    },
+    "frb": {
+        "name": "Frobenious norm",
+        "phys": "Frobenious norm of the physical channel",
+        "log": "Frobenious norm of the logical channel",
+        "latex": "$\\left|\\left|\\mathcal{J} - \\mathsf{id}\\right|\\right|_{2}$",
+        "marker": u"d",
+        "color": "chocolate",
+        "desc": "Frobenious norm of the difference between the channel's Choi matrix and the input Bell state, Frobenious norm of A is defined as: Sqrt(Trace(A^\\dagger . A)).",
+        "func": "lambda J, kwargs: FrobeniousNorm(J, kwargs)",
+    },
+    "bd": {
+        "name": "Bures distance",
+        "phys": "Bures distance of the physical channel",
+        "log": "Bures distance of the logical channel",
+        "latex": "$\\Delta_{B}(\\mathcal{J})$",
+        "marker": u"<",
+        "color": "goldenrod",
+        "desc": "Bures distance between the channel's Choi matrix and the input Bell state. Bures distance between A and B is defined as: sqrt( 2 - 2 * sqrt( F ) ), where F is the Uhlmann-Josza fidelity between A and B.",
+        "func": "lambda J, kwargs: BuresDistance(J, kwargs)",
+    },
+    "uhl": {
+        "name": "Uhlmann infidelity",
+        "phys": "Uhlmann Infidelity of the physical channel",
+        "log": "Uhlmann Infidelity of the logical channel",
+        "latex": "$1 - F_{U}(\\mathcal{J})$",
+        "marker": u"h",
+        "color": "midnightblue",
+        "desc": "1 - Uhlmann-Jozsa fidelity between the channel's Choi matrix and the input Bell state. The Uhlmann-Jozsa fidelity between A and B is given by: ( Trace( sqrt( sqrt(A) B sqrt(A) ) ) )^2.",
+        "func": "lambda J, kwargs: UhlmanFidelity(J, kwargs)",
+    },
+    "unitarity": {
+        "name": "Non-unitarity",
+        "phys": "Non-unitarity of the physical channel",
+        "log": "Non-unitarity of the logical channel",
+        "latex": "$1-\\mathcal{u}(\\mathcal{E})$",
+        "marker": u"^",
+        "color": "fuchsia",
+        "desc": "In the Pauli-Liouville representation of the channel, P, the unitarity is given by: ( sum_(i,j; i not equal to j) |P_ij|^2 ).",
+        "func": "lambda J, kwargs: NonUnitarity(J, kwargs)",
+    },
+    "uncorr": {
+        "name": "Uncorrectable error probability",
+        "phys": "Uncorrectable error probability",
+        "log": "Uncorrectable error probability of the logical channel",
+        "latex": "$p_{u}$",
+        "marker": u">",
+        "color": "blue",
+        "desc": "The total probability of uncorrectable (Pauli) errors.",
+        "func": "lambda P, kwargs: UncorrectableProb(P, kwargs)",
+    },
+    "anisotropy": {
+        "name": "Anisotropy",
+        "phys": "Anisotropy of the physical channel",
+        "log": "Anisotropy of the logical channel",
+        "latex": "$p_{Y}/p_{X} + p_{Z}/p_{X}$",
+        "marker": u"d",
+        "color": "goldenrod",
+        "desc": "Anisotropy between Y errors and X, Z errors.",
+        "func": "lambda J, kwargs: Anisotropy(J, kwargs)",
+    },
 }
-######################################################################################################
+##########################################
 
 
 def HermitianConjugate(mat):
@@ -194,19 +216,19 @@ def DiamondNormPhysical(choi, kwargs):
 
 def DiamondNorm(choi, kwargs):
     # Compute the Diamond norm of a physical channel or a set of logical channels.
-    if qc.Channels[kwargs["channel"]][4] == "Pauli":
+    if qc.Channels[kwargs["channel"]]["Pauli"] == 1:
         return Infidelity(choi, kwargs)
 
     if kwargs["chtype"] == "physical":
         if kwargs["corr"] == 0:
             return DiamondNormPhysical(choi, kwargs)
         elif kwargs["corr"] == 2:
-            chans_ptm = np.reshape(choi, [choi.shape[0], 4, 4])
+            chans_ptm = np.reshape(choi, [kwargs["qcode"].N, 4, 4])
             dnorm = 0
-            for q in range(choi.shape[0]):
+            for q in range(chans_ptm.shape[0]):
                 dnorm = dnorm + DiamondNormPhysical(
                     crep.ConvertRepresentations(chans_ptm[q, :, :], "process", "choi"),
-                    {"corr": 0},
+                    {"corr": 0, "chtype": kwargs["chtype"]},
                 )
         else:
             print("Diamond form for fully correlated channels is not yet set up.")
@@ -268,12 +290,15 @@ def InfidelityPhysical(choi, kwargs):
     elif kwargs["corr"] == 1:
         fidelity = choi[0]
     else:
-        fidelity = 0
-        chans_ptm = np.reshape(choi, [choi.shape[0], 4, 4])
-        for q in range(choi.shape[0]):
-            fidelity = fidelity + InfidelityPhysical(
-                crep.ConvertRepresentations(chans_ptm[q, :, :], "process", "choi"),
-                {"corr": 0},
+        fidelity = 1
+        chans_ptm = np.reshape(choi, [kwargs["qcode"].N, 4, 4])
+        for q in range(chans_ptm.shape[0]):
+            fidelity = fidelity * (
+                1
+                - InfidelityPhysical(
+                    crep.ConvertRepresentations(chans_ptm[q, :, :], "process", "choi"),
+                    {"corr": 0},
+                )
             )
     return 1 - fidelity
 
@@ -299,7 +324,19 @@ def TraceNormPhysical(choi, kwargs):
     # Compute the trace norm of the difference between the input Choi matrix and the Choi matrix corresponding to the Identity channel
     # trace norm of A is defined as: Trace(Sqrt(A^\dagger . A))
     # https://quantiki.org/wiki/trace-norm
-    return np.linalg.norm((choi - gv.bell[0, :, :]).astype(np.complex), ord="nuc")
+    if kwargs["corr"] == 0:
+        trn = np.linalg.norm((choi - gv.bell[0, :, :]).astype(np.complex), ord="nuc")
+    elif kwargs["corr"] == 2:
+        chans_ptm = np.reshape(choi, [kwargs["qcode"].N, 4, 4])
+        trn = 0
+        for q in range(chans_ptm.shape[0]):
+            trn = trn + TraceNormPhysical(
+                crep.ConvertRepresentations(chans_ptm[q, :, :], "process", "choi"),
+                {"corr": 0},
+            )
+    else:
+        trn = 0
+    return trn
 
 
 def TraceNorm(choi, kwargs):
@@ -324,7 +361,19 @@ def FrobeniousNormPhysical(choi, kwargs):
     # Frobenious of A is defined as: sqrt(Trace(A^\dagger . A))
     # https://en.wikipedia.org/wiki/Matrix_norm#Frobenius_norm
     # Optimized in C
-    return np.linalg.norm((choi - gv.bell[0, :, :]).astype(np.complex), ord="fro")
+    if kwargs["corr"] == 0:
+        frb = np.linalg.norm((choi - gv.bell[0, :, :]).astype(np.complex), ord="fro")
+    elif kwargs["corr"] == 2:
+        chans_ptm = np.reshape(choi, [kwargs["qcode"].N, 4, 4])
+        frb = 0
+        for q in range(chans_ptm.shape[0]):
+            frb = frb + FrobeniousNormPhysical(
+                crep.ConvertRepresentations(chans_ptm[q, :, :], "process", "choi"),
+                {"corr": 0},
+            )
+    else:
+        frb = 0
+    return frb
 
 
 def FrobeniousNorm(choi, kwargs):
@@ -462,12 +511,22 @@ def NonPaulinessRemoval(choi, kwargs):
 
 def UncorrectableProb(channel, kwargs):
     # Compute the probability of uncorrectable errors for a code.
-    if kwargs["corr"] == 1:
+    if kwargs["corr"] == 0:
+        pauliProbs = np.tile(
+            np.real(np.diag(crep.ConvertRepresentations(channel, "choi", "chi"))),
+            [kwargs["qcode"].N, 1, 1],
+        )
+    elif kwargs["corr"] == 1:
         pauliProbs = channel
     else:
-        pauliProbs = np.real(
-            np.diag(crep.ConvertRepresentations(channel, "choi", "chi"))
-        )
+        chans_ptm = np.reshape(channel, [kwargs["qcode"].N, 4, 4])
+        pauliProbs = np.zeros((kwargs["qcode"].N, 4), dtype=np.double)
+        for q in range(kwargs["qcode"].N):
+            pauliProbs[q, :] = np.real(
+                np.diag(
+                    crep.ConvertRepresentations(chans_ptm[q, :, :], "process", "chi")
+                )
+            )
     return uc.ComputeUnCorrProb(pauliProbs, kwargs["qcode"], kwargs["levels"])
 
 
@@ -502,7 +561,7 @@ def Anisotropy(channel, kwargs):
 
 def Filter(process, metric, lower, upper):
     # Test if a channel (described by the process matrix) passes across a filter or not.
-    metVal = eval(Metrics[metric][-1])(
+    metVal = eval(Metrics[metric]["func"])(
         crep.ConvertRepresentations(process, "process", "choi"),
         {"rep": "process", "channel": "unknown"},
     )
@@ -526,7 +585,7 @@ def GenCalibrationData(chname, channels, noiserates, metrics):
         )
         for i in range(channels.shape[0]):
             calibdata[i, : noiserates.shape[1]] = noiserates[i, :]
-            calibdata[i, noiserates.shape[1]] = eval(Metrics[metrics[m]][-1])(
+            calibdata[i, noiserates.shape[1]] = eval(Metrics[metrics[m]]["func"])(
                 channels[i, :, :], chname
             )
         # Save the calibration data
@@ -539,7 +598,7 @@ def ComputeNorms(channel, metrics, kwargs):
     # print("Function ComputeNorms(\n%s,\n%s)" % (np.array_str(channel, max_line_width = 150, precision = 3), metrics))
     mets = np.zeros(len(metrics), dtype=np.longdouble)
     for m in range(len(metrics)):
-        mets[m] = eval(Metrics[metrics[m]][-1])(channel, kwargs)
+        mets[m] = eval(Metrics[metrics[m]]["func"])(channel, kwargs)
     return mets
 
 
@@ -581,7 +640,7 @@ def ChannelMetrics(submit, metrics, start, end, results, rep, chtype):
                 )
         for m in range(len(metrics)):
             if chtype == "physical":
-                results[i * len(metrics) + m] = eval(Metrics[metrics[m]][-1])(
+                results[i * len(metrics) + m] = eval(Metrics[metrics[m]]["func"])(
                     chan,
                     {
                         "qcode": submit.eccs[0],
@@ -597,12 +656,12 @@ def ChannelMetrics(submit, metrics, start, end, results, rep, chtype):
                     (i * len(metrics) * nlevels + m * nlevels) : (
                         i * len(metrics) * nlevels + (m + 1) * nlevels
                     )
-                ] = eval(Metrics[metrics[m]][-1])(
+                ] = eval(Metrics[metrics[m]]["func"])(
                     chan,
                     {
                         "qcode": submit.eccs[0],
                         "levels": nlevels,
-                        "corr": submit.iscorr,
+                        "corr": 0,
                         "channel": submit.channel,
                         "chtype": chtype,
                         "rep": "choi",
@@ -674,22 +733,24 @@ def PlotCalibrationData1D(chname, metrics, xcol=0):
     # "xcol" indicates the free variable of the noise model that distinguishes various channels in the plot. (This is the X-axis.)
     # All metrics will be in the same plot.
     fig = plt.figure(figsize=(gv.canvas_size[0] * 1.2, gv.canvas_size[1] * 1.2))
-    plt.title("%s" % (qc.Channels[chname][0]), fontsize=gv.title_fontsize, y=1.01)
+    plt.title("%s" % (qc.Channels[chname]["name"]), fontsize=gv.title_fontsize, y=1.01)
     for m in range(len(metrics)):
         calibdata = np.loadtxt(fn.CalibrationData(chname, metrics[m]))
         # print("calibdata\n%s" % (np.array_str(calibdata)))
         plt.plot(
             calibdata[:, xcol],
             calibdata[:, -1],
-            label=Metrics[metrics[m]][1],
-            marker=Metrics[metrics[m]][2],
-            color=Metrics[metrics[m]][3],
+            label=Metrics[metrics[m]]["latex"],
+            marker=Metrics[metrics[m]]["marker"],
+            color=Metrics[metrics[m]]["color"],
             markersize=gv.marker_size + 5,
             linestyle="-",
             linewidth=7.0,
         )
     ax = plt.gca()
-    ax.set_xlabel(qc.Channels[chname][2][xcol], fontsize=gv.axes_labels_fontsize + 20)
+    ax.set_xlabel(
+        qc.Channels[chname]["latex"][xcol], fontsize=gv.axes_labels_fontsize + 20
+    )
     # ax.set_xscale('log')
     ax.set_ylabel("$\\mathcal{N}_{0}$", fontsize=gv.axes_labels_fontsize + 20)
     # ax.set_yscale('log')
@@ -757,10 +818,10 @@ def PlotCalibrationData2D(chname, metrics, xcol=0, ycol=1):
             plt.title("%s channel" % (chname), fontsize=gv.title_fontsize, y=1.03)
             ax = plt.gca()
             ax.set_xlabel(
-                qc.Channels[chname][2][xcol], fontsize=gv.axes_labels_fontsize
+                qc.Channels[chname]["latex"][xcol], fontsize=gv.axes_labels_fontsize
             )
             ax.set_ylabel(
-                qc.Channels[chname][2][ycol], fontsize=gv.axes_labels_fontsize
+                qc.Channels[chname]["latex"][ycol], fontsize=gv.axes_labels_fontsize
             )
             ax.tick_params(
                 axis="both",
@@ -775,7 +836,9 @@ def PlotCalibrationData2D(chname, metrics, xcol=0, ycol=1):
             cbar = plt.colorbar(
                 cplot, extend="both", spacing="proportional", drawedges=False
             )
-            cbar.ax.set_xlabel(Metrics[metrics[m]][1], fontsize=gv.colorbar_fontsize)
+            cbar.ax.set_xlabel(
+                Metrics[metrics[m]]["latex"], fontsize=gv.colorbar_fontsize
+            )
             cbar.ax.tick_params(
                 labelsize=gv.legend_fontsize,
                 pad=gv.ticks_pad,

@@ -75,17 +75,18 @@ def PreparePhysicalChannels(submit, nproc=1):
     # submit.phychans = np.zeros(
     #     (submit.noiserates.shape[0], submit.samps, nparams), dtype=np.longdouble
     # )
-    noise = np.zeros(submit.noiserates.shape[1], dtype=np.longdouble)
     for i in tqdm(
         range(submit.noiserates.shape[0]),
         ascii=True,
         desc="\033[2mPreparing physical channels:",
     ):
+        noise = np.zeros(submit.noiserates.shape[1], dtype=np.longdouble)
         for j in range(submit.noiserates.shape[1]):
             if submit.scales[j] == 1:
                 noise[j] = submit.noiserates[i, j]
             else:
                 noise[j] = np.power(submit.scales[j], submit.noiserates[i, j])
+        noise = np.insert(noise, 0, submit.eccs[0].N)
         processes = []
         for k in range(nproc):
             processes.append(
@@ -131,7 +132,13 @@ def GenChannelSamples(noise, noiseidx, samps, submit, nparams, phychans, rawchan
     r"""
 	Generate samples of various channels with a given noise rate.
 	"""
+    np.random.seed()
     for j in range(samps[0], samps[1]):
+        # print(
+        #     "Noise at {}, samp {} = {}".format(
+        #         noiseidx, j, list(map(lambda num: "%g" % num, noise))
+        #     )
+        # )
         if submit.iscorr == 0:
             phychans[
                 (noiseidx * submit.samps * nparams + j * nparams) : (
@@ -160,7 +167,6 @@ def GenChannelSamples(noise, noiseidx, samps, submit, nparams, phychans, rawchan
                 )
             ).ravel()
         elif submit.iscorr == 2:
-            noise = np.insert(noise, 0, submit.eccs[0].N)
             chans = chdef.GetKraussForChannel(submit.channel, *noise)
             nentries = 4 ** submit.eccs[0].K * 4 ** submit.eccs[0].K
             for q in range(chans.shape[0]):

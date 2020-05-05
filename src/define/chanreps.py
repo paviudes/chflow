@@ -372,15 +372,32 @@ def TwirlChannels(submit):
     r"""
     Twirl all the channels in a database, in place.
     """
+    if submit.iscorr == 0:
+        nparams = 4 ** (2 * submit.eccs[0].K)
+    elif submit.iscorr == 1:
+        print("Twirling is not set up for fully correlated channels.")
+        return None
+    else:
+        nparams = submit.eccs[0].N * 4 ** (2 * submit.eccs[0].K)
+
     submit.phychans = np.zeros(
-        (submit.noiserates.shape[0], submit.samps, 4 ** (2 * submit.eccs[0].K)),
-        dtype=np.double,
+        (submit.noiserates.shape[0], submit.samps, nparams), dtype=np.double
     )
     for i in range(submit.noiserates.shape[0]):
         chans = np.load(fn.PhysicalChannel(submit, submit.noiserates[i, :]))
         for j in range(submit.samps):
-            submit.phychans[i, j, :] = (
-                chans[j, :] * np.eye(4 ** submit.eccs[0].K, dtype=np.int).ravel()
-            )
-
+            if submit.iscorr == 0:
+                submit.phychans[i, j, :] = (
+                    chans[j, :] * np.eye(4 ** submit.eccs[0].K, dtype=np.int).ravel()
+                )
+            else:
+                submit.phychans[i, j, :] = (
+                    chans[j, :]
+                    * np.tile(
+                        np.eye(4 ** submit.eccs[0].K, dtype=np.int),
+                        (submit.eccs[0].N, 1, 1),
+                    ).ravel()
+                )
+    submit.misc = "This is the Twirl of %s" % (submit.timestamp)
+    submit.plotsettings["name"] = "With Randomized compiling"
     return None

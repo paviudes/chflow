@@ -79,6 +79,8 @@ class Submission:
         # {"color": "k", "marker": "o", "linestyle": "None"}
         # Randomized compiling of quantum gates
         self.rc = 0
+        # Miscellaneous information
+        self.misc = "None"
 
 
 def IsNumber(numorstr):
@@ -150,11 +152,11 @@ def Update(submit, pname, newvalue):
 
     elif pname == "channel":
         submit.channel = newvalue
-        submit.iscorr = qc.Channels[submit.channel][5]
+        submit.iscorr = qc.Channels[submit.channel]["corr"]
         # print("submit.iscorr = {}".format(submit.iscorr))
 
     elif pname == "chtype":
-        qc.Channels[submit.channel][4] = newvalue
+        qc.Channels[submit.channel]["Pauli"] = newvalue
 
     elif pname == "rc":
         submit.rc = int(newvalue)
@@ -659,6 +661,8 @@ def Save(submit):
                 )
             )
         )
+        # Miscellaneous information
+        infid.write("# Miscellaneous information: %s\n" % (submit.misc))
 
     # Append the content of the input file to the log file.
     if os.path.isfile("bqsubmit.dat"):

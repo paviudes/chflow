@@ -29,7 +29,7 @@ clipboard.py
 refs/
 
 # All input files that do not start with sample_...
-!input/
+input/*.txt
 !input/sample_*.txt
 
 # Log file
