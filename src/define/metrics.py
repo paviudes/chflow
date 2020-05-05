@@ -514,7 +514,7 @@ def UncorrectableProb(channel, kwargs):
     if kwargs["corr"] == 0:
         pauliProbs = np.tile(
             np.real(np.diag(crep.ConvertRepresentations(channel, "choi", "chi"))),
-            [kwargs["qcode"].N, 1, 1],
+            [kwargs["qcode"].N, 1],
         )
     elif kwargs["corr"] == 1:
         pauliProbs = channel
