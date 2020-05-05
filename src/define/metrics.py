@@ -198,6 +198,7 @@ def DiamondNormPhysical(choi, kwargs):
         prob = pic.Problem()
         # variables and parameters in the problem
         J = pic.new_param("J", cvx.matrix(diff))
+        Z = pic.Constant("Z", cvx.matrix(np.zeros((2, 2), dtype=np.double)))
         rho = prob.add_variable("rho", (2, 2), "hermitian")
         W = prob.add_variable("W", (4, 4), "hermitian")
         # objective function (maximize the hilbert schmidt inner product -- denoted by '|'. Here A|B means trace(A^\dagger * B))
@@ -206,11 +207,11 @@ def DiamondNormPhysical(choi, kwargs):
         prob.add_constraint(W >> 0)
         prob.add_constraint(rho >> 0)
         prob.add_constraint(("I" | rho) == 1)
-        prob.add_constraint((W - ((rho & 0) // (0 & rho))) << 0)
+        prob.add_constraint((W - ((rho & Z) // (Z & rho))) << 0)
         # solving the problem
-        sol = prob.solve(verbose=0, maxit=500)
-        dnorm = sol["obj"] * 2
-        # print("SDP dnorm = %g" % (dnorm))
+        prob.solve(verbose=0, maxit=500)
+        dnorm = np.double(prob) * 2
+        # print("SDP dnorm = %.4e" % (dnorm))
     return dnorm
 
 
