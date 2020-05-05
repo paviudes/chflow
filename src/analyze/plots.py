@@ -369,7 +369,7 @@ def ChannelWisePlot(phymet, logmet, dbses):
             # Principal axes labels
             ax1.set_xlabel(settings[d]["xlabel"], fontsize=gv.axes_labels_fontsize)
             ax1.set_xscale("log")
-            ax1.set_xlabel(settings[d]["ylabel"], fontsize=gv.axes_labels_fontsize)
+            ax1.set_ylabel(settings[d]["ylabel"], fontsize=gv.axes_labels_fontsize)
             ax1.set_yscale("log")
             ax1.tick_params(
                 axis="both",
@@ -459,6 +459,7 @@ def LevelWisePlot(phymets, logmet, dbses):
             ax.set_xlabel(settings["xlabel"], fontsize=gv.axes_labels_fontsize)
             ax.set_xscale("log")
             ax.set_ylabel(settings["ylabel"], fontsize=gv.axes_labels_fontsize)
+            ax.set_ylim([10e-9, None])
             ax.set_yscale("log")
             ax.tick_params(
                 axis="both",
