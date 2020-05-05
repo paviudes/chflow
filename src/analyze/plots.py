@@ -37,6 +37,7 @@ from analyze import collect as cl
 def ExtractPDFPages(information, save_folder, save_fname):
     r"""
     Extract pages from a PDF and save it into a new PDF.
+    https://stackoverflow.com/questions/51567750/extract-specific-pages-of-pdf-and-save-it-with-python
     """
     for f in range(len(information)):
         pdfobj = open("%s" % information[f]["fname"], "rb")
