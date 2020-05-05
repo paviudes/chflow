@@ -371,6 +371,7 @@ def ChannelWisePlot(phymet, logmet, dbses):
             ax1.set_xscale("log")
             ax1.set_ylabel(settings[d]["ylabel"], fontsize=gv.axes_labels_fontsize)
             ax1.set_yscale("log")
+            ax1.set_ylim([10e-9, None])
             ax1.tick_params(
                 axis="both",
                 which="both",
