@@ -1,0 +1,25 @@
+# Time stamp
+timestamp sample
+# Type of quantum error correcting code
+ecc Steane
+# Type of quantum channel
+channel rand
+# Noise rates (mean delta; std delta; std theta; std phi)
+noiserange 7,12,11;1,1,1
+# Number of samples
+samples 5
+# Scales
+scale 0.66,1
+# Number of syndromes to be sampled at the top level
+stats 1000
+# Randomized compiling
+rc 0
+# Decoding strategy
+hybrid 0
+# Metrics to be computed on the effective channels at every level.
+metrics infid
+# Load distribution on cores.
+cores 1,1
+# Output directory
+outdir /home/aditya/Documents/chbank
+plot name,Without Randomized compiling;linestyle,None
