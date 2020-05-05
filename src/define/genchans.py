@@ -86,7 +86,8 @@ def PreparePhysicalChannels(submit, nproc=1):
                 noise[j] = submit.noiserates[i, j]
             else:
                 noise[j] = np.power(submit.scales[j], submit.noiserates[i, j])
-        noise = np.insert(noise, 0, submit.eccs[0].N)
+        if submit.iscorr == 2:
+            noise = np.insert(noise, 0, submit.eccs[0].N)
         processes = []
         for k in range(nproc):
             processes.append(

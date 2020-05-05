@@ -3,13 +3,13 @@ timestamp sample
 # Type of quantum error correcting code
 ecc Steane
 # Type of quantum channel
-channel rtas
+channel rand
 # Noise rates (mean delta; std delta; std theta; std phi)
-noiserange 7,15,9;-1,-1,1;0,0,1;0,0,1
+noiserange 7,15,9;1,1,1
 # Number of samples
 samples 1
 # Scales
-scale 0.66,1,1,1
+scale 0.66,1
 # Number of syndromes to be sampled at the top level
 stats 1000
 # Randomized compiling
