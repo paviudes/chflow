@@ -242,7 +242,8 @@ def RelativeImprovement(xaxis, yaxes, plt, ax1, xlabel, annotations=None):
     The first row in yaxes refers to RC data while the second row refers to non RC data.
     https://scipython.com/blog/inset-plots-in-matplotlib/
     """
-    degrading_indices = yaxes[0, :] > yaxes[1, :]
+    atol = 10e-8
+    degrading_indices = (yaxes[0, :] - yaxes[1, :]) > atol
     print(
         "Logical error rates:\n RC: {}\n no RC: {}".format(
             yaxes[0, degrading_indices], yaxes[1, degrading_indices]
