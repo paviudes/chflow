@@ -19,4 +19,6 @@ outdir /Users/pavi/Documents/chbank
 # Custom plot settings
 plot xlabel,Physical noise strength;ylabel,Logical infidelity
 # Plot settings
-plot xlabel,Diamond distance of the physical channel;ylabel,Infidelity of the logical channel;name,Without randomized compiling;color,red;marker,o;linestyle,None
+# plot xlabel,Diamond distance of the physical channel;ylabel,Infidelity of the logical # channel;name,Without randomized compiling;color,red;marker,o;linestyle,None
+# Plot settings
+plot name,Without randomized compiling

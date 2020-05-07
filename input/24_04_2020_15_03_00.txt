@@ -43,4 +43,6 @@ outdir /Users/pavi/Documents/chbank
 # Randomized compiling of quantum gates.
 rc 0
 # Plot settings
-plot xlabel,Diamond distance of the physical channel;ylabel,Infidelity of the logical channel;name,With randomized compiling;color,green;marker,+;linestyle,None
+plot name,With randomized compiling
+# Plot settings
+# plot xlabel,Diamond distance of the physical channel;ylabel,Infidelity of the logical channel;name,With randomized compiling;color,green;marker,+;linestyle,None

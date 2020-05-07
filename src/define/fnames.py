@@ -1,3 +1,9 @@
+def PauliDistribution(submit):
+    # Name of the file containing the probability distribution of Pauli errors.
+    fname = "%s/results/paulidist_%s.pdf" % (submit.outdir, submit.channel)
+    return fname
+
+
 def BinSummary(submit, phymet, logmet, level):
     # Name of the file containing the summary of bins
     fname = "%s/results/bins_summary_%s_%s_l%d.txt" % (
@@ -32,6 +38,13 @@ def PhysicalChannel(dbs, noise):
     # Name of the file containing the physical channel
     noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
     fname = "%s/physical/%s_%s.npy" % (dbs.outdir, dbs.channel, noisedes)
+    return fname
+
+
+def RawPhysicalChannel(dbs, noise):
+    # Name of the file containing the physical channel
+    noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
+    fname = "%s/physical/raw_%s_%s.npy" % (dbs.outdir, dbs.channel, noisedes)
     return fname
 
 

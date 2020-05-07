@@ -56,9 +56,9 @@ line_styles = [(0, ()), (0, (5, 5)), (0, (1, 1)), (0, (3, 5, 1, 5, 1, 5))]
 # Markers
 # https://matplotlib.org/2.0.2/api/markers_api.html
 Markers = [
-    "*",
-    "^",
     "s",
+    "+",
+    "*",
     "+",
     "v",
     "<",

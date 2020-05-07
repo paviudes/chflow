@@ -320,6 +320,7 @@ def PauliConvertToTransfer(pauliprobs, qcode):
     Convert from a representation of a Pauli channel as a distribution over various Pauli errors, to that of a Pauli transfer matrix.
     The ordering of errors in the distribution is assumed to be TLS.
     """
+    # print("probs = {}".format(pauliprobs.shape))
     nstabs = 2 ** (qcode.N - qcode.K)
     nlogs = 4 ** qcode.K
     # ptm = np.zeros(nstabs * nlogs, dtype=np.double)
@@ -332,6 +333,7 @@ def PauliConvertToTransfer(pauliprobs, qcode):
                 target=GetTransferMatrixElements, args=(l, pauliprobs, qcode, ptm)
             )
         )
+        # GetTransferMatrixElements(l, pauliprobs, qcode, ptm)
     for l in range(nlogs):
         processes[l].start()
     for l in range(nlogs):
@@ -361,6 +363,7 @@ def GetTransferMatrixElements(logidx, pauliprobs, qcode, ptm):
             )
             (stab_op, __) = qc.PauliProduct(*qcode.S[np.nonzero(stab_select)])
         indices = qc.GetCommuting(log_op, stab_op, qcode.L, qcode.S, qcode.T)
+        # print("commuting indices: {}".format(indices["commuting"]))
         ptm[logidx * nstabs + s] = np.sum(pauliprobs[indices["commuting"]]) - np.sum(
             pauliprobs[indices["anticommuting"]]
         )

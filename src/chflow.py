@@ -21,6 +21,7 @@ from define import chanapprox as capp
 from define import photonloss as ploss
 from define import gendamp as gdamp
 from define import chanreps as crep
+from define.QECCLfid import uncorrectable as uc
 
 # Files from the "analyze" module.
 from analyze import collect as cl
@@ -635,9 +636,35 @@ if __name__ == "__main__":
 
         #####################################################################
 
+        elif user[0] == "pdplot":
+            # No documentation provided yet
+            nrate = list(map(np.double, user[1].split(",")))
+            sample = int(user[2])
+            nreps = int(user[3])
+            max_weight = int(user[4])
+            chi = np.load(fn.RawPhysicalChannel(submit, nrate))[sample, :]
+            if submit.iscorr == 0:
+                pauliprobs = np.diag(chi.reshape([4, 4]))
+            elif submit.iscorr == 1:
+                pauliprobs = chi
+            else:
+                pauliprobs = list(map(np.diag, chi.reshape([submit.eccs[0].N, 4, 4])))
+            dist = uc.GetErrorProbabilities(
+                submit.eccs[0].PauliOperatorsLST, pauliprobs, submit.iscorr
+            )
+            pl.PauliDistributionPlot(submit, dist, nreps=nreps, max_weight=max_weight)
+
+        #####################################################################
+
         elif user[0] == "cplot":
             # No documentation provided
+            thresholds = {"y": 10e-16, "x": 10e-16}
             dbses = [submit]
+            if len(user) > 5:
+                thresholds["x"] = np.power(0.1, int(user[5]))
+            if len(user) > 4:
+                thresholds["y"] = np.power(0.1, int(user[4]))
+
             if len(user) > 3:
                 for (i, ts) in enumerate(user[3].split(",")):
                     dbses.append(sub.Submission())
@@ -654,7 +681,7 @@ if __name__ == "__main__":
                     check = 0
                     break
             if check == 1:
-                pl.ChannelWisePlot(user[1], user[2], dbses)
+                pl.ChannelWisePlot(user[1], user[2], dbses, thresholds)
             else:
                 print(
                     "\033[2mOne of the databases does not have logical error data.\033[0m"
@@ -1081,7 +1108,7 @@ if __name__ == "__main__":
             name = user[3]
             plot_option = user[4]
             notes_location = user[5]
-            page = int(user[6])
+            pages = list(map(int, user[6].split(",")))
             if plot_option == "lplot":
                 plot_file = fn.LevelWise(dbses[0], phymet.replace(",", "_"), logmet)
             elif plot_option == "cplot":
@@ -1094,7 +1121,7 @@ if __name__ == "__main__":
             #     "pdfseparate -f %d -l %d %s %s_%s_%s_%s.pdf"
             #     % (page, page, file_location, plot_option, name, phymet, logmet)
             # )
-            information = [{"fname": plot_file, "start": 2, "end": 2}]
+            information = [{"fname": plot_file, "start": pg, "end": pg} for pg in pages]
             output_file = "%s_%s_%s_%s.pdf" % (plot_option, name, phymet, logmet)
             print(
                 "ExtractPDFPages({}, {}, {})".format(

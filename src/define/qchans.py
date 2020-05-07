@@ -105,7 +105,7 @@ Channels = {
         "corr": 0,
     },
     "rtas": {
-        "name": "Asymmetric rotations about arbitrary axes of the Bloch sphere",
+        "name": "Asymmetric Gaussian random rotations about arbitrary axes of the Bloch sphere",
         "params": [
             "Number of qubits",
             "Average angle of rotation",
@@ -120,6 +120,18 @@ Channels = {
             "\\Delta_{\\theta}",
             "\\Delta_{\\phi}",
         ],
+        "color": "midnightblue",
+        "Pauli": 0,
+        "corr": 2,
+    },
+    "rtasu": {
+        "name": "Asymmetric uniformly random rotations about arbitrary axes of the Bloch sphere",
+        "params": [
+            "Number of qubits",
+            "Average angle of rotation",
+            "Standard deviation for rotation angle",
+        ],
+        "latex": ["N", "$\\mu_{\\delta}$", "\\Delta_{\\delta}"],
         "color": "midnightblue",
         "Pauli": 0,
         "corr": 2,

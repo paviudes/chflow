@@ -69,9 +69,9 @@ def PauliChannel(params):
     return krauss
 
 
-def ArbitraryRotation(params):
+def ArbitraryNormalRotation(params):
     """
-    Asymmetric rotation to n qubits.
+    Asymmetric and uniformly random rotation to n qubits.
     """
     names = [
         "N",
@@ -82,7 +82,7 @@ def ArbitraryRotation(params):
         "mean_phi",
         "std_phi",
     ]
-    specs = [1, 0.01, 0.01, -1, -1]
+    specs = [1, 0.01, -1, -1, -1]
     for i in range(len(params)):
         specs[i] = params[i]
 
@@ -113,6 +113,44 @@ def ArbitraryRotation(params):
             theta = -1 * theta
         if theta > np.pi:
             theta = theta - int(theta / np.pi) * np.pi
+        # print(
+        #     "on qubit {}, delta = {}, theta = {}, phi = {}".format(
+        #         i, delta, theta, phi
+        #     )
+        # )
+        axis = np.array(
+            [np.sin(theta) * np.cos(phi), np.sin(theta) * np.sin(phi), np.cos(theta)],
+            dtype=np.double,
+        )
+        exponent = np.zeros((2, 2), dtype=np.complex128)
+        for j in range(3):
+            exponent = exponent + axis[j] * gv.Pauli[j + 1, :, :]
+        unitaries[i, :, :] = linalg.expm(-1j * delta / 2 * np.pi * exponent)
+    krauss = unitaries
+    return krauss
+
+
+def ArbitraryUniformRotation(params):
+    """
+    Asymmetric and Gaussian random rotation to n qubits.
+    """
+    names = ["N", "mean_delta", "std_delta"]
+    specs = [1, 0.01, -1]
+    for i in range(len(params)):
+        specs[i] = params[i]
+
+    nqubits = int(specs[0])
+
+    mean_delta = specs[1]
+    std_delta = specs[2]
+    if std_delta < 0:
+        std_delta = mean_delta / (-1 * std_delta)
+
+    unitaries = np.zeros((nqubits, 2, 2), dtype=np.complex128)
+    for i in range(nqubits):
+        theta = np.random.uniform(0, np.pi)
+        phi = np.random.uniform(0, 2 * np.pi)
+        delta = np.random.normal(mean_delta, std_delta)
         # print(
         #     "on qubit {}, delta = {}, theta = {}, phi = {}".format(
         #         i, delta, theta, phi
@@ -231,16 +269,30 @@ def CorrelatedPauli(params):
     Kraus operators for a random fully correlated channel.
     The output in this case is the list of probabilities of n-qubit Pauli errors.
     See https://stackoverflow.com/questions/18441779/how-to-specify-upper-and-lower-limits-when-using-numpy-random-normal.
+    available methods = ["uniform", "poisson"]
     """
-    sigma = 1
-    mu = float(params[0])
-    sigma = mu / 2
+    kwargs = {
+        "n": params[0],
+        "weightdist": params[1],
+        "average_infid": params[2],
+        "method": int(params[3]) - 1,
+    }
+    # print("args = {}".format(kwargs))
+    mu = float(kwargs["average_infid"])
+    sigma = mu / 10
     lower = max(10e-3, mu - 0.1)
     upper = min(1 - 10e-3, mu + 0.1)
-    # print("mu = {}, sigma = {}, upper = {}, lower = {}".format(mu, sigma, upper, lower))
+    # print(
+    #     "mu = {}, sigma = {}, upper = {}, lower = {}".format(
+    #         mu, sigma, upper, lower
+    #     )
+    # )
     X = truncnorm((lower - mu) / sigma, (upper - mu) / sigma, loc=mu, scale=sigma)
-    pauli_probs = RandomPauliChannel(X.rvs(), int(params[1]))
-    return pauli_probs
+    # print("X = {}".format(X))
+    kwargs.update({"infid": X.rvs()})
+    # kwargs.update({"infid": np.abs(np.random.normal(mu, sigma))})
+    # print("args = {}".format(kwargs))
+    return RandomPauliChannel(kwargs)
 
 
 def GetKraussForChannel(chType, *params):
@@ -298,8 +350,12 @@ def GetKraussForChannel(chType, *params):
         krauss = YRotation(params)
 
     elif chType == "rtas":
-        # Asymmetric rotation to n qubits
-        krauss = ArbitraryRotation(params)
+        # Asymmetric Gaussian random rotation to n qubits
+        krauss = ArbitraryNormalRotation(params)
+
+    elif chType == "rtasu":
+        # Asymmetric uniformly random rotation to n qubits
+        krauss = ArbitraryUniformRotation(params)
 
     elif chType == "rtnp":
         # This is the channel in a generic rotation channel about some axis of the Bloch sphere
