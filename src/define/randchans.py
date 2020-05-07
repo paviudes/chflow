@@ -3,6 +3,7 @@ import os
 try:
     import numpy as np
     from scipy import linalg as linalg
+    from scipy.stats import poisson
 except:
     pass
 from define import globalvars as gv
@@ -96,12 +97,13 @@ def RandomUnitary(prox, dim, method="qr", randH=None):
     return randU
 
 
-def RandomPauliChannel(infid, nqubits=1):
+def IsotropicRandomPauli(infid, nqubits=1):
+    # Generate a random Pauli channel with a specified fidelity to the identity channel.
+    # We will generate uniformly random numbers to denote the probability of a non-identity Pauli error.
+    # Furthermore, we will ensure that the probability of the non-identity Pauli error add up to a given infidelity value.
     # A Pauli channel is defined by: E(R) = p_I R + p_X X R X + p_Y Y R Y + p_Z Z R Z.
-    # Generate a random Pauli channel with a specified distance from the identity.
-    # All notions of distances are identical for Pauli channels, it is essentially: 1 - p_I.
-    # Generate 3 random numbers x, y, z, such that: x^2 + y^2 + z^2 = r^2, where r^2 = infid.
-    # Finally, the Krauss operators are: sqrt(1 - infid) I, x X, y Y, z Z.
+    # For 1 qubit channels, we will return the Kraus operators (Pauli matrices).
+    # For multi-qubit channels we will simply return the probability distribution on the Pauli errors.
     print(
         "Random Pauli channel on {} qubits with infidelity {}.".format(nqubits, infid)
     )
@@ -109,6 +111,7 @@ def RandomPauliChannel(infid, nqubits=1):
     pauliprobs = infid * pauliprobs / np.sum(pauliprobs)
     # pauliamps = HyperSphereSampling(4 ** nqubits - 1, center=0.0, radius=np.sqrt(infid))
     # print("p_I = %g, p_X = %g, p_Y = %g and p_Z = %g." % (1 - np.sum(np.power(pauliamps, 2.0)), np.power(pauliamps[0], 2.0), np.power(pauliamps[1], 2.0), np.power(pauliamps[2], 2.0)))
+    # print("dist shape: {}".format(pauliprobs.shape))
     if nqubits > 1:
         return np.concatenate(([1 - infid], pauliprobs))
     krops = np.zeros((4 ** nqubits, 2 ** nqubits, 2 ** nqubits), dtype=np.complex128)
@@ -116,6 +119,63 @@ def RandomPauliChannel(infid, nqubits=1):
     for i in range(1, 4):
         krops[i, :, :] = np.sqrt(pauliprobs[i]) * gv.Pauli[i, :, :]
     return krops
+
+
+def PoissonRandomPauli(infid, average_correctable_weight, weights):
+    """
+	Assign probabilities to Pauli errors that follow a Poission distribution.
+	The mean of the Poisson distribution is the average weight of correctable errors.
+	1. Construct the Poisson PMF of a given mean, pmf, for values from 0 to W, the maximum weight of an error.
+	2. For each of the numbers, from w = 0 to w = W, do:
+	3.      Assign uniformly random probabilities to errors of weight w. Ensure that these probabilities add up to pmf[w].
+	4. End for.
+	"""
+    error_dist = np.zeros(weights.shape[0], dtype=np.double)
+    max_weight = int(np.max(weights))
+    # Generate a Poisson distribution for probability of an error having a weight w.
+    # We want to set the most prevalent weight of an error.
+    # However, we will not directly fix its value but let it be a normally distributed value with controllable mean and standard deviation equal to the minimum of 0.5 and mean/3.
+    weight_dist = poisson.pmf(
+        np.arange(1 + max_weight, dtype=np.int), average_correctable_weight
+    )
+    weight_dist = weight_dist / np.sum(weight_dist)
+    # print("Weight distribution: {}\nsum = {}".format(weight_dist, np.sum(weight_dist)))
+    # Group errors by weight and within weight-w errors, assign uniformly random probabilities.
+    group_by_weight = {w: None for w in range(weight_dist.size)}
+    for w in range(weight_dist.size):
+        (group_by_weight[w],) = np.nonzero(weights == w)
+        if group_by_weight[w].size > 0:
+            error_dist[group_by_weight[w]] = np.random.uniform(
+                0, 1, size=group_by_weight[w].size
+            )
+            error_dist[group_by_weight[w]] = (
+                weight_dist[w]
+                * error_dist[group_by_weight[w]]
+                / np.sum(error_dist[group_by_weight[w]])
+            )
+    # print("error_dist: {}\nsum = {}".format(error_dist, np.sum(error_dist)))
+    error_dist[0] = 1 - infid
+    error_dist[1:] = infid * error_dist[1:] / np.sum(error_dist[1:])
+    return error_dist
+
+
+def RandomPauliChannel(kwargs):
+    # Generate a random Pauli channel on n qubits using one of the few methods available.
+    # print("args = {}".format(kwargs))
+    available_methods = ["uniform", "poisson"]
+    method = "uniform"
+    if "method" in kwargs:
+        method = available_methods[kwargs["method"]]
+
+    # print("Method = {}".format(method))
+
+    if method == "uniform":
+        return IsotropicRandomPauli(kwargs["infid"], kwargs["n"])
+    elif method == "poisson":
+        return PoissonRandomPauli(kwargs["infid"], 1.5, kwargs["weightdist"])
+    else:
+        pass
+    return None
 
 
 def RandomCPTP(dist, meth):
@@ -167,20 +227,20 @@ def HyperSphereSampling(npoints, center=0.0, radius=1.0, classification=None):
 
 def RandomPauliTransfer(pauliprobs, maxterms=-1):
     r"""
-    Generate the Pauli transfer matrix of a random Pauli channel.
-    Note that the Pauli transfer matrix need not be of the specified input Pauli channel, it can be another random Pauli channel.
+	Generate the Pauli transfer matrix of a random Pauli channel.
+	Note that the Pauli transfer matrix need not be of the specified input Pauli channel, it can be another random Pauli channel.
 
-    A diagonal element of the Pauli transfer matrix, corresponding to the Pauli operator :math:`P`, written as :math:`\Gamma_{P,P}`, can be expressed as follows.
+	A diagonal element of the Pauli transfer matrix, corresponding to the Pauli operator :math:`P`, written as :math:`\Gamma_{P,P}`, can be expressed as follows.
 
-    ..math::
-        \begin{gather}
-        \Gamma_{P,P} = \sum_{A\in S_{C}}p_{A} - \sum_{B\in S_{A}}p_{B}
-        \end{gather}
+	..math::
+		\begin{gather}
+		\Gamma_{P,P} = \sum_{A\in S_{C}}p_{A} - \sum_{B\in S_{A}}p_{B}
+		\end{gather}
 
-    where :math:`S_{C}` denotes the set of all operators that commute with :math:`P`, while :math:`S_{A}` is the set of all operators that anticommute with :math:`P`.
+	where :math:`S_{C}` denotes the set of all operators that commute with :math:`P`, while :math:`S_{A}` is the set of all operators that anticommute with :math:`P`.
 
-    Note that for any Pauli operator :math:`P`, the set :math:`S_{C}` contains half of all the Pauli operators, other than :math:`I` and :math:`P`. The set :math:`S_{A}` contains the other half. Hence, to generate random elements of the Pauli transfer matrix, we simply need to divide the set of Pauli operators into two halfs and compute the above expression.
-    """
+	Note that for any Pauli operator :math:`P`, the set :math:`S_{C}` contains half of all the Pauli operators, other than :math:`I` and :math:`P`. The set :math:`S_{A}` contains the other half. Hence, to generate random elements of the Pauli transfer matrix, we simply need to divide the set of Pauli operators into two halfs and compute the above expression.
+	"""
     if maxterms == -1:
         maxterms = pauliprobs.shape[0]
     ptm = np.zeros(maxterms, dtype=np.double)

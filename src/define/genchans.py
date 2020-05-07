@@ -52,14 +52,17 @@ def PreparePhysicalChannels(submit, nproc=1):
     # Create quantum channels for various noise parameters and store them in the process matrix formalism.
     if submit.iscorr == 0:
         nparams = 4 ** submit.eccs[0].K * 4 ** submit.eccs[0].K
+        raw_params = params
     elif submit.iscorr == 1:
         # submit.rawchans = np.zeros(
         #     (submit.noiserates.shape[0], submit.samps, 4 ** submit.eccs[0].N),
         #     dtype=np.longdouble,
         # )
         nparams = 2 ** (submit.eccs[0].N + submit.eccs[0].K)
+        raw_params = 4 ** submit.eccs[0].N
     else:
         nparams = submit.eccs[0].N * 4 ** submit.eccs[0].K * 4 ** submit.eccs[0].K
+        raw_params = params
     phychans = mp.Array(
         ct.c_double,
         np.zeros(
@@ -69,7 +72,7 @@ def PreparePhysicalChannels(submit, nproc=1):
     rawchans = mp.Array(
         ct.c_double,
         np.zeros(
-            (submit.noiserates.shape[0] * submit.samps * nparams), dtype=np.double
+            (submit.noiserates.shape[0] * submit.samps * raw_params), dtype=np.double
         ),
     )
     # submit.phychans = np.zeros(
@@ -86,8 +89,8 @@ def PreparePhysicalChannels(submit, nproc=1):
                 noise[j] = submit.noiserates[i, j]
             else:
                 noise[j] = np.power(submit.scales[j], submit.noiserates[i, j])
-        if submit.iscorr == 2:
-            noise = np.insert(noise, 0, submit.eccs[0].N)
+        # if submit.iscorr > 0:
+        #     noise = np.insert(noise, 0, submit.eccs[0].N)
         processes = []
         for k in range(nproc):
             processes.append(
@@ -99,6 +102,7 @@ def PreparePhysicalChannels(submit, nproc=1):
                         [k * chunk, min(submit.samps, (k + 1) * chunk)],
                         submit,
                         nparams,
+                        raw_params,
                         phychans,
                         rawchans,
                     ),
@@ -113,7 +117,7 @@ def PreparePhysicalChannels(submit, nproc=1):
         phychans, [submit.noiserates.shape[0], submit.samps, nparams], order="c"
     )
     submit.rawchans = np.reshape(
-        rawchans, [submit.noiserates.shape[0], submit.samps, nparams], order="c"
+        rawchans, [submit.noiserates.shape[0], submit.samps, raw_params], order="c"
     )
     if submit.nodes > 0:
         submit.cores[0] = int(
@@ -129,7 +133,9 @@ def PreparePhysicalChannels(submit, nproc=1):
     return None
 
 
-def GenChannelSamples(noise, noiseidx, samps, submit, nparams, phychans, rawchans):
+def GenChannelSamples(
+    noise, noiseidx, samps, submit, nparams, raw_params, phychans, rawchans
+):
     r"""
 	Generate samples of various channels with a given noise rate.
 	"""
@@ -146,11 +152,13 @@ def GenChannelSamples(noise, noiseidx, samps, submit, nparams, phychans, rawchan
                     noiseidx * submit.samps * nparams + (j + 1) * nparams
                 )
             ] = crep.ConvertRepresentations(
-                chdef.GetKraussForChannel(submit.channel, *noise), "krauss", "process"
+                chdef.GetKraussForChannel(submit.channel, submit.eccs[0].N, *noise),
+                "krauss",
+                "process",
             ).ravel()
             rawchans[
-                (noiseidx * submit.samps * nparams + j * nparams) : (
-                    noiseidx * submit.samps * nparams + (j + 1) * nparams
+                (noiseidx * submit.samps * raw_params + j * raw_params) : (
+                    noiseidx * submit.samps * raw_params + (j + 1) * raw_params
                 )
             ] = np.real(
                 crep.ConvertRepresentations(
@@ -167,7 +175,30 @@ def GenChannelSamples(noise, noiseidx, samps, submit, nparams, phychans, rawchan
                     "chi",
                 )
             ).ravel()
-        elif submit.iscorr == 2:
+        elif submit.iscorr == 1:
+            rawchans[
+                (noiseidx * submit.samps * raw_params + j * raw_params) : (
+                    noiseidx * submit.samps * raw_params + (j + 1) * raw_params
+                )
+            ] = chdef.GetKraussForChannel(
+                submit.channel, submit.eccs[0].N, submit.eccs[0].weightdist, *noise
+            )
+            phychans[
+                (noiseidx * submit.samps * nparams + j * nparams) : (
+                    noiseidx * submit.samps * nparams + (j + 1) * nparams
+                )
+            ] = crep.PauliConvertToTransfer(
+                np.array(
+                    rawchans[
+                        (noiseidx * submit.samps * raw_params + j * raw_params) : (
+                            noiseidx * submit.samps * raw_params + (j + 1) * raw_params
+                        )
+                    ],
+                    dtype=np.double,
+                ),
+                submit.eccs[0],
+            )
+        else:
             chans = chdef.GetKraussForChannel(submit.channel, *noise)
             nentries = 4 ** submit.eccs[0].K * 4 ** submit.eccs[0].K
             for q in range(chans.shape[0]):
@@ -181,9 +212,13 @@ def GenChannelSamples(noise, noiseidx, samps, submit, nparams, phychans, rawchan
                     chans[np.newaxis, q, :, :], "krauss", "process"
                 ).ravel()
                 rawchans[
-                    (noiseidx * submit.samps * nparams + j * nparams + q * nentries) : (
-                        noiseidx * submit.samps * nparams
-                        + j * nparams
+                    (
+                        noiseidx * submit.samps * raw_params
+                        + j * raw_params
+                        + q * nentries
+                    ) : (
+                        noiseidx * submit.samps * raw_params
+                        + j * raw_params
                         + (q + 1) * nentries
                     )
                 ] = np.real(
@@ -206,24 +241,5 @@ def GenChannelSamples(noise, noiseidx, samps, submit, nparams, phychans, rawchan
                         "chi",
                     )
                 ).ravel()
-        else:
-            rawchans[
-                (noiseidx * submit.samps * nparams + j * nparams) : (
-                    noiseidx * submit.samps * nparams + (j + 1) * nparams
-                )
-            ] = chdef.GetKraussForChannel(
-                submit.channel, *np.concatenate((noise, [submit.eccs[0].N]))
-            )
-            phychans[
-                (noiseidx * submit.samps * nparams + j * nparams) : (
-                    noiseidx * submit.samps * nparams + (j + 1) * nparams
-                )
-            ] = crep.PauliConvertToTransfer(
-                rawchans[
-                    (noiseidx * submit.samps * nparams + j * nparams) : (
-                        noiseidx * submit.samps * nparams + (j + 1) * nparams
-                    )
-                ],
-                submit.eccs[0],
-            )
+
     return None

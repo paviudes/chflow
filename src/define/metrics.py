@@ -222,7 +222,7 @@ def DiamondNorm(choi, kwargs):
 
     if kwargs["chtype"] == "physical":
         if kwargs["corr"] == 0:
-            return DiamondNormPhysical(choi, kwargs)
+            return kwargs["qcode"].N * DiamondNormPhysical(choi, kwargs)
         elif kwargs["corr"] == 2:
             chans_ptm = np.reshape(choi, [kwargs["qcode"].N, 4, 4])
             dnorm = 0
@@ -307,6 +307,9 @@ def InfidelityPhysical(choi, kwargs):
 def Infidelity(choi, kwargs):
     # Compute the Infidelity for a physical channel or a set of logical channels.
     if kwargs["chtype"] == "physical":
+        if kwargs["corr"] == 0:
+            fidelity_individual = 1 - InfidelityPhysical(choi, kwargs)
+            return 1 - np.power(fidelity_individual, kwargs["qcode"].N)
         return InfidelityPhysical(choi, kwargs)
     else:
         infids = np.zeros(choi.shape[0], dtype=np.double)

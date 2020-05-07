@@ -27,6 +27,7 @@ except:
 # 	sys.path.insert(0, current)
 
 from define import qchans as qc
+from define import qcode as qec
 from define import fnames as fn
 from define import globalvars as gv
 from define import metrics as ml
@@ -49,9 +50,12 @@ def ExtractPDFPages(information, save_folder, save_fname):
             pdf_writer.addPage(pdfReader.getPage(from_page - 1))
         if not os.path.exists(save_folder):
             os.makedirs(save_folder)
-        with open("%s/%s" % (save_folder, save_fname), "wb") as out:
+        with open("%s/pg_%d%s" % (save_folder, from_page, save_fname), "wb") as out:
             pdf_writer.write(out)
-    print("\033[2mPDF file written to %s/%s.\033[0m" % (save_folder, save_fname))
+    print(
+        "\033[2mPDF file written to %s/pg_%d_%s.\033[0m"
+        % (save_folder, from_page, save_fname)
+    )
     return None
 
 
@@ -225,8 +229,8 @@ def LoadPhysicalErrorRates(dbs, pmet, settings, override=None, is_override=0):
         settings["xaxis"] = dbs.available[:, np.int(pmet)]
         settings["marker"] = gv.Markers[int(pmet)]
         settings["color"] = gv.Colors[int(pmet)]
-        if not (dbs.scales[p] == 1):
-            settings["xaxis"] = np.power(dbs.scales[p], phyerrs)
+        if not (dbs.scales[int(pmet)] == 1):
+            settings["xaxis"] = np.power(dbs.scales[int(pmet)], phyerrs)
 
     settings["linestyle"] = ["None", "--"][dbs.samps == 1]
     if is_override == 1:
@@ -235,7 +239,7 @@ def LoadPhysicalErrorRates(dbs, pmet, settings, override=None, is_override=0):
     return None
 
 
-def RelativeImprovement(xaxis, yaxes, plt, ax1, xlabel, annotations=None):
+def RelativeImprovement(xaxis, yaxes, plt, ax1, xlabel, only_points, annotations=None):
     """
     Plot relative improvement from RC, in an inset plot.
     We will compute the difference: (second row - first row)/(second row)
@@ -255,7 +259,7 @@ def RelativeImprovement(xaxis, yaxes, plt, ax1, xlabel, annotations=None):
     ax2.set_axes_locator(ip)
     # Mark the region corresponding to the inset axes on ax1 and draw lines in grey linking the two axes.
     mark_inset(ax1, ax2, loc1=2, loc2=4, fc="none")
-    for i in range(xaxis.shape[0]):
+    for i in only_points:
         ax2.plot(
             xaxis[i],
             (yaxes[1, i] - yaxes[0, i]) / yaxes[1, i],
@@ -289,7 +293,7 @@ def RelativeImprovement(xaxis, yaxes, plt, ax1, xlabel, annotations=None):
     return None
 
 
-def ChannelWisePlot(phymet, logmet, dbses):
+def ChannelWisePlot(phymet, logmet, dbses, thresholds={"y": 10e-16, "x": 10e-16}):
     # Plot each channel in the database with a different color.
     # Channels of similar type in different databases will be distinguished using different markers.
     ndb = len(dbses)
@@ -306,8 +310,14 @@ def ChannelWisePlot(phymet, logmet, dbses):
             # ax1 = plt.gca()
             # plt.axvline(x=0.06, linestyle="--")
             logerrs = np.zeros((len(dbses), dbses[0].channels), dtype=np.double)
-            phyerrs = np.zeros((len(dbses), dbses[0].channels), dtype=np.double)
+            # phyerrs = np.zeros((len(dbses), dbses[0].channels), dtype=np.double)
             settings = [{} for __ in range(ndb)]
+            for d in range(ndb):
+                logerrs[d, :] = np.load(fn.LogicalErrorRates(dbses[d], logmet))[:, l]
+            include_RC = np.nonzero(logerrs[0, :] > thresholds["y"])
+            include_nonRC = np.nonzero(logerrs[1, :] > thresholds["y"])
+            include = np.intersect1d(include_RC, include_nonRC)
+            print("l: {} and include = {}".format(l, include))
             for d in range(ndb):
                 ax1.plot(
                     [],
@@ -328,7 +338,7 @@ def ChannelWisePlot(phymet, logmet, dbses):
                 }
                 LoadPhysicalErrorRates(dbses[d], phymet, settings[d], d == 0)
 
-                for i in range(dbses[d].channels):
+                for i in include:
                     ax1.plot(
                         settings[d]["xaxis"][i],
                         settings[d]["yaxis"][i],
@@ -343,7 +353,7 @@ def ChannelWisePlot(phymet, logmet, dbses):
                             color=gv.Colors[i % gv.n_Colors],
                             fontsize=gv.ticks_fontsize,
                         )
-            for i in range(dbses[d].channels):
+            for i in include:
                 # Draw lines between the corresponding channels in databases 0 and 1
                 ax1.plot(
                     [settings[0]["xaxis"][i], settings[1]["xaxis"][i]],
@@ -364,6 +374,7 @@ def ChannelWisePlot(phymet, logmet, dbses):
                 plt,
                 ax1,
                 settings[1]["xlabel"],
+                include,
                 annotations,
             )
 
@@ -372,7 +383,7 @@ def ChannelWisePlot(phymet, logmet, dbses):
             ax1.set_xscale("log")
             ax1.set_ylabel(settings[d]["ylabel"], fontsize=gv.axes_labels_fontsize)
             ax1.set_yscale("log")
-            ax1.set_ylim([10e-9, None])
+            # ax1.set_ylim([10e-9, None])
             ax1.tick_params(
                 axis="both",
                 which="both",
@@ -430,6 +441,7 @@ def LevelWisePlot(phymets, logmet, dbses):
                         settings["xaxis"],
                         settings["yaxis"],
                         color=settings["color"],
+                        alpha=0.5,
                         marker=settings["marker"],
                         markersize=gv.marker_size,
                         linestyle=settings["linestyle"],
@@ -461,7 +473,7 @@ def LevelWisePlot(phymets, logmet, dbses):
             ax.set_xlabel(settings["xlabel"], fontsize=gv.axes_labels_fontsize)
             ax.set_xscale("log")
             ax.set_ylabel(settings["ylabel"], fontsize=gv.axes_labels_fontsize)
-            ax.set_ylim([10e-9, None])
+            # ax.set_ylim([10e-9, None])
             ax.set_yscale("log")
             ax.tick_params(
                 axis="both",
@@ -503,6 +515,84 @@ def LevelWisePlot(phymets, logmet, dbses):
             ", ".join(phynames),
             dbses[0].channels,
         )
+        pdfInfo["Author"] = "Pavithran Iyer"
+        pdfInfo["ModDate"] = dt.datetime.today()
+    return None
+
+
+def PauliDistributionPlot(dbs, pauliprobs, nreps=5, max_weight=None):
+    r"""
+    Plot the probability distribution of Pauli errors.
+    """
+    if max_weight is None:
+        max_weight = int(np.max(dbs.eccs[0].weightdist))
+    max_weight += 1
+    group_by_weight = {w: None for w in range(max_weight)}
+    for w in range(max_weight):
+        (group_by_weight[w],) = np.nonzero(dbs.eccs[0].weightdist == w)
+    leading_by_weight = {w: None for w in range(max_weight)}
+    for w in range(max_weight):
+        ninclude = min(nreps, group_by_weight[w].size)
+        result_args = np.argpartition(-pauliprobs[group_by_weight[w]], ninclude - 1)[
+            :ninclude
+        ]
+        leading_by_weight[w] = group_by_weight[w][result_args]
+    operator_labels = {
+        w: qec.PauliOperatorToSymbol(
+            qec.GetOperatorsForLSTIndex(dbs.eccs[0], leading_by_weight[w])
+        )
+        for w in range(max_weight)
+    }
+    plotfname = fn.PauliDistribution(dbs)
+    with PdfPages(plotfname) as pdf:
+        fig = plt.figure(figsize=gv.canvas_size)
+        current = 0
+        for w in range(1, max_weight):
+            if leading_by_weight[w].size > 0:
+                plt.bar(
+                    np.arange(current, current + leading_by_weight[w].size),
+                    pauliprobs[leading_by_weight[w]],
+                    color=gv.Colors[w % gv.n_Colors],
+                    width=0.5,
+                    label="w = %d" % (w),
+                    alpha=0.6,
+                )
+                current = current + leading_by_weight[w].size
+        # Principal axes labels
+        ax = plt.gca()
+        # ax.set_xlabel("Errors", fontsize=gv.axes_labels_fontsize)
+        # locs, labels = xticks()
+        # xticks(np.arange(0, 1, step=0.2))
+        plt.xticks(
+            np.arange(sum([len(operator_labels[w]) for w in range(1, max_weight)])),
+            [label for label in operator_labels[w] for w in range(max_weight)],
+            rotation=45,
+        )
+        ax.set_ylabel("Probabilities", fontsize=gv.axes_labels_fontsize)
+        ax.set_yscale("log")
+        ax.tick_params(
+            axis="both",
+            which="both",
+            pad=gv.ticks_pad,
+            direction="inout",
+            length=gv.ticks_length,
+            width=gv.ticks_width,
+            labelsize=gv.ticks_fontsize,
+        )
+        # Legend
+        ax.legend(
+            numpoints=1,
+            loc=1,
+            shadow=True,
+            fontsize=gv.legend_fontsize,
+            markerscale=gv.legend_marker_scale,
+        )
+        # Save the plot
+        pdf.savefig(fig)
+        plt.close()
+        # Set PDF attributes
+        pdfInfo = pdf.infodict()
+        pdfInfo["Title"] = "Pauli distribution of errors."
         pdfInfo["Author"] = "Pavithran Iyer"
         pdfInfo["ModDate"] = dt.datetime.today()
     return None
@@ -657,8 +747,8 @@ def CompareSubs(logmet, *dbses):
                     plt.plot(
                         logErrs[i, :, l + 1],
                         logErrs[j, :, l + 1],
-                        color=ml.Metrics[logmet][3],
-                        marker=ml.Metrics[logmet][2],
+                        color=ml.Metrics[logmet]["color"],
+                        marker=ml.Metrics[logmet]["marker"],
                         markersize=gv.marker_size,
                         linestyle="None",
                     )
@@ -666,7 +756,7 @@ def CompareSubs(logmet, *dbses):
                         "Level %d %s for %s vs. %s."
                         % (
                             l,
-                            ml.Metrics[logmet][1],
+                            ml.Metrics[logmet]["latex"],
                             dbses[i].timestamp,
                             dbses[j].timestamp,
                         )
@@ -692,7 +782,7 @@ def CompareSubs(logmet, *dbses):
         # Set PDF attributes
         pdfInfo = pdf.infodict()
         pdfInfo["Title"] = "Comparison of %s for databases %s up to %d levels." % (
-            ml.Metrics[logmet][0],
+            ml.Metrics[logmet]["name"],
             "_".join([dbses[i].timestamp for i in range(ndb)]),
             cdepth,
         )
@@ -717,9 +807,9 @@ def CompareAnsatzToMetrics(dbs, pmet, lmet):
             plt.plot(
                 phyerr,
                 logerr[:, l],
-                label=ml.Metrics[pmet][1],
-                color=ml.Metrics[pmet][3],
-                marker=ml.Metrics[pmet][2],
+                label=ml.Metrics[pmet]["latex"],
+                color=ml.Metrics[pmet]["color"],
+                marker=ml.Metrics[pmet]["marker"],
                 markersize=gv.marker_size,
                 linestyle="None",
             )
@@ -751,7 +841,7 @@ def CompareAnsatzToMetrics(dbs, pmet, lmet):
             ax.set_ylabel(
                 (
                     "$\\mathcal{N}_{%d}$  $\\left(%s\\right)$"
-                    % (l, ml.Metrics[lmet][1].replace("$", ""))
+                    % (l, ml.Metrics[lmet]["latex"].replace("$", ""))
                 ),
                 fontsize=gv.axes_labels_fontsize,
             )
@@ -778,7 +868,7 @@ def CompareAnsatzToMetrics(dbs, pmet, lmet):
             plt.close()
             # Add bar plots to compare the scatter
             bins = ComputeBinVariance(np.abs(phyerr), -np.log10(np.abs(logerr[:, l])))
-            AddBinVariancePlot(bins, l, lmet, pmet, ml.Metrics[pmet][1], pdf)
+            AddBinVariancePlot(bins, l, lmet, pmet, ml.Metrics[pmet]["latex"], pdf)
             bins = ComputeBinVariance(
                 np.power(np.abs(fiterr), fitlines[1, 0] / fitlines[0, 0]),
                 -np.log10(np.abs(logerr[:, l])),
@@ -789,9 +879,9 @@ def CompareAnsatzToMetrics(dbs, pmet, lmet):
         pdfInfo["Title"] = (
             "Comparing fit obtained p to physical %s at levels %s, by studying fluctuations of output %s for %d channels."
             % (
-                ml.Metrics[pmet][0],
+                ml.Metrics[pmet]["name"],
                 ", ".join(list(map(lambda str: "%d" % str, range(1, 1 + dbs.levels)))),
-                ml.Metrics[lmet][0],
+                ml.Metrics[lmet]["name"],
                 dbs.channels,
             )
         )
@@ -819,9 +909,9 @@ def ValidatePrediction(dbs, pmet, lmet):
             plt.plot(
                 phyerr,
                 logerr[:, l],
-                label=ml.Metrics[pmet][1],
-                color=ml.Metrics[pmet][3],
-                marker=ml.Metrics[pmet][2],
+                label=ml.Metrics[pmet]["latex"],
+                color=ml.Metrics[pmet]["color"],
+                marker=ml.Metrics[pmet]["marker"],
                 markersize=gv.marker_size,
                 linestyle="None",
             )
@@ -852,7 +942,7 @@ def ValidatePrediction(dbs, pmet, lmet):
             ax.set_ylabel(
                 (
                     "$\\widetilde{\\mathcal{N}}_{%d}$  $\\left(%s\\right)$"
-                    % (l, ml.Metrics[lmet][1].replace("$", ""))
+                    % (l, ml.Metrics[lmet]["latex"].replace("$", ""))
                 ),
                 fontsize=gv.axes_labels_fontsize,
             )
@@ -879,7 +969,7 @@ def ValidatePrediction(dbs, pmet, lmet):
             plt.close()
             # Add bar plots to compare the scatter
             bins = ComputeBinVariance(np.abs(phyerr), -np.log10(np.abs(logerr[:, l])))
-            AddBinVariancePlot(bins, l, lmet, pmet, ml.Metrics[pmet][1], pdf)
+            AddBinVariancePlot(bins, l, lmet, pmet, ml.Metrics[pmet]["latex"], pdf)
             bins = ComputeBinVariance(
                 np.power(np.abs(macerr), fitlines[1, 0] / fitlines[0, 0]),
                 -np.log10(np.abs(logerr[:, l])),
@@ -890,9 +980,9 @@ def ValidatePrediction(dbs, pmet, lmet):
         pdfInfo["Title"] = (
             "Comparing predicted p to physical %s at levels %s, by studying fluctuations of output %s for %d channels."
             % (
-                ml.Metrics[pmet][0],
+                ml.Metrics[pmet]["name"],
                 ", ".join(list(map(lambda str: "%d" % str, range(1, 1 + dbs.levels)))),
-                ml.Metrics[lmet][0],
+                ml.Metrics[lmet]["name"],
                 dbs.channels,
             )
         )
@@ -984,14 +1074,14 @@ def MCStatsPlot(dbses, lmet, pmet=-1):
                             )
                         marker = ml.Metrics[
                             list(ml.Metrics.keys())[i % len(list(ml.Metrics.keys()))]
-                        ][2]
+                        ]["marker"]
                         color = ml.Metrics[
                             list(ml.Metrics.keys())[i % len(list(ml.Metrics.keys()))]
-                        ][3]
+                        ]["color"]
                     else:
-                        label = "%s = %g" % (ml.Metrics[pmet][1], phyerrs[d][i])
-                        marker = ml.Metrics[pmet][2]
-                        color = ml.Metrics[pmet][3]
+                        label = "%s = %g" % (ml.Metrics[pmet]["latex"], phyerrs[d][i])
+                        marker = ml.Metrics[pmet]["marker"]
+                        color = ml.Metrics[pmet]["color"]
                     # Plot logerrs[d][i * nstats:(i * nstats + i), l] vs. phyerrs[d][i * nstats:(i * nstats + i), -1]
                     # print("i = %d, label = %s\nXaxis\n%s\nYAxis\n%s" % (i, label, dbses[d].stats, logerrs[d][i, :, s]))
                     if label in labels:
@@ -1011,10 +1101,10 @@ def MCStatsPlot(dbses, lmet, pmet=-1):
                         linestyle=gv.line_styles[d % len(gv.line_styles)],
                         color=ml.Metrics[
                             list(ml.Metrics.keys())[i % len(list(ml.Metrics.keys()))]
-                        ][3],
+                        ]["color"],
                         marker=ml.Metrics[
                             list(ml.Metrics.keys())[i % len(list(ml.Metrics.keys()))]
-                        ][2],
+                        ]["marker"],
                         markersize=gv.marker_size,
                     )
             # Axes labels
@@ -1024,7 +1114,7 @@ def MCStatsPlot(dbses, lmet, pmet=-1):
             ax.set_ylabel(
                 (
                     "$\\widetilde{\\mathcal{N}}_{%d}$  $\\left(%s\\right)$"
-                    % (dbses[0].levels, ml.Metrics[lmet][1].replace("$", ""))
+                    % (dbses[0].levels, ml.Metrics[lmet]["latex"].replace("$", ""))
                 ),
                 fontsize=gv.axes_labels_fontsize,
             )
@@ -1053,7 +1143,7 @@ def MCStatsPlot(dbses, lmet, pmet=-1):
         pdfInfo = pdf.infodict()
         pdfInfo["Title"] = (
             "Convergence of average logical %s with the number of syndrome samples for different %s at level %d."
-            % (ml.Metrics[lmet][0], str(pmet), dbses[0].levels)
+            % (ml.Metrics[lmet]["name"], str(pmet), dbses[0].levels)
         )
         pdfInfo["Author"] = "Pavithran Iyer"
         pdfInfo["ModDate"] = dt.datetime.today()
@@ -1184,7 +1274,7 @@ def PlotBinVariance(dbses, lmet, pmet, nbins=10):
                 ]
             )
         )
-        pmetname = ml.Metrics[pmet][1]
+        pmetname = ml.Metrics[pmet]["latex"]
     logerr = np.vstack(
         tuple(
             [np.load(fn.LogicalErrorRates(dbses[i], lmet)) for i in range(len(dbses))]
@@ -1212,7 +1302,7 @@ def PlotBinVariance(dbses, lmet, pmet, nbins=10):
                 )
             else:
                 bins = ComputeBinVariance(
-                    np.abs(phyerr), -np.log10(np.abs(logerr[:, l])), nbins
+                    np.abs(np.log10(phyerr)), -np.log10(np.abs(logerr[:, l])), nbins
                 )
             # bins = ComputeBinVariance(-np.log10(np.abs(phyerr)), np.abs(logerr[:, l]), nbins)
             # bins = ComputeBinVariance(np.abs(phyerr), np.abs(logerr[:, l]), nbins)
@@ -1426,9 +1516,9 @@ def AddBinVariancePlot(
     if sub.IsNumber(pmet) == 1:
         color = ml.Metrics[
             list(ml.Metrics.keys())[len(list(ml.Metrics.keys())) % (1 + pmet)]
-        ][3]
+        ]["color"]
     else:
-        color = ml.Metrics[pmet][3]
+        color = ml.Metrics[pmet]["color"]
     if pdf is None:
         pdfobj = PdfPages(plotfname)
     fig = plt.figure(figsize=((gv.canvas_size[0] * 1.5, gv.canvas_size[1] * 1.5)))
@@ -1458,7 +1548,7 @@ def AddBinVariancePlot(
     ax.set_ylabel(
         (
             "Variance in $\\log\\mathcal{N}_{%d}$  $\\left(%s\\right)$"
-            % (level, ml.Metrics[lmet][1].replace("$", ""))
+            % (level, ml.Metrics[lmet]["latex"].replace("$", ""))
         ),
         fontsize=gv.axes_labels_fontsize,
     )

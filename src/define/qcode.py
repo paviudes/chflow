@@ -31,6 +31,7 @@ class QuantumErrorCorrectingCode:
         self.D = 3
         self.S = None
         self.SSym = None
+        self.SGroupSym = None
         self.LSym = None
         self.L = None
         self.T = None
@@ -41,6 +42,8 @@ class QuantumErrorCorrectingCode:
         self.conjugations = None
         self.Paulis_correctable = None
         self.PauliCorrectableIndices = None
+        self.PauliOperatorsLST = None
+        self.weightdist = None
         self.defnfile = "%s.txt" % (name)
         eof = 0
         with open(("./../code/%s" % self.defnfile), "r") as fp:
@@ -177,6 +180,8 @@ def Load(qecc):
     ConstructNormalizer(qecc)
     # Transformations between Pauli operators by Clifford conjugations
     PauliCliffordConjugations(qecc)
+    # Compute the minimum weight decoding table
+    PrepareSyndromeLookUp(qecc)
     return None
 
 
@@ -197,6 +202,13 @@ def populate_symplectic(qcode):
         dictL["sx"] = list(map(lambda x: 1 if x == 1 or x == 2 else 0, L))
         dictL["sz"] = list(map(lambda x: 1 if x == 2 or x == 3 else 0, L))
         qcode.LSym.append(dictL)
+    group_S = GenerateGroup(qcode.S)
+    qcode.SGroupSym = []
+    for S in group_S:
+        dictS = {"sx": None, "sz": None}
+        dictS["sx"] = list(map(lambda x: 1 if x == 1 or x == 2 else 0, S))
+        dictS["sz"] = list(map(lambda x: 1 if x == 2 or x == 3 else 0, S))
+        qcode.SGroupSym.append(dictS)
     return None
 
 
@@ -230,7 +242,7 @@ def PauliOperatorToSymbol(ops):
     opstr = ["" for i in range(ops.shape[0])]
     for i in range(ops.shape[0]):
         for j in range(ops.shape[1]):
-            opstr[i] = opstr[i] + ("%s " % (encoding[ops[i, j]]))
+            opstr[i] = opstr[i] + ("$%s$" % ("".join(encoding[ops[i, j]])))
     return opstr
 
 
@@ -835,9 +847,13 @@ def PrepareSyndromeLookUp(qecc):
     # 	find the logical operator L such that (T.L.S) has least weight over all L and for some S.
     # Each row of the constructed lookup table corresponds to a syndrome outcome.
     # The row entries are the logical correction, weight of the minimum weight operator and the full minimum weight correction.
+    nstabs = 2 ** (qecc.N - qecc.K)
+    nlogs = 4 ** qecc.K
     ordering = np.array([[0, 3], [1, 2]], dtype=np.int8)
-    qecc.lookup = np.zeros((2 ** (qecc.N - qecc.K), 2 + qecc.N), dtype=np.int8)
-    for t in range(2 ** (qecc.N - qecc.K)):
+    qecc.lookup = np.zeros((nstabs, 2 + qecc.N), dtype=np.int8)
+    qecc.PauliOperatorsLST = np.zeros((4 ** qecc.N, qecc.N), dtype=np.int)
+    qecc.weightdist = np.zeros(4 ** qecc.N, dtype=np.int)
+    for t in range(nstabs):
         if t > 0:
             tgens = np.array(
                 list(map(np.int8, np.binary_repr(t, width=(qecc.N - qecc.K)))),
@@ -848,7 +864,7 @@ def PrepareSyndromeLookUp(qecc):
             peop = np.zeros(qecc.N, dtype=np.int8)
         qecc.lookup[t, 0] = 0
         qecc.lookup[t, 1] = qecc.N
-        for l in range(4 ** qecc.K):
+        for l in range(nlogs):
             lgens = np.array(
                 list(map(np.int8, np.binary_repr(l, width=(2 * qecc.K)))), dtype=np.int8
             )
@@ -856,7 +872,7 @@ def PrepareSyndromeLookUp(qecc):
                 (logop, __) = PauliProduct(*qecc.L[np.nonzero(lgens)])
             else:
                 logop = np.zeros(qecc.N, dtype=np.int8)
-            for s in range(2 ** (qecc.N - qecc.K)):
+            for s in range(nstabs):
                 if s > 0:
                     sgens = np.array(
                         list(map(np.int8, np.binary_repr(s, width=(qecc.N - qecc.K)))),
@@ -867,21 +883,25 @@ def PrepareSyndromeLookUp(qecc):
                     stabop = np.zeros(qecc.N, dtype=np.int8)
                 (correction, __) = PauliProduct(peop, logop, stabop)
                 weight = np.count_nonzero(correction > 0)
-                # print("correction of weight %d\n%s" % (weight, np.array_str(correction)))
                 if weight <= qecc.lookup[t, 1]:
                     qecc.lookup[t, 0] = ordering[lgens[0], lgens[1]]
                     qecc.lookup[t, 1] = weight
                     qecc.lookup[t, 2:] = correction
+                # Record the weight and the correction.
+                qecc.weightdist[l * nstabs * nstabs + s * nstabs + t] = weight
+                qecc.PauliOperatorsLST[
+                    (l * nstabs * nstabs + s * nstabs + t), :
+                ] = correction
         # print("Syndrome %d: %s\n\tPure error\n\t%s\n\tCorrection\n\t%s" % (i, np.array_str(combTGens), np.array_str(pureError), np.array_str(recoveries[i])))
     return None
 
 
 def GenerateGroup(gens):
-    group = np.zeros(2 ** gens.shape[0], gens.shape[1], dtype=np.int8)
+    group = np.zeros((2 ** gens.shape[0], gens.shape[1]), dtype=np.int8)
     phase = np.ones(2 ** gens.shape[0], dtype=np.complex128)
     for i in range(1, group.shape[0]):
         comb = np.array(
-            list(map(np.int8, np.binary_repr(i, width=(2 * qecc.K)))), dtype=np.int8
+            list(map(np.int8, np.binary_repr(i, width=gens.shape[0]))), dtype=np.int8
         )
         (group[i], phase[i]) = PauliProduct(*gens[np.nonzero(comb)])
     return group
@@ -1044,6 +1064,47 @@ def ComputeLSTOrdering(qcode, ops):
     return ordering
 
 
+def GetOperatorsForLSTIndex(qcode, indices):
+    r"""
+    Get the operators for the index in LST ordering.
+    """
+    nstabs = 2 ** (qcode.N - qcode.K)
+    ops = np.zeros((len(indices), qcode.N), dtype=np.int)
+    for i in range(len(indices)):
+        pure_index = indices[i] % nstabs
+        pure_op = GetElementInGroup(pure_index, qcode.T)
+        stab_index = (indices[i] // nstabs) % nstabs
+        stab_op = GetElementInGroup(stab_index, qcode.S)
+        log_index = indices[i] // (nstabs * nstabs)
+        log_op = GetElementInGroup(log_index, qcode.L)
+        # print(
+        #     "pure_index = {}, pure_op = {}, stab_index = {}, stab_op = {}, log_index = {}, log_op = {}".format(
+        #         pure_index, pure_op, stab_index, stab_op, log_index, log_op
+        #     )
+        # )
+        (ops[i, :], __) = PauliProduct(pure_op, stab_op, log_op)
+    return ops
+
+
+def GetElementInGroup(group_index, gens):
+    """
+    Get element given its index and weight_enumerators
+    """
+    if group_index == 0:
+        return np.zeros(gens.shape[1], dtype=np.int)
+    include_gens = np.array(
+        list(map(np.int8, np.binary_repr(group_index, width=gens.shape[0]))),
+        dtype=np.int8,
+    )
+    # print(
+    #     "Binary = {}, include_gens = {}".format(
+    #         np.binary_repr(group_index, width=gens.shape[0]), include_gens
+    #     )
+    # )
+    (element, __) = PauliProduct(*gens[np.nonzero(include_gens)])
+    return element
+
+
 if __name__ == "__main__":
     # Load a particular type of error correcting code
     codename = sys.argv[1]
@@ -1051,7 +1112,7 @@ if __name__ == "__main__":
     Load(qcode)
     Print(qcode)
     IsCanonicalBasis(qcode.S, qcode.L, qcode.T, verbose=1)
-    print(
-        "logical action\n%s\n phases\n%s"
-        % (np.array_str(qcode.normalizer), np.array_str(qcode.normphases))
-    )
+    # print(
+    #     "logical action\n%s\n phases\n%s"
+    #     % (np.array_str(qcode.normalizer), np.array_str(qcode.normphases))
+    # )
