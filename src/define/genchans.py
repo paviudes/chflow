@@ -44,7 +44,7 @@ def ChannelPair(chtype, rates, dim, method="qr"):
     return channels
 
 
-def PreparePhysicalChannels(submit, nproc=1):
+def PreparePhysicalChannels(submit, nproc=4):
     # Prepare a file for each noise rate, that contains all single qubit channels, one for each sample.
     nproc = min(nproc, mp.cpu_count())
     chunk = int(np.ceil(submit.samps / nproc))
@@ -180,9 +180,7 @@ def GenChannelSamples(
                 (noiseidx * submit.samps * raw_params + j * raw_params) : (
                     noiseidx * submit.samps * raw_params + (j + 1) * raw_params
                 )
-            ] = chdef.GetKraussForChannel(
-                submit.channel, submit.eccs[0].N, submit.eccs[0].weightdist, *noise
-            )
+            ] = chdef.GetKraussForChannel(submit.channel, submit.eccs[0], *noise)
             phychans[
                 (noiseidx * submit.samps * nparams + j * nparams) : (
                     noiseidx * submit.samps * nparams + (j + 1) * nparams

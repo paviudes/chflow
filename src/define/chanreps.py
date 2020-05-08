@@ -353,7 +353,8 @@ def GetTransferMatrixElements(logidx, pauliprobs, qcode, ptm):
             list(map(np.int8, np.binary_repr(logidx, width=2 * qcode.K))), dtype=np.int8
         )
         (log_op, __) = qc.PauliProduct(*qcode.L[np.nonzero(log_select)])
-    for s in tqdm(range(nstabs), ascii=True, desc="\033[2mGoing over Stabilizers:"):
+    # for s in tqdm(range(nstabs), ascii=True, desc="\033[2mGoing over Stabilizers:"):
+    for s in range(nstabs):
         if s == 0:
             stab_op = np.zeros(qcode.N, dtype=np.int)
         else:
@@ -367,7 +368,7 @@ def GetTransferMatrixElements(logidx, pauliprobs, qcode, ptm):
         ptm[logidx * nstabs + s] = np.sum(pauliprobs[indices["commuting"]]) - np.sum(
             pauliprobs[indices["anticommuting"]]
         )
-    print("\033[0m")
+    # print("\033[0m")
     return None
 
 

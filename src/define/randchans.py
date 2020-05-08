@@ -4,10 +4,12 @@ try:
     import numpy as np
     from scipy import linalg as linalg
     from scipy.stats import poisson
+    from scipy.special import comb
 except:
     pass
 from define import globalvars as gv
 from define import chanreps as crep
+from define.QECCLfid import uncorrectable as uc
 
 
 def HermitianConjugate(mat):
@@ -97,28 +99,37 @@ def RandomUnitary(prox, dim, method="qr", randH=None):
     return randU
 
 
-def IsotropicRandomPauli(infid, nqubits=1):
+def IsotropicRandomPauli(infid, qcode):
     # Generate a random Pauli channel with a specified fidelity to the identity channel.
     # We will generate uniformly random numbers to denote the probability of a non-identity Pauli error.
     # Furthermore, we will ensure that the probability of the non-identity Pauli error add up to a given infidelity value.
     # A Pauli channel is defined by: E(R) = p_I R + p_X X R X + p_Y Y R Y + p_Z Z R Z.
     # For 1 qubit channels, we will return the Kraus operators (Pauli matrices).
     # For multi-qubit channels we will simply return the probability distribution on the Pauli errors.
-    print(
-        "Random Pauli channel on {} qubits with infidelity {}.".format(nqubits, infid)
+    single_qubit_errors = np.random.uniform(size=4)
+    single_qubit_errors[0] = 1 - infid
+    single_qubit_errors[1:] = (
+        infid * single_qubit_errors[1:] / np.sum(single_qubit_errors[1:])
     )
-    pauliprobs = np.random.uniform(size=(4 ** nqubits - 1,))
-    pauliprobs = infid * pauliprobs / np.sum(pauliprobs)
-    # pauliamps = HyperSphereSampling(4 ** nqubits - 1, center=0.0, radius=np.sqrt(infid))
-    # print("p_I = %g, p_X = %g, p_Y = %g and p_Z = %g." % (1 - np.sum(np.power(pauliamps, 2.0)), np.power(pauliamps[0], 2.0), np.power(pauliamps[1], 2.0), np.power(pauliamps[2], 2.0)))
-    # print("dist shape: {}".format(pauliprobs.shape))
-    if nqubits > 1:
-        return np.concatenate(([1 - infid], pauliprobs))
-    krops = np.zeros((4 ** nqubits, 2 ** nqubits, 2 ** nqubits), dtype=np.complex128)
-    krops[0, :, :] = np.sqrt(1 - infid) * gv.Pauli[0, :, :]
-    for i in range(1, 4):
-        krops[i, :, :] = np.sqrt(pauliprobs[i]) * gv.Pauli[i, :, :]
-    return krops
+    iid_error_dist = uc.GetErrorProbabilities(
+        qcode.PauliOperatorsLST, single_qubit_errors, 0
+    )
+    # print("iid_error_dist = {}".format(iid_error_dist))
+
+    max_bias_weight = 2
+    mean_probs_by_weight = np.zeros(1 + max_bias_weight, dtype=np.double)
+    boost = 0.2
+    for w in range(1 + max_bias_weight):
+        mean_probs_by_weight[w] = np.mean(iid_error_dist[qcode.group_by_weight[w]])
+    bias = boost * mean_probs_by_weight[1] / mean_probs_by_weight[2]
+    iid_error_dist[
+        np.intersect1d(
+            np.concatenate((qcode.group_by_weight[2], qcode.group_by_weight[3])),
+            np.array(qcode.PauliCorrectableIndices, dtype=np.int),
+        )
+    ] *= bias
+    iid_error_dist = iid_error_dist / np.sum(iid_error_dist)
+    return iid_error_dist
 
 
 def PoissonRandomPauli(infid, average_correctable_weight, weights):
@@ -132,6 +143,11 @@ def PoissonRandomPauli(infid, average_correctable_weight, weights):
 	"""
     error_dist = np.zeros(weights.shape[0], dtype=np.double)
     max_weight = int(np.max(weights))
+    # Limit the number of errors of a given weight.
+    max_errors_of_weight = np.array(
+        comb(max_weight, np.arange(max_weight + 1)), dtype=np.int
+    ) * np.power(np.arange(max_weight + 1), 2)
+    # print("Maximum errors by weight: {}".format(max_errors_of_weight))
     # Generate a Poisson distribution for probability of an error having a weight w.
     # We want to set the most prevalent weight of an error.
     # However, we will not directly fix its value but let it be a normally distributed value with controllable mean and standard deviation equal to the minimum of 0.5 and mean/3.
@@ -145,8 +161,11 @@ def PoissonRandomPauli(infid, average_correctable_weight, weights):
     for w in range(weight_dist.size):
         (group_by_weight[w],) = np.nonzero(weights == w)
         if group_by_weight[w].size > 0:
-            error_dist[group_by_weight[w]] = np.random.uniform(
-                0, 1, size=group_by_weight[w].size
+            mask = np.zeros(group_by_weight[w].size, dtype=np.int)
+            mask[: max_errors_of_weight[w]] = 1
+            np.random.shuffle(mask)
+            error_dist[group_by_weight[w]] = (
+                np.random.uniform(0, 1, size=group_by_weight[w].size) * mask
             )
             error_dist[group_by_weight[w]] = (
                 weight_dist[w]
@@ -170,9 +189,9 @@ def RandomPauliChannel(kwargs):
     # print("Method = {}".format(method))
 
     if method == "uniform":
-        return IsotropicRandomPauli(kwargs["infid"], kwargs["n"])
+        return IsotropicRandomPauli(kwargs["infid"], kwargs["qcode"])
     elif method == "poisson":
-        return PoissonRandomPauli(kwargs["infid"], 1.5, kwargs["weightdist"])
+        return PoissonRandomPauli(kwargs["infid"], 1.66, kwargs["qcode"].weightdist)
     else:
         pass
     return None
