@@ -272,10 +272,9 @@ def CorrelatedPauli(params):
     available methods = ["uniform", "poisson"]
     """
     kwargs = {
-        "n": params[0],
-        "weightdist": params[1],
-        "average_infid": params[2],
-        "method": int(params[3]) - 1,
+        "qcode": params[0],
+        "average_infid": params[1],
+        "method": int(params[2]) - 1,
     }
     # print("args = {}".format(kwargs))
     mu = float(kwargs["average_infid"])

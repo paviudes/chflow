@@ -218,7 +218,7 @@ def LoadPhysicalErrorRates(dbs, pmet, settings, override=None, is_override=0):
     Load the physical error rates.
     """
     if pmet in ml.Metrics:
-        settings["xlabel"] = ml.Metrics[pmet]["phys"]
+        settings["xlabel"] = ml.Metrics[pmet]["latex"]
         settings["xaxis"] = np.load(fn.PhysicalErrorRates(dbs, pmet))
         if settings["marker"] == "":
             settings["marker"] = ml.Metrics[pmet]["marker"]
@@ -407,7 +407,7 @@ def ChannelWisePlot(phymet, logmet, dbses, thresholds={"y": 10e-16, "x": 10e-16}
     return None
 
 
-def LevelWisePlot(phymets, logmet, dbses):
+def LevelWisePlot(phymets, logmet, dbses, inset_flag=1, nbins=8):
     # Plot logical error rates vs. physical error rates.
     # Use a new figure for every new concatenated level.
     # In each figure, each curve will represent a new physical metric.
@@ -423,6 +423,7 @@ def LevelWisePlot(phymets, logmet, dbses):
             dblines = []
             dbnames = []
             fig = plt.figure(figsize=gv.canvas_size)
+            ax1 = plt.gca()
             for p in range(nphy):
                 for d in range(ndb):
                     settings = {
@@ -430,14 +431,18 @@ def LevelWisePlot(phymets, logmet, dbses):
                         "xlabel": None,
                         "yaxis": np.load(fn.LogicalErrorRates(dbses[d], logmet))[:, l],
                         "ylabel": ml.Metrics[logmet]["log"],
-                        "color": gv.Colors[d % gv.n_Colors],
-                        "marker": gv.Markers[d % gv.n_Markers],
+                        "color": gv.Colors[d % gv.n_Colors]
+                        if ndb > 1
+                        else ml.Metrics[phylist[p]]["color"],
+                        "marker": gv.Markers[d % gv.n_Markers]
+                        if ndb > 1
+                        else ml.Metrics[phylist[p]]["marker"],
                         "linestyle": "",
                     }
 
                     LoadPhysicalErrorRates(dbses[d], phylist[p], settings, d == 0)
                     # Plotting
-                    plotobj = plt.plot(
+                    plotobj = ax1.plot(
                         settings["xaxis"],
                         settings["yaxis"],
                         color=settings["color"],
@@ -447,6 +452,7 @@ def LevelWisePlot(phymets, logmet, dbses):
                         linestyle=settings["linestyle"],
                         linewidth=gv.line_width,
                     )
+
                     # if we find a new physical metric, we must add it to metric legend labels
                     if not (settings["xlabel"] in phynames):
                         phlines.append(plotobj[0])
@@ -466,16 +472,33 @@ def LevelWisePlot(phymets, logmet, dbses):
                                 [dbses[d].timestamp, GetNKDString(dbses[d], l)]
                             )
 
+                if ndb > 1:
+                    PlotBinVarianceDataSets(
+                        ax1, dbses, l, logmet, phylist[0], nbins=nbins
+                    )
+            # Inset plot
+            # If there is more than one database, we will assume that there is only one physical metric.
+            # Else we will assume many physical metrics can be compared.
+            if l > 0:
+                if (ndb == 1) and (inset_flag == 1):
+                    PlotBinVarianceMetrics(
+                        ax1, dbses[0], l, logmet, phylist, nbins=nbins
+                    )
+
             # Title
             # plt.title(("%s vs. physical error metrics for the %s channel." % (ml.Metrics[logmet]["log"], qc.Channels[dbses[0].channel][0])), fontsize = gv.title_fontsize, y = 1.03)
             # Axes labels
-            ax = plt.gca()
-            ax.set_xlabel(settings["xlabel"], fontsize=gv.axes_labels_fontsize)
-            ax.set_xscale("log")
-            ax.set_ylabel(settings["ylabel"], fontsize=gv.axes_labels_fontsize)
-            # ax.set_ylim([10e-9, None])
-            ax.set_yscale("log")
-            ax.tick_params(
+            if len(phylist) > 1:
+                ax1.set_xlabel(
+                    "Physical error metrics", fontsize=gv.axes_labels_fontsize
+                )
+            else:
+                ax1.set_xlabel(settings["xlabel"], fontsize=gv.axes_labels_fontsize)
+            ax1.set_xscale("log")
+            ax1.set_ylabel(settings["ylabel"], fontsize=gv.axes_labels_fontsize)
+            ax1.set_ylim([10e-9, None])
+            ax1.set_yscale("log")
+            ax1.tick_params(
                 axis="both",
                 which="both",
                 pad=gv.ticks_pad,
@@ -485,25 +508,27 @@ def LevelWisePlot(phymets, logmet, dbses):
                 labelsize=gv.ticks_fontsize,
             )
             # Legend
-            dblegend = plt.legend(
-                handles=dblines,
-                labels=[name[1] for name in dbnames],
-                numpoints=1,
-                loc=2,
-                shadow=True,
-                fontsize=gv.legend_fontsize,
-                markerscale=gv.legend_marker_scale,
-            )
-            # plt.legend(
-            #     handles=phlines,
-            #     labels=phynames,
-            #     numpoints=1,
-            #     loc=4,
-            #     shadow=True,
-            #     fontsize=gv.legend_fontsize,
-            #     markerscale=gv.legend_marker_scale,
-            # )
-            ax.add_artist(dblegend)
+            if ndb == 1:
+                ax1.legend(
+                    handles=phlines,
+                    labels=phynames,
+                    numpoints=1,
+                    loc="center right",
+                    shadow=True,
+                    fontsize=gv.legend_fontsize,
+                    markerscale=gv.legend_marker_scale,
+                )
+            else:
+                dblegend = ax1.legend(
+                    handles=dblines,
+                    labels=[name[1] for name in dbnames],
+                    numpoints=1,
+                    loc=2,
+                    shadow=True,
+                    fontsize=gv.legend_fontsize,
+                    markerscale=gv.legend_marker_scale,
+                )
+                ax1.add_artist(dblegend)
             # Save the plot
             pdf.savefig(fig)
             plt.close()
@@ -533,9 +558,7 @@ def PauliDistributionPlot(dbs, pauliprobs, nreps=5, max_weight=None):
     leading_by_weight = {w: None for w in range(max_weight)}
     for w in range(max_weight):
         ninclude = min(nreps, group_by_weight[w].size)
-        result_args = np.argpartition(-pauliprobs[group_by_weight[w]], ninclude - 1)[
-            :ninclude
-        ]
+        result_args = np.argsort(-pauliprobs[group_by_weight[w]])[:ninclude]
         leading_by_weight[w] = group_by_weight[w][result_args]
     operator_labels = {
         w: qec.PauliOperatorToSymbol(
@@ -543,6 +566,17 @@ def PauliDistributionPlot(dbs, pauliprobs, nreps=5, max_weight=None):
         )
         for w in range(max_weight)
     }
+    print(
+        "Leading by weight:\n{}\nOperator labels:\n{}".format(
+            leading_by_weight, operator_labels
+        )
+    )
+    for w in range(3):
+        print(
+            "pauliprobs[leading_by_weight[{}]] = {}".format(
+                w, pauliprobs[leading_by_weight[w]]
+            )
+        )
     plotfname = fn.PauliDistribution(dbs)
     with PdfPages(plotfname) as pdf:
         fig = plt.figure(figsize=gv.canvas_size)
@@ -565,7 +599,7 @@ def PauliDistributionPlot(dbs, pauliprobs, nreps=5, max_weight=None):
         # xticks(np.arange(0, 1, step=0.2))
         plt.xticks(
             np.arange(sum([len(operator_labels[w]) for w in range(1, max_weight)])),
-            [label for label in operator_labels[w] for w in range(max_weight)],
+            [label for w in range(1, max_weight) for label in operator_labels[w]],
             rotation=45,
         )
         ax.set_ylabel("Probabilities", fontsize=gv.axes_labels_fontsize)
@@ -1257,67 +1291,211 @@ def BinsPlot(dbs, lmet, pvals):
     return None
 
 
-def PlotBinVariance(dbses, lmet, pmet, nbins=10):
-    # Plot the variance in each bin with respect to the bin along with producing a table of those values.
-    # prepare the logical error data and use ComputeBinVariance() to compute the bins and AddBinVariancePlot() to plot.
-    if sub.IsNumber(pmet) == 1:
-        phyerr = np.squeeze(
-            np.vstack(tuple([dbses[i].available[:, pmet] for i in range(len(dbses))]))
+def PlotBinVarianceMetrics(ax1, dbs, level, lmet, pmets, nbins=10):
+    # Compare scatter for different physical metrics
+    ax2 = plt.axes([0, 0, 1, 1])
+    # Manually set the position and relative size of the inset axes within ax1
+    ip = InsetPosition(ax1, [0.64, 0.12, 0.33, 0.3])
+    ax2.set_axes_locator(ip)
+    # Mark the region corresponding to the inset axes on ax1 and draw lines in grey linking the two axes.
+    mark_inset(ax1, ax2, loc1=2, loc2=4, fc="none")
+
+    phyerrs = np.zeros((len(pmets), dbs.channels), dtype=np.double)
+    logerrs = np.load(fn.LogicalErrorRates(dbs, lmet))
+    plotfname = fn.CompareScatters(dbs, lmet, pmets, mode="metrics")
+    bins = {mt: None for mt in pmets}
+    fig = plt.figure(figsize=gv.canvas_size)
+    for p in range(len(pmets)):
+        phyerrs[p, :] = np.load(fn.PhysicalErrorRates(dbs, pmets[p]))
+        bins[pmets[p]] = ComputeBinVariance(
+            phyerrs[p, :], -np.log10(logerrs[:, level]), nbins=nbins
         )
-        pmetname = qc.Channels[dbses[0].channel]["latex"][pmet]
-    else:
-        phyerr = np.hstack(
-            tuple(
-                [
-                    np.load(fn.PhysicalErrorRates(dbses[i], pmet))
-                    for i in range(len(dbses))
-                ]
+        xaxis = np.arange(bins[pmets[p]].shape[0])
+        # xaxis = (bins[pmets[p]][:, 0] + bins[pmets[p]][:, 1]) / 2
+        yaxis = bins[pmets[p]][:, 3]
+        ax2.plot(
+            xaxis,
+            yaxis,
+            marker=ml.Metrics[pmets[p]]["marker"],
+            color=ml.Metrics[pmets[p]]["color"],
+            linestyle="-",
+            linewidth=gv.line_width,
+            markersize=gv.marker_size,
+            alpha=0.75,
+            label=ml.Metrics[pmets[p]]["latex"],
+        )
+    # Axes
+    # ax2.set_xlabel(ml.Metrics[pmets[0]]["phys"], fontsize=gv.axes_labels_fontsize * 0.6)
+    ax2.set_xlabel("Bins", fontsize=gv.axes_labels_fontsize * 0.6)
+    # ax.set_xscale("log")
+    ax2.set_ylabel("Amount of scatter", fontsize=gv.axes_labels_fontsize * 0.6)
+    # ax.set_ylim([10e-9, None])
+    # ax.set_yscale("log")
+    ax2.set_xticklabels(
+        list(
+            map(
+                lambda num: "%d" % num, np.arange(bins[pmets[0]].shape[0], dtype=np.int)
             )
         )
-        pmetname = ml.Metrics[pmet]["latex"]
-    logerr = np.vstack(
-        tuple(
-            [np.load(fn.LogicalErrorRates(dbses[i], lmet)) for i in range(len(dbses))]
+    )
+    # ax2.set_xticklabels(
+    #     list(
+    #         map(
+    #             lambda num: "$10^{%.2g}$" % np.log10(num),
+    #             (bins[pmets[0]][:, 0] + bins[pmets[0]][:, 1]) / 2,
+    #         )
+    #     )
+    # )
+    ax2.tick_params(
+        axis="both",
+        which="both",
+        pad=gv.ticks_pad,
+        direction="inout",
+        length=gv.ticks_length,
+        width=gv.ticks_width,
+        labelsize=gv.ticks_fontsize * 0.75,
+    )
+    # Legend
+    # ax2.legend(
+    #     numpoints=1,
+    #     loc=1,
+    #     shadow=True,
+    #     fontsize=gv.legend_fontsize,
+    #     markerscale=gv.legend_marker_scale,
+    # )
+    return None
+
+
+def PlotBinVarianceDataSets(ax1, dbses, level, lmet, pmet, nbins=10):
+    # Compare scatter for different physical metrics
+    ax2 = plt.axes([0, 0, 1, 1])
+    # Manually set the position and relative size of the inset axes within ax1
+    ip = InsetPosition(ax1, [0.64, 0.12, 0.33, 0.3])
+    ax2.set_axes_locator(ip)
+    # Mark the region corresponding to the inset axes on ax1 and draw lines in grey linking the two axes.
+    mark_inset(ax1, ax2, loc1=2, loc2=4, fc="none")
+
+    ndb = len(dbses)
+    phyerrs = np.zeros((ndb, dbses[0].channels), dtype=np.double)
+    logerrs = np.zeros((ndb, dbses[0].channels), dtype=np.double)
+    names = ["With randomized compiling", "Without randomized compiling"]
+    bins = [None for d in range(ndb)]
+    for d in range(ndb):
+        phyerrs[d, :] = np.load(fn.PhysicalErrorRates(dbses[d], pmet))
+        logerrs[d, :] = np.load(fn.LogicalErrorRates(dbses[d], lmet))[:, level]
+
+        bins[d] = ComputeBinVariance(
+            phyerrs[d, :], -np.log10(logerrs[d, :]), space="log", nbins=nbins
+        )
+        xaxis = np.arange(bins[d].shape[0])
+        yaxis = bins[d][:, 3]
+        ax2.plot(
+            xaxis,
+            yaxis,
+            marker=gv.Markers[d % gv.n_Markers],
+            color=gv.Colors[d % gv.n_Colors],
+            linestyle="-",
+            linewidth=gv.line_width,
+            markersize=gv.marker_size,
+            alpha=0.75,
+            label=names[d],
+        )
+        # print("dbs name: {}".format(dbses[d].name))
+    # Axes
+    ax2.set_xlabel(ml.Metrics[pmet]["latex"], fontsize=gv.axes_labels_fontsize * 0.6)
+    # ax.set_xscale("log")
+    ax2.set_ylabel("Amount of scatter", fontsize=gv.axes_labels_fontsize * 0.6)
+    # ax.set_ylim([10e-9, None])
+    # ax.set_yscale("log")
+    ax2.set_xticklabels(
+        list(
+            map(
+                lambda num: "$10^{%.2g}$" % np.log10(num),
+                (bins[0][:, 0] + bins[0][:, 1]) / 2,
+            )
         )
     )
-
-    # print("logerr\n%s" % (np.array_str(logerr)))
-    # np.savetxt("%s/results/logerr.txt" % (dbses[0].outdir), logerr)
-    # print("phyerr\n%s" % (np.array_str(phyerr)))
-    # np.savetxt("%s/results/phyerr.txt" % (dbses[0].outdir), phyerr)
-
-    maxlevel = min([dbses[i].levels for i in range(len(dbses))])
-    plotfname = fn.VarianceBins(dbses[0], lmet, pmet)
-    with PdfPages(plotfname) as pdf:
-        for l in range(maxlevel + 1):
-            # print("logerr[%d]" % (l))
-            # print logerr[:, l]
-            if l == 0:
-                bins = ComputeBinVariance(
-                    np.abs(phyerr),
-                    -np.log10(np.abs(logerr[:, l])),
-                    nbins,
-                    binfile=fn.BinSummary(dbses[0], pmet, lmet, l),
-                    submit=dbses[0],
-                )
-            else:
-                bins = ComputeBinVariance(
-                    np.abs(np.log10(phyerr)), -np.log10(np.abs(logerr[:, l])), nbins
-                )
-            # bins = ComputeBinVariance(-np.log10(np.abs(phyerr)), np.abs(logerr[:, l]), nbins)
-            # bins = ComputeBinVariance(np.abs(phyerr), np.abs(logerr[:, l]), nbins)
-            # print "bins"
-            # print bins
-            AddBinVariancePlot(bins, l, lmet, pmet, pmetname, pdf)
-        # Set PDF attributes
-        pdfInfo = pdf.infodict()
-        pdfInfo["Title"] = "Binwise variance of %s with respect to %s." % (
-            lmet,
-            str(pmet),
-        )
-        pdfInfo["Author"] = "Pavithran Iyer"
-        pdfInfo["ModDate"] = dt.datetime.today()
+    ax2.tick_params(
+        axis="both",
+        which="both",
+        pad=gv.ticks_pad,
+        direction="inout",
+        length=gv.ticks_length,
+        width=gv.ticks_width,
+        labelsize=gv.ticks_fontsize * 0.75,
+    )
+    # Legend
+    # ax2.legend(
+    #     numpoints=1,
+    #     loc=1,
+    #     shadow=True,
+    #     fontsize=gv.legend_fontsize,
+    #     markerscale=gv.legend_marker_scale,
+    # )
     return None
+
+
+# def PlotBinVariance(dbses, lmet, pmet, nbins=10):
+#     # Plot the variance in each bin with respect to the bin along with producing a table of those values.
+#     # prepare the logical error data and use ComputeBinVariance() to compute the bins and AddBinVariancePlot() to plot.
+#     if sub.IsNumber(pmet) == 1:
+#         phyerr = np.squeeze(
+#             np.vstack(tuple([dbses[i].available[:, pmet] for i in range(len(dbses))]))
+#         )
+#         pmetname = qc.Channels[dbses[0].channel]["latex"][pmet]
+#     else:
+#         phyerr = np.hstack(
+#             tuple(
+#                 [
+#                     np.load(fn.PhysicalErrorRates(dbses[i], pmet))
+#                     for i in range(len(dbses))
+#                 ]
+#             )
+#         )
+#         pmetname = ml.Metrics[pmet]["latex"]
+#     logerr = np.vstack(
+#         tuple(
+#             [np.load(fn.LogicalErrorRates(dbses[i], lmet)) for i in range(len(dbses))]
+#         )
+#     )
+#
+#     # print("logerr\n%s" % (np.array_str(logerr)))
+#     # np.savetxt("%s/results/logerr.txt" % (dbses[0].outdir), logerr)
+#     # print("phyerr\n%s" % (np.array_str(phyerr)))
+#     # np.savetxt("%s/results/phyerr.txt" % (dbses[0].outdir), phyerr)
+#
+#     maxlevel = min([dbses[i].levels for i in range(len(dbses))])
+#     plotfname = fn.VarianceBins(dbses[0], lmet, pmet)
+#     with PdfPages(plotfname) as pdf:
+#         for l in range(maxlevel + 1):
+#             # print("logerr[%d]" % (l))
+#             # print logerr[:, l]
+#             if l == 0:
+#                 bins = ComputeBinVariance(
+#                     np.abs(phyerr),
+#                     -np.log10(np.abs(logerr[:, l])),
+#                     nbins,
+#                     binfile=fn.BinSummary(dbses[0], pmet, lmet, l),
+#                     submit=dbses[0],
+#                 )
+#             else:
+#                 bins = ComputeBinVariance(
+#                     np.abs(np.log10(phyerr)), -np.log10(np.abs(logerr[:, l])), nbins
+#                 )
+#             # bins = ComputeBinVariance(-np.log10(np.abs(phyerr)), np.abs(logerr[:, l]), nbins)
+#             # bins = ComputeBinVariance(np.abs(phyerr), np.abs(logerr[:, l]), nbins)
+#             # print "bins"
+#             # print bins
+#             AddBinVariancePlot(bins, l, lmet, pmet, pmetname, pdf)
+#         # Set PDF attributes
+#         pdfInfo = pdf.infodict()
+#         pdfInfo["Title"] = "Binwise variance of %s with respect to %s." % (
+#             lmet,
+#             str(pmet),
+#         )
+#         pdfInfo["Author"] = "Pavithran Iyer"
+#         pdfInfo["ModDate"] = dt.datetime.today()
+#     return None
 
 
 def ComputeBinVariance(xdata, ydata, nbins=10, space="log", binfile=None, submit=None):
@@ -1332,6 +1510,7 @@ def ComputeBinVariance(xdata, ydata, nbins=10, space="log", binfile=None, submit
     # 			where low and high are the physical error rates that specify the bin.
     # 			npoints is the number of physical error rates in the bin
     # 			var is the variance of logical error rates in the bin.
+    log_atol = 8
     base = 10
     bins = np.zeros((nbins - 1, 4), dtype=np.longdouble)
     if space == "log":
@@ -1355,15 +1534,36 @@ def ComputeBinVariance(xdata, ydata, nbins=10, space="log", binfile=None, submit
         )
         representatives = []
     for i in range(nbins - 1):
-        points = np.nonzero(np.logical_and(xdata >= bins[i, 0], xdata < bins[i, 1]))[0]
-        bins[i, 2] = np.longdouble(points.shape[0])
+        points = np.nonzero(
+            np.logical_and(
+                np.logical_and(
+                    np.logical_and(xdata >= bins[i, 0], xdata < bins[i, 1]),
+                    ydata < log_atol,
+                ),
+                np.logical_not(np.isnan(ydata)),
+            )
+        )[0]
+        bins[i, 2] = np.double(points.shape[0])
         # Variance of the Y axis points in the bin
-        bins[i, 3] = np.sqrt(np.var(ydata[points]))
+        bins[i, 3] = np.std(ydata[points])
         # bins[i, 3] = np.abs(np.max(ydata[points]) - np.min(ydata[points]))
         # mean = np.power(10, np.mean(np.log10(ydata[points])))
         # bins[i, 3] = np.sqrt(np.sum(np.power(ydata[points] - mean, 2)))/((bins[i, 2] - 1) * mean)
         # bins[i, 3] = np.sqrt(np.var(ydata[points])/np.power(np.mean(ydata[points]), 2))
-        # print("bin %d: %d points\n\t[%g, %g] -- max = %g and min = %g, U = %g, D = %g." % (i, bins[i, 2], bins[i, 0], bins[i, 1], np.max(ydata[points]), np.min(ydata[points]), np.mean(ydata[points]), bins[i, 3]))
+        # print(
+        #     "bin %d: %d points\n\t[%g, %g] -- max = %g and min = %g, U = %g, D = %g."
+        #     % (
+        #         i,
+        #         bins[i, 2],
+        #         bins[i, 0],
+        #         bins[i, 1],
+        #         np.max(ydata[points]),
+        #         np.min(ydata[points]),
+        #         np.mean(ydata[points]),
+        #         bins[i, 3],
+        #     )
+        # )
+        # print("ydata[points] = {}".format(ydata[points]))
         if binfile is not None:
             minchan = points[np.argmin(ydata[points])]
             maxchan = points[np.argmax(ydata[points])]

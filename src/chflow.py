@@ -241,9 +241,19 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         if sys.argv[1] == "--":
             # Input commands are supplied through a file.
+            case_id = None
+            if len(sys.argv) > 3:
+                case_id = int(sys.argv[3])
             if os.path.isfile("./../input/%s" % sys.argv[2]):
                 infp = open("./../input/%s" % sys.argv[2], "r")
                 fileinput = 1
+                if case_id is not None:
+                    skip = 0
+                    while skip == 0:
+                        line = infp.readline().strip("\n").strip(" ").lower()
+                        print("\033[2mskipping: {}\033[0m".format(line))
+                        if line.lower().replace(" ", "") == ("!!case%d!!" % (case_id)):
+                            skip = 1
             else:
                 print(
                     "\033[2mInput file ./../input/%s not found.\033[0m" % (sys.argv[2])
@@ -814,6 +824,43 @@ if __name__ == "__main__":
 
         #####################################################################
 
+        elif user[0] == "metscat":
+            # Plot the variance in a scatter plot
+            # No documentation yet.
+            phymets = user[1]
+            lmet = user[2]
+            nbins = int(user[3])
+            pl.PlotBinVarianceMetrics(submit, lmet, phymets, nbins=nbins + 1)
+
+        #####################################################################
+
+        elif user[0] == "datascat":
+            # Plot the variance in a scatter plot
+            # No documentation yet.
+            pmet = user[1]
+            lmet = user[2]
+            nbins = int(user[3])
+            timestamp = user[4]
+            dbses = [submit]
+            # Load the additional database
+            dbses.append(sub.Submission())
+            sub.LoadSub(dbses[1], timestamp, 0)
+            check = 1
+            for d in range(len(dbses)):
+                cl.IsComplete(dbses[d])
+                if dbses[d].complete > 0:
+                    if not os.path.isfile(
+                        fn.LogicalErrorRates(dbses[d], user[2], fmt="npy")
+                    ):
+                        cl.GatherLogErrData(dbses[d])
+                else:
+                    check = 0
+                    break
+            if check == 1:
+                pl.PlotBinVarianceDataSets(dbses, lmet, pmet, nbins=nbins + 1)
+
+        #####################################################################
+
         elif user[0] == "sbselect":
             # No documentation provided
             sub.Select(submit, list(map(int, user[1].split(","))))
@@ -1110,9 +1157,11 @@ if __name__ == "__main__":
             notes_location = user[5]
             pages = list(map(int, user[6].split(",")))
             if plot_option == "lplot":
-                plot_file = fn.LevelWise(dbses[0], phymet.replace(",", "_"), logmet)
+                plot_file = fn.LevelWise(submit, phymet.replace(",", "_"), logmet)
             elif plot_option == "cplot":
-                plot_file = fn.ChannelWise(dbses[0], phymet, logmet)
+                plot_file = fn.ChannelWise(submit, phymet, logmet)
+            elif plot_option == "pdplot":
+                plot_file = fn.PauliDistribution(submit)
             else:
                 print("\033[2mUnknown plot option %s.\033[0m" % (plot_option))
                 continue

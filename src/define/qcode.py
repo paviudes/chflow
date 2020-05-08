@@ -7,6 +7,7 @@ except:
     pass
 
 from define import globalvars as gv
+from define.QECCLfid import uncorrectable as uc
 
 
 class QuantumErrorCorrectingCode:
@@ -44,6 +45,7 @@ class QuantumErrorCorrectingCode:
         self.PauliCorrectableIndices = None
         self.PauliOperatorsLST = None
         self.weightdist = None
+        self.group_by_weight = None
         self.defnfile = "%s.txt" % (name)
         eof = 0
         with open(("./../code/%s" % self.defnfile), "r") as fp:
@@ -180,8 +182,10 @@ def Load(qecc):
     ConstructNormalizer(qecc)
     # Transformations between Pauli operators by Clifford conjugations
     PauliCliffordConjugations(qecc)
-    # Compute the minimum weight decoding table
+    # # Compute the minimum weight decoding table
     PrepareSyndromeLookUp(qecc)
+    # Compute correctable indices
+    uc.ComputeCorrectableIndices(qecc, method="minwt")
     return None
 
 
@@ -242,7 +246,7 @@ def PauliOperatorToSymbol(ops):
     opstr = ["" for i in range(ops.shape[0])]
     for i in range(ops.shape[0]):
         for j in range(ops.shape[1]):
-            opstr[i] = opstr[i] + ("$%s$" % ("".join(encoding[ops[i, j]])))
+            opstr[i] = opstr[i] + ("%s" % ("".join(encoding[ops[i, j]])))
     return opstr
 
 
@@ -893,6 +897,9 @@ def PrepareSyndromeLookUp(qecc):
                     (l * nstabs * nstabs + s * nstabs + t), :
                 ] = correction
         # print("Syndrome %d: %s\n\tPure error\n\t%s\n\tCorrection\n\t%s" % (i, np.array_str(combTGens), np.array_str(pureError), np.array_str(recoveries[i])))
+        qecc.group_by_weight = {}
+        for w in range(qecc.N):
+            (qecc.group_by_weight[w],) = np.nonzero(qecc.weightdist == w)
     return None
 
 
