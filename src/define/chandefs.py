@@ -296,6 +296,7 @@ def CorrelatedPauli(params):
 
 def GetKraussForChannel(chType, *params):
     # Return the Krauss operators of a few types of quantum channels
+    # print("Getting Kraus for channel: {} with parameters {}".format(chType, params))
     if chType == "id":
         krauss = Identity()
 

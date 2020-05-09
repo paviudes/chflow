@@ -130,6 +130,7 @@ def PreparePhysicalChannels(submit, nproc=4):
             submit.noiserates.shape[0] * submit.samps / np.longdouble(submit.cores[0])
         )
     )
+    # print("Physical channels: {}".format(submit.phychans))
     return None
 
 
@@ -197,7 +198,7 @@ def GenChannelSamples(
                 submit.eccs[0],
             )
         else:
-            chans = chdef.GetKraussForChannel(submit.channel, *noise)
+            chans = chdef.GetKraussForChannel(submit.channel, submit.eccs[0].N, *noise)
             nentries = 4 ** submit.eccs[0].K * 4 ** submit.eccs[0].K
             for q in range(chans.shape[0]):
                 phychans[
