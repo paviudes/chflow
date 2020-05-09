@@ -122,12 +122,19 @@ def IsotropicRandomPauli(infid, qcode):
     for w in range(1 + max_bias_weight):
         mean_probs_by_weight[w] = np.mean(iid_error_dist[qcode.group_by_weight[w]])
     bias = boost * mean_probs_by_weight[1] / mean_probs_by_weight[2]
+    multi_qubit_errors = np.concatenate(
+        (qcode.group_by_weight[2], qcode.group_by_weight[3], qcode.group_by_weight[4])
+    )
+    # Increase probabilitties of two--four qubit errors.
     iid_error_dist[
-        np.intersect1d(
-            np.concatenate((qcode.group_by_weight[2], qcode.group_by_weight[3])),
-            np.array(qcode.PauliCorrectableIndices, dtype=np.int),
-        )
+        np.random.choice(multi_qubit_errors, np.int(0.05 * multi_qubit_errors.size))
     ] *= bias
+    # Make sure correctable errors are more likely.
+    # iid_error_dist[
+    #     np.intersect1d(
+    #         multi_qubit_errors, np.array(qcode.PauliCorrectableIndices, dtype=np.int)
+    #     )
+    # ] *= bias
     iid_error_dist = iid_error_dist / np.sum(iid_error_dist)
     return iid_error_dist
 

@@ -5,9 +5,9 @@ ecc Steane,Steane
 # Type of quantum channel
 channel pcorr
 # Noise rates (mean delta; std delta; std theta; std phi)
-noiserange 7,10,16;1,1,1
+noiserange 7,11,9;1,1,1
 # Number of samples
-samples 100
+samples 70
 # Scales
 scale 0.66,1
 # Number of syndromes to be sampled at the top level

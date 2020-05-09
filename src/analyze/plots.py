@@ -1402,19 +1402,19 @@ def PlotBinVarianceDataSets(ax1, dbses, level, lmet, pmet, nbins=10):
         )
         # print("dbs name: {}".format(dbses[d].name))
     # Axes
-    ax2.set_xlabel(ml.Metrics[pmet]["latex"], fontsize=gv.axes_labels_fontsize * 0.6)
+    ax2.set_xlabel("Bins", fontsize=gv.axes_labels_fontsize * 0.6)
     # ax.set_xscale("log")
     ax2.set_ylabel("Amount of scatter", fontsize=gv.axes_labels_fontsize * 0.6)
     # ax.set_ylim([10e-9, None])
     # ax.set_yscale("log")
-    ax2.set_xticklabels(
-        list(
-            map(
-                lambda num: "$10^{%.2g}$" % np.log10(num),
-                (bins[0][:, 0] + bins[0][:, 1]) / 2,
-            )
-        )
-    )
+    # ax2.set_xticklabels(
+    #     list(
+    #         map(
+    #             lambda num: "$10^{%.2g}$" % np.log10(num),
+    #             (bins[0][:, 0] + bins[0][:, 1]) / 2,
+    #         )
+    #     )
+    # )
     ax2.tick_params(
         axis="both",
         which="both",
@@ -1423,6 +1423,10 @@ def PlotBinVarianceDataSets(ax1, dbses, level, lmet, pmet, nbins=10):
         length=gv.ticks_length,
         width=gv.ticks_width,
         labelsize=gv.ticks_fontsize * 0.75,
+    )
+    ax2.set_xticks(np.arange(bins[0].shape[0], dtype=np.int))
+    ax2.set_xticklabels(
+        list(map(lambda num: "%d" % num, 1 + np.arange(bins[0].shape[0], dtype=np.int)))
     )
     # Legend
     # ax2.legend(
@@ -1510,7 +1514,7 @@ def ComputeBinVariance(xdata, ydata, nbins=10, space="log", binfile=None, submit
     # 			where low and high are the physical error rates that specify the bin.
     # 			npoints is the number of physical error rates in the bin
     # 			var is the variance of logical error rates in the bin.
-    log_atol = 8
+    log_atol = 12
     base = 10
     bins = np.zeros((nbins - 1, 4), dtype=np.longdouble)
     if space == "log":
