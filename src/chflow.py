@@ -652,7 +652,10 @@ if __name__ == "__main__":
             sample = int(user[2])
             nreps = int(user[3])
             max_weight = int(user[4])
-            chi = np.load(fn.RawPhysicalChannel(submit, nrate))[sample, :]
+            if os.path.exists(fn.RawPhysicalChannel(submit, nrate)):
+                chi = np.load(fn.RawPhysicalChannel(submit, nrate))[sample, :]
+            else:
+                sub.CreatePauliDistChannels(submit)
             if submit.iscorr == 0:
                 pauliprobs = np.diag(chi.reshape([4, 4]))
             elif submit.iscorr == 1:

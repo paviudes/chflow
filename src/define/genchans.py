@@ -62,7 +62,7 @@ def PreparePhysicalChannels(submit, nproc=4):
         raw_params = 4 ** submit.eccs[0].N
     else:
         nparams = submit.eccs[0].N * 4 ** submit.eccs[0].K * 4 ** submit.eccs[0].K
-        raw_params = params
+        raw_params = nparams
     phychans = mp.Array(
         ct.c_double,
         np.zeros(
