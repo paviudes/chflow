@@ -7,7 +7,7 @@ channel pcorr
 # Noise rates (mean delta; std delta; std theta; std phi)
 noiserange 7,11,9;1,1,1
 # Number of samples
-samples 70
+samples 1
 # Scales
 scale 0.66,1
 # Number of syndromes to be sampled at the top level
@@ -22,4 +22,4 @@ metrics infid
 cores 12,1
 # Output directory
 outdir /Users/pavi/Documents/chbank
-plot name,Without Randomized compiling;linestyle,None
+# plot name,Without Randomized compiling;linestyle,None

@@ -650,17 +650,18 @@ def Save(submit):
         # Ranodmized compiling of quantum gates
         infid.write("# Randomized compiling of quantum gates.\nrc %d\n" % (submit.rc))
         # Plot settings
-        infid.write(
-            "# Plot settings\nplot %s\n"
-            % (
-                ";".join(
-                    [
-                        "%s,%s" % (key, submit.plotsettings[key])
-                        for key in submit.plotsettings
-                    ]
+        if submit.plotsettings:
+            infid.write(
+                "# Plot settings\nplot %s\n"
+                % (
+                    ";".join(
+                        [
+                            "%s,%s" % (key, submit.plotsettings[key])
+                            for key in submit.plotsettings
+                        ]
+                    )
                 )
             )
-        )
         # Miscellaneous information
         infid.write("# Miscellaneous information: %s\n" % (submit.misc))
 
