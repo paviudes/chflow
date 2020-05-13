@@ -372,6 +372,56 @@ def GetTransferMatrixElements(logidx, pauliprobs, qcode, ptm):
     return None
 
 
+def CreatePauliDistChannels(submit):
+    """
+    Create the Chi matrix for all channels in the database.
+    """
+    nlogs = 4 ** (submit.eccs[0].K)
+    chan_dim = nlogs * nlogs
+    if submit.iscorr == 0:
+        nparams = chan_dim
+    elif submit.iscorr == 1:
+        print("Twirling is not set up for fully correlated channels.")
+        return None
+    else:
+        nparams = submit.eccs[0].N * chan_dim
+    rawchans = np.zeros(
+        (submit.noiserates.shape[0], submit.samps, nparams), dtype=np.double
+    )
+    for i in range(submit.noiserates.shape[0]):
+        chans = np.load(fn.PhysicalChannel(submit, submit.noiserates[i, :]))
+        for j in range(submit.samps):
+            if submit.iscorr == 0:
+                submit.rawchans[i, j, :] = np.real(
+                    ConvertRepresentations(
+                        (chans[j, :] * np.eye(nlogs, dtype=np.int).ravel()).reshape(
+                            [nlogs, nlogs]
+                        ),
+                        "process",
+                        "chi",
+                    )
+                ).ravel()
+            elif submit.iscorr == 2:
+                for q in range(submit.eccs[0].N):
+                    chan_qubit = chans[j, q * chan_dim : (q + 1) * chan_dim]
+                    submit.rawchans[i, j, q * chan_dim : (q + 1) * chan_dim] = np.real(
+                        ConvertRepresentations(
+                            (chan_qubit * np.eye(nlogs, dtype=np.int).ravel()).reshape(
+                                [nlogs, nlogs]
+                            ),
+                            "process",
+                            "chi",
+                        )
+                    ).ravel()
+            else:
+                pass
+        np.save(
+            fn.RawPhysicalChannel(submit, submit.noiserates[i, :]),
+            submit.rawchans[i, :, :],
+        )
+    return None
+
+
 def TwirlChannels(submit):
     r"""
     Twirl all the channels in a database, in place.
