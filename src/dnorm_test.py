@@ -1,18 +1,20 @@
 import time
-import timeout_decorator
+
+# import timeout_decorator
 import math
 from functools import reduce
 import numpy as np
-from qutip import (
-    Qobj,
-    rand_super,
-    to_choi,
-    to_super,
-    composite,
-    dnorm,
-    rz,
-    rand_super_bcsz,
-)
+
+# from qutip import (
+#     Qobj,
+#     rand_super,
+#     to_choi,
+#     to_super,
+#     composite,
+#     dnorm,
+#     rz,
+#     rand_super_bcsz,
+# )
 import cvxpy as cvx
 from define.chanreps import ConvertRepresentations
 from define.chandefs import GetKraussForChannel
@@ -178,7 +180,7 @@ def VerifyChan(*chans_choi):
     return None
 
 
-@timeout_decorator.timeout(60, timeout_exception=StopIteration)
+# @timeout_decorator.timeout(60, timeout_exception=StopIteration)
 def DNorm_qutip(inpchans, refchans, quiet=0):
     """
     Compute the Diamond distance between a pair of channels, using qutip.
@@ -201,7 +203,7 @@ def DNorm_qutip(inpchans, refchans, quiet=0):
     return (qutip_dist, runtime)
 
 
-@timeout_decorator.timeout(600, timeout_exception=StopIteration)
+# @timeout_decorator.timeout(600, timeout_exception=StopIteration)
 def DNorm_chflow(inpchans, refchans, quiet=0, chan_from="chflow"):
     """
     Compute the Diamond distance between a pair of channels, using chflow.
@@ -213,10 +215,11 @@ def DNorm_chflow(inpchans, refchans, quiet=0, chan_from="chflow"):
     if chan_from == "qutip":
         chan_choi_mats = [to_choi(rc).full() for rc in inpchans]
         inpchans_rvec = [ColumnVecToRowVec(J / np.trace(J)) for J in chan_choi_mats]
+        ref_choi_mats = [to_choi(rc).full() for rc in refchans]
+        refchans_rvec = [ColumnVecToRowVec(J / np.trace(J)) for J in ref_choi_mats]
     else:
         inpchans_rvec = inpchans
-    ref_choi_mats = [to_choi(rc).full() for rc in refchans]
-    refchans_rvec = [ColumnVecToRowVec(J / np.trace(J)) for J in ref_choi_mats]
+        refchans_rvec = refchans
 
     inpchan = MultiQubitChoi(*inpchans_rvec)
     refchan = MultiQubitChoi(*refchans_rvec)
@@ -328,15 +331,19 @@ def CompareDNormMethods(inpchans, refchans):
 if __name__ == "__main__":
     # Matching the outputs of dnorm in chflow and qutip.
     ntrials = 10
-    nqubits = 5
+    nqubits = 2
+    single_qubit_identity = np.zeros((4, 4), dtype=np.double)
+    single_qubit_identity[0, 0] = 0.5
+    single_qubit_identity[0, 3] = 0.5
+    single_qubit_identity[3, 0] = 0.5
+    single_qubit_identity[3, 3] = 0.5
     for t in range(1, 1 + ntrials):
         print("Trial: {}".format(t))
         rand_chans = GetKraussForChannel("rtasu", nqubits, t * 0.01)
         rand_chans = [ConvertRepresentations(ch, "krauss", "choi") for ch in rand_chans]
         # VerifyChan(*rand_chans)
-        iden_chans = [
-            to_super(Qobj(np.eye(2, dtype=np.float))) for __ in range(nqubits)
-        ]
+        iden_chans = np.tile(single_qubit_identity, [nqubits, 1, 1])
+        # [single_qubit_identity for __ in range(nqubits)]
         # CompareDNormMethods(rand_chans, iden_chans)
         VerifySubAdditivity(rand_chans, iden_chans, method="chflow", chan_from="chflow")
         print("xxxxxxxxxxx")
