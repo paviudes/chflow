@@ -325,19 +325,19 @@ def PauliConvertToTransfer(pauliprobs, qcode):
     nlogs = 4 ** qcode.K
     # ptm = np.zeros(nstabs * nlogs, dtype=np.double)
     ptm = mp.Array(ct.c_double, np.zeros(nstabs * nlogs, dtype=np.double))
-    processes = []
+    # processes = []
     ##################
     for l in range(nlogs):
-        processes.append(
-            mp.Process(
-                target=GetTransferMatrixElements, args=(l, pauliprobs, qcode, ptm)
-            )
-        )
-        # GetTransferMatrixElements(l, pauliprobs, qcode, ptm)
-    for l in range(nlogs):
-        processes[l].start()
-    for l in range(nlogs):
-        processes[l].join()
+        # processes.append(
+        #     mp.Process(
+        #         target=GetTransferMatrixElements, args=(l, pauliprobs, qcode, ptm)
+        #     )
+        # )
+        GetTransferMatrixElements(l, pauliprobs, qcode, ptm)
+    # for l in range(nlogs):
+    #     processes[l].start()
+    # for l in range(nlogs):
+    #     processes[l].join()
     return np.array(ptm, dtype=np.double)
 
 

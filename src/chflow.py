@@ -241,11 +241,14 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         if sys.argv[1] == "--":
             # Input commands are supplied through a file.
+            inputfname = (
+                r"/Users/pavi/Google Drive/channels_for_report/input/%s" % sys.argv[2]
+            )
             case_id = None
             if len(sys.argv) > 3:
                 case_id = int(sys.argv[3])
-            if os.path.isfile("./../input/%s" % sys.argv[2]):
-                infp = open("./../input/%s" % sys.argv[2], "r")
+            if os.path.isfile(inputfname):
+                infp = open(inputfname, "r")
                 fileinput = 1
                 if case_id is not None:
                     skip = 0
@@ -255,9 +258,7 @@ if __name__ == "__main__":
                         if line.lower().replace(" ", "") == ("!!case%d!!" % (case_id)):
                             skip = 1
             else:
-                print(
-                    "\033[2mInput file ./../input/%s not found.\033[0m" % (sys.argv[2])
-                )
+                print("\033[2mInput file %s not found.\033[0m" % (inputfname))
         else:
             # The simulations are to be run remotely.
             timestamp = sys.argv[1].strip("\n").strip(" ")
@@ -646,6 +647,29 @@ if __name__ == "__main__":
 
         #####################################################################
 
+        elif user[0] == "hamplot":
+            # No documentation provided yet
+            pmets = user[1].strip(" ").split(",")
+            logmet = user[2]
+            # Load the other database
+            dbs_other = sub.Submission()
+            sub.LoadSub(dbs_other, user[3], 0)
+            # Load the logical error rates
+            cl.IsComplete(dbs_other)
+            if dbs_other.complete > 0:
+                if not os.path.isfile(
+                    fn.LogicalErrorRates(dbs_other, logmet, fmt="npy")
+                ):
+                    cl.GatherLogErrData(dbs_other)
+            else:
+                check = 0
+                break
+            pl.DoubleHammerPlot(
+                logmet, pmets, [submit, dbs_other], inset_flag=1, nbins=10
+            )
+
+        #####################################################################
+
         elif user[0] == "pdplot":
             # No documentation provided yet
             nrate = list(map(np.double, user[1].split(",")))
@@ -665,7 +689,14 @@ if __name__ == "__main__":
             dist = uc.GetErrorProbabilities(
                 submit.eccs[0].PauliOperatorsLST, pauliprobs, submit.iscorr
             )
-            pl.PauliDistributionPlot(submit, dist, nreps=nreps, max_weight=max_weight)
+            pl.PauliDistributionPlot(
+                submit.eccs[0],
+                dist,
+                nreps=nreps,
+                max_weight=max_weight,
+                outdir=submit.outdir,
+                channel=submit.channel,
+            )
 
         #####################################################################
 
@@ -1165,6 +1196,8 @@ if __name__ == "__main__":
                 plot_file = fn.ChannelWise(submit, phymet, logmet)
             elif plot_option == "pdplot":
                 plot_file = fn.PauliDistribution(submit)
+            elif plot_option == "hamplot":
+                plot_file = fn.HammerPlot(submit, logmet, phymet.split(","))
             else:
                 print("\033[2mUnknown plot option %s.\033[0m" % (plot_option))
                 continue

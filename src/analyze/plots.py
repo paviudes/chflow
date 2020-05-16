@@ -218,7 +218,7 @@ def LoadPhysicalErrorRates(dbs, pmet, settings, override=None, is_override=0):
     Load the physical error rates.
     """
     if pmet in ml.Metrics:
-        settings["xlabel"] = ml.Metrics[pmet]["latex"]
+        settings["xlabel"] = ml.Metrics[pmet]["phys"]
         settings["xaxis"] = np.load(fn.PhysicalErrorRates(dbs, pmet))
         if settings["marker"] == "":
             settings["marker"] = ml.Metrics[pmet]["marker"]
@@ -407,7 +407,7 @@ def ChannelWisePlot(phymet, logmet, dbses, thresholds={"y": 10e-16, "x": 10e-16}
     return None
 
 
-def LevelWisePlot(phymets, logmet, dbses, inset_flag=1, nbins=8):
+def LevelWisePlot(phymets, logmet, dbses, inset_flag=1, nbins=10):
     # Plot logical error rates vs. physical error rates.
     # Use a new figure for every new concatenated level.
     # In each figure, each curve will represent a new physical metric.
@@ -473,9 +473,7 @@ def LevelWisePlot(phymets, logmet, dbses, inset_flag=1, nbins=8):
                             )
 
                 if ndb > 1:
-                    PlotBinVarianceDataSets(
-                        ax1, dbses, l, logmet, phylist[0], nbins=nbins
-                    )
+                    PlotBinVarianceDataSets(ax1, dbses, l, logmet, phylist, nbins=nbins)
             # Inset plot
             # If there is more than one database, we will assume that there is only one physical metric.
             # Else we will assume many physical metrics can be compared.
@@ -496,7 +494,10 @@ def LevelWisePlot(phymets, logmet, dbses, inset_flag=1, nbins=8):
                 ax1.set_xlabel(settings["xlabel"], fontsize=gv.axes_labels_fontsize)
             ax1.set_xscale("log")
             ax1.set_ylabel(settings["ylabel"], fontsize=gv.axes_labels_fontsize)
-            ax1.set_ylim([10e-9, None])
+            # if l == 1:
+            #     ax1.set_ylim([3 * 10e-3, None])
+            # if l == 2:
+            #     ax1.set_ylim([10e-9, None])
             ax1.set_yscale("log")
             ax1.tick_params(
                 axis="both",
@@ -513,7 +514,7 @@ def LevelWisePlot(phymets, logmet, dbses, inset_flag=1, nbins=8):
                     handles=phlines,
                     labels=phynames,
                     numpoints=1,
-                    loc="center right",
+                    loc="lower right",
                     shadow=True,
                     fontsize=gv.legend_fontsize,
                     markerscale=gv.legend_marker_scale,
@@ -523,7 +524,7 @@ def LevelWisePlot(phymets, logmet, dbses, inset_flag=1, nbins=8):
                     handles=dblines,
                     labels=[name[1] for name in dbnames],
                     numpoints=1,
-                    loc=2,
+                    loc="lower right",  # center_left
                     shadow=True,
                     fontsize=gv.legend_fontsize,
                     markerscale=gv.legend_marker_scale,
@@ -545,16 +546,94 @@ def LevelWisePlot(phymets, logmet, dbses, inset_flag=1, nbins=8):
     return None
 
 
-def PauliDistributionPlot(dbs, pauliprobs, nreps=5, max_weight=None):
+def DoubleHammerPlot(logmet, phylist, dbses, inset_flag=1, nbins=10):
+    # Compare the effect of p_u + RC on predictability.
+    # Plot no RC with infid and RC with p_u.
+    # phylist = list(map(lambda phy: phy.strip(" "), phymets.split(",")))
+    plotfname = fn.HammerPlot(dbses[0], logmet, phylist)
+    with PdfPages(plotfname) as pdf:
+        for l in range(1 + dbses[0].levels):
+            fig = plt.figure(figsize=gv.canvas_size)
+            ax1 = plt.gca()
+            for c in range(2):
+                print(
+                    "Name = {}, timestamp = {}, physical metric = {}".format(
+                        dbses[c].plotsettings["name"], dbses[c].timestamp, phylist[c]
+                    )
+                )
+                settings = {
+                    "xaxis": None,
+                    "xlabel": None,
+                    "yaxis": np.load(fn.LogicalErrorRates(dbses[c], logmet))[:, l],
+                    "ylabel": ml.Metrics[logmet]["log"],
+                    "color": gv.Colors[c % gv.n_Colors],
+                    "marker": gv.Markers[c % gv.n_Markers],
+                    "linestyle": "",
+                }
+                LoadPhysicalErrorRates(dbses[c], phylist[c], settings)
+                # Plotting
+                ax1.plot(
+                    settings["xaxis"],
+                    settings["yaxis"],
+                    color=settings["color"],
+                    alpha=0.5,
+                    marker=settings["marker"],
+                    markersize=gv.marker_size,
+                    linestyle=settings["linestyle"],
+                    linewidth=gv.line_width,
+                    label="%s %s"
+                    % (ml.Metrics[phylist[c]]["latex"], dbses[c].plotsettings["name"]),
+                )
+
+            PlotBinVarianceDataSets(ax1, dbses, l, logmet, phylist, nbins=nbins)
+
+            # Axes labels
+            ax1.set_xlabel("Physical error metrics", fontsize=gv.axes_labels_fontsize)
+            ax1.set_xscale("log")
+            ax1.set_ylabel(settings["ylabel"], fontsize=gv.axes_labels_fontsize)
+            if l == 2:
+                ax1.set_ylim([10e-9, None])
+            ax1.set_yscale("log")
+            ax1.tick_params(
+                axis="both",
+                which="both",
+                pad=gv.ticks_pad,
+                direction="inout",
+                length=gv.ticks_length,
+                width=gv.ticks_width,
+                labelsize=gv.ticks_fontsize,
+            )
+            # Legend
+            ax1.legend(
+                numpoints=1,
+                loc="lower left",  # center_left
+                shadow=True,
+                fontsize=gv.legend_fontsize,
+                markerscale=gv.legend_marker_scale,
+            )
+            # Save the plot
+            pdf.savefig(fig)
+            plt.close()
+        # Set PDF attributes
+        pdfInfo = pdf.infodict()
+        pdfInfo["Title"] = "Hammer plot."
+        pdfInfo["Author"] = "Pavithran Iyer"
+        pdfInfo["ModDate"] = dt.datetime.today()
+    return None
+
+
+def PauliDistributionPlot(
+    qcode, pauliprobs, nreps=5, max_weight=None, outdir="./", channel="unknown"
+):
     r"""
     Plot the probability distribution of Pauli errors.
     """
     if max_weight is None:
-        max_weight = int(np.max(dbs.eccs[0].weightdist))
+        max_weight = int(np.max(qcode.weightdist))
     max_weight += 1
     group_by_weight = {w: None for w in range(max_weight)}
     for w in range(max_weight):
-        (group_by_weight[w],) = np.nonzero(dbs.eccs[0].weightdist == w)
+        (group_by_weight[w],) = np.nonzero(qcode.weightdist == w)
     leading_by_weight = {w: None for w in range(max_weight)}
     for w in range(max_weight):
         ninclude = min(nreps, group_by_weight[w].size)
@@ -562,7 +641,7 @@ def PauliDistributionPlot(dbs, pauliprobs, nreps=5, max_weight=None):
         leading_by_weight[w] = group_by_weight[w][result_args]
     operator_labels = {
         w: qec.PauliOperatorToSymbol(
-            qec.GetOperatorsForLSTIndex(dbs.eccs[0], leading_by_weight[w])
+            qec.GetOperatorsForLSTIndex(qcode, leading_by_weight[w])
         )
         for w in range(max_weight)
     }
@@ -577,7 +656,7 @@ def PauliDistributionPlot(dbs, pauliprobs, nreps=5, max_weight=None):
                 w, pauliprobs[leading_by_weight[w]]
             )
         )
-    plotfname = fn.PauliDistribution(dbs)
+    plotfname = fn.PauliDistribution(outdir, channel)
     with PdfPages(plotfname) as pdf:
         fig = plt.figure(figsize=gv.canvas_size)
         current = 0
@@ -1295,7 +1374,9 @@ def PlotBinVarianceMetrics(ax1, dbs, level, lmet, pmets, nbins=10):
     # Compare scatter for different physical metrics
     ax2 = plt.axes([0, 0, 1, 1])
     # Manually set the position and relative size of the inset axes within ax1
-    ip = InsetPosition(ax1, [0.64, 0.12, 0.33, 0.3])
+    # 0.1, 0.65, 0.33, 0.3
+    # 0.6, 0.25, 0.33, 0.3
+    ip = InsetPosition(ax1, [0.1, 0.65, 0.33, 0.3])
     ax2.set_axes_locator(ip)
     # Mark the region corresponding to the inset axes on ax1 and draw lines in grey linking the two axes.
     mark_inset(ax1, ax2, loc1=2, loc2=4, fc="none")
@@ -1331,10 +1412,12 @@ def PlotBinVarianceMetrics(ax1, dbs, level, lmet, pmets, nbins=10):
     ax2.set_ylabel("Amount of scatter", fontsize=gv.axes_labels_fontsize * 0.6)
     # ax.set_ylim([10e-9, None])
     # ax.set_yscale("log")
+    ax2.set_xticks(np.arange(bins[pmets[0]].shape[0], dtype=np.int))
     ax2.set_xticklabels(
         list(
             map(
-                lambda num: "%d" % num, np.arange(bins[pmets[0]].shape[0], dtype=np.int)
+                lambda num: "%d" % num,
+                1 + np.arange(bins[pmets[0]].shape[0], dtype=np.int),
             )
         )
     )
@@ -1366,22 +1449,26 @@ def PlotBinVarianceMetrics(ax1, dbs, level, lmet, pmets, nbins=10):
     return None
 
 
-def PlotBinVarianceDataSets(ax1, dbses, level, lmet, pmet, nbins=10):
+def PlotBinVarianceDataSets(ax1, dbses, level, lmet, phymets, nbins=10):
     # Compare scatter for different physical metrics
     ax2 = plt.axes([0, 0, 1, 1])
     # Manually set the position and relative size of the inset axes within ax1
-    ip = InsetPosition(ax1, [0.64, 0.12, 0.33, 0.3])
+    ip = InsetPosition(ax1, [0.1, 0.65, 0.33, 0.3])
     ax2.set_axes_locator(ip)
     # Mark the region corresponding to the inset axes on ax1 and draw lines in grey linking the two axes.
     mark_inset(ax1, ax2, loc1=2, loc2=4, fc="none")
-
+    # Broadcast the physical error metric if only one is given.
+    if len(phymets) == 1:
+        pmets = [phymets[0] for __ in range(len(dbses))]
+    else:
+        pmets = phymets
     ndb = len(dbses)
     phyerrs = np.zeros((ndb, dbses[0].channels), dtype=np.double)
     logerrs = np.zeros((ndb, dbses[0].channels), dtype=np.double)
     names = ["With randomized compiling", "Without randomized compiling"]
     bins = [None for d in range(ndb)]
     for d in range(ndb):
-        phyerrs[d, :] = np.load(fn.PhysicalErrorRates(dbses[d], pmet))
+        phyerrs[d, :] = np.load(fn.PhysicalErrorRates(dbses[d], pmets[d]))
         logerrs[d, :] = np.load(fn.LogicalErrorRates(dbses[d], lmet))[:, level]
 
         bins[d] = ComputeBinVariance(

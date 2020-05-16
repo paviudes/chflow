@@ -229,7 +229,7 @@ def DiamondNorm(choi, kwargs):
             for q in range(chans_ptm.shape[0]):
                 dnorm = dnorm + DiamondNormPhysical(
                     crep.ConvertRepresentations(chans_ptm[q, :, :], "process", "choi"),
-                    {"corr": 0, "chtype": kwargs["chtype"]},
+                    {"corr": 0, "chtype": kwargs["chtype"], "qcode": kwargs["qcode"]},
                 )
         else:
             print("Diamond form for fully correlated channels is not yet set up.")

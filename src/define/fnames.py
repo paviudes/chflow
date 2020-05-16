@@ -1,12 +1,18 @@
+def HammerPlot(dbs, lmet, pmets):
+    # File name containing scatter bins.
+    fname = "%s/results/hammer_%s_%s.pdf" % (dbs.outdir, "_".join(pmets), lmet)
+    return fname
+
+
 def CompareScatters(dbs, lmet, pmets, mode="metrics"):
     # File name containing scatter bins.
     fname = "%s/results/scatbins_%s_%s.pdf" % (dbs.outdir, "_".join(pmets), lmet)
     return fname
 
 
-def PauliDistribution(submit):
+def PauliDistribution(outdir, channel):
     # Name of the file containing the probability distribution of Pauli errors.
-    fname = "%s/results/paulidist_%s.pdf" % (submit.outdir, submit.channel)
+    fname = "%s/results/paulidist_%s.pdf" % (outdir, channel)
     return fname
 
 

@@ -1,15 +1,15 @@
 # Time stamp
 timestamp sample
 # Type of quantum error correcting code
-ecc Steane
+ecc Steane,Steane
 # Type of quantum channel
-channel rtas
+channel pcorr
 # Noise rates (mean delta; std delta; std theta; std phi)
-noiserange 7,11,
+noiserange 12,17,11;2,2,1;0.9,0.9,1
 # Number of samples
-samples 1
+samples 100
 # Scales
-scale 0.66,1,1,1
+scale 0.66,1,1
 # Number of syndromes to be sampled at the top level
 stats 10000
 # Randomized compiling
