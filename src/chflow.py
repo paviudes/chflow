@@ -62,19 +62,15 @@ def RemoteExecution(timestamp, node):
     sub.LoadSub(submit, timestamp, 0)
 
     # Prepare syndrome look-up table for hard decoding.
-    if submit.decode_table == 1:
-        start = time.time()
+    if np.any(submit.decoders == 1):
         for l in range(submit.levels):
-            if submit.ecc[l].lookup is None:
-                print(
-                    "\033[2mPreparing syndrome lookup table for the %s code.\033[0m"
-                    % (submit.eccs[l].name)
-                )
-                qec.PrepareSyndromeLookUp(submit.eccs[l])
-        print(
-            "\033[2mHard decoding tables built in %d seconds.\033[0m"
-            % (time.time() - start)
-        )
+            if submit.decoders[l] == 1:
+                if submit.eccs[l].lookup is None:
+                    print(
+                        "\033[2mPreparing syndrome lookup table for the %s code.\033[0m"
+                        % (submit.eccs[l].name)
+                    )
+                    qec.PrepareSyndromeLookUp(submit.eccs[l])
 
     # If no node information is specified, then simulate all nodes in serial.
     # Else simulate only the given node.

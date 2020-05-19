@@ -896,10 +896,11 @@ def PrepareSyndromeLookUp(qecc):
                 qecc.PauliOperatorsLST[
                     (l * nstabs * nstabs + s * nstabs + t), :
                 ] = correction
-        # print("Syndrome %d: %s\n\tPure error\n\t%s\n\tCorrection\n\t%s" % (i, np.array_str(combTGens), np.array_str(pureError), np.array_str(recoveries[i])))
-        qecc.group_by_weight = {}
-        for w in range(qecc.N):
-            (qecc.group_by_weight[w],) = np.nonzero(qecc.weightdist == w)
+    # print("Lookup table\n{}".format(qecc.lookup))
+    # Group errors by weight
+    qecc.group_by_weight = {}
+    for w in range(qecc.N):
+        (qecc.group_by_weight[w],) = np.nonzero(qecc.weightdist == w)
     return None
 
 

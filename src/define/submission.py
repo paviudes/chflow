@@ -61,7 +61,7 @@ class Submission:
         self.levels = 0
         self.ecfiles = []
         # Decoder
-        self.decode_table = 0
+        self.decoders = []
         self.decoder_type = "default_soft"
         self.hybrid = 0
         self.decoderbins = []
@@ -149,6 +149,12 @@ def Update(submit, pname, newvalue):
             submit.eccs.append(qec.QuantumErrorCorrectingCode(names[i]))
             qec.Load(submit.eccs[i])
             submit.ecfiles.append(submit.eccs[i].defnfile)
+
+    elif pname == "decoder":
+        decoder_info = newvalue.split(",")
+        submit.decoders = np.zeros(submit.levels, dtype=np.int)
+        for l in range(len(decoder_info)):
+            submit.decoders[l] = int(decoder_info[l])
 
     elif pname == "channel":
         submit.channel = newvalue
@@ -584,7 +590,11 @@ def Save(submit):
         infid.write("# Parameters schedule\nscheduler %s\n" % (submit.scheduler))
         # Decoder
         infid.write(
-            "# Decoder to be used -- 0 for soft decoding and 1 for hybrid decoding.\nhybrid %d\n"
+            "# Decoding algorithm to be used -- 0 for the maximum likelihood decoder and 1 for minimum weight decoder.\ndecoder %s\n"
+            % ",".join(list(map(str, submit.decoders)))
+        )
+        infid.write(
+            "# Hybrid decoding to be used -- 0 for soft decoding and 1 for hybrid decoding.\nhybrid %d\n"
             % (submit.hybrid)
         )
         if submit.hybrid > 0:
