@@ -300,7 +300,6 @@ def RandomPauliChannel(kwargs):
         method = available_methods[kwargs["method"]]
 
     # print("Method = {}".format(method))
-
     if method == "uniform":
         return IsotropicRandomPauli(kwargs["infid"], kwargs["qcode"])
     elif method == "poisson":
@@ -312,6 +311,19 @@ def RandomPauliChannel(kwargs):
     else:
         pass
     return None
+
+
+def UncorrelatedRandomPauli(infid):
+    """
+    Kraus operators for an single qubit Pauli channel.
+    """
+    probs = np.random.rand(4)
+    probs[0] = 1 - infid
+    probs[1:] = infid * probs[1:] / np.sum(probs[1:])
+    krauss = np.zeros((4, 2, 2), dtype=np.complex128)
+    for i in range(krauss.shape[0]):
+        krauss[i, :, :] = np.sqrt(probs[i]) * gv.Pauli[i, :, :]
+    return krauss
 
 
 def RandomCPTP(dist, meth):

@@ -22,7 +22,7 @@ def SimulateSampleIndex(submit, rate, sample, coreidx, results):
     physchan = np.load(fn.PhysicalChannel(submit, rate))[sample, :]
     # print(
     #     "Core: {}, noise: {}, sample: {}\nPhysical channel before simulate\n{}".format(
-    #         coreidx, rate, sample, physchan.reshape(7, 4, 4)
+    #         coreidx, rate, sample, physchan.reshape(4, 4)
     #     )
     # )
     if submit.importance == 2:

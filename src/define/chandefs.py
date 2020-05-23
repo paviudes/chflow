@@ -8,7 +8,12 @@ try:
 except:
     pass
 from define import globalvars as gv
-from define.randchans import RandomCPTP, RandomPauliChannel, RandomUnitary
+from define.randchans import (
+    RandomCPTP,
+    RandomPauliChannel,
+    RandomUnitary,
+    UncorrelatedRandomPauli,
+)
 from define import photonloss as pl
 from define import gendamp as gd
 from define import chanreps as crep
@@ -295,6 +300,14 @@ def CorrelatedPauli(params):
     return RandomPauliChannel(kwargs)
 
 
+def UncorrelatedPauli(params):
+    """
+    Uncorrelated Pauli channel with controllable infidenlity.
+    """
+    infid = np.abs(np.random.normal(params[0], 0.1 * params[0]))
+    return UncorrelatedRandomPauli(infid)
+
+
 def GetKraussForChannel(chType, *params):
     # Return the Krauss operators of a few types of quantum channels
     # print("Getting Kraus for channel: {} with parameters {}".format(chType, params))
@@ -336,6 +349,10 @@ def GetKraussForChannel(chType, *params):
     elif chType == "pauli":
         # Generic Pauli channel
         krauss = PauliChannel(params)
+
+    elif chType == "up":
+        # Generic Pauli channel
+        krauss = UncorrelatedPauli(params)
 
     elif chType == "rtz":
         # Rotation about the Z-axis

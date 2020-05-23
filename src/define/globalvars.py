@@ -1,6 +1,15 @@
 import numpy as np
 import itertools as it
 
+
+def Dot(matrices):
+    # perform a dot product of matrices in a list, from left to right.
+    if matrices.shape[0] == 1:
+        return matrices[0]
+    else:
+        return np.dot(matrices[0], Dot(matrices[1:]))
+
+
 # Computational basis
 kets = np.array([[[1], [0]], [[0], [1]]])
 bras = np.array([[[1, 0]], [[0, 1]]])
@@ -17,6 +26,27 @@ for (i, comb) in enumerate(combinations):
     paulibasis[i, :, :] = np.kron(
         np.kron(Pauli[comb[0]], Pauli[comb[1]]), Pauli[comb[2]]
     )
+
+# Basis transformations for converting between channel representations
+# Converting from the Chi matrix to the Choi matrix
+chi_to_choi = np.zeros((4, 4, 4, 4), dtype=np.complex128)
+for i in range(4):
+    for j in range(4):
+        for k in range(4):
+            for l in range(4):
+                chi_to_choi[i, j, k, l] = 0.5 * np.trace(Dot(Pauli[[i, l, j, k], :, :]))
+choi_to_chi = np.linalg.inv(np.reshape(chi_to_choi, [16, 16]))
+
+# Converting from the Chi matrix to the Pauli Liouville matrix
+chi_to_process = np.zeros((4, 4, 4, 4), dtype=np.complex128)
+for i in range(4):
+    for j in range(4):
+        for k in range(4):
+            for l in range(4):
+                chi_to_process[i, j, k, l] = 0.5 * np.trace(
+                    Dot(Pauli[[k, i, l, j], :, :])
+                )
+process_to_chi = np.linalg.inv(np.reshape(chi_to_process, [16, 16]))
 
 # Bell states
 bell = np.zeros([4, 4, 4], dtype=np.float)

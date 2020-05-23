@@ -520,6 +520,11 @@ def UncorrectableProb(channel, kwargs):
             np.real(np.diag(crep.ConvertRepresentations(channel, "choi", "chi"))),
             [kwargs["qcode"].N, 1],
         )
+        # print(
+        #     "Pauli probs\n1-p = {}, p/3 = {}.".format(
+        #         pauliProbs[0, 0], pauliProbs[0, 1]
+        #     )
+        # )
     elif kwargs["corr"] == 1:
         pauliProbs = channel
     else:
@@ -531,7 +536,7 @@ def UncorrectableProb(channel, kwargs):
                     crep.ConvertRepresentations(chans_ptm[q, :, :], "process", "chi")
                 )
             )
-    return uc.ComputeUnCorrProb(pauliProbs, kwargs["qcode"], kwargs["levels"])
+    return uc.ComputeUnCorrProb(pauliProbs, kwargs["qcode"])
 
 
 def Anisotropy(channel, kwargs):
@@ -608,7 +613,7 @@ def ComputeNorms(channel, metrics, kwargs):
 
 def ChannelMetrics(submit, metrics, start, end, results, rep, chtype):
     # Compute the various metrics for all channels with a given noise rate
-    nlevels = submit.levels + 1
+    nlevels = submit.levels
     for i in range(start, end):
         if chtype == "physical":
             (folder, fname) = os.path.split(

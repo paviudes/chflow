@@ -20,6 +20,8 @@ try:
     import PyPDF2 as pp
 except:
     pass
+from define.QECCLfid import uncorrectable as uc
+
 # Force the module scripts to run locally -- https://stackoverflow.com/questions/279237/import-a-module-from-a-relative-path
 # import inspect as ins
 # current = os.path.realpath(os.path.abspath(os.path.dirname(ins.getfile(ins.currentframe()))))
@@ -441,6 +443,20 @@ def LevelWisePlot(phymets, logmet, dbses, inset_flag=1, nbins=10):
                     }
 
                     LoadPhysicalErrorRates(dbses[d], phylist[p], settings, d == 0)
+
+                    # Scale to level.
+                    # if (phylist[p] == "uncorr") and (l > 0):
+                    #     settings["xaxis"] = np.array(
+                    #         list(
+                    #             map(
+                    #                 lambda u: 1
+                    #                 - uc.AdjustToLevel(1 - u, dbses[d].eccs[l - 1], l),
+                    #                 settings["xaxis"],
+                    #             )
+                    #         ),
+                    #         dtype=np.double,
+                    #     )
+
                     # Plotting
                     plotobj = ax1.plot(
                         settings["xaxis"],

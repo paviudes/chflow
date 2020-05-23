@@ -5,13 +5,13 @@ ecc Steane,Steane
 # Type of quantum channel
 channel rtasu
 # Noise rates (mean delta; std delta; std theta; std phi)
-noiserange 6.5,6.5,12;-1,-1,1
+noiserange 6.5,12,12;-1,-1,1
 # Number of samples
-samples 200
+samples 4
 # Scales
 scale 0.66,1
 # Number of syndromes to be sampled at the top level
-stats 100
+stats 10000
 # Randomized compiling
 rc 0
 # Decoding strategy

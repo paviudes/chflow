@@ -391,7 +391,7 @@ def SaveBenchmarkInput(
         "%s/lookup.txt" % (outdir), dclookups, fmt="%d", delimiter=" ", newline=" "
     )
     np.savetxt(
-        "%s/physical.txt" % (outdir), physical, fmt="%.4f", delimiter=" ", newline=" "
+        "%s/physical.txt" % (outdir), physical, fmt="%.14f", delimiter=" ", newline=" "
     )
     np.savetxt("%s/stats.txt" % (outdir), stats, fmt="%d", delimiter=" ", newline=" ")
     return None

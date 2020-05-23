@@ -145,10 +145,12 @@ def Update(submit, pname, newvalue):
         names = newvalue.split(",")
         submit.ecfiles = []
         submit.levels = len(names)
+        submit.decoders = np.zeros(submit.levels, dtype=np.int)
         for i in range(submit.levels):
             submit.eccs.append(qec.QuantumErrorCorrectingCode(names[i]))
             qec.Load(submit.eccs[i])
             submit.ecfiles.append(submit.eccs[i].defnfile)
+            submit.decoders[i] = 0
 
     elif pname == "decoder":
         decoder_info = newvalue.split(",")
