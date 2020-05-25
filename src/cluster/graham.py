@@ -59,5 +59,8 @@ def CreateLaunchScript(submit):
         fp.write("export OMP_NUM_THREADS=%d\n" % (submit.cores[1]))
         fp.write("export MKL_NUM_THREADS=1\n")
         fp.write("./chflow.sh %s ${SLURM_ARRAY_TASK_ID}\n" % (submit.timestamp))
-    print("\033[2mRun the following\n\tsbatch graham.sh\nto launch the job.\033[0m")
+    print(
+        "\033[2mRun the following\n\tsbatch graham_%s.sh\nto launch the job.\033[0m"
+        % (submit.job)
+    )
     return None

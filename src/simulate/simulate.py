@@ -16,6 +16,16 @@ from define import fnames as fn
 
 def SimulateSampleIndex(submit, rate, sample, coreidx, results):
     # Simulate each noise rate and sample
+    # Check if simulations results already exist. if yes, do not overwrite.
+    if submit.overwrite == 0:
+        if os.path.isfile(fn.LogicalChannel(submit, rate, sample)):
+            # print(
+            #     "Data already exists in : {}".format(
+            #         fn.LogicalChannel(submit, rate, sample)
+            #     )
+            # )
+            results.put((coreidx, rate, sample, 0))
+            return None
     start = time.time()
     np.random.seed()
     ## Load the physical channel and the reference (noisier) channel if importance sampling is selected.

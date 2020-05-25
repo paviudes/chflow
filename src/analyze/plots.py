@@ -1652,7 +1652,7 @@ def ComputeBinVariance(xdata, ydata, nbins=10, space="log", binfile=None, submit
         )[0]
         bins[i, 2] = np.double(points.shape[0])
         # Variance of the Y axis points in the bin
-        bins[i, 3] = np.std(ydata[points])
+        bins[i, 3] = np.var(ydata[points])
         # bins[i, 3] = np.abs(np.max(ydata[points]) - np.min(ydata[points]))
         # mean = np.power(10, np.mean(np.log10(ydata[points])))
         # bins[i, 3] = np.sqrt(np.sum(np.power(ydata[points] - mean, 2)))/((bins[i, 2] - 1) * mean)
