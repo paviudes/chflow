@@ -615,7 +615,7 @@ def ChannelMetrics(submit, metrics, start, end, results, rep, chtype):
     # Compute the various metrics for all channels with a given noise rate
     nlevels = submit.levels
     for i in range(start, end):
-        if chtype == "physical":
+        if (chtype == "physical") or (chtype == "phylog"):
             (folder, fname) = os.path.split(
                 fn.PhysicalChannel(submit, submit.available[i, :-1])
             )
@@ -718,11 +718,17 @@ def ComputeMetrics(submit, metrics, chtype="physical"):
         # Write the physical metrics on to a file
         for m in range(len(metrics)):
             np.save(fn.PhysicalErrorRates(submit, metrics[m]), metvals[:, m])
+    elif chtype == "phylog":
+        metvals = np.reshape(
+            results, [submit.channels, len(metrics), submit.levels + 1], order="c"
+        )
+        # Write the physical metrics (dependent on levels) on to a file
+        for m in range(len(metrics)):
+            np.save(fn.PhysicalErrorRates(submit, metrics[m]), metvals[:, m, :])
     else:
         metvals = np.reshape(
             results, [submit.channels, len(metrics), submit.levels + 1], order="c"
         )
-        # Write the logical metrics on to a file
         for i in range(submit.channels):
             for m in range(len(metrics)):
                 fname = fn.LogicalErrorRate(

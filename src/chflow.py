@@ -161,6 +161,11 @@ if __name__ == "__main__":
             "pmetrics m1(string)[,m2(string),m3(string),...]\nwhere m1,m2,... should be one of %s."
             % (avmets),
         ],
+        "lpmetrics": [
+            "Compute metrics for the physical channels that dependent on the levels in the current submission.",
+            "lpmetrics m1(string)[,m2(string),m3(string),...]\nwhere m1,m2,... should be one of %s."
+            % (avmets),
+        ],
         "lmetrics": [
             "Compute metrics for the average logical channels (for all levels) in the current submission.",
             "lmetrics m1(string)[,m2(string),m3(string),...]\nwhere m1,m2,... should be one of %s."
@@ -931,6 +936,16 @@ if __name__ == "__main__":
 
             else:
                 print("\033[2mUsage: %s\033[0m" % mannual["lmetrics"][1])
+
+        #####################################################################
+
+        elif user[0] == "lpmetrics":
+            # compute metrics of the average logical channel.
+            if len(user) > 1:
+                phylogmetrics = user[1].split(",")
+                ml.ComputeMetrics(submit, phylogmetrics, chtype="phylog")
+            else:
+                print("\033[2mUsage: %s\033[0m" % mannual["lpmetrics"][1])
 
         #####################################################################
 

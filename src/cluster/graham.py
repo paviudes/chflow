@@ -18,6 +18,16 @@ def Usage(submit):
     return None
 
 
+def CreatePostBatchScript(submit):
+    """
+    Create a script to run after the cluster simulation is finished.
+    https://www.hpc2n.umu.se/documentation/batchsystem/job-dependencies
+    """
+    with open("./../graham_post_%s.sh" % (submit.job), "w") as fp:
+        fp.write("\n")
+    return None
+
+
 def CreateLaunchScript(submit):
     # Write the script to launch a job-array describing all the simulations to be run.
     # See https://slurm.schedmd.com/sbatch.html
