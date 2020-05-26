@@ -43,7 +43,7 @@ def DisplayLogoLicense():
 	"""
     license = r"""
 	BSD 3-Clause License
-	Copyright (c) 2018, Pavithran S Iyer and David Poulin
+	Copyright (c) 2018, Pavithran S Iyer, Aditya Jain and David Poulin
 	All rights reserved.
 	"""
     url = "https://github.com/paviudes/chflow/wiki"
