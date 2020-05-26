@@ -44,7 +44,7 @@ def ChannelPair(chtype, rates, dim, method="qr"):
     return channels
 
 
-def PreparePhysicalChannels(submit, nproc=4):
+def PreparePhysicalChannels(submit, nproc=12):
     # Prepare a file for each noise rate, that contains all single qubit channels, one for each sample.
     nproc = min(nproc, mp.cpu_count())
     chunk = int(np.ceil(submit.samps / nproc))
@@ -52,7 +52,7 @@ def PreparePhysicalChannels(submit, nproc=4):
     # Create quantum channels for various noise parameters and store them in the process matrix formalism.
     if submit.iscorr == 0:
         nparams = 4 ** submit.eccs[0].K * 4 ** submit.eccs[0].K
-        raw_params = params
+        raw_params = nparams
     elif submit.iscorr == 1:
         # submit.rawchans = np.zeros(
         #     (submit.noiserates.shape[0], submit.samps, 4 ** submit.eccs[0].N),
@@ -153,9 +153,7 @@ def GenChannelSamples(
                     noiseidx * submit.samps * nparams + (j + 1) * nparams
                 )
             ] = crep.ConvertRepresentations(
-                chdef.GetKraussForChannel(submit.channel, submit.eccs[0].N, *noise),
-                "krauss",
-                "process",
+                chdef.GetKraussForChannel(submit.channel, *noise), "krauss", "process"
             ).ravel()
             rawchans[
                 (noiseidx * submit.samps * raw_params + j * raw_params) : (
@@ -208,7 +206,7 @@ def GenChannelSamples(
                         + (q + 1) * nentries
                     )
                 ] = crep.ConvertRepresentations(
-                    chans[np.newaxis, q, :, :], "krauss", "process"
+                    chans[q, :, :, :], "krauss", "process"
                 ).ravel()
                 rawchans[
                     (

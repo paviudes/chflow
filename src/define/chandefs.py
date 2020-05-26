@@ -8,7 +8,12 @@ try:
 except:
     pass
 from define import globalvars as gv
-from define.randchans import RandomCPTP, RandomPauliChannel, RandomUnitary
+from define.randchans import (
+    RandomCPTP,
+    RandomPauliChannel,
+    RandomUnitary,
+    UncorrelatedRandomPauli,
+)
 from define import photonloss as pl
 from define import gendamp as gd
 from define import chanreps as crep
@@ -126,7 +131,7 @@ def ArbitraryNormalRotation(params):
         for j in range(3):
             exponent = exponent + axis[j] * gv.Pauli[j + 1, :, :]
         unitaries[i, :, :] = linalg.expm(-1j * delta / 2 * np.pi * exponent)
-    krauss = unitaries
+    krauss = unitaries[:, np.newaxis, :, :]
     return krauss
 
 
@@ -164,7 +169,7 @@ def ArbitraryUniformRotation(params):
         for j in range(3):
             exponent = exponent + axis[j] * gv.Pauli[j + 1, :, :]
         unitaries[i, :, :] = linalg.expm(-1j * delta / 2 * np.pi * exponent)
-    krauss = unitaries
+    krauss = unitaries[:, np.newaxis, :, :]
     return krauss
 
 
@@ -191,7 +196,7 @@ def FixedRotation(params):
     """
     theta = params[0]
     phi = params[1]
-    delta = params[1]
+    delta = params[2]
     axis = np.array(
         [np.sin(theta) * np.cos(phi), np.sin(theta) * np.sin(phi), np.cos(theta)],
         dtype=np.longdouble,
@@ -273,25 +278,34 @@ def CorrelatedPauli(params):
     """
     kwargs = {
         "qcode": params[0],
-        "average_infid": params[1],
+        "infid": params[1],
         "method": int(params[2]) - 1,
+        "iid_fraction": float(params[3]),
     }
     # print("args = {}".format(kwargs))
-    mu = float(kwargs["average_infid"])
-    sigma = mu / 10
-    lower = max(10e-3, mu - 0.1)
-    upper = min(1 - 10e-3, mu + 0.1)
-    # print(
-    #     "mu = {}, sigma = {}, upper = {}, lower = {}".format(
-    #         mu, sigma, upper, lower
-    #     )
-    # )
-    X = truncnorm((lower - mu) / sigma, (upper - mu) / sigma, loc=mu, scale=sigma)
-    # print("X = {}".format(X))
-    kwargs.update({"infid": X.rvs()})
-    # kwargs.update({"infid": np.abs(np.random.normal(mu, sigma))})
+    # mu = float(kwargs["average_infid"])
+    # sigma = mu / 10
+    # lower = max(10e-3, mu - 0.1)
+    # upper = min(1 - 10e-3, mu + 0.1)
+    # # print(
+    # #     "mu = {}, sigma = {}, upper = {}, lower = {}".format(
+    # #         mu, sigma, upper, lower
+    # #     )
+    # # )
+    # X = truncnorm((lower - mu) / sigma, (upper - mu) / sigma, loc=mu, scale=sigma)
+    # # print("X = {}".format(X))
+    # kwargs.update({"infid": X.rvs()})
+    kwargs["infid"] = np.abs(np.random.normal(params[1], 0.1 * params[1]))
     # print("args = {}".format(kwargs))
     return RandomPauliChannel(kwargs)
+
+
+def UncorrelatedPauli(params):
+    """
+    Uncorrelated Pauli channel with controllable infidenlity.
+    """
+    infid = np.abs(np.random.normal(params[0], 0.1 * params[0]))
+    return UncorrelatedRandomPauli(infid)
 
 
 def GetKraussForChannel(chType, *params):
@@ -335,6 +349,10 @@ def GetKraussForChannel(chType, *params):
     elif chType == "pauli":
         # Generic Pauli channel
         krauss = PauliChannel(params)
+
+    elif chType == "up":
+        # Generic Pauli channel
+        krauss = UncorrelatedPauli(params)
 
     elif chType == "rtz":
         # Rotation about the Z-axis

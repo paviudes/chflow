@@ -113,22 +113,21 @@ def Benchmark(submit, noise, sample, physical, refchan):
         np.sum([2 ** (submit.eccs[l].N + submit.eccs[l].K) for l in range(nlevels)]),
         dtype=np.float64,
     )
+    decoders = np.zeros(nlevels, dtype=np.int32)
+    dclookups = np.zeros(nlevels * nstabs, dtype=np.int32)
+    s_count = 0
     ss_count = 0
     norm_count = 0
     normphase_count = 0
     for l in range(nlevels):
         nstabs = 2 ** (submit.eccs[l].N - submit.eccs[l].K)
         SS[ss_count : (ss_count + nstabs * nstabs)] = submit.eccs[l].syndsigns.ravel()
-        ss_count = ss_count + nstabs * nstabs
         normalizer[
             norm_count : (
                 norm_count
                 + 2 ** (submit.eccs[l].N + submit.eccs[l].K) * submit.eccs[l].N
             )
         ] = submit.eccs[l].normalizer.ravel()
-        norm_count = (
-            norm_count + 2 ** (submit.eccs[l].N + submit.eccs[l].K) * submit.eccs[l].N
-        )
         normphases_real[
             normphase_count : (
                 normphase_count + 2 ** (submit.eccs[l].N + submit.eccs[l].K)
@@ -139,6 +138,16 @@ def Benchmark(submit, noise, sample, physical, refchan):
                 normphase_count + 2 ** (submit.eccs[l].N + submit.eccs[l].K)
             )
         ] = np.imag(submit.eccs[l].normphases.ravel()).astype(np.float64)
+
+        # Decoding preferences
+        decoders[l] = submit.decoders[l]
+        dclookups[s_count : (s_count + nstabs)] = submit.eccs[l].lookup[:, 0]
+
+        s_count = s_count + nstabs
+        ss_count = ss_count + nstabs * nstabs
+        norm_count = (
+            norm_count + 2 ** (submit.eccs[l].N + submit.eccs[l].K) * submit.eccs[l].N
+        )
         normphase_count = normphase_count + 2 ** (submit.eccs[l].N + submit.eccs[l].K)
 
     # Hybrid decoding -- channels that must be averaged in the intermediate levels
@@ -177,6 +186,8 @@ def Benchmark(submit, noise, sample, physical, refchan):
             submit.rc,
             nmetrics,
             metrics,
+            decoders,
+            dclookups,
             submit.hybrid,
             decoderbins,
             ndecoderbins,
@@ -203,6 +214,8 @@ def Benchmark(submit, noise, sample, physical, refchan):
         ctypes.c_int,
         ctypes.c_int,  # nmetrics
         ctypes.c_char_p * nmetrics,  # metrics
+        ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),  # decoders
+        ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),  # dclookups
         ctypes.c_int,  # hybrid
         ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),  # decoderbins
         ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),  # ndecoderbins
@@ -232,6 +245,8 @@ def Benchmark(submit, noise, sample, physical, refchan):
         submit.rc,
         nmetrics,  # arg 9
         metrics,  # arg 10
+        decoders,
+        dclookups,
         submit.hybrid,  # arg 11
         decoderbins,  # arg 12
         ndecoderbins,  # arg 13
@@ -335,6 +350,8 @@ def SaveBenchmarkInput(
     rc,
     nmetrics,
     metrics,
+    decoders,
+    dclookups,
     hybrid,
     decoderbins,
     ndecoderbins,
@@ -371,7 +388,10 @@ def SaveBenchmarkInput(
         newline=" ",
     )
     np.savetxt(
-        "%s/physical.txt" % (outdir), physical, fmt="%.4f", delimiter=" ", newline=" "
+        "%s/lookup.txt" % (outdir), dclookups, fmt="%d", delimiter=" ", newline=" "
+    )
+    np.savetxt(
+        "%s/physical.txt" % (outdir), physical, fmt="%.14f", delimiter=" ", newline=" "
     )
     np.savetxt("%s/stats.txt" % (outdir), stats, fmt="%d", delimiter=" ", newline=" ")
     return None

@@ -1,13 +1,9 @@
 import os
 import sys
 import time
-
-try:
-    import numpy as np
-    import itertools as it
-except:
-    pass
-# Files from the define module
+from shutil import copyfile
+import numpy as np
+import itertools as it
 from define import fnames as fn
 from define import qcode as qec
 from define import qchans as qc
@@ -51,6 +47,7 @@ class Submission:
         self.samps = 1
         self.channels = 0
         self.available = np.array([])
+        self.overwrite = 0
         # Metrics options
         self.metrics = ["frb"]
         self.filter = {"metric": "fidelity", "lower": 0, "upper": 1}
@@ -61,7 +58,7 @@ class Submission:
         self.levels = 0
         self.ecfiles = []
         # Decoder
-        self.decode_table = 0
+        self.decoders = []
         self.decoder_type = "default_soft"
         self.hybrid = 0
         self.decoderbins = []
@@ -145,10 +142,18 @@ def Update(submit, pname, newvalue):
         names = newvalue.split(",")
         submit.ecfiles = []
         submit.levels = len(names)
+        submit.decoders = np.zeros(submit.levels, dtype=np.int)
         for i in range(submit.levels):
             submit.eccs.append(qec.QuantumErrorCorrectingCode(names[i]))
             qec.Load(submit.eccs[i])
             submit.ecfiles.append(submit.eccs[i].defnfile)
+            submit.decoders[i] = 0
+
+    elif pname == "decoder":
+        decoder_info = newvalue.split(",")
+        submit.decoders = np.zeros(submit.levels, dtype=np.int)
+        for l in range(len(decoder_info)):
+            submit.decoders[l] = int(decoder_info[l])
 
     elif pname == "channel":
         submit.channel = newvalue
@@ -584,7 +589,11 @@ def Save(submit):
         infid.write("# Parameters schedule\nscheduler %s\n" % (submit.scheduler))
         # Decoder
         infid.write(
-            "# Decoder to be used -- 0 for soft decoding and 1 for hybrid decoding.\nhybrid %d\n"
+            "# Decoding algorithm to be used -- 0 for the maximum likelihood decoder and 1 for minimum weight decoder.\ndecoder %s\n"
+            % ",".join(list(map(str, submit.decoders)))
+        )
+        infid.write(
+            "# Hybrid decoding to be used -- 0 for soft decoding and 1 for hybrid decoding.\nhybrid %d\n"
             % (submit.hybrid)
         )
         if submit.hybrid > 0:
@@ -664,22 +673,6 @@ def Save(submit):
             )
         # Miscellaneous information
         infid.write("# Miscellaneous information: %s\n" % (submit.misc))
-
-    # Append the content of the input file to the log file.
-    if os.path.isfile("bqsubmit.dat"):
-        os.system(
-            (
-                'echo "\\n****************** Created on %s *************\\n++++++++++\\nInput file\\n++++++++++\n$(cat %s)\\n++++++++++\\nbqsubmit file\\n++++++++++\\n$(cat ./../bqsubmit.dat)\\n\\n" >> log.txt'
-                % (submit.timestamp, submit.inputfile)
-            )
-        )
-    else:
-        os.system(
-            (
-                'echo "\\n****************** Created on %s *************\\n++++++++++\\nInput file\\n++++++++++\n$(cat %s)\\n++++++++++\\nbqsubmit file\\n++++++++++\\nNot provided\\n\\n" >> log.txt'
-                % (submit.timestamp, submit.inputfile)
-            )
-        )
     return None
 
 
@@ -691,6 +684,15 @@ def PrepOutputDir(submit):
     # Copy the relevant code data
     for l in range(submit.levels):
         os.system("cp ./../code/%s %s/code/" % (submit.eccs[l].defnfile, submit.outdir))
+    # Save a copy of the input file and the schedule file in the output director.
+    copyfile(
+        "./../input/%s" % os.path.basename(submit.inputfile),
+        "%s/input/%s" % (submit.outdir, os.path.basename(submit.inputfile)),
+    )
+    copyfile(
+        "./../input/%s" % os.path.basename(submit.scheduler),
+        "%s/input/%s" % (submit.outdir, os.path.basename(submit.scheduler)),
+    )
     return None
 
 

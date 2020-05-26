@@ -64,12 +64,14 @@ class QuantumErrorCorrectingCode:
                         elif line == "stabilizer":
                             # Read the next N - K lines.
                             self.S = PauliToOperator(fp, self.N, self.N - self.K)
+                            # print("S\n{}".format(self.S))
                         elif line == "logical":
                             # Read the next 2 K lines.
-                            self.L = PauliSymbolToOperator(fp, self.N, 2 * self.K)
+                            self.L = PauliToOperator(fp, self.N, 2 * self.K)
+                            # print("L\n{}".format(self.L))
                         elif line == "pureerror":
                             # Read the next N - K lines.
-                            self.T = PauliSymbolToOperator(fp, self.N, self.N - self.K)
+                            self.T = PauliToOperator(fp, self.N, self.N - self.K)
                         else:
                             pass
 
@@ -166,6 +168,8 @@ def Load(qecc):
             if qecc.L is None:
                 ComputeLogicals(qecc)
                 ComputePureErrors(qecc)
+            if qecc.T is None:
+                ComputePureErrors(qecc)
             else:
                 if IsCanonicalBasis(qecc.S, qecc.L, qecc.T, verbose=1) == 0:
                     ComputeLogicals(qecc)
@@ -195,12 +199,18 @@ def populate_symplectic(qcode):
         Stores a dictionary for each stabilizer with keys "sx","sz" and values as binary lists
         """
     qcode.SSym = []
+    qcode.TSym = []
     qcode.LSym = []
     for S in qcode.S:
         dictS = {"sx": None, "sz": None}
         dictS["sx"] = list(map(lambda x: 1 if x == 1 or x == 2 else 0, S))
         dictS["sz"] = list(map(lambda x: 1 if x == 2 or x == 3 else 0, S))
         qcode.SSym.append(dictS)
+    for T in qcode.T:
+        dictT = {"sx": None, "sz": None}
+        dictT["sx"] = list(map(lambda x: 1 if x == 1 or x == 2 else 0, T))
+        dictT["sz"] = list(map(lambda x: 1 if x == 2 or x == 3 else 0, T))
+        qcode.TSym.append(dictT)
     for L in qcode.L:
         dictL = {"sx": None, "sz": None}
         dictL["sx"] = list(map(lambda x: 1 if x == 1 or x == 2 else 0, L))
@@ -213,6 +223,13 @@ def populate_symplectic(qcode):
         dictS["sx"] = list(map(lambda x: 1 if x == 1 or x == 2 else 0, S))
         dictS["sz"] = list(map(lambda x: 1 if x == 2 or x == 3 else 0, S))
         qcode.SGroupSym.append(dictS)
+    qcode.TGroupSym = []
+    group_T = GenerateGroup(qcode.T)
+    for T in group_T:
+        dictT = {"sx": None, "sz": None}
+        dictT["sx"] = list(map(lambda x: 1 if x == 1 or x == 2 else 0, T))
+        dictT["sz"] = list(map(lambda x: 1 if x == 2 or x == 3 else 0, T))
+        qcode.TGroupSym.append(dictT)
     return None
 
 
@@ -446,6 +463,7 @@ def ComputePureErrors(qecc):
             if SymplecticProduct(sols[j, :], stabgens[i, :]) == 1:
                 break
         puregens[i, :] = sols[j, :]
+    # print("Raw pure gens\n{}".format(ConvertToOperator(puregens)))
     # Fixing the commutation relations between pure errors.
     # 1. If Ti anti commutes with Sj, for j not equal to i, then: Ti -> Ti * Tj
     # 2. If Ti anti commutes with Lj, then: Ti -> Ti * Mj where Mj is the logical operator conjugate to Lj
@@ -462,9 +480,9 @@ def ComputePureErrors(qecc):
                     puregens[i, :] + loggens[(j + qecc.K) % (2 * qecc.K), :], 2
                 )
     for i in range(qecc.N - qecc.K):
-        for j in range(qecc.N - qecc.K):
+        for j in range(i + 1, qecc.N - qecc.K):
             if SymplecticProduct(puregens[i, :], puregens[j, :]) == 1:
-                puregens[i, :] = np.mod(puregens[i, :] + stabgens[j, :], 2)
+                puregens[j, :] = np.mod(puregens[j, :] + stabgens[i, :], 2)
     qecc.T = ConvertToOperator(puregens)
     return None
 
@@ -763,7 +781,7 @@ def PauliCliffordConjugations(qecc):
 
 
 def PauliProduct(*paulis):
-    # Perform a product of two n-qubit Pauli operators, along with the appropriate phase information
+    # Perform a product of many n-qubit Pauli operators, along with the appropriate phase information
     # The multiplication rule for the single qubit Pauli group is given by
     ###	  I 	X 	Y 	Z
     # I   I 	X 	Y 	Z
@@ -825,6 +843,8 @@ def ConstructNormalizer(qecc):
             (logop, logph) = PauliProduct(*qecc.L[np.nonzero(lgens)])
         else:
             (logop, logph) = (np.zeros(qecc.N, dtype=np.int8), 1)
+        if l == 3:
+            logph = logph * 1j
         for s in range(2 ** (qecc.N - qecc.K)):
             if s > 0:
                 sgens = np.array(
@@ -837,8 +857,6 @@ def ConstructNormalizer(qecc):
             # Combine the logical operator with the stabilizers to generate all the operators in the corresponding logical class
             (normop, normph) = PauliProduct(logop, stabop)
             normph = normph * stabph * logph
-            if l == 3:
-                normph = normph * 1j
             qecc.normalizer[ordering[lgens[0], lgens[1]], s, :] = normop
             qecc.normphases[ordering[lgens[0], lgens[1]], s] = normph
     return None
@@ -892,14 +910,17 @@ def PrepareSyndromeLookUp(qecc):
                     qecc.lookup[t, 1] = weight
                     qecc.lookup[t, 2:] = correction
                 # Record the weight and the correction.
-                qecc.weightdist[l * nstabs * nstabs + s * nstabs + t] = weight
+                qecc.weightdist[
+                    ordering[lgens[0], lgens[1]] * nstabs * nstabs + s * nstabs + t
+                ] = weight
                 qecc.PauliOperatorsLST[
-                    (l * nstabs * nstabs + s * nstabs + t), :
+                    (ordering[lgens[0], lgens[1]] * nstabs * nstabs + s * nstabs + t), :
                 ] = correction
-        # print("Syndrome %d: %s\n\tPure error\n\t%s\n\tCorrection\n\t%s" % (i, np.array_str(combTGens), np.array_str(pureError), np.array_str(recoveries[i])))
-        qecc.group_by_weight = {}
-        for w in range(qecc.N):
-            (qecc.group_by_weight[w],) = np.nonzero(qecc.weightdist == w)
+    # print("Lookup table\n{}".format(qecc.lookup))
+    # Group errors by weight
+    qecc.group_by_weight = {}
+    for w in range(qecc.N):
+        (qecc.group_by_weight[w],) = np.nonzero(qecc.weightdist == w)
     return None
 
 
@@ -979,8 +1000,7 @@ def GetCommuting(log_op, stab_op, lgens, sgens, tgens):
             # )
             indicators["commuting"][
                 l * 2 ** (2 * n - 2 * k)
-                + np.linspace(0, 2 ** (n - k) - 1, 2 ** (n - k), dtype=np.int)
-                * 2 ** (n - k)
+                + np.arange(2 ** (n - k), dtype=np.int) * 2 ** (n - k)
                 + t
             ] = 1
     # print("LC indicator: {}".format(np.nonzero(indicators["commuting"])))
@@ -993,8 +1013,7 @@ def GetCommuting(log_op, stab_op, lgens, sgens, tgens):
             # )
             indicators["commuting"][
                 l * 2 ** (2 * n - 2 * k)
-                + np.linspace(0, 2 ** (n - k) - 1, 2 ** (n - k), dtype=np.int)
-                * 2 ** (n - k)
+                + np.arange(2 ** (n - k), dtype=np.int) * 2 ** (n - k)
                 + t
             ] = 1
     # print("LA indicator: {}".format(np.nonzero(indicators["commuting"])))
@@ -1007,8 +1026,7 @@ def GetCommuting(log_op, stab_op, lgens, sgens, tgens):
             # )
             indicators["anticommuting"][
                 l * 2 ** (2 * n - 2 * k)
-                + np.linspace(0, 2 ** (n - k) - 1, 2 ** (n - k), dtype=np.int)
-                * 2 ** (n - k)
+                + np.arange(2 ** (n - k), dtype=np.int) * 2 ** (n - k)
                 + t
             ] = 1
     # print("TC indicator: {}".format(np.nonzero(indicators["anticommuting"])))
@@ -1021,11 +1039,15 @@ def GetCommuting(log_op, stab_op, lgens, sgens, tgens):
             # )
             indicators["anticommuting"][
                 l * 2 ** (2 * n - 2 * k)
-                + np.linspace(0, 2 ** (n - k) - 1, 2 ** (n - k), dtype=np.int)
-                * 2 ** (n - k)
+                + np.arange(2 ** (n - k), dtype=np.int) * 2 ** (n - k)
                 + t
             ] = 1
     # print("TA indicator: {}".format(np.nonzero(indicators["anticommuting"])))
+    # print(
+    #     "1 - commuting - anticommuting\n{}".format(
+    #         np.nonzero(1 - indicators["commuting"] - indicators["anticommuting"])
+    #     )
+    # )
     indices = {"commuting": None, "anticommuting": None}
     (indices["commuting"],) = np.nonzero(indicators["commuting"])
     (indices["anticommuting"],) = np.nonzero(indicators["anticommuting"])

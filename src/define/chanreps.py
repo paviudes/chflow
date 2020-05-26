@@ -4,6 +4,7 @@ except:
     pass
 try:
     import numpy as np
+    import scipy as sp
 except:
     pass
 import ctypes as ct
@@ -16,14 +17,6 @@ from define import qcode as qc
 def HermitianConjugate(mat):
     # Return the Hermitian conjugate of a matrix
     return np.conjugate(np.transpose(mat))
-
-
-def Dot(matrices):
-    # perform a dot product of matrices in a list, from left to right.
-    if matrices.shape[0] == 1:
-        return matrices[0]
-    else:
-        return np.dot(matrices[0], Dot(matrices[1:]))
 
 
 def ShortestPath(adjacency, source, target, labels):
@@ -244,21 +237,9 @@ def ConvertRepresentations(channel, initial, final):
             # Convert from the process matrix to the chi matrix
             # The process matrix is the action of the channel on the Pauli basis whereas the Chi matrix describes the amplitude of applying a pair of gv.Pauli operators (on the left and right) to the input state
             # Lambda_ij = \sum_(k,l) W_ijkl * Chi_(k,l)
-            # where W_ijkl = Trace(P_k P_j P_l P_i)
-            basis = np.zeros((4, 4, 4, 4), dtype=np.complex128)
-            for i in range(4):
-                for j in range(4):
-                    for k in range(4):
-                        for l in range(4):
-                            basis[i, j, k, l] = 0.5 * np.trace(
-                                Dot(gv.Pauli[[k, j, l, i], :, :])
-                            )
+            # where W_ijkl = Trace(P_k P_i P_l P_j)
             chi = np.reshape(
-                np.dot(
-                    np.linalg.inv(np.reshape(basis, [16, 16])),
-                    np.reshape(inprep, [16, 1]),
-                ),
-                [4, 4],
+                np.dot(gv.process_to_chi, np.reshape(inprep, [16, 1])), [4, 4]
             )
             outrep = np.copy(chi)
 
@@ -266,17 +247,12 @@ def ConvertRepresentations(channel, initial, final):
             # Convert from the chi matrix to the process matrix
             # The process matrix is the action of the channel on the Pauli basis whereas the Chi matrix describes the amplitude of applying a pair of Pauli operators (on the left and right) to the input state
             # Lambda_ij = \sum_(k,l) W_ijkl * Chi_(k,l)
-            # where W_ijkl = Trace(P_k P_j P_l P_i)
-            basis = np.zeros((4, 4, 4, 4), dtype=np.complex128)
-            for i in range(4):
-                for j in range(4):
-                    for k in range(4):
-                        for l in range(4):
-                            basis[i, j, k, l] = 0.5 * np.trace(
-                                Dot(gv.Pauli[[k, j, l, i], :, :])
-                            )
+            # where W_ijkl = Trace(P_k P_i P_l P_j)
             process = np.reshape(
-                np.dot(np.reshape(basis, [16, 16]), np.reshape(inprep, [16, 1])), [4, 4]
+                np.dot(
+                    np.reshape(gv.chi_to_process, [16, 16]), np.reshape(inprep, [16, 1])
+                ),
+                [4, 4],
             )
             outrep = np.copy(process)
 
@@ -287,14 +263,6 @@ def ConvertRepresentations(channel, initial, final):
             # Let v_(ab) = Tr(J(E) . (Pa o Pb^T)), then we have
             # v_(ab) = X_(ij) W_((ij)(ab)). which is the relation: <v| = <x|W.
             # We can rewrite this as: <x| = <v|W^{-1}.
-            basis = np.zeros((4, 4, 4, 4), dtype=np.complex128)
-            for i in range(4):
-                for j in range(4):
-                    for a in range(4):
-                        for b in range(4):
-                            basis[i, j, a, b] = 0.5 * np.trace(
-                                Dot(gv.Pauli[[i, b, j, a], :, :])
-                            )
             choivec = np.zeros((1, 16), dtype=np.complex128)
             for a in range(4):
                 for b in range(4):
@@ -304,9 +272,10 @@ def ConvertRepresentations(channel, initial, final):
                             np.kron(gv.Pauli[a, :, :], np.transpose(gv.Pauli[b, :, :])),
                         )
                     )
-            chi = np.reshape(
-                np.dot(choivec, np.linalg.inv(np.reshape(basis, [16, 16]))), [4, 4]
-            )
+            ####
+            # A.CHIVEC = CHOIVEC
+            ####
+            chi = np.reshape(np.dot(choivec, gv.choi_to_chi), [4, 4])
             outrep = np.copy(chi)
 
         else:
@@ -325,19 +294,19 @@ def PauliConvertToTransfer(pauliprobs, qcode):
     nlogs = 4 ** qcode.K
     # ptm = np.zeros(nstabs * nlogs, dtype=np.double)
     ptm = mp.Array(ct.c_double, np.zeros(nstabs * nlogs, dtype=np.double))
-    processes = []
+    # processes = []
     ##################
     for l in range(nlogs):
-        processes.append(
-            mp.Process(
-                target=GetTransferMatrixElements, args=(l, pauliprobs, qcode, ptm)
-            )
-        )
-        # GetTransferMatrixElements(l, pauliprobs, qcode, ptm)
-    for l in range(nlogs):
-        processes[l].start()
-    for l in range(nlogs):
-        processes[l].join()
+        # processes.append(
+        #     mp.Process(
+        #         target=GetTransferMatrixElements, args=(l, pauliprobs, qcode, ptm)
+        #     )
+        # )
+        GetTransferMatrixElements(l, pauliprobs, qcode, ptm)
+    # for l in range(nlogs):
+    #     processes[l].start()
+    # for l in range(nlogs):
+    #     processes[l].join()
     return np.array(ptm, dtype=np.double)
 
 
@@ -345,13 +314,14 @@ def GetTransferMatrixElements(logidx, pauliprobs, qcode, ptm):
     r"""
     Compute the Pauli transfer matrix entries of operators L.S where S runs over all stabilizers and L is a given logical operator.
     """
+    ordering = np.array([[0, 3], [1, 2]], dtype=np.int8)
     nstabs = 2 ** (qcode.N - qcode.K)
+    log_select = np.array(
+        list(map(np.int8, np.binary_repr(logidx, width=2 * qcode.K))), dtype=np.int8
+    )
     if logidx == 0:
         log_op = np.zeros(qcode.N, dtype=np.int)
     else:
-        log_select = np.array(
-            list(map(np.int8, np.binary_repr(logidx, width=2 * qcode.K))), dtype=np.int8
-        )
         (log_op, __) = qc.PauliProduct(*qcode.L[np.nonzero(log_select)])
     # for s in tqdm(range(nstabs), ascii=True, desc="\033[2mGoing over Stabilizers:"):
     for s in range(nstabs):
@@ -364,9 +334,22 @@ def GetTransferMatrixElements(logidx, pauliprobs, qcode, ptm):
             )
             (stab_op, __) = qc.PauliProduct(*qcode.S[np.nonzero(stab_select)])
         indices = qc.GetCommuting(log_op, stab_op, qcode.L, qcode.S, qcode.T)
-        # print("commuting indices: {}".format(indices["commuting"]))
-        ptm[logidx * nstabs + s] = np.sum(pauliprobs[indices["commuting"]]) - np.sum(
-            pauliprobs[indices["anticommuting"]]
+        # print(
+        #     "commuting indices: {}\nanti commuting: {}".format(
+        #         indices["commuting"], indices["anticommuting"]
+        #     )
+        # )
+        if len(indices["commuting"]) > 0:
+            commuting_sum = np.sum(pauliprobs[indices["commuting"]])
+        else:
+            commuting_sum = 0
+        if len(indices["anticommuting"]) > 0:
+            anticommuting_sum = np.sum(pauliprobs[indices["anticommuting"]])
+        else:
+            anticommuting_sum = 0
+
+        ptm[ordering[log_select[0], log_select[1]] * nstabs + s] = (
+            commuting_sum - anticommuting_sum
         )
     # print("\033[0m")
     return None

@@ -6,3 +6,6 @@ Z X I X Z
 Z Z X I X
 X Z Z X I
 I X Z Z X
+logical
+X X X X X
+Z Z Z Z Z

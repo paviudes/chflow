@@ -62,8 +62,16 @@ Channels = {
     },
     "pauli": {
         "name": "Pauli channel",
-        "params": ["Depolarizing rate"],
-        "latex": ["$p$"],
+        "params": ["Prob I", "Prob X", "Prob Y", "Prob Z"],
+        "latex": ["$p_{I}$", "$p_{X}$", "$p_{Y}$", "$p_{Z}$"],
+        "color": "red",
+        "Pauli": 1,
+        "corr": 0,
+    },
+    "up": {
+        "name": "Uncorrelated Pauli channel",
+        "params": ["Infidelity"],
+        "latex": ["$1 - p_{I}$"],
         "color": "red",
         "Pauli": 1,
         "corr": 0,
