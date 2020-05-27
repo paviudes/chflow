@@ -177,6 +177,11 @@ def Load(qecc):
     PrepareSyndromeLookUp(qecc)
     # Compute correctable indices
     # uc.ComputeCorrectableIndices(qecc, method="minwt")
+    # Generate group elements
+    # qecc.stabilizers = qc.GenerateGroup(qecc.S)
+    # qecc.pure_errrors = qc.GenerateGroup(qecc.T)
+    # logicals_unordered = qc.GenerateGroup(qecc.L)  # I Z X Y
+    # qecc.logicals = logicals_unordered[[0, 2, 3, 1]]
     return None
 
 

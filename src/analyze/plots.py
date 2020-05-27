@@ -442,7 +442,7 @@ def LevelWisePlot(phymets, logmet, dbses, inset_flag=1, nbins=10):
                         "linestyle": "",
                     }
 
-                    LoadPhysicalErrorRates(dbses[d], phylist[p], settings, d == 0)
+                    LoadPhysicalErrorRates(dbses[d], phylist[p], settings, l, d == 0)
 
                     # Scale to level.
                     # if (phylist[p] == "uncorr") and (l > 0):
