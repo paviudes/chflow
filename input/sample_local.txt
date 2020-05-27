@@ -3,13 +3,13 @@ timestamp sample
 # Type of quantum error correcting code
 ecc Steane,Steane
 # Type of quantum channel
-channel rand
+channel up
 # Noise rates (mean delta; std delta; std theta; std phi)
-noiserange 5,10.5,12;1,1,1
+noiserange 5,10.5,12
 # Number of samples
 samples 4
 # Scales
-scale 0.66,1
+scale 0.66
 # Number of syndromes to be sampled at the top level
 stats 10000
 # Randomized compiling
@@ -19,7 +19,7 @@ decoder 0,0
 # Metrics to be computed on the effective channels at every level.
 metrics infid
 # Load distribution on cores.
-cores 12,1
+cores 1,1
 # Output directory
 outdir /Users/pavi/Documents/chbank
 # Plot settings

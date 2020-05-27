@@ -515,6 +515,7 @@ def NonPaulinessRemoval(choi, kwargs):
 
 def UncorrectableProb(channel, kwargs):
     # Compute the probability of uncorrectable errors for a code.
+    # print("channel: {}, iscorr = {}".format(kwargs["channel"], kwargs["corr"]))
     if kwargs["corr"] == 0:
         pauliProbs = np.tile(
             np.real(np.diag(crep.ConvertRepresentations(channel, "choi", "chi"))),
@@ -536,7 +537,7 @@ def UncorrectableProb(channel, kwargs):
                     crep.ConvertRepresentations(chans_ptm[q, :, :], "process", "chi")
                 )
             )
-    return uc.ComputeUnCorrProb(pauliProbs, kwargs["qcode"])
+    return uc.ComputeUnCorrProb(pauliProbs, kwargs["qcode"], kwargs["levels"])
 
 
 def Anisotropy(channel, kwargs):
@@ -613,7 +614,7 @@ def ComputeNorms(channel, metrics, kwargs):
 
 def ChannelMetrics(submit, metrics, start, end, results, rep, chtype):
     # Compute the various metrics for all channels with a given noise rate
-    nlevels = submit.levels
+    nlevels = submit.levels + 1
     for i in range(start, end):
         if (chtype == "physical") or (chtype == "phylog"):
             (folder, fname) = os.path.split(
@@ -650,6 +651,22 @@ def ChannelMetrics(submit, metrics, start, end, results, rep, chtype):
         for m in range(len(metrics)):
             if chtype == "physical":
                 results[i * len(metrics) + m] = eval(Metrics[metrics[m]]["func"])(
+                    chan,
+                    {
+                        "qcode": submit.eccs[0],
+                        "levels": nlevels,
+                        "corr": submit.iscorr,
+                        "channel": submit.channel,
+                        "chtype": chtype,
+                        "rep": "choi",
+                    },
+                )
+            elif chtype == "phylog":
+                results[
+                    (i * len(metrics) * nlevels + m * nlevels) : (
+                        i * len(metrics) * nlevels + (m + 1) * nlevels
+                    )
+                ] = eval(Metrics[metrics[m]]["func"])(
                     chan,
                     {
                         "qcode": submit.eccs[0],

@@ -7,7 +7,8 @@ except:
     pass
 
 from define import globalvars as gv
-from define.QECCLfid import uncorrectable as uc
+
+# from define.QECCLfid import uncorrectable as uc
 
 
 class QuantumErrorCorrectingCode:
@@ -38,6 +39,7 @@ class QuantumErrorCorrectingCode:
         self.T = None
         self.syndsigns = None
         self.lookup = None
+        self.decoder_degens = None
         self.normalizer = None
         self.normphases = None
         self.conjugations = None
@@ -96,6 +98,7 @@ class QuantumErrorCorrectingCode:
 
     	Finally, the position of :math:`P` in the :math:`LST` ordering is simply :math:`\gamma + 2^{n-k}\beta + \alpha 2^{2n - 2k}`.
     	"""
+        ordering = np.array(([0, 3], [1, 2]), dtype=np.int)
         gen_support = {
             "L": np.zeros(2 * self.K, dtype=np.int),
             "S": np.zeros(self.N - self.K, dtype=np.int),
@@ -109,49 +112,33 @@ class QuantumErrorCorrectingCode:
             else:
                 gen_support["L"][l - self.K] = 1
         # print("Support on L: {}".format(gen_support["L"]))
-        positions["L"] = np.dot(
-            gen_support["L"],
-            2
-            ** np.linspace(
-                gen_support["L"].shape[0] - 1,
-                0,
-                gen_support["L"].shape[0],
-                dtype=np.int,
-            ),
-        )
+        positions["L"] = ordering[gen_support["L"][0], gen_support["L"][1]]
+
         stab_indices = GetCommutingInSet(self.T, op, parity=1, props="set")
         gen_support["S"][stab_indices] = 1
         # print("Support on S: {}".format(gen_support["S"]))
-        positions["S"] = np.dot(
-            gen_support["S"],
-            2
-            ** np.linspace(
-                gen_support["S"].shape[0] - 1,
-                0,
-                gen_support["S"].shape[0],
-                dtype=np.int,
-            ),
-        )
+        positions["S"] = Bin2Int(gen_support["S"])
+
         pure_indices = GetCommutingInSet(self.S, op, parity=1, props="set")
         gen_support["T"][pure_indices] = 1
         # print("Support on T: {}".format(gen_support["T"]))
-        positions["T"] = np.dot(
-            gen_support["T"],
-            2
-            ** np.linspace(
-                gen_support["T"].shape[0] - 1,
-                0,
-                gen_support["T"].shape[0],
-                dtype=np.int,
-            ),
-        )
+        positions["T"] = Bin2Int(gen_support["T"])
+
         position = (
             positions["T"]
             + positions["S"] * 2 ** (self.N - self.K)
             + positions["L"] * 2 ** (2 * self.N - 2 * self.K)
         )
-        # print("====")
+        # print("Operator: {} and its position {}.".format(op, position))
         return position
+
+
+def Bin2Int(binseq):
+    """
+    Convert binary to integer.
+    """
+    inum = np.dot(binseq, 2 ** np.arange(binseq.size)[::-1])
+    return inum
 
 
 def Load(qecc):
@@ -189,7 +176,7 @@ def Load(qecc):
     # # Compute the minimum weight decoding table
     PrepareSyndromeLookUp(qecc)
     # Compute correctable indices
-    uc.ComputeCorrectableIndices(qecc, method="minwt")
+    # uc.ComputeCorrectableIndices(qecc, method="minwt")
     return None
 
 
