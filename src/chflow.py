@@ -242,9 +242,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         if sys.argv[1] == "--":
             # Input commands are supplied through a file.
-            inputfname = (
-                r"/Users/pavi/Google Drive/channels_for_report/input/%s" % sys.argv[2]
-            )
+            inputfname = "./../input/%s" % sys.argv[2]
             case_id = None
             if len(sys.argv) > 3:
                 case_id = int(sys.argv[3])
