@@ -9,7 +9,7 @@ except:
     pass
 from define import globalvars as gv
 from define import chanreps as crep
-from define.QECCLfid import uncorrectable as uc
+from define.QECCLfid import utils as ut
 
 
 def HermitianConjugate(mat):
@@ -112,7 +112,7 @@ def IIDWtihCrossTalk(infid, qcode, iid_fraction):
         [1 - infid, infid / 3, infid / 3, infid / 3], dtype=np.double
     )
     # print("Single qubit errors: {}".format(single_qubit_errors))
-    iid_error_dist = uc.GetErrorProbabilities(
+    iid_error_dist = ut.GetErrorProbabilities(
         qcode.PauliOperatorsLST, single_qubit_errors, 0
     )
     # print("qcode.PauliOperatorsLST = {}".format(qcode.PauliOperatorsLST))
@@ -185,7 +185,7 @@ def IsotropicRandomPauli(infid, qcode):
     # # Normalize
     single_qubit_errors = single_qubit_errors / np.sum(single_qubit_errors)
 
-    iid_error_dist = uc.GetErrorProbabilities(
+    iid_error_dist = ut.GetErrorProbabilities(
         qcode.PauliOperatorsLST, single_qubit_errors, 0
     )
     # print("iid_error_dist = {}".format(iid_error_dist))

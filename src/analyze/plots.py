@@ -215,13 +215,16 @@ def GetNKDString(dbs, l):
     )
 
 
-def LoadPhysicalErrorRates(dbs, pmet, settings, override=None, is_override=0):
+def LoadPhysicalErrorRates(dbs, pmet, settings, level, override=None, is_override=0):
     """
     Load the physical error rates.
     """
     if pmet in ml.Metrics:
         settings["xlabel"] = ml.Metrics[pmet]["phys"]
-        settings["xaxis"] = np.load(fn.PhysicalErrorRates(dbs, pmet))
+        if pmet == "uncorr":
+            settings["xaxis"] = np.load(fn.PhysicalErrorRates(dbs, pmet))[:, level]
+        else:
+            settings["xaxis"] = np.load(fn.PhysicalErrorRates(dbs, pmet))
         if settings["marker"] == "":
             settings["marker"] = ml.Metrics[pmet]["marker"]
         if settings["color"] == "":
