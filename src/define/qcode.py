@@ -966,12 +966,22 @@ def GetCommuting(log_op, stab_op, lgens, sgens, tgens):
 	The above operators can be related to their positions in the :math:`LST` ordering.
 	The operators of the form :math:`Q_{i}` have indices: :math:`\ell * 2^{2n - 2k} + i * 2^{n-k} + t`.
 	"""
+    # 0  1   2  3
+    # 00 01 10 11
+    # I  Z  X  Y
+    # 0  3  1  2
+    ordering = np.array([0, 3, 1, 2], dtype=np.int8)
     k = lgens.shape[0] // 2
     n = lgens.shape[1]
     # print("n = {}, k = {}".format(n, k))
     supports = {}
     supports.update({"LC": GetCommutingInSet(lgens, log_op, 0, props="group")})
+    # Convert to right ordering
+    supports["LC"] = ordering[supports["LC"]]
     supports.update({"LA": GetCommutingInSet(lgens, log_op, 1, props="group")})
+    # Convert to right ordering
+    supports["LA"] = ordering[supports["LA"]]
+
     supports.update({"TC": GetCommutingInSet(tgens, stab_op, 0, props="group")})
     supports.update({"TA": GetCommutingInSet(tgens, stab_op, 1, props="group")})
     # print(

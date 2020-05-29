@@ -5,9 +5,9 @@ ecc Steane,Steane
 # Type of quantum channel
 channel pcorr
 # Noise rates (mean delta; std delta; std theta; std phi)
-noiserange 6.5,12,12;2,2,1;0.5,0.5,1
+noiserange 16,16,1;2,2,1;1,1,1
 # Number of samples
-samples 100
+samples 1
 # Scales
 scale 0.66,1,1
 # Number of syndromes to be sampled at the top level
@@ -19,7 +19,7 @@ decoder 1,1
 # Metrics to be computed on the effective channels at every level.
 metrics infid
 # Load distribution on cores.
-cores 12,1
+cores 1,1
 # Output directory
 outdir /Users/pavi/Documents/chbank
 # Plot settings

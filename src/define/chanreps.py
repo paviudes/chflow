@@ -284,10 +284,30 @@ def ConvertRepresentations(channel, initial, final):
     return outrep
 
 
+def ChangeOrdering(probs, old_order, new_order, qcode):
+    """
+    Change from an ordering in [L,S,T] to another.
+    This uses numpy reshape and transpose.
+    old = L S T
+    new = T L S
+    perm = 2 0 1
+    """
+    t_size = np.power(2, qcode.N - qcode.K, dtype=np.int)
+    s_size = t_size
+    l_size = np.power(4, qcode.K, dtype=np.int)
+    sizes = {"T": t_size, "S": s_size, "L": l_size}
+    probs_reshaped = np.reshape(
+        probs, [sizes[old_order[0]], sizes[old_order[1]], sizes[old_order[2]]]
+    )
+    perm = [old_order.index(ax) for ax in new_order]
+    probs_reordered = np.reshape(np.transpose(probs_reshaped, perm), -1)
+    return probs_reordered
+
+
 def PauliConvertToTransfer(pauliprobs, qcode):
     r"""
     Convert from a representation of a Pauli channel as a distribution over various Pauli errors, to that of a Pauli transfer matrix.
-    The ordering of errors in the distribution is assumed to be TLS.
+    The ordering of errors in the distribution is assumed to be L.S.T.
     """
     # print("probs = {}".format(pauliprobs.shape))
     nstabs = 2 ** (qcode.N - qcode.K)
@@ -322,7 +342,7 @@ def GetTransferMatrixElements(logidx, pauliprobs, qcode, ptm):
     if logidx == 0:
         log_op = np.zeros(qcode.N, dtype=np.int)
     else:
-        (log_op, __) = qc.PauliProduct(*qcode.L[np.nonzero(log_select)])
+        (log_op, __) = qc.PauliProduct(*qcode.L[np.nonzero(log_select)[0]])
     # for s in tqdm(range(nstabs), ascii=True, desc="\033[2mGoing over Stabilizers:"):
     for s in range(nstabs):
         if s == 0:
@@ -332,7 +352,7 @@ def GetTransferMatrixElements(logidx, pauliprobs, qcode, ptm):
                 list(map(np.int8, np.binary_repr(s, width=qcode.N - qcode.K))),
                 dtype=np.int8,
             )
-            (stab_op, __) = qc.PauliProduct(*qcode.S[np.nonzero(stab_select)])
+            (stab_op, __) = qc.PauliProduct(*qcode.S[np.nonzero(stab_select)[0]])
         indices = qc.GetCommuting(log_op, stab_op, qcode.L, qcode.S, qcode.T)
         # print(
         #     "commuting indices: {}\nanti commuting: {}".format(

@@ -636,7 +636,7 @@ if __name__ == "__main__":
                         check = 0
                         break
                 if check == 1:
-                    pl.LevelWisePlot(user[1], user[2], dbses)
+                    pl.LevelWisePlot(user[1], user[2], dbses, inset_flag=1, nbins=30)
                 else:
                     print(
                         "\033[2mOne of the databases does not have logical error data.\033[0m"
@@ -664,7 +664,7 @@ if __name__ == "__main__":
                 check = 0
                 break
             pl.DoubleHammerPlot(
-                logmet, pmets, [submit, dbs_other], inset_flag=1, nbins=10
+                logmet, pmets, [submit, dbs_other], inset_flag=1, nbins=20
             )
 
         #####################################################################

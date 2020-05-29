@@ -1,7 +1,7 @@
 # Time stamp
 timestamp 06_09_2017_21_32_03
 # Type of quantum error correcting code
-ecc Steane,Steane,Steane
+ecc Steane,Steane
 # Type of quantum channel
 channel rand
 # Noise rate exponents. The actual noise rate is (2/3)^exponent.

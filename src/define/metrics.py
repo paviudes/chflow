@@ -33,7 +33,7 @@ Metrics = {
         "log": "Diamond distance of the logical channel",
         "latex": "$|| \\mathcal{E} - \\mathsf{id} ||_{\\diamondsuit}$",
         "marker": u"+",
-        "color": "crimson",
+        "color": "blue",
         "desc": "See Sec. 4 of DOI: 10.4086/toc.2009.v005a011.",
         "func": "lambda J, kwargs: DiamondNorm(J, kwargs)",
     },
@@ -63,7 +63,7 @@ Metrics = {
         "log": "Infidelity of the logical channel",
         "latex": "$1 - F$",
         "marker": u"s",
-        "color": "forestgreen",
+        "color": "crimson",
         "desc": "1 - Fidelity between the input Choi matrix and the Choi matrix corresponding to the identity state.",
         "func": "lambda J, kwargs: Infidelity(J, kwargs)",
     },
@@ -153,7 +153,7 @@ Metrics = {
         "log": "Uncorrectable error probability of the logical channel",
         "latex": "$p_{u}$",
         "marker": u">",
-        "color": "blue",
+        "color": "forestgreen",
         "desc": "The total probability of uncorrectable (Pauli) errors.",
         "func": "lambda P, kwargs: UncorrectableProb(P, kwargs)",
     },
@@ -515,7 +515,7 @@ def NonPaulinessRemoval(choi, kwargs):
 
 def UncorrectableProb(channel, kwargs):
     # Compute the probability of uncorrectable errors for a code.
-    # print("channel: {}, iscorr = {}".format(kwargs["channel"], kwargs["corr"]))
+    print("channel\n{}\niscorr = {}".format(channel, kwargs["corr"]))
     if kwargs["corr"] == 0:
         pauliProbs = np.tile(
             np.real(np.diag(crep.ConvertRepresentations(channel, "choi", "chi"))),

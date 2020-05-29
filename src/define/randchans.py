@@ -101,7 +101,7 @@ def RandomUnitary(prox, dim, method="qr", randH=None):
 
 def IIDWtihCrossTalk(infid, qcode, iid_fraction):
     # Generate a Pauli correlated channel as a weighted sum of IID and two-qubit error distributions.
-    atol = 10e-8
+    atol = 10e-14
     q1 = iid_fraction
     q2 = 1 - q1
     # print("IID fraction: {}, CORR fraction: {}".format(q1, q2))
@@ -137,9 +137,9 @@ def IIDWtihCrossTalk(infid, qcode, iid_fraction):
         0.1 * 4 ** n * full_process_infid,
         size=(n_two_qubit_errors,),
     )
-    # corr_error_dist[two_qubit_errors] = np.where(
-    #     corr_error_dist[two_qubit_errors] >= atol, corr_error_dist[two_qubit_errors], 0
-    # )
+    corr_error_dist[two_qubit_errors] = np.where(
+        corr_error_dist[two_qubit_errors] >= atol, corr_error_dist[two_qubit_errors], 0
+    )
     # print(
     #     "corr_error_dist[two_qubit_errors] = {}".format(
     #         corr_error_dist[two_qubit_errors]
