@@ -44,9 +44,10 @@ def ChannelPair(chtype, rates, dim, method="qr"):
     return channels
 
 
-def PreparePhysicalChannels(submit, nproc=32):
+def PreparePhysicalChannels(submit, nproc=None):
     # Prepare a file for each noise rate, that contains all single qubit channels, one for each sample.
-    nproc = min(nproc, mp.cpu_count())
+    if nproc is None:
+        nproc = mp.cpu_count()
     chunk = int(np.ceil(submit.samps / nproc))
     os.system("mkdir -p %s/physical" % (submit.outdir))
     # Create quantum channels for various noise parameters and store them in the process matrix formalism.
