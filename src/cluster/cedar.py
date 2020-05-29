@@ -39,7 +39,7 @@ def CreateLaunchScript(submit):
         fp.write("#SBATCH --cpus-per-task=%d\n" % (submit.cores[1]))
         fp.write("#SBATCH --ntasks-per-node=48\n")
         fp.write("#SBATCH --nodes=1\n")
-        fp.write("#SBATCH --mem=31744\n")
+        # fp.write("#SBATCH --mem=31744\n")
         fp.write("#SBATCH --output=%s_%%A_%%a.out\n\n" % (submit.job))
         # Redirecting STDOUT and STDERR files
         fp.write("#SBATCH -o %s/results/ouptut_%%j.o\n" % (submit.outdir))
