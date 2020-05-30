@@ -1,0 +1,3 @@
+sbload sample_graham
+submit
+quit
