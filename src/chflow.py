@@ -9,6 +9,7 @@ except:
 import setup as st
 
 # Files from the "define" module.
+from define import globalvars as gv
 from define import qcode as qec
 from define import verifychans as vc
 from define import fnames as fn
@@ -471,7 +472,9 @@ if __name__ == "__main__":
                             reuse = 0
                 if reuse == 0:
                     # print("Physical channels not found")
-                    chgen.PreparePhysicalChannels(submit)
+                    # If the simulation is to be run on a cluster, generate input using cluster nodes.
+                    if submit.chgen_cluster == 0:
+                        chgen.PreparePhysicalChannels(submit)
                 else:
                     submit.nodes = int(
                         np.ceil(
@@ -488,6 +491,11 @@ if __name__ == "__main__":
                 # 		for j in range(submit.samps):
                 # 			submit.params[i * submit.samps + j, :-1] = submit.noiserates[i, :]
                 # 			submit.params[i * submit.samps + j, -1] = j
+        #####################################################################
+
+        elif user[0] == "chgen":
+            chgen.PreparePhysicalChannels(submit)
+
         #####################################################################
 
         elif user[0] == "build":
@@ -511,7 +519,8 @@ if __name__ == "__main__":
         #####################################################################
 
         elif user[0] == "submit":
-            sub.ChangeTimeStamp(
+            # if not (submit.host in gv.cluster_hosts):
+            sub.LoadTimeStamp(
                 submit,
                 time.strftime("%d/%m/%Y %H:%M:%S")
                 .replace("/", "_")
@@ -530,9 +539,16 @@ if __name__ == "__main__":
                 )
             else:
                 if os.path.isfile("cluster/%s.py" % (submit.host)):
+                    if not os.path.exists("./../input/%s" % (submit.host)):
+                        os.mkdir("./../input/%s" % (submit.host))
+
                     try:
                         exec("from cluster import %s as cl" % (submit.host))
+                        # Create pre-processing and post-processing scripts if this is for cluster.
+                        if submit.chgen_cluster == 1:
+                            cl.CreatePreBatch(submit)
                         cl.CreateLaunchScript(submit)
+                        cl.CreatePostBatch(submit)
                         cl.Usage(submit)
                     except:
                         print(
@@ -636,7 +652,7 @@ if __name__ == "__main__":
                         check = 0
                         break
                 if check == 1:
-                    pl.LevelWisePlot(user[1], user[2], dbses, inset_flag=1, nbins=30)
+                    pl.LevelWisePlot(user[1], user[2], dbses, inset_flag=1, nbins=10)
                 else:
                     print(
                         "\033[2mOne of the databases does not have logical error data.\033[0m"

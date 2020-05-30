@@ -7,6 +7,7 @@ import itertools as it
 from define import fnames as fn
 from define import qcode as qec
 from define import qchans as qc
+from define import globalvars as gv
 
 
 class Submission:
@@ -23,6 +24,7 @@ class Submission:
         # Cluster options
         self.job = "X"
         self.host = "local"
+        self.chgen_cluster = 0
         self.nodes = 0
         self.wall = 0
         self.params = np.array([1, 0], dtype=float)
@@ -89,7 +91,7 @@ def IsNumber(numorstr):
         return 0
 
 
-def ChangeTimeStamp(submit, timestamp):
+def LoadTimeStamp(submit, timestamp):
     # change the timestamp of a submission and all the related values to the timestamp.
     submit.timestamp = timestamp
     # Re define the variables that depend on the time stamp
@@ -134,7 +136,7 @@ def Schedule(submit):
 def Update(submit, pname, newvalue):
     # Update the parameters to be submitted
     if pname == "timestamp":
-        ChangeTimeStamp(submit, newvalue)
+        LoadTimeStamp(submit, newvalue)
 
     elif pname == "ecc":
         submit.isSubmission = 1
@@ -275,6 +277,7 @@ def Update(submit, pname, newvalue):
     elif pname == "host":
         submit.isSubmission = 1
         submit.host = newvalue
+        submit.chgen_cluster = int(submit.host.lower() in gv.cluster_hosts)
 
     elif pname == "queue":
         submit.isSubmission = 1
@@ -805,7 +808,7 @@ def LoadSub(submit, subid, isgen):
     # Load the parameters of a submission from an input file
     # If the input file is provided as the submission id, load from that input file.
     # Else if the time stamp is provided, search for the corresponding input file and load from that.
-    ChangeTimeStamp(submit, subid)
+    LoadTimeStamp(submit, subid)
     if os.path.exists(submit.inputfile):
         with open(submit.inputfile, "r") as infp:
             for (lno, line) in enumerate(infp):

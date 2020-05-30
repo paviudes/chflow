@@ -515,7 +515,7 @@ def NonPaulinessRemoval(choi, kwargs):
 
 def UncorrectableProb(channel, kwargs):
     # Compute the probability of uncorrectable errors for a code.
-    print("channel\n{}\niscorr = {}".format(channel, kwargs["corr"]))
+    # print("channel\n{}\niscorr = {}".format(channel, kwargs["corr"]))
     if kwargs["corr"] == 0:
         pauliProbs = np.tile(
             np.real(np.diag(crep.ConvertRepresentations(channel, "choi", "chi"))),

@@ -413,7 +413,12 @@ def ChannelWisePlot(phymet, logmet, dbses, thresholds={"y": 10e-16, "x": 10e-16}
 
 
 def LevelWisePlot(
-    phymets, logmet, dbses, inset_flag=1, nbins=10, thresholds={"y": 10e-6, "x": 10e-16}
+    phymets,
+    logmet,
+    dbses,
+    inset_flag=1,
+    nbins=10,
+    thresholds={"y": 10e-16, "x": 10e-16},
 ):
     # Plot logical error rates vs. physical error rates.
     # Use a new figure for every new concatenated level.
@@ -509,6 +514,11 @@ def LevelWisePlot(
             # Else we will assume many physical metrics can be compared.
             if l > 0:
                 if (ndb == 1) and (inset_flag == 1):
+                    # print(
+                    #     "X\n{}\nY\n{}".format(
+                    #         settings["xaxis"][include], settings["yaxis"][include]
+                    #     )
+                    # )
                     PlotBinVarianceMetrics(
                         ax1,
                         dbses[0],
@@ -532,8 +542,8 @@ def LevelWisePlot(
             ax1.set_ylabel(settings["ylabel"], fontsize=gv.axes_labels_fontsize)
             # if l == 1:
             #     ax1.set_ylim([3 * 10e-3, None])
-            if l == 2:
-                ax1.set_ylim([10e-6, None])
+            # if l == 2:
+            #     ax1.set_ylim([10e-6, None])
             ax1.set_yscale("log")
             ax1.tick_params(
                 axis="both",

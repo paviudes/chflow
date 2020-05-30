@@ -3,19 +3,19 @@ ecc Steane,Steane
 # Type of quantum channel
 channel pcorr
 # Noise rate exponents. The actual noise rate is (2/3)^exponent.
-noiserange 7.5,15,16;2,2,1;0.6,0.6,1
+noiserange 7.5,7.5,1;2,2,1;0.6,0.6,1
 # Scale of the noise range
 scale 0.66,1,1
 # Number of samples
-samples 200
+samples 1
 # Number of syndromes to be sampled at top level
-stats 1000000
+stats 100000
 # Decoding algorithm
 decoder 1,1
 # Metrics to be computed on the effective channels at every level.
 metrics infid
 # Load distribution on cores.
-cores 400,1
+cores 1,1
 # Name of the host computer.
 host cedar
 # Account for the compute cluster
@@ -27,6 +27,6 @@ wall 10
 # Email notifications
 email pavithran.sridhar@gmail.com
 # Output directory
-outdir /project/def-jemerson/chbank
+outdir /Users/pavi/Documents/chbank
 # Plot settings
 plot name,Bare Pauli correlated

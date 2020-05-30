@@ -142,3 +142,6 @@ contour_linewidth = 2
 contour_linestyle = "solid"
 # Color bar
 colorbar_fontsize = 48
+
+# Cluster hosts
+cluster_hosts = ["graham", "cedar"]
