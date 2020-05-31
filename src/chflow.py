@@ -476,14 +476,15 @@ if __name__ == "__main__":
                     if submit.chgen_cluster == 0:
                         chgen.PreparePhysicalChannels(submit)
                 else:
-                    submit.nodes = int(
-                        np.ceil(
-                            submit.noiserates.shape[0]
-                            * submit.samps
-                            / np.longdouble(submit.cores[0])
-                        )
-                    )
                     cl.IsComplete(submit)
+
+                submit.nodes = int(
+                    np.ceil(
+                        submit.noiserates.shape[0]
+                        * submit.samps
+                        / np.longdouble(submit.cores[0])
+                    )
+                )
                 # else:
                 # 	# prepare the set of parameters
                 # 	submit.params = np.zeros((submit.noiserates.shape[0] * submit.samps, submit.noiserates.shape[1] + 1), dtype = np.longdouble)

@@ -120,17 +120,6 @@ def PreparePhysicalChannels(submit, nproc=None):
     submit.rawchans = np.reshape(
         rawchans, [submit.noiserates.shape[0], submit.samps, raw_params], order="c"
     )
-    if submit.nodes > 0:
-        submit.cores[0] = int(
-            np.ceil(
-                submit.noiserates.shape[0] * submit.samps / np.longdouble(submit.nodes)
-            )
-        )
-    submit.nodes = int(
-        np.ceil(
-            submit.noiserates.shape[0] * submit.samps / np.longdouble(submit.cores[0])
-        )
-    )
     # print("Physical channels: {}".format(submit.phychans))
     return None
 
