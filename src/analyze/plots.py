@@ -413,12 +413,7 @@ def ChannelWisePlot(phymet, logmet, dbses, thresholds={"y": 10e-16, "x": 10e-16}
 
 
 def LevelWisePlot(
-    phymets,
-    logmet,
-    dbses,
-    inset_flag=1,
-    nbins=10,
-    thresholds={"y": 10e-16, "x": 10e-16},
+    phymets, logmet, dbses, inset_flag=1, nbins=10, thresholds={"y": 10e-6, "x": 10e-16}
 ):
     # Plot logical error rates vs. physical error rates.
     # Use a new figure for every new concatenated level.

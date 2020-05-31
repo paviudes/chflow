@@ -23,6 +23,7 @@ from define import photonloss as ploss
 from define import gendamp as gdamp
 from define import chanreps as crep
 from define.QECCLfid import uncorrectable as uc
+from define.QECCLfid import utils as ut
 
 # Files from the "analyze" module.
 from analyze import collect as cl
@@ -702,7 +703,7 @@ if __name__ == "__main__":
                 pauliprobs = chi
             else:
                 pauliprobs = list(map(np.diag, chi.reshape([submit.eccs[0].N, 4, 4])))
-            dist = uc.GetErrorProbabilities(
+            dist = ut.GetErrorProbabilities(
                 submit.eccs[0].PauliOperatorsLST, pauliprobs, submit.iscorr
             )
             pl.PauliDistributionPlot(
@@ -1221,7 +1222,7 @@ if __name__ == "__main__":
             elif plot_option == "cplot":
                 plot_file = fn.ChannelWise(submit, phymet, logmet)
             elif plot_option == "pdplot":
-                plot_file = fn.PauliDistribution(submit)
+                plot_file = fn.PauliDistribution(submit.outdir, submit.channel)
             elif plot_option == "hamplot":
                 plot_file = fn.HammerPlot(submit, logmet, phymet.split(","))
             else:
