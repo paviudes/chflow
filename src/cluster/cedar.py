@@ -55,7 +55,7 @@ def CreatePreBatch(submit):
             # Command to be executed for each job step
             pb.write("module load intel/2016.4 python/3.7.0 scipy-stack/2019a\n")
             pb.write("cd /project/def-jemerson/pavi/chflow\n")
-            pb.write("./chflow.sh -- pre_%s.txt\n" % (submit.timestamp))
+            pb.write("./chflow.sh -- %s/pre_%s.txt\n" % (submit.host, submit.timestamp))
         print("\033[2m-----\033[0m")
         print(
             "\033[2mRun the following command to generate channels.\n\tsbatch input/%s/pre_%s.sh\033[0m"
