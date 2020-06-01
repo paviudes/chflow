@@ -125,35 +125,63 @@ def IIDWtihCrossTalk(infid, qcode, iid_fraction, subset_fraction):
     # )
     ### Constructed the purely corelated channel.
     # Add a random sumset of 10% of all two qubit errors
-    n_two_qubit_errors = np.int(subset_fraction * qcode.group_by_weight[2].size)
-    two_qubit_errors = np.random.choice(
-        qcode.group_by_weight[2], size=n_two_qubit_errors
+    weights_to_boost = [2, 3, 4]
+    subset_fraction_weights = {2: subset_fraction}
+    for w in weights_to_boost:
+        if w not in subset_fraction_weights:
+            subset_fraction_weights.update(
+                {
+                    w: 1
+                    / 3
+                    * comb(qcode.N, w - 1)
+                    / comb(qcode.N, w)
+                    * subset_fraction_weights[w - 1]
+                }
+            )
+    # print("subset_fraction_weights = {}".format(subset_fraction_weights))
+    n_errors = np.cumsum(
+        [
+            max(1, np.int(subset_fraction_weights[w] * qcode.group_by_weight[w].size))
+            for w in weights_to_boost
+        ]
     )
+    # print("n_errors: {}".format(n_errors))
+    errors_to_boost = np.zeros(n_errors[-1], dtype=np.int)
+    for i in range(len(weights_to_boost)):
+        if i == 0:
+            errors_to_boost[: n_errors[i]] = np.random.choice(
+                qcode.group_by_weight[weights_to_boost[i]], size=n_errors[i]
+            )
+        else:
+            errors_to_boost[n_errors[i - 1] : n_errors[i]] = np.random.choice(
+                qcode.group_by_weight[weights_to_boost[i]],
+                size=n_errors[i] - n_errors[i - 1],
+            )
     # print("Two qubit errors: {}".format(two_qubit_errors))
     # The probability distribution within this subset is Gaussian with mean = 0.1 * 4^n * full_process_infid
     corr_error_dist = np.zeros(iid_error_dist.size, dtype=np.double)
-    corr_error_dist[two_qubit_errors] = np.random.normal(
+    corr_error_dist[errors_to_boost] = np.random.normal(
         0.1 * 4 ** n * full_process_infid,
         0.1 * 4 ** n * full_process_infid,
-        size=(n_two_qubit_errors,),
+        size=(n_errors[-1],),
     )
-    corr_error_dist[two_qubit_errors] = np.where(
-        corr_error_dist[two_qubit_errors] >= atol, corr_error_dist[two_qubit_errors], 0
+    corr_error_dist[errors_to_boost] = np.where(
+        corr_error_dist[errors_to_boost] >= atol, corr_error_dist[errors_to_boost], 0
     )
     # print(
-    #     "corr_error_dist[two_qubit_errors] = {}".format(
-    #         corr_error_dist[two_qubit_errors]
+    #     "corr_error_dist[errors_to_boost] = {}".format(
+    #         corr_error_dist[errors_to_boost]
     #     )
     # )
-    corr_error_dist[two_qubit_errors] = corr_error_dist[two_qubit_errors] * (
-        corr_error_dist[two_qubit_errors] >= atol
+    corr_error_dist[errors_to_boost] = corr_error_dist[errors_to_boost] * (
+        corr_error_dist[errors_to_boost] >= atol
     )
     # The infidelity of the purely correlated channel is adjusted to be similar to the infidelity of the IID channel.
     corr_error_dist[0] = 1 - full_process_infid
-    corr_error_dist[two_qubit_errors] = (
+    corr_error_dist[errors_to_boost] = (
         full_process_infid
-        * corr_error_dist[two_qubit_errors]
-        / np.sum(corr_error_dist[two_qubit_errors])
+        * corr_error_dist[errors_to_boost]
+        / np.sum(corr_error_dist[errors_to_boost])
     )
     # Explicitly normalize the purely correlated distribution -- this is needed because there are some numerical approximation errors for high noise regime.
     corr_error_dist = corr_error_dist / np.sum(corr_error_dist)

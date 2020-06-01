@@ -696,7 +696,7 @@ if __name__ == "__main__":
             if os.path.exists(fn.RawPhysicalChannel(submit, nrate)):
                 chi = np.load(fn.RawPhysicalChannel(submit, nrate))[sample, :]
             else:
-                sub.CreatePauliDistChannels(submit)
+                chrep.CreatePauliDistChannels(submit)
             if submit.iscorr == 0:
                 pauliprobs = np.diag(chi.reshape([4, 4]))
             elif submit.iscorr == 1:
