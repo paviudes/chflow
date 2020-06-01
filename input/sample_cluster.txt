@@ -5,7 +5,7 @@ channel pcorr
 # Noise rate exponents. The actual noise rate is (2/3)^exponent.
 noiserange 12,32,41;2,2,1;0.70,0.70,1;0.05,0.05,1
 # Scale of the noise range
-scale 0.66,1,1
+scale 0.66,1,1,1
 # Number of samples
 samples 200
 # Number of syndromes to be sampled at top level

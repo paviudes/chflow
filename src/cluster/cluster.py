@@ -45,7 +45,7 @@ def CreatePreBatch(submit):
             pb.write("#SBATCH --account=%s\n" % (submit.account))
             pb.write("#SBATCH --begin=now\n")
             pb.write("#SBATCH --time=5:00:00\n\n")
-            pb.write("#SBATCH --ntasks-per-node=48\n")
+            pb.write("#SBATCH --ntasks-per-node=%d\n" % (gv.cluster_info[submit.host]))
             pb.write("#SBATCH --nodes=1\n")
             # Redirecting STDOUT and STDERR files
             pb.write("#SBATCH -o %s/results/pre_ouptut_%%j.o\n" % (submit.outdir))
@@ -137,7 +137,7 @@ def CreateLaunchScript(submit):
         # Job array specification
         fp.write("#SBATCH --array=0-%d:1\n" % (submit.nodes - 1))
         fp.write("#SBATCH --cpus-per-task=%d\n" % (submit.cores[1]))
-        fp.write("#SBATCH --ntasks-per-node=48\n")
+        fp.write("#SBATCH --ntasks-per-node=%d\n" % (gv.cluster_info[submit.host]))
         fp.write("#SBATCH --nodes=1\n")
         # fp.write("#SBATCH --mem=31744\n")
         fp.write("#SBATCH --output=%s_%%A_%%a.out\n\n" % (submit.job))
