@@ -545,7 +545,8 @@ if __name__ == "__main__":
                         os.mkdir("./../input/%s" % (submit.host))
 
                     try:
-                        exec("from cluster import %s as cl" % (submit.host))
+                        from cluster import cluster as cl
+
                         # Create pre-processing and post-processing scripts if this is for cluster.
                         if submit.chgen_cluster == 1:
                             cl.CreatePreBatch(submit)
