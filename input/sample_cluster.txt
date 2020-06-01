@@ -27,6 +27,6 @@ wall 5
 # Email notifications
 email pavithran.sridhar@gmail.com
 # Output directory
-outdir /Users/pavi/Documents/chbank
+outdir /project/def-jemerson/chbank
 # Plot settings
 plot name,Bare Pauli correlated
