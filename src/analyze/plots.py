@@ -688,25 +688,29 @@ def PauliDistributionPlot(
     group_by_weight = {w: None for w in range(max_weight)}
     for w in range(max_weight):
         (group_by_weight[w],) = np.nonzero(qcode.weightdist == w)
+    # print(
+    #     "Group by weight 1: {}\nGroup by weight 2: {}".format(
+    #         qcode.PauliOperatorsLST[group_by_weight[1]],
+    #         qcode.PauliOperatorsLST[group_by_weight[2]],
+    #     )
+    # )
     leading_by_weight = {w: None for w in range(max_weight)}
     for w in range(max_weight):
         ninclude = min(nreps, group_by_weight[w].size)
         result_args = np.argsort(-pauliprobs[group_by_weight[w]])[:ninclude]
         leading_by_weight[w] = group_by_weight[w][result_args]
     operator_labels = {
-        w: qec.PauliOperatorToSymbol(
-            qec.GetOperatorsForLSTIndex(qcode, leading_by_weight[w])
-        )
+        w: qec.PauliOperatorToSymbol(qcode.PauliOperatorsLST[leading_by_weight[w]])
         for w in range(max_weight)
     }
     print(
-        "Leading by weight:\n{}\nOperator labels:\n{}".format(
+        "\033[2mLeading by weight:\n{}\nOperator labels:\n{}\033[0m".format(
             leading_by_weight, operator_labels
         )
     )
     for w in range(3):
         print(
-            "pauliprobs[leading_by_weight[{}]] = {}".format(
+            "\033[2mpauliprobs[leading_by_weight[{}]] = {}\033[0m".format(
                 w, pauliprobs[leading_by_weight[w]]
             )
         )
