@@ -99,7 +99,7 @@ def RandomUnitary(prox, dim, method="qr", randH=None):
     return randU
 
 
-def IIDWtihCrossTalk(infid, qcode, iid_fraction):
+def IIDWtihCrossTalk(infid, qcode, iid_fraction, subset_fraction):
     # Generate a Pauli correlated channel as a weighted sum of IID and two-qubit error distributions.
     atol = 10e-14
     q1 = iid_fraction
@@ -125,7 +125,7 @@ def IIDWtihCrossTalk(infid, qcode, iid_fraction):
     # )
     ### Constructed the purely corelated channel.
     # Add a random sumset of 10% of all two qubit errors
-    n_two_qubit_errors = np.int(0.1 * qcode.group_by_weight[2].size)
+    n_two_qubit_errors = np.int(subset_fraction * qcode.group_by_weight[2].size)
     two_qubit_errors = np.random.choice(
         qcode.group_by_weight[2], size=n_two_qubit_errors
     )
@@ -306,7 +306,10 @@ def RandomPauliChannel(kwargs):
         return PoissonRandomPauli(kwargs["infid"], 1.66, kwargs["qcode"].weightdist)
     elif method == "crosstalk":
         return IIDWtihCrossTalk(
-            kwargs["infid"], kwargs["qcode"], kwargs["iid_fraction"]
+            kwargs["infid"],
+            kwargs["qcode"],
+            kwargs["iid_fraction"],
+            kwargs["subset_fraction"],
         )
     else:
         pass

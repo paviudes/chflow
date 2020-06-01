@@ -281,6 +281,7 @@ def CorrelatedPauli(params):
         "infid": params[1],
         "method": int(params[2]) - 1,
         "iid_fraction": float(params[3]),
+        "subset_fraction": float(params[4]),
     }
     # print("args = {}".format(kwargs))
     # mu = float(kwargs["average_infid"])
