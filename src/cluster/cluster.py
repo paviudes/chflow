@@ -92,7 +92,7 @@ def CreatePostBatch(submit):
             pb.write("#SBATCH --account=%s\n" % (submit.account))
             pb.write("#SBATCH --begin=now\n")
             pb.write("#SBATCH --time=5:00:00\n\n")
-            pb.write("#SBATCH --ntasks-per-node=%d\n" % (gv.cores_in_node[submit.host]))
+            pb.write("#SBATCH --ntasks-per-node=%d\n" % (gv.cluster_info[submit.host]))
             pb.write("#SBATCH --nodes=1\n")
             # Redirecting STDOUT and STDERR files
             pb.write("#SBATCH -o %s/results/post_%%j.o\n" % (submit.outdir))
@@ -121,7 +121,7 @@ def CreatePostBatch(submit):
 def CreateLaunchScript(submit):
     # Write the script to launch a job-array describing all the simulations to be run.
     # See https://slurm.schedmd.com/sbatch.html
-    with open("./../input/%s/%s.sh" % (submit.timestamp, submit.host), "w") as fp:
+    with open("./../input/%s/%s.sh" % (submit.host, submit.timestamp), "w") as fp:
         fp.write("#!/bin/bash\n")
         # Account name to which the usage must be billed
         fp.write("#SBATCH --account=%s\n" % (submit.account))

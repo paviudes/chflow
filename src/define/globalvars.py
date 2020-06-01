@@ -144,5 +144,4 @@ contour_linestyle = "solid"
 colorbar_fontsize = 48
 
 # Cluster hosts
-cluster_hosts = ["graham", "cedar"]
-cores_in_node = {"graham": 32, "cedar": 48, "niagara": 24}
+cluster_info = {"graham": 32, "cedar": 48, "niagara": 24}

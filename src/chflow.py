@@ -540,7 +540,7 @@ if __name__ == "__main__":
                     % (submit.timestamp)
                 )
             else:
-                if os.path.isfile("cluster/%s.py" % (submit.host)):
+                if submit.host in gv.cluster_info:
                     if not os.path.exists("./../input/%s" % (submit.host)):
                         os.mkdir("./../input/%s" % (submit.host))
 
@@ -555,8 +555,7 @@ if __name__ == "__main__":
                         cl.Usage(submit)
                     except:
                         print(
-                            "\033[2mError importing %s.py. Ensure CreateLaunchScript(<submission object>) and Usage(<submission object>) are defined.\033[0m"
-                            % (submit.host)
+                            "\033[2mError importing cluster.py. Ensure CreateLaunchScript(<submission object>) and Usage(<submission object>) are defined.\033[0m"
                         )
                 else:
                     print(

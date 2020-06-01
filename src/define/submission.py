@@ -277,7 +277,7 @@ def Update(submit, pname, newvalue):
     elif pname == "host":
         submit.isSubmission = 1
         submit.host = newvalue
-        submit.chgen_cluster = int(submit.host.lower() in gv.cluster_hosts)
+        submit.chgen_cluster = int(submit.host.lower() in gv.cluster_info)
 
     elif pname == "queue":
         submit.isSubmission = 1
