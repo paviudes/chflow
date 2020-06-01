@@ -12,6 +12,7 @@ from define import qcode as qec
 from define import qchans as qch
 from define import submission as sub
 from define import fnames as fn
+from cluster import cluster as cl
 
 
 def SimulateSampleIndex(submit, rate, sample, coreidx, results):
@@ -121,7 +122,6 @@ def LocalSimulations(submit, node, stream=sys.stdout):
     if submit.host == "local":
         availcores = mp.cpu_count()
     else:
-        exec("from cluster import %s as cl" % (submit.host), globals())
         availcores = cl.GetCoresInNode()
     finished = 0
     while finished < submit.cores[0]:

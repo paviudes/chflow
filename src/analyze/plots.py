@@ -1620,69 +1620,6 @@ def PlotBinVarianceDataSets(
     return None
 
 
-# def PlotBinVariance(dbses, lmet, pmet, nbins=10):
-#     # Plot the variance in each bin with respect to the bin along with producing a table of those values.
-#     # prepare the logical error data and use ComputeBinVariance() to compute the bins and AddBinVariancePlot() to plot.
-#     if sub.IsNumber(pmet) == 1:
-#         phyerr = np.squeeze(
-#             np.vstack(tuple([dbses[i].available[:, pmet] for i in range(len(dbses))]))
-#         )
-#         pmetname = qc.Channels[dbses[0].channel]["latex"][pmet]
-#     else:
-#         phyerr = np.hstack(
-#             tuple(
-#                 [
-#                     np.load(fn.PhysicalErrorRates(dbses[i], pmet))
-#                     for i in range(len(dbses))
-#                 ]
-#             )
-#         )
-#         pmetname = ml.Metrics[pmet]["latex"]
-#     logerr = np.vstack(
-#         tuple(
-#             [np.load(fn.LogicalErrorRates(dbses[i], lmet)) for i in range(len(dbses))]
-#         )
-#     )
-#
-#     # print("logerr\n%s" % (np.array_str(logerr)))
-#     # np.savetxt("%s/results/logerr.txt" % (dbses[0].outdir), logerr)
-#     # print("phyerr\n%s" % (np.array_str(phyerr)))
-#     # np.savetxt("%s/results/phyerr.txt" % (dbses[0].outdir), phyerr)
-#
-#     maxlevel = min([dbses[i].levels for i in range(len(dbses))])
-#     plotfname = fn.VarianceBins(dbses[0], lmet, pmet)
-#     with PdfPages(plotfname) as pdf:
-#         for l in range(maxlevel + 1):
-#             # print("logerr[%d]" % (l))
-#             # print logerr[:, l]
-#             if l == 0:
-#                 bins = ComputeBinVariance(
-#                     np.abs(phyerr),
-#                     -np.log10(np.abs(logerr[:, l])),
-#                     nbins,
-#                     binfile=fn.BinSummary(dbses[0], pmet, lmet, l),
-#                     submit=dbses[0],
-#                 )
-#             else:
-#                 bins = ComputeBinVariance(
-#                     np.abs(np.log10(phyerr)), -np.log10(np.abs(logerr[:, l])), nbins
-#                 )
-#             # bins = ComputeBinVariance(-np.log10(np.abs(phyerr)), np.abs(logerr[:, l]), nbins)
-#             # bins = ComputeBinVariance(np.abs(phyerr), np.abs(logerr[:, l]), nbins)
-#             # print "bins"
-#             # print bins
-#             AddBinVariancePlot(bins, l, lmet, pmet, pmetname, pdf)
-#         # Set PDF attributes
-#         pdfInfo = pdf.infodict()
-#         pdfInfo["Title"] = "Binwise variance of %s with respect to %s." % (
-#             lmet,
-#             str(pmet),
-#         )
-#         pdfInfo["Author"] = "Pavithran Iyer"
-#         pdfInfo["ModDate"] = dt.datetime.today()
-#     return None
-
-
 def ComputeBinVariance(xdata, ydata, nbins=10, space="log", binfile=None, submit=None):
     # Compute the amount of scater of data in a plot.
     # Divide the X axis range into bins and compute the variance of Y-data in each bin.
