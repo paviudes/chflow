@@ -93,15 +93,7 @@ def GatherLogErrData(submit, additional=[]):
     logmetrics = submit.metrics + additional
     for m in range(len(logmetrics)):
         logerr = np.zeros((submit.channels, submit.levels + 1), dtype=np.longdouble)
-        runavg = np.zeros(
-            (
-                submit.channels,
-                2,
-                submit.stats.shape[0],
-                1 + int(submit.importance == 2),
-            ),
-            dtype=np.longdouble,
-        )
+        runavg = np.zeros((submit.channels, submit.stats.shape[0]), dtype=np.longdouble)
         for i in range(submit.channels):
             for quant in range(2):
                 fname = fn.LogicalErrorRate(
@@ -118,7 +110,8 @@ def GatherLogErrData(submit, additional=[]):
                 submit, submit.available[i, :-1], submit.available[i, -1], logmetrics[m]
             )
             if os.path.isfile(fname):
-                runavg[i, :, :, :] = np.load(fname)
+                # print("running average for channel {}\n{}".format(i, np.load(fname)))
+                runavg[i, :] = np.load(fname)
         # Save the gathered date to a numpy file.
         fname = fn.LogicalErrorRates(submit, logmetrics[m], fmt="npy")
         np.save(fname, logerr)

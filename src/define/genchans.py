@@ -18,7 +18,6 @@ from define import chandefs as chdef
 from define import chanreps as crep
 from define import fnames as fn
 
-
 def ChannelPair(chtype, rates, dim, method="qr"):
     # Generate process matrices for two channels that can be associated to the same "family".
     channels = np.zeros((2, 4, 4), dtype=np.longdouble)

@@ -1,3 +1,16 @@
+def DecoderKnowledgeFile(dbs, noise):
+    # File containing the decoder knowledge.
+    noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
+    fname = "%s/physical/dc_%s_%s.npy" % (dbs.outdir, dbs.channel, noisedes)
+    return fname
+
+
+def DecodersPlot(dbs, pmet, lmet):
+    # File name containing scatter bins.
+    fname = "%s/results/dcplot_%s_%s.pdf" % (dbs.outdir, pmet, lmet)
+    return fname
+
+
 def HammerPlot(dbs, lmet, pmets):
     # File name containing scatter bins.
     fname = "%s/results/hammer_%s_%s.pdf" % (dbs.outdir, "_".join(pmets), lmet)
@@ -209,7 +222,7 @@ def RFECVRankings(dbs, deg):
     return fname
 
 
-def MCStatsPlot(dbs, lmet, pmet):
+def MCStatsPlotFile(dbs, lmet, pmet):
     # File containing the plot of average logical error rate with different syndrome samples
     fname = "%s/results/mcplot_%s_%s.pdf" % (dbs.outdir, pmet, lmet)
     return fname

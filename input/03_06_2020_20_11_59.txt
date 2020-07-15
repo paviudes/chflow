@@ -1,0 +1,44 @@
+# Time stamp
+timestamp 03_06_2020_20_11_59
+# Type of quantum error correcting code
+ecc Steane,Steane
+# Type of quantum channel
+channel pcorr
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 14,14,1;2,2,1;0.7,0.7,1;0.1,0.1,1
+# Scales of noise range.
+scale 0.66,1.0,1.0,1.0
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler ./../input/schedule_03_06_2020_20_11_59.txt
+# Decoding algorithm to be used -- 0 for the maximum likelihood decoder and 1 for minimum weight decoder.
+decoder 1,1
+# Hybrid decoding to be used -- 0 for soft decoding and 1 for hybrid decoding.
+hybrid 0
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of syndromes to be sampled at top level
+stats [1000000]
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance direct
+# Metrics to be computed on the effective channels at every level.
+metrics infid
+# Load distribution on cores.
+cores 1,1
+# Number of nodes
+nodes 1
+# Name of the host computer.
+host local
+# Name of the account.
+account default
+# Batch name.
+job X
+# Wall time in hours.
+wall 0
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue X
+# Email notifications.
+email X

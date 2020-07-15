@@ -32,7 +32,7 @@ def CreatePreBatch(submit):
         ) as pb:
             pb.write("sbload %s\n" % (submit.timestamp))
             pb.write("chgen\n")
-            pb.write("submit\n")
+            pb.write("submit %s\n" % (submit.timestamp))
             pb.write("quit\n")
 
     if not (

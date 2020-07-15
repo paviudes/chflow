@@ -7,8 +7,7 @@ except:
     pass
 
 from define import globalvars as gv
-
-# from define.QECCLfid import uncorrectable as uc
+from define.QECCLfid import minwt as mw
 
 
 class QuantumErrorCorrectingCode:
@@ -176,7 +175,7 @@ def Load(qecc):
     # # Compute the minimum weight decoding table
     PrepareSyndromeLookUp(qecc)
     # Compute correctable indices
-    # uc.ComputeCorrectableIndices(qecc, method="minwt")
+    mw.ComputeCorrectableIndices(qecc)
     # Generate group elements
     # qecc.stabilizers = qc.GenerateGroup(qecc.S)
     # qecc.pure_errrors = qc.GenerateGroup(qecc.T)
@@ -568,7 +567,7 @@ def IsCanonicalBasis(S, L, T, verbose=1):
     return 1
 
 
-def Print(qecc):
+def PrintQEC(qecc):
     # print all the details of the error correcting code
     tab = 30
     encoding = ["I", "X", "Y", "Z"]

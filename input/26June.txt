@@ -1,0 +1,14 @@
+!!Case 1!!
+sbload 14_06_2020_22_48_38
+cplot infid infid 12_06_2020_22_29_03 9 
+notes infid infid ia cplot /Users/pavi/Dropbox/rclearn/notes/updates/figs/26June 1,2
+cplot infid dnorm 12_06_2020_22_29_03 9 
+notes infid dnorm ia cplot /Users/pavi/Dropbox/rclearn/notes/updates/figs/26June 1,2
+quit
+!!Case 2!!
+sbload 14_06_2020_20_34_54
+cplot infid infid 12_06_2020_23_17_36 9
+notes infid infid cptp cplot /Users/pavi/Dropbox/rclearn/notes/updates/figs/26June 1,2
+cplot infid dnorm 12_06_2020_23_17_36 9
+notes infid dnorm cptp cplot /Users/pavi/Dropbox/rclearn/notes/updates/figs/26June 1,2
+quit

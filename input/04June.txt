@@ -1,0 +1,116 @@
+!!Case 1!!
+# Correlated Pauli with IID fraction 30%
+sbload 30_05_2020_04_29_14
+pdplot 14,2,0.3 5 5
+notes pcorr 30 pd pdplot /Users/pavi/Dropbox/rclearn/notes/figs/04June 1
+lplot uncorr,infid infid
+notes uncorr,infid infid p30 lplot /Users/pavi/Dropbox/rclearn/notes/figs/04June 2,3
+quit
+#
+#
+#
+!!Case 2!!
+# Correlated Pauli with IID fraction 60%
+sbload 30_05_2020_03_23_56
+pdplot 15,2,0.6 5 5
+notes pcorr 60 pd pdplot /Users/pavi/Dropbox/rclearn/notes/figs/04June 1
+lplot uncorr,infid infid
+notes uncorr,infid infid p60 lplot /Users/pavi/Dropbox/rclearn/notes/figs/04June 2,3
+quit
+#
+#
+#
+!!Case 3!!
+# Correlated Pauli with IID a dynamic fraction 30%
+sbload 03_06_2020_17_22_30
+pdplot 14,2,0.3,0.1 5 5
+notes pcorrdy 30 pd pdplot /Users/pavi/Dropbox/rclearn/notes/figs/04June 1
+lplot uncorr,infid infid
+notes uncorr,infid infid pdy30 lplot /Users/pavi/Dropbox/rclearn/notes/figs/04June 2,3
+quit
+#
+#
+#
+!!Case 4!!
+# Correlated Pauli with IID a dynamic fraction 60%
+sbload 03_06_2020_17_23_27
+pdplot 14,2,0.6,0.1 5 5
+notes pcorrdy 60 pd pdplot /Users/pavi/Dropbox/rclearn/notes/figs/04June 1
+lplot uncorr,infid infid
+notes uncorr,infid infid pdy60 lplot /Users/pavi/Dropbox/rclearn/notes/figs/04June 2,3
+quit
+#
+#
+#
+!!Case 5!!
+# Random CPTP
+sbload 27_05_2020_19_26_15
+# Advantages provided by RC
+#lplot infid infid 06_09_2017_21_32_03
+#notes infid infid cptp lplot /Users/pavi/Dropbox/rclearn/notes/figs/04June 2,3
+#lplot uncorr infid 06_09_2017_21_32_03
+#notes uncorr infid cptp lplot /Users/pavi/Dropbox/rclearn/notes/figs/04June 2,3
+# How much is RC helping using dnorm as physical metric
+#lplot dnorm infid 06_09_2017_21_32_03
+#notes dnorm infid cptp lplot /Users/pavi/Dropbox/rclearn/notes/figs/04June 2,3
+#
+# Advantages to RC from uncorr
+#lplot uncorr,infid infid
+#notes uncorr,infid infid cptp lplot /Users/pavi/Dropbox/rclearn/notes/figs/04June 2,3
+# Advantages from both RC as well as uncorr
+hamplot uncorr,infid infid 06_09_2017_21_32_03
+notes uncorr,infid infid cptp hamplot /Users/pavi/Dropbox/rclearn/notes/figs/04June 2,3
+hamplot uncorr,dnorm infid 06_09_2017_21_32_03
+notes uncorr,dnorm infid cptp hamplot /Users/pavi/Dropbox/rclearn/notes/figs/04June 2,3
+# quit
+#
+#
+#
+!!Case 6!!
+# Idential axis
+sbload 27_05_2020_15_55_18
+# Advantages provided by RC
+#lplot infid infid 24_05_2020_23_25_57
+#notes infid infid ia lplot /Users/pavi/Dropbox/rclearn/notes/figs/04June 2,3
+#lplot uncorr infid 24_05_2020_23_25_57
+#notes uncorr infid ia lplot /Users/pavi/Dropbox/rclearn/notes/figs/04June 2,3
+# How much is RC helping using dnorm as physical metric
+#lplot dnorm infid 24_05_2020_23_25_57
+#notes dnorm infid ia lplot /Users/pavi/Dropbox/rclearn/notes/figs/04June 2,3
+#
+# Advantages to RC from uncorr
+#lplot uncorr,infid infid
+#notes uncorr,infid infid ia lplot /Users/pavi/Dropbox/rclearn/notes/figs/04June 2,3
+# Advantages from both RC as well as uncorr
+hamplot uncorr,infid infid 24_05_2020_23_25_57
+notes uncorr,infid infid ia hamplot /Users/pavi/Dropbox/rclearn/notes/figs/04June 2,3
+hamplot uncorr,dnorm infid 24_05_2020_23_25_57
+notes uncorr,dnorm infid ia hamplot /Users/pavi/Dropbox/rclearn/notes/figs/04June 2,3
+quit
+#
+#
+#
+!!Case 7!!
+# Uniform axis
+sbload 27_05_2020_16_01_59
+# Advantages provided by RC
+lplot infid infid 24_05_2020_23_33_22
+notes infid infid ua lplot /Users/pavi/Dropbox/rclearn/notes/figs/04June 2,3
+lplot uncorr infid 24_05_2020_23_33_22
+notes uncorr infid ua lplot /Users/pavi/Dropbox/rclearn/notes/figs/04June 2,3
+# How much is RC helping using dnorm as physical metric
+lplot dnorm infid 24_05_2020_23_33_22
+notes dnorm infid ua lplot /Users/pavi/Dropbox/rclearn/notes/figs/04June 2,3
+#
+# Advantages to RC from uncorr
+lplot uncorr,infid infid
+notes uncorr,infid infid ua lplot /Users/pavi/Dropbox/rclearn/notes/figs/04June 2,3
+# Advantages from both RC as well as uncorr
+hamplot uncorr,infid infid 24_05_2020_23_33_22
+notes uncorr,infid infid ua hamplot /Users/pavi/Dropbox/rclearn/notes/figs/04June 2,3
+hamplot uncorr,dnorm infid 24_05_2020_23_33_22
+notes uncorr,dnorm infid ua hamplot /Users/pavi/Dropbox/rclearn/notes/figs/04June 2,3
+quit
+#
+#
+#

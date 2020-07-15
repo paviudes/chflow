@@ -168,6 +168,14 @@ Channels = {
         "Pauli": 1,
         "corr": 1,
     },
+    "wpc": {
+        "name": "Worst Pauli channel",
+        "params": "Infidelity",
+        "latex": ["$1 - p_{I}$"],
+        "color": "limegreen",
+        "Pauli": 1,
+        "corr": 1,
+    },
     "pl": {
         "name": "Photon loss channel",
         "params": ["number of photons (alpha)", "decoherence rate (gamma)"],
@@ -250,7 +258,7 @@ def Calibrate(chname, rangeinfo, metinfo, xcol=0, ycol=-1):
     return None
 
 
-def Save(fname, channel, rep="Unknwon"):
+def SaveChan(fname, channel, rep="Unknwon"):
     # Save a channel into a file.
     if fname.endswith(".txt"):
         np.savetxt(

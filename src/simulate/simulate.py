@@ -12,6 +12,7 @@ from define import qcode as qec
 from define import qchans as qch
 from define import submission as sub
 from define import fnames as fn
+from define.decoder import PrepareChannelDecoder
 from cluster import cluster as cl
 
 
@@ -31,6 +32,11 @@ def SimulateSampleIndex(submit, rate, sample, coreidx, results):
     np.random.seed()
     ## Load the physical channel and the reference (noisier) channel if importance sampling is selected.
     physchan = np.load(fn.PhysicalChannel(submit, rate))[sample, :]
+    if submit.decoders[0] == 2:
+        # Partial ML decoder which only has access to a few leading Pauli error probabilities.
+        decoder_knowledge = PrepareChannelDecoder(submit, rate, sample)
+    else:
+        decoder_knowledge = None
     # print(
     #     "Core: {}, noise: {}, sample: {}\nPhysical channel before simulate\n{}".format(
     #         coreidx, rate, sample, physchan.reshape(4, 4)
@@ -41,7 +47,7 @@ def SimulateSampleIndex(submit, rate, sample, coreidx, results):
     else:
         refchan = np.zeros_like(physchan)
     ## Benchmark the noise model.
-    Benchmark(submit, rate, sample, physchan, refchan)
+    Benchmark(submit, rate, sample, physchan, refchan, decoder_knowledge)
     ####
     runtime = time.time() - start
     results.put((coreidx, rate, sample, runtime))
@@ -147,7 +153,9 @@ def LocalSimulations(submit, node, stream=sys.stdout):
             )
         )
         stream.write("Importance: %g\n" % (submit.importance))
-        stream.write("Hybrid: %d\n" % (submit.hybrid))
+        stream.write("Decoder: %s\n" % np.array_str(submit.decoders))
+        if submit.decoders[0] == 2:
+            stream.write("Fraction of Pauli probabilities for the ML Decoder: %s\n" % submit.decoder_fraction)
         if submit.hybrid > 0:
             stream.write("Decoding bins: {}\n".format(submit.decoderbins))
         stream.write("Concatenation levels: %d\n" % (submit.levels))

@@ -98,6 +98,17 @@ def RandomUnitary(prox, dim, method="qr", randH=None):
         )
     return randU
 
+def CreateIIDPauli(infid, qcode):
+    # Create an IID Pauli distribution for a given infidelity.
+    single_qubit_errors = np.array(
+        [1 - infid, infid / 3, infid / 3, infid / 3], dtype=np.double
+    )
+    # print("Single qubit errors: {}".format(single_qubit_errors))
+    iid_error_dist = ut.GetErrorProbabilities(
+        qcode.PauliOperatorsLST, single_qubit_errors, 0
+    )
+    return iid_error_dist
+
 
 def IIDWtihCrossTalk(infid, qcode, iid_fraction, subset_fraction):
     # Generate a Pauli correlated channel as a weighted sum of IID and two-qubit error distributions.
@@ -108,13 +119,7 @@ def IIDWtihCrossTalk(infid, qcode, iid_fraction, subset_fraction):
     n = qcode.N
     # Construct the IID channel as a n-qubit Depolarizing channel.
     # print("Infidelity = {}".format(infid))
-    single_qubit_errors = np.array(
-        [1 - infid, infid / 3, infid / 3, infid / 3], dtype=np.double
-    )
-    # print("Single qubit errors: {}".format(single_qubit_errors))
-    iid_error_dist = ut.GetErrorProbabilities(
-        qcode.PauliOperatorsLST, single_qubit_errors, 0
-    )
+    iid_error_dist = CreateIIDPauli(infid, qcode)
     # print("qcode.PauliOperatorsLST = {}".format(qcode.PauliOperatorsLST))
     # print("iid_error_dist = {}".format(iid_error_dist))
     full_process_infid = 1 - iid_error_dist[0]
@@ -125,7 +130,7 @@ def IIDWtihCrossTalk(infid, qcode, iid_fraction, subset_fraction):
     # )
     ### Constructed the purely corelated channel.
     # Add a random sumset of 10% of all two qubit errors
-    weights_to_boost = [2, 3, 4]
+    weights_to_boost = [2]
     subset_fraction_weights = {2: subset_fraction}
     for w in weights_to_boost:
         if w not in subset_fraction_weights:
@@ -147,31 +152,39 @@ def IIDWtihCrossTalk(infid, qcode, iid_fraction, subset_fraction):
     )
     # print("n_errors: {}".format(n_errors))
     errors_to_boost = np.zeros(n_errors[-1], dtype=np.int)
+    corr_error_dist = np.zeros(iid_error_dist.size, dtype=np.double)
     for i in range(len(weights_to_boost)):
+        w = weights_to_boost[i]
         if i == 0:
             errors_to_boost[: n_errors[i]] = np.random.choice(
                 qcode.group_by_weight[weights_to_boost[i]], size=n_errors[i]
             )
+            mq_errors = n_errors[i]
+            selected_errors = np.arange(n_errors[i])
         else:
             errors_to_boost[n_errors[i - 1] : n_errors[i]] = np.random.choice(
                 qcode.group_by_weight[weights_to_boost[i]],
                 size=n_errors[i] - n_errors[i - 1],
             )
-    # print("Two qubit errors: {}".format(two_qubit_errors))
+            mq_errors = size = n_errors[i] - n_errors[i - 1]
+            selected_errors = np.arange(n_errors[i - 1], n_errors[i])
+        corr_error_dist[errors_to_boost[selected_errors]] = np.random.normal(
+            (0.1 ** (w - 1)) * 4 ** n * full_process_infid,
+            0.1 * 4 ** n * full_process_infid,
+            size=(mq_errors,),
+        )
+
+    # print("errors_to_boost: {}".format(errors_to_boost))
     # The probability distribution within this subset is Gaussian with mean = 0.1 * 4^n * full_process_infid
-    corr_error_dist = np.zeros(iid_error_dist.size, dtype=np.double)
-    corr_error_dist[errors_to_boost] = np.random.normal(
-        0.1 * 4 ** n * full_process_infid,
-        0.1 * 4 ** n * full_process_infid,
-        size=(n_errors[-1],),
-    )
+    # corr_error_dist = np.zeros(iid_error_dist.size, dtype=np.double)
+    # corr_error_dist[errors_to_boost] = np.random.normal(0.1 * 4 ** n * full_process_infid,0.1 * 4 ** n * full_process_infid,size=(n_errors[-1],),)
+
+    # Setting negative numbers to 0.
     corr_error_dist[errors_to_boost] = np.where(
         corr_error_dist[errors_to_boost] >= atol, corr_error_dist[errors_to_boost], 0
     )
     # print(
-    #     "corr_error_dist[errors_to_boost] = {}".format(
-    #         corr_error_dist[errors_to_boost]
-    #     )
+    #     "corr_error_dist[errors_to_boost] = {}".format(corr_error_dist[errors_to_boost])
     # )
     corr_error_dist[errors_to_boost] = corr_error_dist[errors_to_boost] * (
         corr_error_dist[errors_to_boost] >= atol

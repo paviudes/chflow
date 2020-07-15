@@ -43,6 +43,7 @@ class Submission:
         self.phychans = np.array([])
         self.rawchans = None
         self.repr = "process"
+        self.ratesfile = ""
         self.noiserange = []
         self.noiserates = np.array([])
         self.scales = []
@@ -61,6 +62,7 @@ class Submission:
         self.ecfiles = []
         # Decoder
         self.decoders = []
+        self.decoder_fraction = 0
         self.decoder_type = "default_soft"
         self.hybrid = 0
         self.decoderbins = []
@@ -99,271 +101,6 @@ def LoadTimeStamp(submit, timestamp):
     submit.inputfile = fn.SubmissionInputs(timestamp)
     submit.scheduler = fn.SubmissionSchedule(timestamp)
     # print("New time stamp: {}, output directory: {}, input file: {}, scheduler: {}".format(timestamp, submit.outdir, submit.inputfile, submit.scheduler))
-    return None
-
-
-def Schedule(submit):
-    # List all the parameters that must be run in every node, explicity.
-    # For every node, list out all the parameter values in a two-column format.
-    # print("Time stamp: {}, output directory: {}, input file: {}, scheduler: {}".format(submit.timestamp, submit.outdir, submit.inputfile, submit.scheduler))
-    with open(submit.scheduler, "w") as sch:
-        for i in range(submit.nodes):
-            sch.write("!!node %d!!\n" % (i))
-            for j in range(submit.cores[0]):
-                sch.write(
-                    "%s %d\n"
-                    % (
-                        " ".join(
-                            list(
-                                map(
-                                    lambda num: ("%g" % num),
-                                    submit.noiserates[
-                                        (i * submit.cores[0] + j) // submit.samps, :
-                                    ],
-                                )
-                            )
-                        ),
-                        (i * submit.cores[0] + j) % submit.samps,
-                    )
-                )
-                if i * submit.cores[0] + j == (
-                    submit.noiserates.shape[0] * submit.samps - 1
-                ):
-                    break
-    return None
-
-
-def Update(submit, pname, newvalue):
-    # Update the parameters to be submitted
-    if pname == "timestamp":
-        LoadTimeStamp(submit, newvalue)
-
-    elif pname == "ecc":
-        submit.isSubmission = 1
-        # Read all the Parameters of the error correcting code
-        names = newvalue.split(",")
-        submit.ecfiles = []
-        submit.levels = len(names)
-        submit.decoders = np.zeros(submit.levels, dtype=np.int)
-        for i in range(submit.levels):
-            submit.eccs.append(qec.QuantumErrorCorrectingCode(names[i]))
-            qec.Load(submit.eccs[i])
-            submit.ecfiles.append(submit.eccs[i].defnfile)
-            submit.decoders[i] = 0
-
-    elif pname == "decoder":
-        decoder_info = newvalue.split(",")
-        submit.decoders = np.zeros(submit.levels, dtype=np.int)
-        for l in range(len(decoder_info)):
-            submit.decoders[l] = int(decoder_info[l])
-
-    elif pname == "channel":
-        submit.channel = newvalue
-        submit.iscorr = qc.Channels[submit.channel]["corr"]
-        # print("submit.iscorr = {}".format(submit.iscorr))
-
-    elif pname == "chtype":
-        qc.Channels[submit.channel]["Pauli"] = newvalue
-
-    elif pname == "rc":
-        submit.rc = int(newvalue)
-
-    elif pname == "repr":
-        submit.repr = newvalue
-
-    elif pname == "noiserange":
-        # There are 3 ways of providing the noise range.
-        # Using a file: The file must have as many columns as the number of free parameters and placed in chflow/input/.
-        # For each free parameter:
-        # 2. Using a compact range specification: low,high,number of steps.
-        # 3. Explicity specifying the points to be sampled: list of (length not equal to 3) points.
-        # Note that 2 or fewer points can be specified using the first scheme.
-        # The value for different free parameters must be separated by a ";".
-        # If scale is not equal to 1, the noise rates values is interpretted as an exponent for the value of scale.
-        if os.path.isfile("./../input/%s.txt" % (newvalue)) == 1:
-            submit.noiserates = np.loadtxt(
-                "./../input/%s.txt" % (newvalue), comments="#", dtype=np.longdouble
-            )
-        else:
-            newRanges = list(
-                map(
-                    lambda arr: list(map(np.longdouble, arr.split(","))),
-                    newvalue.split(";"),
-                )
-            )
-            submit.noiserange = []
-            for i in range(len(newRanges)):
-                if len(newRanges[i]) == 3:
-                    submit.noiserange.append(
-                        np.linspace(
-                            np.longdouble(newRanges[i][0]),
-                            np.longdouble(newRanges[i][1]),
-                            np.int(newRanges[i][2]),
-                        )
-                    )
-                else:
-                    submit.noiserange.append(newRanges[i])
-            submit.noiserates = np.array(
-                list(map(list, it.product(*submit.noiserange))), dtype=np.float
-            )
-
-    elif pname == "samples":
-        # The value must be an integer
-        submit.samps = int(newvalue)
-
-    elif pname == "frame":
-        # The value must be an integer
-        submit.frame = submit.eccframes[newvalue]
-
-    elif pname == "filter":
-        # The input is a filtering crieterion described as (metric, lower bound, upper bound).
-        # Only the channels whose metric value is between the lower and the upper bounds are to be selected.
-        if newvalue == "":
-            submit.filter["metric"] = "fidelity"
-            submit.filter["lower"] = 0
-            submit.filter["upper"] = 1
-        else:
-            filterDetails = newvalue.split(",")
-            submit.filter["metric"] = filterDetails[0]
-            submit.filter["lower"] = np.float(filterDetails[1])
-            submit.filter["upper"] = np.float(filterDetails[2])
-
-    elif pname == "stats":
-        # The value can be
-        # an integer
-        # an explicit range of numbers -- [<list of values separated by commas>]
-        # compact range of numbers -- lower,upper,number_of_steps
-        if IsNumber(newvalue) == 1:
-            submit.stats = np.array([int(newvalue)], dtype=np.int)
-        else:
-            if "[" in newvalue:
-                submit.stats = np.array(
-                    list(map(int, newvalue[1:-1].split(","))), dtype=np.int
-                )
-            else:
-                submit.stats = np.geomspace(
-                    *np.array(list(map(int, newvalue.split(","))), dtype=np.int),
-                    dtype=np.int
-                )
-        submit.isSubmission = 1
-
-    elif pname == "metrics":
-        # The metrics to be computed at the logical level
-        submit.metrics = newvalue.split(",")
-
-    elif pname == "wall":
-        submit.isSubmission = 1
-        submit.wall = int(newvalue)
-
-    elif pname == "importance":
-        submit.isSubmission = 1
-        submit.importance = submit.samplingOptions[newvalue.lower()]
-
-    elif pname == "hybrid":
-        submit.isSubmission = 1
-        submit.hybrid = int(newvalue)
-
-    elif pname == "decbins":
-        # Set the bins of channels that must be averged at intermediate levels
-        # The bins shall be provided in a new file, whose name must be specified here.
-        submit.isSubmission = 1
-        submit.hybrid = 1
-        ParseDecodingBins(submit, newvalue)
-
-    elif pname == "job":
-        submit.isSubmission = 1
-        submit.job = newvalue
-
-    elif pname == "host":
-        submit.isSubmission = 1
-        submit.host = newvalue
-        submit.chgen_cluster = int(submit.host.lower() in gv.cluster_info)
-
-    elif pname == "queue":
-        submit.isSubmission = 1
-        submit.queue = newvalue
-
-    elif pname == "cores":
-        submit.cores = list(map(int, newvalue.split(",")))
-
-    elif pname == "nodes":
-        submit.isSubmission = 1
-        submit.nodes = int(newvalue)
-
-    elif pname == "email":
-        submit.email = newvalue
-
-    elif pname == "account":
-        submit.account = newvalue
-
-    elif pname == "scheduler":
-        submit.scheduler = newvalue
-
-    elif pname == "outdir":
-        submit.outdir = fn.OutputDirectory(newvalue, submit)
-
-    elif pname == "scale":
-        submit.scales = np.array(
-            list(map(np.longdouble, newvalue.split(","))), dtype=np.longdouble
-        )
-
-    elif pname == "plot":
-        settings_info = [sg.split(",") for sg in newvalue.split(";")]
-        for i in range(len(settings_info)):
-            if settings_info[i][0] not in submit.plotsettings:
-                submit.plotsettings.update({settings_info[i][0]: None})
-            submit.plotsettings[settings_info[i][0]] = settings_info[i][1]
-    else:
-        pass
-
-    return None
-
-
-def ParseDecodingBins(submit, fname):
-    # Read the channels which must be averaged while decoding the intermediate concatenation levels
-    submit.decoder_type = fname
-    if os.path.isfile(fname):
-        # Read the bins information form a file.
-        # The file should contain one line for each concatenation level.
-        # Each line should contain N columns (separated by spaces) where N is the number of encoded qubits at that level.
-        # Every column entry should be an index of a bin into which that channel must be placed. Channels in the same bin are averaged.
-        with open(fname, "r") as bf:
-            for l in range(submit.levels):
-                submit.decoderbins.append(
-                    list(map(int, bf.readline().strip("\n").strip(" ").split(" ")))
-                )
-    else:
-        chans = [
-            np.prod(
-                [submit.eccs[submit.levels - l - 1].N for l in range(inter)],
-                dtype=np.int,
-            )
-            for inter in range(submit.levels + 1)
-        ][::-1]
-        if fname == "soft":
-            # Choose to put every channel in its own bin -- this is just soft decoding.
-            for l in range(submit.levels):
-                submit.decoderbins.append(np.arange(chans[l], dtype=np.int))
-        elif "random" in fname:
-            # Choose to have random bins
-            n_rand_decbins = int(fname.split("_")[1])
-            if n_rand_decbins < 1:
-                # print("\033[2mNumber of bins for channels cannot be less than 1, resetting this number to 1.\033[0m")
-                n_rand_decbins = 1
-            for l in range(submit.levels):
-                # print("l: {}, chans[l] = {}".format(l, chans[l]))
-                submit.decoderbins.append(
-                    np.random.randint(
-                        0, min(n_rand_decbins, chans[l] - 1), size=chans[l]
-                    )
-                )
-            # print("decoder bins: {}".format(submit.decoderbins))
-        elif fname == "hard":
-            # All channels in one bin -- this is hard decoding.
-            for l in range(submit.levels):
-                submit.decoderbins.append(np.zeros(chans[l], dtype=np.int))
-        else:
-            pass
     return None
 
 
@@ -542,178 +279,6 @@ def PrintSub(submit):
     return None
 
 
-def Save(submit):
-    # Write a file named const.txt with all the parameter values selected for the simulation
-    # File containing the constant parameters
-    # Input file
-    # Change the timestamp before saving to avoid overwriting the input file.
-    with open(submit.inputfile, "w") as infid:
-        # Time stamp
-        infid.write("# Time stamp\ntimestamp %s\n" % submit.timestamp)
-        # Code type
-        infid.write(
-            "# Type of quantum error correcting code\necc %s\n"
-            % ",".join([submit.eccs[i].name for i in range(len(submit.eccs))])
-        )
-        # Type of noise channel
-        infid.write("# Type of quantum channel\nchannel %s\n" % submit.channel)
-        # Channel representation
-        infid.write(
-            '# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")\nrepr %s\n'
-            % submit.repr
-        )
-        # Noise range parameters
-        infid.write(
-            "# Noise rate exponents. The actual noise rate is (2/3)^exponent.\nnoiserange %g,%g,%g"
-            % (
-                submit.noiserange[0][0],
-                submit.noiserange[0][-1],
-                submit.noiserange[0].shape[0],
-            )
-        )
-        for i in range(1, len(submit.noiserange)):
-            infid.write(
-                ";%g,%g,%g"
-                % (
-                    submit.noiserange[i][0],
-                    submit.noiserange[i][-1],
-                    submit.noiserange[i].shape[0],
-                )
-            )
-        infid.write("\n")
-        # Scale of noise range
-        infid.write(
-            "# Scales of noise range.\nscale %s\n"
-            % (",".join(list(map(str, submit.scales))))
-        )
-        # Number of samples
-        infid.write("# Number of samples\nsamples %d\n" % submit.samps)
-        # File name containing the parameters to be run on the particular node
-        infid.write("# Parameters schedule\nscheduler %s\n" % (submit.scheduler))
-        # Decoder
-        infid.write(
-            "# Decoding algorithm to be used -- 0 for the maximum likelihood decoder and 1 for minimum weight decoder.\ndecoder %s\n"
-            % ",".join(list(map(str, submit.decoders)))
-        )
-        infid.write(
-            "# Hybrid decoding to be used -- 0 for soft decoding and 1 for hybrid decoding.\nhybrid %d\n"
-            % (submit.hybrid)
-        )
-        if submit.hybrid > 0:
-            infid.write(
-                '# Channels to be averaged at intermediate levels by a hybrid decoder Either a file name containing bins for channels or a keyword from \{"soft", "random <number of bins>", "hard"\}.\ndecbins %s\n'
-                % (submit.decoder_type)
-            )
-        # ECC frame to be used
-        infid.write(
-            '# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").\nframe %s\n'
-            % (
-                list(submit.eccframes.keys())[
-                    list(submit.eccframes.values()).index(submit.frame)
-                ]
-            )
-        )
-        # Number of decoding trials per level
-        infid.write(
-            "# Number of syndromes to be sampled at top level\nstats [%s]\n"
-            % (",".join(list(map(lambda num: ("%d" % num), submit.stats))))
-        )
-        # Importance distribution
-        infid.write(
-            '# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)\nimportance %s\n'
-            % (
-                list(submit.samplingOptions.keys())[
-                    list(submit.samplingOptions.values()).index(submit.importance)
-                ]
-            )
-        )
-        # Metrics to be computed on the logical channel
-        infid.write(
-            "# Metrics to be computed on the effective channels at every level.\nmetrics %s\n"
-            % ",".join(submit.metrics)
-        )
-        # Load distribution on cores.
-        infid.write(
-            "# Load distribution on cores.\ncores %s\n"
-            % (",".join(list(map(str, submit.cores))))
-        )
-        # Number of nodes
-        infid.write("# Number of nodes\nnodes %d\n" % submit.nodes)
-        # Host
-        infid.write("# Name of the host computer.\nhost %s\n" % (submit.host))
-        # Account
-        infid.write("# Name of the account.\naccount %s\n" % (submit.account))
-        # Job name
-        infid.write("# Batch name.\njob %s\n" % (submit.job))
-        # Wall time
-        infid.write("# Wall time in hours.\nwall %d\n" % (submit.wall))
-        # Queue
-        infid.write(
-            "# Submission queue (Available options: see goo.gl/pTdqbV).\nqueue %s\n"
-            % (submit.queue)
-        )
-        # Queue
-        infid.write("# Email notifications.\nemail %s\n" % (submit.email))
-        # Output directory
-        infid.write(
-            "# Output result's directory.\noutdir %s\n"
-            % (os.path.dirname(submit.outdir))
-        )
-        # Ranodmized compiling of quantum gates
-        infid.write("# Randomized compiling of quantum gates.\nrc %d\n" % (submit.rc))
-        # Plot settings
-        if submit.plotsettings:
-            infid.write(
-                "# Plot settings\nplot %s\n"
-                % (
-                    ";".join(
-                        [
-                            "%s,%s" % (key, submit.plotsettings[key])
-                            for key in submit.plotsettings
-                        ]
-                    )
-                )
-            )
-        # Miscellaneous information
-        infid.write("# Miscellaneous information: %s\n" % (submit.misc))
-    return None
-
-
-def PrepOutputDir(submit):
-    # Prepare the output directory -- create it, put the input files.
-    # Copy the necessary input files, error correcting code.
-    for subdir in ["input", "code", "physical", "channels", "metrics", "results"]:
-        os.system("mkdir -p %s/%s" % (submit.outdir, subdir))
-    # Copy the relevant code data
-    for l in range(submit.levels):
-        os.system("cp ./../code/%s %s/code/" % (submit.eccs[l].defnfile, submit.outdir))
-    # Save a copy of the input file and the schedule file in the output director.
-    copyfile(
-        "./../input/%s" % os.path.basename(submit.inputfile),
-        "%s/input/%s" % (submit.outdir, os.path.basename(submit.inputfile)),
-    )
-    copyfile(
-        "./../input/%s" % os.path.basename(submit.scheduler),
-        "%s/input/%s" % (submit.outdir, os.path.basename(submit.scheduler)),
-    )
-    return None
-
-
-def SavePhysicalChannels(submit):
-    # Save the physical channels generated to a file.
-    save_raw = 1
-    if submit.rawchans is None:
-        save_raw = 0
-    for i in range(submit.phychans.shape[0]):
-        (folder, fname) = os.path.split(
-            fn.PhysicalChannel(submit, submit.noiserates[i])
-        )
-        np.save("%s/%s" % (folder, fname), submit.phychans[i, :, :])
-        if save_raw == 1:
-            np.save("%s/raw_%s" % (folder, fname), submit.rawchans[i, :, :])
-    return None
-
-
 def Select(submit, chan_indices):
     # Identify the details of the physical noise maps given their channel indices.
     os.system("mkdir -p %s/physical/selected" % (submit.outdir))
@@ -789,6 +354,152 @@ def Select(submit, chan_indices):
     return None
 
 
+def MergeSubs(*submits):
+    """
+    Merge a bunch of submissions, to create a larger one with more channels.
+    The submissions being merged should have the same:
+    (i) Number of parameters defining a noise rate.
+    (ii) Number of syndrome samples.
+    """
+    combined_submit = Submission()
+    LoadTimeStamp(
+        submit,
+        time.strftime("%d/%m/%Y %H:%M:%S")
+        .replace("/", "_")
+        .replace(":", "_")
+        .replace(" ", "_"),
+    )
+
+    # folders associated with a submission: input, channels, metrics, results, physical.
+    combined_submit.noiserange = None
+    CopyConsts(submits[0], combined_submit)
+    combined_submit.misc = "+".join([submits[i].timestamp for i in range(len(submits))])
+
+    merged_rates = []
+    combined_submit.samps = max(submits[0].samps, submits[1].samps)
+    visited = np.zeros(submits[1].noiserates.shape[0], dtype=np.int)
+    for i in range(submits[0].noiserates.shape[0]):
+        # Is rate[i] in the second matrix?
+        # If yes: combine the samples. and set visited[j] = 1
+        # If no: then add rate[i] to merged.
+        # Add all rate[j] to merged for which visited[j] = 0.
+        arg_found = -1
+        for j in range(submits[1].noiserates.shape[0]):
+            if np.allclose(submits[0].noiserates[i], submits[1].noiserates[j]) == 0:
+                arg_found = j
+                break
+        if arg_found > -1:
+            visited[arg_found] = 1
+            # Add to merged rates.
+            merged_rates.append(submits[0].noiserates[i])
+            # Combine samples of rate[i] from db[0] and rate[arg_found] from db[1]
+            combined = CombinePhysicalChannels(submits, i, arg_found)
+            if combined_submit.samps < combined.shape[0]:
+                combined_submit.samps = combined.shape[0]
+            # Save combined into its new location.
+            fname = PhysicalChannel(combined_submit, submits[0].noiserates[i, :])
+            np.save(fname, combined)
+            # Copy the logical channels and metrics in db[0] for rate[i].
+            CopyElements(
+                submits[0], combined_submit, [i], sample_offset=submits[0].samps
+            )
+        else:
+            # Add to merged rates.
+            merged_rates.append(submits[0].noiserates[i])
+            # Copy all the elements of db[0] for rate[i] into the merged folder.
+            CopyElements(
+                submits[0], combined_submit, [i], sample_offset=submits[0].samps
+            )
+    # Add to merged rates.
+    merged_rates.extend(submits[1].noiserates[np.nonzero(visited)[0]])
+    # For all j which is not visited, add elements corresponding to rate[j] from db[1] to merged.
+    CopyElements(submits[1], combined_submit, np.nonzero(visited)[0])
+    # Save the input file, sceduler and prepare the output directory.
+    Save(combined_submit)
+    Schedule(combined_submit)
+    PrepOutputDir(combined_submit)
+    return timestamp
+
+
+def CopyConsts(dset, merged):
+    """
+    Copy the constant parameters when datasets are merged.
+    """
+    merged.eccs = dset.eccs
+    merged.channel = dset.channel
+    merged.repr = dset.repr
+    merged.scales = dset.scales
+    merged.decoders = dset.decoders
+    merged.hybrid = dset.hybrid
+    merged.decoder_type = dset.decoder_type
+    merged.eccframes = dset.eccframes
+    merged.samplingOptions = dset.samplingOptions
+    merged.metrics = dset.metrics
+    merged.cores = dset.cores
+    merged.nodes = dset.nodes
+    merged.host = dset.host
+    merged.account = dset.account
+    merged.job = dset.job
+    merged.wall = dset.wall
+    merged.queue = dset.queue
+    merged.email = dset.email
+    merged.rc = dset.rc
+    merged.plotsettings = dset.plotsettings
+    return None
+
+
+def CopyElements(source, destn, rates, sample_offset=0):
+    """
+    Copy logical channels and metrics from one dataset to another.
+    """
+    for i in rates:
+        # Copy the physical channel
+        if sample_offset == 0:
+            os.system(
+                "cp %s %s/physical"
+                % (PhysicalChannel(source, source.noiserates[i, :]), destn.outdir)
+            )
+        # Copy the logical channels and metrics for rate[i], from source into destn.
+        for s in range(source.samps):
+            os.system(
+                "cp %s/%s %s/channels/%s"
+                % (
+                    source.outdir,
+                    LogicalChannel(source, source.noiserates[i, :], s),
+                    destn.outdir,
+                    LogicalChannel(source, source.noiserates[i, :], s + sample_offset),
+                )
+            )
+            for m in range(source.metrics):
+                os.system(
+                    "cp %s/%s %s/channels/%s"
+                    % (
+                        source.outdir,
+                        LogicalErrorRates(
+                            source, source.noiserates[i, :], s, source.metrics[m]
+                        ),
+                        destn.outdir,
+                        LogicalErrorRates(
+                            source,
+                            source.noiserates[i, :],
+                            s + sample_offset,
+                            source.metrics[m],
+                        ),
+                    )
+                )
+    return None
+
+
+def CombinePhysicalChannels(submits, rateidx1, rateidx2):
+    """
+    Merge the physical channels from the submissions of the corresponding noise rates.
+    """
+    phychans1 = np.load(PhysicalChannel(submits[0], submits[0].noiserates[rateidx1, :]))
+    phychans2 = np.load(PhysicalChannel(submits[1], submits[1].noiserates[rateidx2, :]))
+    combined = np.vstack((phychans1, phychans2))
+    return combined
+
+
 def Increment(arr):
     r"""
     Compute the smallest non-zero increment in an array.
@@ -802,27 +513,3 @@ def Increment(arr):
                 if current_increment < min_increment:
                     min_increment = current_increment
     return min_increment
-
-
-def LoadSub(submit, subid, isgen):
-    # Load the parameters of a submission from an input file
-    # If the input file is provided as the submission id, load from that input file.
-    # Else if the time stamp is provided, search for the corresponding input file and load from that.
-    LoadTimeStamp(submit, subid)
-    if os.path.exists(submit.inputfile):
-        with open(submit.inputfile, "r") as infp:
-            for (lno, line) in enumerate(infp):
-                if line[0] == "#":
-                    pass
-                else:
-                    linecontents = line.strip("\n").strip(" ").split(" ")
-                    (variable, value) = (linecontents[0], " ".join(linecontents[1:]))
-                    Update(
-                        submit,
-                        variable.strip("\n").strip(" "),
-                        value.strip("\n").strip(" "),
-                    )
-        return 1
-    else:
-        print("\033[2mInput file not found.\033[0m")
-    return 0

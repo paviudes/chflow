@@ -86,15 +86,16 @@ line_styles = [(0, ()), (0, (5, 5)), (0, (1, 1)), (0, (3, 5, 1, 5, 1, 5))]
 # Markers
 # https://matplotlib.org/2.0.2/api/markers_api.html
 Markers = [
-    "s",  # With RC
-    "+",  # Without RC, # uncorr (predictability)
+    "^",  # With RC
+    "*",  # Without RC, # uncorr (predictability)
+    "+",
     "*",  # Diamond norm (predictability)
     "^",  # Infidelity (predictability)
     "v",
     "<",
     ">",
     "8",
-    "o",
+    "s",
     "p",
     "h",
     "H",
@@ -106,13 +107,15 @@ Markers = [
 n_Markers = len(Markers)
 # Colors
 # https://stackoverflow.com/questions/16006572/plotting-different-colors-in-matplotlib
+QB_GREEN = "#42b863"
+QB_BLUE = "#2697d0"
 Colors = [
-    "green",
-    "red",
-    "#1f77b4",
-    "#ff7f0e",
-    "#2ca02c",
-    "#d62728",
+    QB_BLUE,
+    QB_GREEN,
+    "black",
+    "blue",
+    "brown",
+    "slategray",
     "#9467bd",
     "#8c564b",
     "#e377c2",
@@ -125,11 +128,12 @@ n_Colors = len(Colors)
 title_fontsize = 48
 canvas_size = (32, 22)
 # Axes
-axes_labels_fontsize = 48
+axes_labels_fontsize = 58
 ticks_fontsize = 42
 ticks_length = 12
 ticks_width = 4
 ticks_pad = 40
+axes_labelpad=20
 # Curve
 line_width = 5
 marker_size = 20
@@ -144,4 +148,4 @@ contour_linestyle = "solid"
 colorbar_fontsize = 48
 
 # Cluster hosts
-cluster_info = {"graham": 32, "cedar": 48, "niagara": 24}
+cluster_info = {"graham": 32, "cedar": 48, "niagara": 24, "beluga": 40}

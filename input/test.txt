@@ -1,4 +1,49 @@
-sbload 29_05_2020_11_45_56
-# pmetrics infid
-lpmetrics uncorr
+# Min Wt
+sbload 13_07_2020_16_44_27 
+pmetrics infid
+collect
+# alpha = 0.1
+sbload 15_07_2020_01_34_05
+pmetrics infid
+collect
+# Full ML
+sbload 13_07_2020_16_42_23
+pmetrics infid
+collect
+# Plot
+sbload 13_07_2020_16_44_27
+dcplot infid infid 15_07_2020_01_34_05,13_07_2020_16_42_23 10
+#
+#
+#
+quit
+#
+#
+# alpha = 0.3
+sbload 15_07_2020_01_34_49
+pmetrics infid
+collect
+# alpha = 0.5
+sbload 15_07_2020_01_35_05
+pmetrics infid
+collect
+# alpha = 0.7
+sbload 15_07_2020_01_35_17
+pmetrics infid
+collect
+# alpha = 0.9
+sbload 15_07_2020_10_36_02
+pmetrics infid
+collect
+# alpha = 1
+sbload 13_07_2020_16_43_00
+pmetrics infid
+collect
+# Full ML
+sbload 13_07_2020_16_42_23
+pmetrics infid
+collect
+# Compare
+sbload 13_07_2020_16_44_27
+dcplot infid infid 15_07_2020_01_34_05,15_07_2020_01_34_49,15_07_2020_01_35_05,15_07_2020_01_35_17,15_07_2020_10_36_02,13_07_2020_16_43_00,13_07_2020_16_42_23
 quit

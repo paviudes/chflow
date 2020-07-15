@@ -3,6 +3,7 @@ import sys
 import time
 import datetime as dt
 import ctypes as ct
+from define.dnorm import DiamondNormSimpler
 
 try:
     import numpy as np
@@ -33,7 +34,7 @@ Metrics = {
         "log": "Diamond distance of the logical channel",
         "latex": "$|| \\mathcal{E} - \\mathsf{id} ||_{\\diamondsuit}$",
         "marker": u"+",
-        "color": "blue",
+        "color": gv.QB_BLUE,
         "desc": "See Sec. 4 of DOI: 10.4086/toc.2009.v005a011.",
         "func": "lambda J, kwargs: DiamondNorm(J, kwargs)",
     },
@@ -61,9 +62,9 @@ Metrics = {
         "name": "Infidelity",
         "phys": "Infidelity of the physical channel",
         "log": "Infidelity of the logical channel",
-        "latex": "$1 - F$",
-        "marker": u"s",
-        "color": "crimson",
+        "latex": "$r$",
+        "marker": u"o",
+        "color": gv.QB_BLUE,
         "desc": "1 - Fidelity between the input Choi matrix and the Choi matrix corresponding to the identity state.",
         "func": "lambda J, kwargs: Infidelity(J, kwargs)",
     },
@@ -152,8 +153,8 @@ Metrics = {
         "phys": "Uncorrectable error probability",
         "log": "Uncorrectable error probability of the logical channel",
         "latex": "$p_{u}$",
-        "marker": u">",
-        "color": "forestgreen",
+        "marker": u"o",
+        "color": gv.QB_GREEN,
         "desc": "The total probability of uncorrectable (Pauli) errors.",
         "func": "lambda P, kwargs: UncorrectableProb(P, kwargs)",
     },
@@ -193,6 +194,7 @@ def DiamondNormPhysical(choi, kwargs):
     if IsDiagonal(crep.ConvertRepresentations(choi, "choi", "process")) == 1:
         dnorm = Infidelity(choi, kwargs)
     else:
+        # dnorm = DiamondNormSimpler(choi, gv.bell[0, :, :])
         diff = (choi - gv.bell[0, :, :]).astype(complex)
         #### picos optimization problem
         prob = pic.Problem()
@@ -222,7 +224,7 @@ def DiamondNorm(choi, kwargs):
 
     if kwargs["chtype"] == "physical":
         if kwargs["corr"] == 0:
-            return kwargs["qcode"].N * DiamondNormPhysical(choi, kwargs)
+            return DiamondNormPhysical(choi, kwargs)
         elif kwargs["corr"] == 2:
             chans_ptm = np.reshape(choi, [kwargs["qcode"].N, 4, 4])
             dnorm = 0
@@ -231,6 +233,7 @@ def DiamondNorm(choi, kwargs):
                     crep.ConvertRepresentations(chans_ptm[q, :, :], "process", "choi"),
                     {"corr": 0, "chtype": kwargs["chtype"], "qcode": kwargs["qcode"]},
                 )
+            dnorm = dnorm / kwargs["qcode"].N
         else:
             print("Diamond form for fully correlated channels is not yet set up.")
     else:
@@ -285,42 +288,35 @@ def InfidelityPhysical(choi, kwargs):
     # For correlated Pauli channel, the channel is represented as a vector of diagonal elements of the respective Pauli trnsfer matrix.
     # For a tensor product of CPTP maps, the fidelity is the sum of the fidelities of the maps in the tensor product.
     if kwargs["corr"] == 0:
-        fidelity = (1 / np.longdouble(2)) * np.longdouble(
+        infidelity = 1 - (1 / np.longdouble(2)) * np.longdouble(
             np.real(choi[0, 0] + choi[3, 0] + choi[0, 3] + choi[3, 3])
         )
     elif kwargs["corr"] == 1:
-        fidelity = choi[0]
+        infidelity = 1 - choi[0]
     else:
-        fidelity = 1
+        infidelity = 0
         chans_ptm = np.reshape(choi, [kwargs["qcode"].N, 4, 4])
         for q in range(chans_ptm.shape[0]):
-            fidelity = fidelity * (
-                1
-                - InfidelityPhysical(
+            infidelity = infidelity + (
+                InfidelityPhysical(
                     crep.ConvertRepresentations(chans_ptm[q, :, :], "process", "choi"),
                     {"corr": 0},
                 )
             )
-    return 1 - fidelity
+        infidelity = infidelity / kwargs["qcode"].N
+    return infidelity
 
 
 def Infidelity(choi, kwargs):
     # Compute the Infidelity for a physical channel or a set of logical channels.
     if kwargs["chtype"] == "physical":
-        if kwargs["corr"] == 0:
-            fidelity_individual = 1 - InfidelityPhysical(choi, kwargs)
-            return 1 - np.power(fidelity_individual, kwargs["qcode"].N)
         return InfidelityPhysical(choi, kwargs)
     else:
         infids = np.zeros(choi.shape[0], dtype=np.double)
         for l in range(choi.shape[0]):
-            infids[l] = InfidelityPhysical(
-                choi[l, :, :],
-                dict(
-                    [(key, kwargs[key]) for key in kwargs if not (key == "chtype")]
-                    + [("chtype", "physical")]
-                ),
-            )
+            new_params = [(key, kwargs[key]) for key in kwargs]
+            new_params["chtype"] = "physical"
+            infids[l] = InfidelityPhysical(choi[l, :, :], dict(new_params))
     return infids
 
 
@@ -641,12 +637,13 @@ def ChannelMetrics(submit, metrics, start, end, results, rep, chtype):
                     submit, submit.available[i, :-1], submit.available[i, -1]
                 )
             )
+            # print("{}). lchans\n{}".format(i, lchans))
             chan = np.zeros(
                 (lchans.shape[0], lchans.shape[1], lchans.shape[2]), dtype=np.complex128
             )
-            for l in range(chan.shape[0]):
+            for l in range(1,chan.shape[0]):
                 chan[l, :, :] = crep.ConvertRepresentations(
-                    lchans[l, :, :], "process", "choi"
+                    lchans[l, :, :]/lchans[l, 0, 0], "process", "choi"
                 )
         for m in range(len(metrics)):
             if chtype == "physical":

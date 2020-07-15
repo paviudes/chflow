@@ -1,0 +1,4 @@
+sbload 26_06_2020_20_07_38
+chgen
+submit
+quit

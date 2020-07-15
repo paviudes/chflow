@@ -1,34 +1,67 @@
 import os
 import sys
 import time
-
-try:
-    import numpy as np
-except:
-    pass
+import numpy as np
 import setup as st
 
 # Files from the "define" module.
-from define import globalvars as gv
-from define import qcode as qec
-from define import verifychans as vc
-from define import fnames as fn
-from define import submission as sub
-from define import metrics as ml
-from define import qchans as qc
-from define import genchans as chgen
-from define import chandefs as chdef
-from define import chanapprox as capp
-from define import photonloss as ploss
-from define import gendamp as gdamp
-from define import chanreps as crep
-from define.QECCLfid import uncorrectable as uc
-from define.QECCLfid import utils as ut
+from define.fnames import (
+    PhysicalChannel,
+    LogicalErrorRates,
+    RawPhysicalChannel,
+    FitPhysRates,
+    FitWtEnums,
+    FitExpo,
+    CompressedParams,
+    PredictedPhyRates,
+    HammerPlot,
+    LevelWise,
+    PauliDistribution,
+    ChannelWise,
+    MCStatsPlotFile,
+)
+from define.qcode import (
+    QuantumErrorCorrectingCode,
+    IsCanonicalBasis,
+    ConstructSyndromeProjectors,
+    PrepareSyndromeLookUp,
+    PrintQEC,
+)
 
-# Files from the "analyze" module.
-from analyze import collect as cl
-from analyze import plots as pl
-from analyze import bestfit as bf
+from define import globalvars as gv
+from define.verifychans import IsQuantumChannel
+from define.submission import Submission, PrintSub, MergeSubs, Select
+from define.utils import LoadTimeStamp, IsNumber
+from define.save import SavePhysicalChannels, Save, Schedule, PrepOutputDir
+from define.load import LoadSub
+from define.merge import MergeSubs
+from define.metrics import Metrics, ComputeNorms, ComputeMetrics  # Calibrate,
+from define.qchans import Channels, SaveChan  # Twirl, PrintChan
+from define.genchans import PreparePhysicalChannels
+from define.chanreps import (
+    CreatePauliDistChannels,
+    TwirlChannels,
+    ConvertRepresentations,
+)
+
+from define.QECCLfid.utils import GetErrorProbabilities
+
+from analyze.collect import IsComplete, GatherLogErrData, AddPhysicalRates
+from analyze.cplot import ChannelWisePlot
+from analyze.dcplot import DecoderCompare
+from analyze.lplot import LevelWisePlot, LevelWisePlot2D
+from analyze.statplot import MCStatsPlot
+from analyze.hamplot import DoubleHammerPlot
+from analyze.pdplot import PauliDistributionPlot
+from analyze.utils import ExtractPDFPages
+
+# from define import chandefs as chdef
+# from define import chanapprox as capp
+# from define import photonloss as ploss
+# from define import gendamp as gdamp
+# from define import chanreps as crep
+# from define.QECCLfid import uncorrectable as uc
+# from define.QECCLfid import utils as ut
 
 
 def DisplayLogoLicense():
@@ -60,8 +93,8 @@ def RemoteExecution(timestamp, node):
     # Load a submission record
     from simulate import simulate as sim
 
-    submit = sub.Submission()
-    sub.LoadSub(submit, timestamp, 0)
+    submit = Submission()
+    LoadSub(submit, timestamp, 0)
 
     # Prepare syndrome look-up table for hard decoding.
     if np.any(submit.decoders == 1):
@@ -72,7 +105,7 @@ def RemoteExecution(timestamp, node):
                         "\033[2mPreparing syndrome lookup table for the %s code.\033[0m"
                         % (submit.eccs[l].name)
                     )
-                    qec.PrepareSyndromeLookUp(submit.eccs[l])
+                    PrepareSyndromeLookUp(submit.eccs[l])
 
     # If no node information is specified, then simulate all nodes in serial.
     # Else simulate only the given node.
@@ -90,8 +123,8 @@ if __name__ == "__main__":
     avchreps = list(
         map(lambda rep: ('"%s"' % (rep)), ["krauss", "choi", "chi", "process", "stine"])
     )
-    avmets = list(map(lambda met: '"%s"' % (met), ml.Metrics.keys()))
-    avch = list(map(lambda chan: '"%s"' % (chan), qc.Channels.keys()))
+    avmets = list(map(lambda met: '"%s"' % (met), Metrics.keys()))
+    avch = list(map(lambda chan: '"%s"' % (chan), Channels.keys()))
     mannual = {
         "qcode": [
             "Load a quantum error correcting code.",
@@ -276,7 +309,7 @@ if __name__ == "__main__":
     rep = "process"
     channel = np.zeros((4, 4), dtype=np.longdouble)
     qeccode = None
-    submit = sub.Submission()
+    submit = Submission()
 
     while isquit == 0:
         if fileinput == 0:
@@ -301,21 +334,21 @@ if __name__ == "__main__":
 
         if user[0] == "qcode":
             # define a quantum code
-            qeccode = qec.QuantumErrorCorrectingCode(user[1])
-            qec.Load(qeccode)
+            qeccode = QuantumErrorCorrectingCode(user[1])
+            Load(qeccode)
 
         #####################################################################
 
         elif user[0] == "qcbasis":
             # display the canonical basis for the code
-            qec.IsCanonicalBasis(qeccode.S, qeccode.L, qeccode.T, verbose=1)
+            IsCanonicalBasis(qeccode.S, qeccode.L, qeccode.T, verbose=1)
 
         #####################################################################
 
         elif user[0] == "qcproj":
             # Construct the syndrome projectors
             print("\033[2mConstructing syndrome projectors.\033[0m")
-            qec.ConstructSyndromeProjectors(qeccode)
+            ConstructSyndromeProjectors(qeccode)
             print("\033[2mDone, saved to code/%s_syndproj.npy.\033[0m" % (qeccode.name))
 
         #####################################################################
@@ -324,13 +357,13 @@ if __name__ == "__main__":
             # prepare a syndrome lookup table for minimum weight decoding
             # Syndrome look-up table for hard decoding.
             print("\033[2mPreparing syndrome lookup table.\033[0m")
-            qec.PrepareSyndromeLookUp(qeccode)
+            PrepareSyndromeLookUp(qeccode)
 
         #####################################################################
 
         elif user[0] == "qcprint":
             # print details of the error correcting code
-            qec.Print(qeccode)
+            PrintQEC(qeccode)
 
         #####################################################################
 
@@ -339,31 +372,31 @@ if __name__ == "__main__":
             if len(user) > 2:
                 noiserates = list(map(np.longdouble, user[2].split(",")))
             for i in range(10):
-                channel = crep.ConvertRepresentations(
-                    chdef.GetKraussForChannel(user[1], *noiserates), "krauss", "process"
+                channel = ConvertRepresentations(
+                    GetKraussForChannel(user[1], *noiserates), "krauss", "process"
                 )
                 rep = "process"
                 print(
                     '\033[2mNote: the current channel is in the "process" representation.\033[0m'
                 )
-                qc.Print(channel, rep)
+                PrintChan(channel, rep)
                 print("\033[2mxxxxxx\033[0m")
 
         #####################################################################
 
         elif user[0] == "chsave":
-            qc.Save(user[1], channel, rep)
+            SaveChan(user[1], channel, rep)
 
         #####################################################################
 
         elif user[0] == "chrep":
-            channel = np.copy(crep.ConvertRepresentations(channel, rep, user[1]))
+            channel = np.copy(ConvertRepresentations(channel, rep, user[1]))
             rep = user[1]
 
         #####################################################################
 
         elif user[0] == "chtwirl":
-            proba = capp.Twirl(channel, rep)
+            proba = Twirl(channel, rep)
             print(
                 "\033[2mTwirled channel\n\tE(R) = %g R + %g X R X + %g Y R Y + %g Z R Z.\033[0m"
                 % (proba[0], proba[1], proba[2], proba[3])
@@ -372,7 +405,7 @@ if __name__ == "__main__":
         #####################################################################
 
         elif user[0] == "chpa":
-            (proba, proxim) = capp.HonestPauliApproximation(channel, rep)
+            (proba, proxim) = HonestPauliApproximation(channel, rep)
             print(
                 "\033[2mHonest Pauli Approximation\n\tE(R) = %g R + %g X R X + %g Y R Y + %g Z R Z,\n\tand it has a diamond distance of %g from the original channel.\033[0m"
                 % (
@@ -387,7 +420,7 @@ if __name__ == "__main__":
         #####################################################################
 
         elif user[0] == "chprint":
-            qc.Print(channel, rep)
+            PrintChan(channel, rep)
             print("\033[2mxxxxxx\033[0m")
 
         #####################################################################
@@ -395,13 +428,13 @@ if __name__ == "__main__":
         elif user[0] == "chmetrics":
             metrics = user[1].split(",")
             if not (rep == "choi"):
-                metvals = ml.ComputeNorms(
-                    crep.ConvertRepresentations(channel, rep, "choi"),
+                metvals = ComputeNorms(
+                    ConvertRepresentations(channel, rep, "choi"),
                     metrics,
                     {"qcode": qeccode, "chtype": "physical", "corr": 0},
                 )
             else:
-                metvals = ml.ComputeNorms(
+                metvals = ComputeNorms(
                     channel,
                     metrics,
                     {"qcode": qeccode, "chtype": "physical", "corr": 0},
@@ -411,7 +444,7 @@ if __name__ == "__main__":
             for m in range(len(metrics)):
                 print(
                     "{:<20} {:<10}".format(
-                        ml.Metrics[metrics[m]]["name"], ("%.2e" % metvals[m])
+                        Metrics[metrics[m]]["name"], ("%.2e" % metvals[m])
                     )
                 )
             print("xxxxxx")
@@ -438,17 +471,17 @@ if __name__ == "__main__":
                 out = user[3]
                 xcol = int(user[4])
                 ycol = int(user[5])
-            qc.Calibrate(user[1], user[2], out, xcol=xcol, ycol=ycol)
+            Calibrate(user[1], user[2], out, xcol=xcol, ycol=ycol)
 
         #####################################################################
 
         elif user[0] == "chval":
-            vc.IsQuantumChannel(channel, rep)
+            IsQuantumChannel(channel, rep)
 
         #####################################################################
 
         elif user[0] == "sbprint":
-            sub.PrintSub(submit)
+            PrintSub(submit)
 
         #####################################################################
 
@@ -458,8 +491,8 @@ if __name__ == "__main__":
                 # no file name or time stamp was provided.
                 print("Console input is not set up currently.")
             else:
-                submit = sub.Submission()
-                exists = sub.LoadSub(submit, user[1], 1)
+                submit = Submission()
+                exists = LoadSub(submit, user[1], 1)
             if exists == 1:
                 if len(submit.scales) == 0:
                     submit.scales = [1 for __ in range(submit.noiserates.shape[1])]
@@ -468,16 +501,16 @@ if __name__ == "__main__":
                 for i in range(submit.noiserates.shape[0]):
                     if reuse == 1:
                         if not os.path.isfile(
-                            fn.PhysicalChannel(submit, submit.noiserates[i, :])
+                            PhysicalChannel(submit, submit.noiserates[i, :])
                         ):
                             reuse = 0
                 if reuse == 0:
                     # print("Physical channels not found")
                     # If the simulation is to be run on a cluster, generate input using cluster nodes.
                     if submit.chgen_cluster == 0:
-                        chgen.PreparePhysicalChannels(submit)
+                        PreparePhysicalChannels(submit)
                 else:
-                    cl.IsComplete(submit)
+                    IsComplete(submit)
 
                 submit.nodes = int(
                     np.ceil(
@@ -496,44 +529,63 @@ if __name__ == "__main__":
         #####################################################################
 
         elif user[0] == "chgen":
-            chgen.PreparePhysicalChannels(submit)
+            PreparePhysicalChannels(submit)
 
         #####################################################################
 
-        elif user[0] == "build":
-            # Compile the modules required for error correction simulations and machine learning
-            locs = ["simulate", "analyze"]
-            cython = 0
-            if len(user) > 2:
-                if user[2].lower() == "cython":
-                    cython = 1
-            if len(user) > 1:
-                if os.path.exists(user[1]) == 1:
-                    locs = [user[1]]
-            for l in range(len(locs)):
-                st.BuildExt(locs[l], cython)
+        # elif user[0] == "build":
+        #     # Compile the modules required for error correction simulations and machine learning
+        #     locs = ["simulate", "analyze"]
+        #     cython = 0
+        #     if len(user) > 2:
+        #         if user[2].lower() == "cython":
+        #             cython = 1
+        #     if len(user) > 1:
+        #         if os.path.exists(user[1]) == 1:
+        #             locs = [user[1]]
+        #     for l in range(len(locs)):
+        #         st.BuildExt(locs[l], cython)
 
         #####################################################################
 
-        elif user[0] == "sbmerge":
-            sub.MergeSubs(submit, *user[1].split(","))
+        elif user[0] == "merge":
+            second_submit = Submission()
+            exists = LoadSub(second_submit, user[1], 1)
+            if exists == 1:
+                merged = MergeSubs(submit, second_submit)
+                print(
+                    "\033[2mMerged dataset is identified with the timestamp %s.\033[0m"
+                    % (merged)
+                )
+            else:
+                print(
+                    "\033[2mData set with time stamp %s doesn't exist.\033[0m"
+                    % (user[1])
+                )
 
         #####################################################################
 
         elif user[0] == "submit":
             # if not (submit.host in gv.cluster_hosts):
-            sub.LoadTimeStamp(
+            # Check if physical channels for the existing submission exist.
+            old_outdir = submit.outdir
+            LoadTimeStamp(
                 submit,
                 time.strftime("%d/%m/%Y %H:%M:%S")
                 .replace("/", "_")
                 .replace(":", "_")
                 .replace(" ", "_"),
             )
-            sub.Save(submit)
-            sub.Schedule(submit)
-            sub.PrepOutputDir(submit)
-            # Write the physical channels to folder
-            sub.SavePhysicalChannels(submit)
+            Save(submit)
+            Schedule(submit)
+            PrepOutputDir(submit)
+            if submit.phychans.size == 0:
+                os.system("cp %s/physical/* %s/physical/" % (old_outdir, submit.outdir))
+            else:
+                # Write the physical channels to folder
+                SavePhysicalChannels(submit)
+            # Prepare decoder knowledge and save
+            # if the decoder needs partial information, then the decoder knowledge needs to be prepared.
             if submit.host == "local":
                 print(
                     '\033[2mFor remote execution, run: "./chflow.sh %s"\033[0m'
@@ -565,62 +617,10 @@ if __name__ == "__main__":
 
         #####################################################################
 
-        elif user[0] == "ecc":
-            # Check if the logical channels and error dates already exist for this simulation.
-            # If yes, directly display the logical error rates data. Else, simulate error correction.
-            if submit.complete == 0:
-                # Compile the cythonizer file to be able to perform error correction simulations
-                # Syndrome look-up table for hard decoding.
-                start = time.time()
-                if submit.decode_table == 1:
-                    start = time.time()
-                    for l in range(submit.levels):
-                        if submit.ecc[l].lookup is None:
-                            print(
-                                "\033[2mPreparing syndrome lookup table for the %s code.\033[0m"
-                                % (submit.eccs[l].name)
-                            )
-                            qec.PrepareSyndromeLookUp(submit.eccs[l])
-                    print(
-                        "\033[2mHard decoding tables built in %d seconds.\033[0m"
-                        % (time.time() - start)
-                    )
-                # Files from the "simulate" module.
-                from simulate import simulate as sim
-
-                # Error correction simulation
-                start = time.time()
-                print("\033[2mPlease wait ...\033[0m")
-                stream = open("./../perf.txt", "w")
-                try:
-                    for i in range(submit.nodes):
-                        stnode = time.time()
-                        sim.LocalSimulations(submit, i, stream)
-                        print(
-                            "\r\033[2m%d%% done, approximately %d seconds remaining ...\033[0m"
-                            % (
-                                100 * (i + 1) / float(submit.nodes),
-                                (submit.nodes - i - 1) * (time.time() - stnode),
-                            )
-                        ),
-                    print("")
-                except KeyboardInterrupt:
-                    print("\033[2mProcess terminated by user.\033[0m")
-                # Create a folder with the timestamp as its name and move the channels, metrics data and the input files, bqsubmit.dat data into the timestamp-folder.
-                stream.close()
-                print(
-                    "\033[2mdone, in %d seconds. Check %s/results/perf.txt for results.\033[0m"
-                    % (time.time() - start, submit.outdir)
-                )
-            else:
-                cl.GatherLogErrData(submit)
-
-        #####################################################################
-
         elif user[0] == "collect":
             # Collect the logical failure rates into one file.
             if submit.complete > 0:
-                cl.GatherLogErrData(submit)
+                GatherLogErrData(submit)
 
         #####################################################################
 
@@ -628,7 +628,7 @@ if __name__ == "__main__":
             # Produce threshold plots for a particular logical metric.
             # Plot the logical error rate with respect to the concatnation layers, with a new curve for every physical noise rate.
             # At the threshold in the physical noise strengh, the curves will have a bifurcation.
-            pl.ThresholdPlot(user[1], user[2], submit)
+            ThresholdPlot(user[1], user[2], submit)
 
         #####################################################################
 
@@ -636,25 +636,59 @@ if __name__ == "__main__":
             # Plot the logical error rate with respect to a physical noise strength, with a new figure for every concatenation layer.
             # One or more simulation data can be plotted in the same figure with a new curve for every dataset.
             # One of more measures of physical noise strength can be plotted on the same figure with a new curve for each definition.
+
             if len(user) >= 3:
                 dbses = [submit]
-                if len(user) > 3:
-                    for (i, ts) in enumerate(user[3].split(",")):
-                        dbses.append(sub.Submission())
-                        sub.LoadSub(dbses[i + 1], ts, 0)
+                thresholds = []
+                nbins = 10
+                if len(user) > 6:
+                    for (i, ts) in enumerate(user[6].split(",")):
+                        dbses.append(Submission())
+                        LoadSub(dbses[i + 1], ts, 0)
                 check = 1
                 for d in range(len(dbses)):
-                    cl.IsComplete(dbses[d])
+                    IsComplete(dbses[d])
                     if dbses[d].complete > 0:
                         if not os.path.isfile(
-                            fn.LogicalErrorRates(dbses[d], user[2], fmt="npy")
+                            LogicalErrorRates(dbses[d], user[2], fmt="npy")
                         ):
-                            cl.GatherLogErrData(dbses[d])
+                            GatherLogErrData(dbses[d])
                     else:
                         check = 0
                         break
+                if len(user) > 5:
+                    nbins = int(user[5])
+                if len(user) > 4:
+                    upper_cutoffs = np.array(list(map(np.double, user[4].split(","))))
+                    upper_cutoffs = np.repeat(
+                        upper_cutoffs, submit.levels // upper_cutoffs.shape[0]
+                    )
+                if len(user) > 3:
+                    lower_cutoffs = np.power(
+                        0.1, list(map(np.double, user[3].split(",")))
+                    )
+                    lower_cutoffs = np.repeat(
+                        lower_cutoffs, submit.levels // lower_cutoffs.shape[0]
+                    )
+                for c in range(upper_cutoffs.shape[0]):
+                    thresholds.append(
+                        {"upper": upper_cutoffs[c], "lower": lower_cutoffs[c]}
+                    )
+                if len(thresholds) == 0:
+                    thresholds = [
+                        {"lower": 1e-9, "upper": 1e-2} for __ in submit.levels
+                    ]
                 if check == 1:
-                    pl.LevelWisePlot(user[1], user[2], dbses, inset_flag=1, nbins=10)
+                    phylist = list(map(lambda phy: phy.strip(" "), user[1].split(",")))
+                    LevelWisePlot(
+                        phylist,
+                        user[2],
+                        dbses,
+                        1,  # inset flag
+                        int(("dnorm" in phylist) and (len(dbses) > 1)),  # flow lines
+                        nbins,
+                        thresholds,
+                    )
                 else:
                     print(
                         "\033[2mOne of the databases does not have logical error data.\033[0m"
@@ -664,49 +698,86 @@ if __name__ == "__main__":
 
         #####################################################################
 
+        elif user[0] == "dcplot":
+            # No documentation yet.
+            # Compare decoders.
+            pmet = user[1]
+            lmet = user[2]
+            dbses = [submit]
+            if len(user) > 3:
+                for (i, ts) in enumerate(user[3].split(",")):
+                    dbses.append(Submission())
+                    LoadSub(dbses[i + 1], ts, 0)
+                    IsComplete(dbses[i + 1])
+                    if not os.path.isfile(
+                        LogicalErrorRates(dbses[i + 1], lmet, fmt="npy")
+                    ):
+                        GatherLogErrData(dbses[i + 1])
+            nbins = dbses[0].noiserates.shape[0]
+            if len(user) > 4:
+                nbins = int(user[4])
+            DecoderCompare(pmet, lmet, dbses, nbins = nbins)
+
+        #####################################################################
+
         elif user[0] == "hamplot":
             # No documentation provided yet
             pmets = user[1].strip(" ").split(",")
             logmet = user[2]
+            thresholds = []
+            nbins = 10
+            if len(user) > 6:
+                nbins = int(user[6])
+            if len(user) > 5:
+                upper_cutoffs = np.array(list(map(np.double, user[5].split(","))))
+                upper_cutoffs = np.repeat(
+                    upper_cutoffs, submit.levels // upper_cutoffs.shape[0]
+                )
+            if len(user) > 4:
+                lower_cutoffs = np.power(0.1, list(map(np.double, user[4].split(","))))
+                lower_cutoffs = np.repeat(
+                    lower_cutoffs, submit.levels // lower_cutoffs.shape[0]
+                )
+            for c in range(upper_cutoffs.shape[0]):
+                thresholds.append(
+                    {"upper": upper_cutoffs[c], "lower": lower_cutoffs[c]}
+                )
+            if len(thresholds) == 0:
+                thresholds = [{"lower": 1e-9, "upper": 1e-2} for __ in submit.levels]
             # Load the other database
-            dbs_other = sub.Submission()
-            sub.LoadSub(dbs_other, user[3], 0)
+            dbs_other = Submission()
+            LoadSub(dbs_other, user[3], 0)
             # Load the logical error rates
-            cl.IsComplete(dbs_other)
+            IsComplete(dbs_other)
             if dbs_other.complete > 0:
-                if not os.path.isfile(
-                    fn.LogicalErrorRates(dbs_other, logmet, fmt="npy")
-                ):
-                    cl.GatherLogErrData(dbs_other)
+                if not os.path.isfile(LogicalErrorRates(dbs_other, logmet, fmt="npy")):
+                    GatherLogErrData(dbs_other)
             else:
                 check = 0
                 break
-            pl.DoubleHammerPlot(
-                logmet, pmets, [submit, dbs_other], inset_flag=1, nbins=20
-            )
+            DoubleHammerPlot(logmet, pmets, [submit, dbs_other], 1, nbins, thresholds)
 
         #####################################################################
 
         elif user[0] == "pdplot":
             # No documentation provided yet
             nrate = list(map(np.double, user[1].split(",")))
-            sample = int(user[2])
-            nreps = int(user[3])
-            max_weight = int(user[4])
-            if os.path.exists(fn.RawPhysicalChannel(submit, nrate)):
-                chi = np.load(fn.RawPhysicalChannel(submit, nrate))[sample, :]
+            nreps = int(user[2])
+            max_weight = int(user[3])
+            if os.path.exists(RawPhysicalChannel(submit, nrate)):
+                chi = np.mean(np.load(RawPhysicalChannel(submit, nrate)), axis=0)
             else:
-                chrep.CreatePauliDistChannels(submit)
+                CreatePauliDistChannels(submit)
             if submit.iscorr == 0:
                 pauliprobs = np.diag(chi.reshape([4, 4]))
             elif submit.iscorr == 1:
                 pauliprobs = chi
             else:
                 pauliprobs = list(map(np.diag, chi.reshape([submit.eccs[0].N, 4, 4])))
-            dist = ut.GetErrorProbabilities(
+            dist = GetErrorProbabilities(
                 submit.eccs[0].PauliOperatorsLST, pauliprobs, submit.iscorr
             )
-            pl.PauliDistributionPlot(
+            PauliDistributionPlot(
                 submit.eccs[0],
                 dist,
                 nreps=nreps,
@@ -728,21 +799,22 @@ if __name__ == "__main__":
 
             if len(user) > 3:
                 for (i, ts) in enumerate(user[3].split(",")):
-                    dbses.append(sub.Submission())
-                    sub.LoadSub(dbses[i + 1], ts, 0)
+                    dbses.append(Submission())
+                    LoadSub(dbses[i + 1], ts, 0)
             check = 1
             for d in range(len(dbses)):
-                cl.IsComplete(dbses[d])
+                IsComplete(dbses[d])
                 if dbses[d].complete > 0:
                     if not os.path.isfile(
-                        fn.LogicalErrorRates(dbses[d], user[2], fmt="npy")
+                        LogicalErrorRates(dbses[d], user[2], fmt="npy")
                     ):
-                        cl.GatherLogErrData(dbses[d])
+                        GatherLogErrData(dbses[d])
                 else:
                     check = 0
                     break
             if check == 1:
-                pl.ChannelWisePlot(user[1], user[2], dbses, thresholds)
+                include = np.sort(np.concatenate((np.arange(0, dbses[0].channels, dbses[0].samps), np.arange(1, dbses[0].channels, dbses[0].samps))))
+                ChannelWisePlot(user[1], user[2], dbses, thresholds=thresholds, include_input=include)
             else:
                 print(
                     "\033[2mOne of the databases does not have logical error data.\033[0m"
@@ -754,7 +826,7 @@ if __name__ == "__main__":
             # Plot the logical error rates with respect to two parameters of the physical noise rate.
             # The plot will be a 2D density plot with the logical error rates represented by the density of the colors.
             print("\033[2m"),
-            pl.LevelWisePlot2D(user[1], user[2], submit)
+            LevelWisePlot2D(user[1], user[2], submit)
             print("\033[0m"),
 
         #####################################################################
@@ -766,42 +838,29 @@ if __name__ == "__main__":
             # physical noise process
             # number of concatenation levels
             # To use this feature, submit.stats must be a list.
+            pmet = user[1]
+            lmet = user[2]
+            nrates = min(3, submit.noiserates.shape[0])
+            nsamps = 10
             dbses = [submit]
-            check = 1
+            if len(user) > 5:
+                for (i, ts) in enumerate(user[5].split(",")):
+                    dbses.append(Submission())
+                    LoadSub(dbses[i + 1], ts, 0)
+                    IsComplete(dbses[i + 1])
+                    if not os.path.isfile(
+                        LogicalErrorRates(dbses[i + 1], lmet, fmt="npy")
+                    ):
+                        GatherLogErrData(dbses[i + 1])
+            if len(user) > 4:
+                nsamps = int(user[4])
             if len(user) > 3:
-                lmet = user[1]
-                pmet = user[2]
-                maxlev = max([dbses[d].levels for d in range(len(dbses))])
-                for (i, ts) in enumerate(user[3].split(",")):
-                    dbses.append(sub.Submission())
-                    sub.LoadSub(dbses[i + 1], ts, 0)
-                    if dbses[i].levels == maxlev:
-                        cl.IsComplete(dbses[i + 1])
-                        if dbses[i + 1].complete > 0:
-                            cl.GatherLogErrData(dbses[i + 1])
-                        else:
-                            check = 0
-                            break
-                    else:
-                        check = 0
-                        break
-            else:
-                if len(user) > 2:
-                    pmet = user[2]
-                    lmet = user[1]
-                else:
-                    pmet = -1
-                    if len(user) > 1:
-                        lmet = user[1]
-                    else:
-                        lmet = submit.metrics[0]
-            if check == 1:
-                pl.MCStatsPlot(dbses, lmet, pmet)
-            else:
-                print(
-                    "\033[2mOne of the databases does not have logical error data up to %d levels.\033[0m"
-                    % (maxlev)
-                )
+                rate_range = list(map(int, user[3].split(",")))
+            # rates = submit.noiserates[
+            #     np.sort(np.random.choice(submit.noiserates.shape[0], nrates))[::-1], :
+            # ]
+            rates = submit.noiserates[np.arange(*rate_range), :]
+            MCStatsPlot(dbses, lmet, pmet, rates, nsamples=nsamps)
 
         #####################################################################
 
@@ -824,7 +883,7 @@ if __name__ == "__main__":
                     lmet = user[1]
                 else:
                     lmet = submit.metrics[0]
-            pl.BinsPlot(submit, lmet, pvals)
+            BinsPlot(submit, lmet, pvals)
 
         #####################################################################
 
@@ -838,11 +897,11 @@ if __name__ == "__main__":
             maxlev = 0
             if len(user) > 4:
                 for (i, ts) in enumerate(user[4].split(",")):
-                    dbses.append(sub.Submission())
-                    sub.LoadSub(dbses[i + 1], ts, 0)
-                    cl.IsComplete(dbses[i + 1])
+                    dbses.append(Submission())
+                    LoadSub(dbses[i + 1], ts, 0)
+                    IsComplete(dbses[i + 1])
                     if dbses[i + 1].complete > 0:
-                        cl.GatherLogErrData(dbses[i + 1])
+                        GatherLogErrData(dbses[i + 1])
                     else:
                         check = 0
                         break
@@ -866,7 +925,7 @@ if __name__ == "__main__":
                         else:
                             pmet = 0
             if check == 1:
-                pl.PlotBinVariance(dbses, lmet, pmet, nbins)
+                PlotBinVariance(dbses, lmet, pmet, nbins)
             else:
                 print(
                     "\033[2mOne of the databases does not have logical error data up to %d levels.\033[0m"
@@ -875,61 +934,24 @@ if __name__ == "__main__":
 
         #####################################################################
 
-        elif user[0] == "metscat":
-            # Plot the variance in a scatter plot
-            # No documentation yet.
-            phymets = user[1]
-            lmet = user[2]
-            nbins = int(user[3])
-            pl.PlotBinVarianceMetrics(submit, lmet, phymets, nbins=nbins + 1)
-
-        #####################################################################
-
-        elif user[0] == "datascat":
-            # Plot the variance in a scatter plot
-            # No documentation yet.
-            pmet = user[1]
-            lmet = user[2]
-            nbins = int(user[3])
-            timestamp = user[4]
-            dbses = [submit]
-            # Load the additional database
-            dbses.append(sub.Submission())
-            sub.LoadSub(dbses[1], timestamp, 0)
-            check = 1
-            for d in range(len(dbses)):
-                cl.IsComplete(dbses[d])
-                if dbses[d].complete > 0:
-                    if not os.path.isfile(
-                        fn.LogicalErrorRates(dbses[d], user[2], fmt="npy")
-                    ):
-                        cl.GatherLogErrData(dbses[d])
-                else:
-                    check = 0
-                    break
-            if check == 1:
-                pl.PlotBinVarianceDataSets(dbses, lmet, pmet, nbins=nbins + 1)
-
-        #####################################################################
-
         elif user[0] == "sbselect":
             # No documentation provided
-            sub.Select(submit, list(map(int, user[1].split(","))))
+            Select(submit, list(map(int, user[1].split(","))))
 
         #####################################################################
 
         elif user[0] == "sbsave":
-            sub.Save(submit)
-            sub.Schedule(submit)
-            sub.PrepOutputDir(submit)
+            Save(submit)
+            Schedule(submit)
+            PrepOutputDir(submit)
             # Save the physical channels
             if submit.phychans is not None:
-                sub.SavePhysicalChannels(submit)
+                SavePhysicalChannels(submit)
 
         #####################################################################
 
         elif user[0] == "sbtwirl":
-            crep.TwirlChannels(submit)
+            TwirlChannels(submit)
 
         #####################################################################
 
@@ -937,7 +959,7 @@ if __name__ == "__main__":
             # compute level-0 metrics.
             if len(user) > 1:
                 physmetrics = user[1].split(",")
-                ml.ComputeMetrics(submit, physmetrics, chtype="physical")
+                ComputeMetrics(submit, physmetrics, chtype="physical")
             else:
                 print("\033[2mUsage: %s\033[0m" % mannual["pmetrics"][1])
         #####################################################################
@@ -946,9 +968,9 @@ if __name__ == "__main__":
             # compute metrics of the average logical channel.
             if len(user) > 1:
                 logmetrics = user[1].split(",")
-                ml.ComputeMetrics(submit, logmetrics, chtype="logical")
+                ComputeMetrics(submit, logmetrics, chtype="logical")
                 # submit.metrics = list(set().union(submit.metrics, logmetrics))
-                cl.GatherLogErrData(submit, additional=logmetrics)
+                GatherLogErrData(submit, additional=logmetrics)
 
             else:
                 print("\033[2mUsage: %s\033[0m" % mannual["lmetrics"][1])
@@ -959,7 +981,7 @@ if __name__ == "__main__":
             # compute metrics of the average logical channel.
             if len(user) > 1:
                 phylogmetrics = user[1].split(",")
-                ml.ComputeMetrics(submit, phylogmetrics, chtype="phylog")
+                ComputeMetrics(submit, phylogmetrics, chtype="phylog")
             else:
                 print("\033[2mUsage: %s\033[0m" % mannual["lpmetrics"][1])
 
@@ -967,7 +989,7 @@ if __name__ == "__main__":
 
         elif user[0] == "threshold":
             if user[1] in submit.metrics:
-                thresh = cl.ComputeThreshold(submit, user[1])
+                thresh = ComputeThreshold(submit, user[1])
                 print(
                     "The estimated threshold for the %s code over the %s channel is %g."
                     % (
@@ -981,7 +1003,7 @@ if __name__ == "__main__":
             else:
                 print(
                     "Only %s are computed at the logical levels."
-                    % (", ".join([ml.Metrics[met]["name"] for met in submit.metrics]))
+                    % (", ".join([Metrics[met]["name"] for met in submit.metrics]))
                 )
 
         #####################################################################
@@ -992,10 +1014,8 @@ if __name__ == "__main__":
                 LoadSub(tocompare[i], user[1 + i])
             if (user[3] in tocompare[0].metrics) and (user[3] in tocompare[1].metrics):
                 if os.path.isfile(
-                    fn.GatheredLogErrData(tocompare[0], logicalmetric)
-                ) and os.path.isfile(
-                    fn.GatheredLogErrData(tocompare[1], logicalmetric)
-                ):
+                    GatheredLogErrData(tocompare[0], logicalmetric)
+                ) and os.path.isfile(GatheredLogErrData(tocompare[1], logicalmetric)):
                     CompareSubs(tocompare, user[3])
                 else:
                     print(
@@ -1007,7 +1027,7 @@ if __name__ == "__main__":
                     % (
                         ", ".join(
                             [
-                                ml.Metrics[met]["name"]
+                                Metrics[met]["name"]
                                 for met in tocompare[0].metrics
                                 if met in tocompare[1].metrics
                             ]
@@ -1026,11 +1046,11 @@ if __name__ == "__main__":
             check = 1
             if len(user) > 3:
                 for (i, ts) in enumerate(user[3].split(",")):
-                    refs.append(sub.Submission())
-                    sub.LoadSub(dbses[i + 1], ts, 0)
-                    cl.IsComplete(dbses[i + 1])
+                    refs.append(Submission())
+                    LoadSub(dbses[i + 1], ts, 0)
+                    IsComplete(dbses[i + 1])
                     if dbses[i + 1].complete > 0:
-                        cl.GatherLogErrData(dbses[i + 1])
+                        GatherLogErrData(dbses[i + 1])
                     else:
                         check = 0
             if len(user) > 2:
@@ -1039,16 +1059,16 @@ if __name__ == "__main__":
                 pmet = user[1]
 
             if (
-                (os.path.isfile(fn.FitPhysRates(submit, lmet)) == 1)
-                and (os.path.isfile(fn.FitWtEnums(submit, lmet)) == 1)
-                and (os.path.isfile(fn.FitExpo(submit, lmet)) == 1)
+                (os.path.isfile(FitPhysRates(submit, lmet)) == 1)
+                and (os.path.isfile(FitWtEnums(submit, lmet)) == 1)
+                and (os.path.isfile(FitExpo(submit, lmet)) == 1)
             ):
-                pl.CompareAnsatzToMetrics(submit, pmet, lmet)
+                CompareAnsatzToMetrics(submit, pmet, lmet)
             else:
                 if check == 1:
                     # os.system("cd analyze/;python compile.py build_ext --inplace > compiler_output.txt 2>&1;cd ..")
-                    bf.FitPhysErr(pmet, lmet, *dbses)
-                    pl.CompareAnsatzToMetrics(submit, pmet, lmet)
+                    FitPhysErr(pmet, lmet, *dbses)
+                    CompareAnsatzToMetrics(submit, pmet, lmet)
                 else:
                     print(
                         "\033[2mSome of the databases do not have simulation data.\033[0m"
@@ -1085,15 +1105,15 @@ if __name__ == "__main__":
                             check = 0
 
             if check == 1:
-                if os.path.isfile(fn.CompressedParams(submit, lmet, level)):
+                if os.path.isfile(CompressedParams(submit, lmet, level)):
                     # Compute the bin averages
                     # xdata = compressed parameters
                     # ydata = logical error rates
-                    xdata = np.load(fn.CompressedParams(submit, lmet, level))
-                    ydata = np.load(fn.LogicalErrorRates(submit, lmet))[:, level]
-                    pl.ComputeNDimBinVariance(xdata, ydata, nbins, space="linear")
+                    xdata = np.load(CompressedParams(submit, lmet, level))
+                    ydata = np.load(LogicalErrorRates(submit, lmet))[:, level]
+                    ComputeNDimBinVariance(xdata, ydata, nbins, space="linear")
                 else:
-                    bf.Compress(submit, lmet, level, ncomp)
+                    Compress(submit, lmet, level, ncomp)
             else:
                 print(
                     "\033[2mUsage: compress level [lmet] [nbins]. Ensure that the logical error data exists for all levels.\033[0m"
@@ -1104,31 +1124,31 @@ if __name__ == "__main__":
         elif user[0] == "synclog":
             # Add the physical error rates to the level-0 logical error data.
             # This is only relevant for backward compatibility since earlier the logical error rates at level-0 were not computed and left as 0.
-            cl.AddPhysicalRates(submit)
+            AddPhysicalRates(submit)
 
         #####################################################################
 
         elif user[0] == "sblearn":
             # learn physical noise rates from fit data
             # sblearn <timestamp> <physical metrics> <logical metric> [method] [<mask>]
-            sbtest = sub.Submission()
-            sub.LoadSub(sbtest, user[1], 0)
-            cl.IsComplete(sbtest)
+            sbtest = Submission()
+            LoadSub(sbtest, user[1], 0)
+            IsComplete(sbtest)
             if sbtest.complete > 0:
-                cl.GatherLogErrData(sbtest)
+                GatherLogErrData(sbtest)
 
-            if os.path.isfile(fn.PredictedPhyRates(sbtest)) == 1:
-                pl.ValidatePrediction(sbtest, user[2], user[3])
+            if os.path.isfile(PredictedPhyRates(sbtest)) == 1:
+                ValidatePrediction(sbtest, user[2], user[3])
             else:
                 mask = np.zeros((4, 4), dtype=np.int8)
                 mask[:, 1:] = 1
                 if len(user) > 5:
-                    if user[5] in qc.Channels:
-                        noiserates = np.random.rand(len(qc.Channels[user[5]]["params"]))
+                    if user[5] in Channels:
+                        noiserates = np.random.rand(len(Channels[user[5]]["params"]))
                         mask[
                             np.nonzero(
-                                chrep.ConvertRepresentations(
-                                    chdef.GetKraussForChannel(user[5], *noiserates),
+                                ConvertRepresentations(
+                                    GetKraussForChannel(user[5], *noiserates),
                                     "krauss",
                                     "process",
                                 )
@@ -1140,16 +1160,14 @@ if __name__ == "__main__":
                 if len(user) > 4:
                     method = user[4]
                 # os.system("cd analyze/;python compile.py build_ext --inplace > compiler_output.txt 2>&1;cd ..")
-                from analyze import learning as mac
-
                 # prepare training set
-                mac.PrepareMLData(submit, user[2].split(","), user[3], 0, mask)
+                PrepareMLData(submit, user[2].split(","), user[3], 0, mask)
                 # prepare testing set
-                mac.PrepareMLData(sbtest, user[2].split(","), user[3], 1, mask)
+                PrepareMLData(sbtest, user[2].split(","), user[3], 1, mask)
                 # predict using machine learning
-                mac.Predict(sbtest, submit, method)
+                Predict(sbtest, submit, method)
                 # validate machine learning predictions using a plot
-                pl.ValidatePrediction(sbtest, user[2].split(",")[0], user[3])
+                ValidatePrediction(sbtest, user[2].split(",")[0], user[3])
 
         #####################################################################
 
@@ -1160,23 +1178,19 @@ if __name__ == "__main__":
                         '\t\033[2m"%s"\n\tDescription: %s\n\tUsage:\n\t%s\033[0m'
                         % (user[1], mannual[user[1]][0], mannual[user[1]][1])
                     )
-                elif user[1] in qc.Channels:
+                elif user[1] in Channels:
                     print(
                         '\t\033[2m"%s"\n\tDescription: %s\n\tParameters: %s\033[0m'
                         % (
                             user[1],
-                            qc.Channels[user[1]]["desc"],
-                            qc.Channels[user[1]]["params"],
+                            Channels[user[1]]["desc"],
+                            Channels[user[1]]["params"],
                         )
                     )
-                elif user[1] in ml.Metrics:
+                elif user[1] in Metrics:
                     print(
                         '\t\033[2m"%s"\n\tDescription: %s\n\tExpression: %s\033[0m'
-                        % (
-                            user[1],
-                            ml.Metrics[user[1]]["name"],
-                            ml.Metrics[user[1]]["latex"],
-                        )
+                        % (user[1], Metrics[user[1]]["name"], Metrics[user[1]]["latex"])
                     )
                 else:
                     # Try to auto complete and ask for possible suggestions.
@@ -1199,7 +1213,7 @@ if __name__ == "__main__":
             if len(user) > 1:
                 if user[1] == "git":
                     git = 1
-            st.Clean(git)
+            Clean(git)
 
         #####################################################################
 
@@ -1218,13 +1232,15 @@ if __name__ == "__main__":
             notes_location = user[5]
             pages = list(map(int, user[6].split(",")))
             if plot_option == "lplot":
-                plot_file = fn.LevelWise(submit, phymet.replace(",", "_"), logmet)
+                plot_file = LevelWise(submit, phymet.replace(",", "_"), logmet)
             elif plot_option == "cplot":
-                plot_file = fn.ChannelWise(submit, phymet, logmet)
+                plot_file = ChannelWise(submit, phymet, logmet)
             elif plot_option == "pdplot":
-                plot_file = fn.PauliDistribution(submit.outdir, submit.channel)
+                plot_file = PauliDistribution(submit.outdir, submit.channel)
             elif plot_option == "hamplot":
-                plot_file = fn.HammerPlot(submit, logmet, phymet.split(","))
+                plot_file = HammerPlot(submit, logmet, phymet.split(","))
+            elif plot_option == "mcplot":
+                plot_file = MCStatsPlotFile(submit, logmet, phymet.split(",")[0])
             else:
                 print("\033[2mUnknown plot option %s.\033[0m" % (plot_option))
                 continue
@@ -1235,12 +1251,12 @@ if __name__ == "__main__":
             # )
             information = [{"fname": plot_file, "start": pg, "end": pg} for pg in pages]
             output_file = "%s_%s_%s_%s.pdf" % (plot_option, name, phymet, logmet)
-            print(
-                "ExtractPDFPages({}, {}, {})".format(
-                    information, notes_location, output_file
-                )
-            )
-            pl.ExtractPDFPages(information, notes_location, output_file)
+            # print(
+            #     "ExtractPDFPages({}, {}, {})".format(
+            #         information, notes_location, output_file
+            #     )
+            # )
+            ExtractPDFPages(information, notes_location, output_file)
 
         #####################################################################
 

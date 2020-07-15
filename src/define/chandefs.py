@@ -74,6 +74,19 @@ def PauliChannel(params):
     return krauss
 
 
+def WorstPauliChannel(params):
+    """
+    The worst n-qubit Pauli channel for a given infidelity.
+    """
+    qcode = params[0]
+    nqubit_infid = params[1]
+    pauliprobs = np.random.rand(4 ** qcode.N)
+    pauliprobs[qcode.PauliCorrectableIndices] = 0
+    pauliprobs[0] = 1 - nqubit_infid
+    pauliprobs[1:] = nqubit_infid * pauliprobs[1:] / np.sum(pauliprobs[1:])
+    return pauliprobs
+
+
 def ArbitraryNormalRotation(params):
     """
     Asymmetric and uniformly random rotation to n qubits.
@@ -395,6 +408,10 @@ def GetKraussForChannel(chType, *params):
     elif chType == "pcorr":
         # This is a correlated Pauli channel.
         krauss = CorrelatedPauli(params)
+
+    elif chType == "wpc":
+        # Worst Pauli channel for a infidelity
+        krauss = WorstPauliChannel(params)
 
     elif os.path.isfile(chType) == 1:
         krauss = UserdefQC(chType, params)

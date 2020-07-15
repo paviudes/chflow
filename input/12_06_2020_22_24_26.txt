@@ -1,0 +1,8 @@
+# Time stamp
+timestamp 12_06_2020_22_24_26
+# Type of quantum error correcting code
+ecc Steane,Steane
+# Type of quantum channel
+channel rtas
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
