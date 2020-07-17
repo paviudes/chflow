@@ -36,7 +36,7 @@ def SimulateSampleIndex(submit, rate, sample, coreidx, results):
         # Partial ML decoder which only has access to a few leading Pauli error probabilities.
         decoder_knowledge = PrepareChannelDecoder(submit, rate, sample)
     else:
-        decoder_knowledge = None
+        decoder_knowledge = []
     # print(
     #     "Core: {}, noise: {}, sample: {}\nPhysical channel before simulate\n{}".format(
     #         coreidx, rate, sample, physchan.reshape(4, 4)

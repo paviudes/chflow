@@ -1,7 +1,9 @@
 import numpy as np
 from define.QECCLfid import utils as ut
+from define.QECCLfid.minwt import ComputeResiduals
 from define.randchans import CreateIIDPauli
 from define.chanreps import PauliConvertToTransfer
+from define.qcode import ComputeAdaptiveDecoder
 from define import fnames as fn
 
 def GetLeadingPaulis(lead_frac, qcode, chan_probs):
@@ -26,25 +28,28 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, level):
     mask = np.ones(decoder_probs.shape[0], dtype = bool)
     mask[known_paulis] = False
     decoder_probs[mask] = total_unknown * decoder_probs[mask]/np.sum(decoder_probs[mask])
-    decoder_probs_level = np.power(decoder_probs, (np.power(qcode.D, level) + 1)/2)
-    decoder_knowledge = PauliConvertToTransfer(decoder_probs_level/np.sum(decoder_probs_level), qcode)
-    return decoder_knowledge
+    return decoder_probs
 
 def PrepareChannelDecoder(submit, noise, sample):
     # Generate the decoder input for a given channel in the submission.
     decoder_knowledge = [None for __ in range(submit.levels)]
     for l in range(submit.levels):
-        qcode = submit.eccs[l]
-        nrows = 4**submit.eccs[l].K
-        ncols = 4**submit.eccs[l].K
-        # decoder_knowledge = np.zeros((submit.samps, 2**(qcode.N + qcode.K)))
-        diagmask = [q * ncols * nrows + ncols * j + j for q in range(qcode.N) for j in range(nrows)]
-        rawchan = np.load(fn.RawPhysicalChannel(submit, noise))[sample, :]
-        if submit.iscorr == 0:
-            chan_probs = np.reshape(np.tile(rawchan, qcode.N)[diagmask], [qcode.N, nrows])
-        elif submit.iscorr == 2:
-            chan_probs = np.reshape(rawchan[diagmask], [qcode.N, nrows])
+        if l == 0:
+            qcode = submit.eccs[l]
+            (nrows, ncols) = (4**submit.eccs[l].K, 4**submit.eccs[l].K)
+            diagmask = [q * ncols * nrows + ncols * j + j for q in range(qcode.N) for j in range(nrows)]
+            rawchan = np.load(fn.RawPhysicalChannel(submit, noise))[sample, :]
+            if submit.iscorr == 0:
+                chan_probs = np.reshape(np.tile(rawchan, qcode.N)[diagmask], [qcode.N, nrows])
+            elif submit.iscorr == 2:
+                chan_probs = np.reshape(rawchan[diagmask], [qcode.N, nrows])
+            else:
+                chan_probs = rawchan
+        elif l == 1:
+            ComputeAdaptiveDecoder(qcode, decoder_probs)
+            chan_probs = np.tile([ComputeResiduals(p, decoder_probs, submit.eccs[0], lookup=qcode.tailored_lookup) for p in range(4)], [submit.eccs[1].N, 1])
         else:
-            chan_probs = rawchan
-        decoder_knowledge[l] = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, qcode, l)
+            pass
+        decoder_probs = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, qcode, l)
+        decoder_knowledge[l] = PauliConvertToTransfer(decoder_probs, qcode)
     return decoder_knowledge

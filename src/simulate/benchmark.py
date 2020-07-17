@@ -115,8 +115,8 @@ def Benchmark(submit, noise, sample, physical, refchan, dcknowledge):
     )
     decoders = np.zeros(nlevels, dtype=np.int32)
     dclookups = np.zeros(nlevels * nstabs, dtype=np.int32)
-    if dcknowledge is None:
-        dcknow = None
+    if len(dcknowledge) == 0:
+        dcknow = np.zeros(1, dtype=np.double)
     else:
         dcknow = np.zeros(np.sum([2 ** (submit.eccs[l].N + submit.eccs[l].K) for l in range(nlevels)]), dtype=np.float64)
         norm_count = 0
@@ -252,24 +252,24 @@ def Benchmark(submit, noise, sample, physical, refchan, dcknowledge):
         normphases_real,  # arg 5
         normphases_imag,  # arg 6
         ctypes.c_char_p(submit.channel.encode("utf-8")),  # arg 7
-        iscorr,
-        physical.astype(np.float64).ravel(),  # arg 8
-        submit.rc,
-        nmetrics,  # arg 9
-        metrics,  # arg 10
-        decoders,
-        dclookups,
-        dcknow,
-        submit.hybrid,  # arg 11
-        decoderbins,  # arg 12
-        ndecoderbins,  # arg 13
-        submit.frame,  # arg 14
-        len(submit.stats),  # arg 15
-        submit.stats.astype(np.long),  # arg 16
-        submit.nbins,  # arg 17
-        submit.maxbin,  # arg 18
-        submit.importance,  # arg 19
-        refchan.astype(np.float64).ravel(),  # arg 20
+        iscorr, # arg 8
+        physical.astype(np.float64).ravel(),  # arg 9
+        submit.rc, # arg 10
+        nmetrics,  # arg 11
+        metrics,  # arg 12
+        decoders, # arg 13
+        dclookups, # arg 14
+        dcknow, # arg 15
+        submit.hybrid,  # arg 16
+        decoderbins,  # arg 17
+        ndecoderbins,  # arg 18
+        submit.frame,  # arg 19
+        len(submit.stats),  # arg 20
+        submit.stats.astype(np.long),  # arg 21
+        submit.nbins,  # arg 22
+        submit.maxbin,  # arg 23
+        submit.importance,  # arg 24
+        refchan.astype(np.float64).ravel(),  # arg 25
     )
     # print("bout: {}\nfields: {}".format(bout, bout._fields_))
     # The output arrays are all vectorized. We need to reshape them.
