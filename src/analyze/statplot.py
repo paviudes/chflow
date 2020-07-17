@@ -11,7 +11,6 @@ from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid.inset_locator import inset_axes, InsetPosition, mark_inset
 from scipy.interpolate import griddata
-import PyPDF2 as pp
 from define.utils import IsNumber
 from define.metrics import Metrics
 from analyze.utils import DisplayForm, RealNoise, scientific_float, latex_float

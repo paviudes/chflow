@@ -1,6 +1,8 @@
 import math
-import cvxpy as cvx
-
+try:
+    import cvxpy as cvx
+except:
+    print("CVXPY not available, cannot do SDPs.")
 
 def DiamondNormSimpler(choi, idnchan):
     """

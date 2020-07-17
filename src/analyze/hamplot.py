@@ -18,7 +18,6 @@ try:
     )
     from matplotlib.ticker import LogLocator
     from scipy.interpolate import griddata
-    import PyPDF2 as pp
 except:
     pass
 from define import fnames as fn

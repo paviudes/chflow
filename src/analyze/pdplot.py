@@ -17,7 +17,6 @@ try:
         mark_inset,
     )
     from scipy.interpolate import griddata
-    import PyPDF2 as pp
 except:
     pass
 

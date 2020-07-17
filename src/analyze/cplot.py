@@ -11,7 +11,11 @@ from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid.inset_locator import inset_axes, InsetPosition, mark_inset
 from scipy.interpolate import griddata
-import PyPDF2 as pp
+
+try:
+    import PyPDF2 as pp
+except ImportError:
+    print("PyPDF2 is not available, cannot manipulate PDFs.")
 
 from analyze.load import LoadPhysicalErrorRates
 from define import fnames as fn

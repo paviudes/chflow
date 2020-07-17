@@ -1,0 +1,4 @@
+sbload 08_06_2020_16_32_35
+pmetrics infid
+lpmetrics uncorr
+quit

@@ -12,7 +12,6 @@ from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid.inset_locator import inset_axes, InsetPosition, mark_inset
 from matplotlib.ticker import LogLocator
-import PyPDF2 as pp
 
 from define import fnames as fn
 from define import globalvars as gv
