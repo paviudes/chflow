@@ -26,14 +26,14 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode):
     (infid, known_paulis, known_probs) = GetLeadingPaulis(
         leading_fraction, qcode, chan_probs
     )
-    print(
-        "Number of known paulis in decoder knowledge = {}".format(known_paulis.shape[0])
-    )
-    print("Total known probability = {}".format(np.sum(known_probs)))
+    # print(
+    #     "Number of known paulis in decoder knowledge = {}".format(known_paulis.shape[0])
+    # )
+    # print("Total known probability = {}".format(np.sum(known_probs)))
     decoder_probs = CreateIIDPauli(infid, qcode)
     decoder_probs[known_paulis] = known_probs
     total_unknown = 1 - np.sum(known_probs)
-    print("Total unknown probability = {}".format(total_unknown))
+    # print("Total unknown probability = {}".format(total_unknown))
     # Normalize the unknown Paulis
     # https://stackoverflow.com/questions/27824075/accessing-numpy-array-elements-not-in-a-given-index-list
     mask = np.ones(decoder_probs.shape[0], dtype=bool)
@@ -41,9 +41,8 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode):
     decoder_probs[mask] = (
         total_unknown * decoder_probs[mask] / np.sum(decoder_probs[mask])
     )
-    print("Sum of decoder probs = {}".format(np.sum(decoder_probs)))
-    print("Sorted decoder probs = {}".format(np.sort(decoder_probs)))
-    exit
+    # print("Sum of decoder probs = {}".format(np.sum(decoder_probs)))
+    # print("Sorted decoder probs = {}".format(np.sort(decoder_probs)))
     return decoder_probs
 
 
