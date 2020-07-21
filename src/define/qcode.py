@@ -916,7 +916,16 @@ def PrepareSyndromeLookUp(qecc):
     return None
 
 
-def ComputeAdaptiveDecoder(qecc, pauli_probs):
+def ComputeAdaptiveDecoder(qecc, pauli_probs, method="ML"):
+    if method == "MP":
+        ComputeMaxProbAdaptive(qecc, pauli_probs)
+    else:
+        ComputeMLAdaptive(qecc, pauli_probs)
+    # print("Tailored lookup = {}".format(qecc.tailored_lookup))
+    return None
+
+
+def ComputeMLAdaptive(qecc, pauli_probs):
     # Prepare a lookup table that contains logical corrections (predicted by the min-weight decoder) for every measured syndrome of the code.
     # For every syndrome
     #   generate the pure error T
@@ -937,7 +946,58 @@ def ComputeAdaptiveDecoder(qecc, pauli_probs):
         else:
             peop = np.zeros(qecc.N, dtype=np.int8)
         qecc.tailored_lookup[t, 0] = 0
-        qecc.tailored_lookup[t, 1] = qecc.N
+        for l in range(nlogs):
+            lgens = np.array(
+                list(map(np.int8, np.binary_repr(l, width=(2 * qecc.K)))), dtype=np.int8
+            )
+            if l > 0:
+                (logop, __) = PauliProduct(*qecc.L[np.nonzero(lgens)])
+            else:
+                logop = np.zeros(qecc.N, dtype=np.int8)
+            prob = 0
+            for s in range(nstabs):
+                if s > 0:
+                    sgens = np.array(
+                        list(map(np.int8, np.binary_repr(s, width=(qecc.N - qecc.K)))),
+                        dtype=np.int8,
+                    )
+                    (stabop, __) = PauliProduct(*qecc.S[np.nonzero(sgens)])
+                else:
+                    stabop = np.zeros(qecc.N, dtype=np.int8)
+                (correction, __) = PauliProduct(peop, logop, stabop)
+                # weight = np.count_nonzero(correction > 0)
+                prob += pauli_probs[
+                    ordering[lgens[0], lgens[1]] * nstabs * nstabs + s * nstabs + t
+                ]
+
+            if prob >= qecc.tailored_lookup[t, 1]:
+                qecc.tailored_lookup[t, 0] = ordering[lgens[0], lgens[1]]
+                qecc.tailored_lookup[t, 1] = prob
+                qecc.tailored_lookup[t, 2:] = correction
+    return None
+
+
+def ComputeMaxProbAdaptive(qecc, pauli_probs):
+    # Prepare a lookup table that contains logical corrections (predicted by the min-weight decoder) for every measured syndrome of the code.
+    # For every syndrome
+    #   generate the pure error T
+    #   find the logical operator L such that (T.L.S) has least weight over all L and for some S.
+    # Each row of the constructed lookup table corresponds to a syndrome outcome.
+    # The row entries are the logical correction, weight of the minimum weight operator and the full minimum weight correction.
+    nstabs = 2 ** (qecc.N - qecc.K)
+    nlogs = 4 ** qecc.K
+    ordering = np.array([[0, 3], [1, 2]], dtype=np.int8)
+    qecc.tailored_lookup = np.zeros((nstabs, 2 + qecc.N), dtype=np.double)
+    for t in range(nstabs):
+        if t > 0:
+            tgens = np.array(
+                list(map(np.int8, np.binary_repr(t, width=(qecc.N - qecc.K)))),
+                dtype=np.int8,
+            )
+            (peop, __) = PauliProduct(*qecc.T[np.nonzero(tgens)])
+        else:
+            peop = np.zeros(qecc.N, dtype=np.int8)
+        qecc.tailored_lookup[t, 0] = 0
         for l in range(nlogs):
             lgens = np.array(
                 list(map(np.int8, np.binary_repr(l, width=(2 * qecc.K)))), dtype=np.int8
@@ -957,7 +1017,9 @@ def ComputeAdaptiveDecoder(qecc, pauli_probs):
                     stabop = np.zeros(qecc.N, dtype=np.int8)
                 (correction, __) = PauliProduct(peop, logop, stabop)
                 # weight = np.count_nonzero(correction > 0)
-                prob = pauli_probs[ordering[lgens[0], lgens[1]] * nstabs * nstabs + s * nstabs + t]
+                prob = pauli_probs[
+                    ordering[lgens[0], lgens[1]] * nstabs * nstabs + s * nstabs + t
+                ]
                 if prob >= qecc.tailored_lookup[t, 1]:
                     qecc.tailored_lookup[t, 0] = ordering[lgens[0], lgens[1]]
                     qecc.tailored_lookup[t, 1] = prob

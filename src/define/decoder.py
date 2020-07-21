@@ -1,6 +1,6 @@
 import numpy as np
 from define.QECCLfid import utils as ut
-from define.QECCLfid.minwt import ComputeResiduals, ComputeResidualLogicalProbabilities
+from define.QECCLfid.minwt import ComputeResiduals
 from define.randchans import CreateIIDPauli
 from define.chanreps import PauliConvertToTransfer
 from define.qcode import ComputeAdaptiveDecoder
@@ -73,13 +73,21 @@ def PrepareChannelDecoder(submit, noise, sample):
         elif l == 1:
             ComputeAdaptiveDecoder(qcode, decoder_probs)
             chan_probs = np.tile(
-                ComputeResidualLogicalProbabilities(
-                    decoder_probs, qcode, lookup=qcode.tailored_lookup
-                ),
+                [
+                    ComputeResiduals(
+                        p, decoder_probs, qcode, lookup=qcode.tailored_lookup
+                    )
+                    for p in range(4)
+                ],
                 [submit.eccs[1].N, 1],
             )
-            # print("Chan probs at level 2 = {}".format(chan_probs))
-            # print("Sum of chan probs at level 2 = {}".format(np.sum(chan_probs[0])))
+            print("Chan probs at level 2 = {}".format(chan_probs[0]))
+            print("Sum of chan probs at level 2 = {}".format(np.sum(chan_probs[0])))
+            print(
+                "Infidelity at level 2 from chan probs = {}".format(
+                    1 - chan_probs[0][0]
+                )
+            )
             decoder_probs = ut.GetErrorProbabilities(
                 qcode.PauliOperatorsLST, chan_probs, 0
             )
