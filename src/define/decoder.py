@@ -88,6 +88,26 @@ def PrepareChannelDecoder(submit, noise, sample):
                     1 - chan_probs[0][0]
                 )
             )
+            process_mat = [
+                np.sum(chan_probs[0]),
+                chan_probs[0][0]
+                + chan_probs[0][1]
+                - chan_probs[0][3]
+                - chan_probs[0][2],
+                chan_probs[0][0]
+                + chan_probs[0][2]
+                - chan_probs[0][1]
+                - chan_probs[0][3],
+                chan_probs[0][0]
+                + chan_probs[0][3]
+                - chan_probs[0][1]
+                - chan_probs[0][2],
+            ]
+            print(
+                "Effective logical channel (level-1) from chan probs = {}".format(
+                    process_mat
+                )
+            )
             decoder_probs = ut.GetErrorProbabilities(
                 qcode.PauliOperatorsLST, chan_probs, 0
             )

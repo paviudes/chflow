@@ -918,8 +918,10 @@ def PrepareSyndromeLookUp(qecc):
 
 def ComputeAdaptiveDecoder(qecc, pauli_probs, method="ML"):
     if method == "MP":
+        print("Using Max probability decoder to construct lookup")
         ComputeMaxProbAdaptive(qecc, pauli_probs)
     else:
+        print("Using Max Likelihood decoder to construct lookup")
         ComputeMLAdaptive(qecc, pauli_probs)
     # print("Tailored lookup = {}".format(qecc.tailored_lookup))
     return None
@@ -945,7 +947,6 @@ def ComputeMLAdaptive(qecc, pauli_probs):
             (peop, __) = PauliProduct(*qecc.T[np.nonzero(tgens)])
         else:
             peop = np.zeros(qecc.N, dtype=np.int8)
-        qecc.tailored_lookup[t, 0] = 0
         for l in range(nlogs):
             lgens = np.array(
                 list(map(np.int8, np.binary_repr(l, width=(2 * qecc.K)))), dtype=np.int8
@@ -997,7 +998,6 @@ def ComputeMaxProbAdaptive(qecc, pauli_probs):
             (peop, __) = PauliProduct(*qecc.T[np.nonzero(tgens)])
         else:
             peop = np.zeros(qecc.N, dtype=np.int8)
-        qecc.tailored_lookup[t, 0] = 0
         for l in range(nlogs):
             lgens = np.array(
                 list(map(np.int8, np.binary_repr(l, width=(2 * qecc.K)))), dtype=np.int8
