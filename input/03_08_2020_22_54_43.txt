@@ -17,7 +17,7 @@ scheduler ./../input/schedule_03_08_2020_22_54_43.txt
 # Decoding algorithm to be used -- 0 for the maximum likelihood decoder and 1 for minimum weight decoder.
 decoder 2,2
 # Fraction of Pauli probabilities accessible to the ML decoder.
-dcfraction 0.95
+dcfraction 0.036
 # Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
 frame P
 # Number of syndromes to be sampled at top level

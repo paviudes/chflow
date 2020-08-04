@@ -45,7 +45,7 @@ def SimulateSampleIndex(submit, rate, sample, coreidx, results):
     # )
 
     if submit.decoders[0] == 2:
-        refchan = PrepareChannelDecoder(submit, rate, sample)[0]
+        refchan = PrepareChannelDecoder(submit, rate, sample)
         # print(
         #     # "Shape of physchan : {} refchan : {}".format(physchan.shape, refchan.shape)
         # )
