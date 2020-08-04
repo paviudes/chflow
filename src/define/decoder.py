@@ -47,71 +47,64 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode):
 
 
 def PrepareChannelDecoder(submit, noise, sample):
-    # Generate the decoder input for a given channel in the submission.
-    decoder_knowledge = [None for __ in range(submit.levels)]
-    for l in range(submit.levels):
-        if l == 0:
-            qcode = submit.eccs[l]
-            (nrows, ncols) = (4 ** submit.eccs[l].K, 4 ** submit.eccs[l].K)
-            diagmask = [
-                q * ncols * nrows + ncols * j + j
-                for q in range(qcode.N)
-                for j in range(nrows)
-            ]
-            rawchan = np.load(fn.RawPhysicalChannel(submit, noise))[sample, :]
-            if submit.iscorr == 0:
-                chan_probs = np.reshape(
-                    np.tile(rawchan, qcode.N)[diagmask], [qcode.N, nrows]
-                )
-            elif submit.iscorr == 2:
-                chan_probs = np.reshape(rawchan[diagmask], [qcode.N, nrows])
-            else:
-                chan_probs = rawchan
-            decoder_probs = CompleteDecoderKnowledge(
-                submit.decoder_fraction, chan_probs, qcode
-            )
-        elif l == 1:
-            ComputeAdaptiveDecoder(qcode, decoder_probs)
-            chan_probs = np.tile(
-                [
-                    ComputeResiduals(
-                        p, decoder_probs, qcode, lookup=qcode.tailored_lookup
-                    )
-                    for p in range(4)
-                ],
-                [submit.eccs[1].N, 1],
-            )
-            print("Chan probs at level 2 = {}".format(chan_probs[0]))
-            print("Sum of chan probs at level 2 = {}".format(np.sum(chan_probs[0])))
-            print(
-                "Infidelity at level 2 from chan probs = {}".format(
-                    1 - chan_probs[0][0]
-                )
-            )
-            process_mat = [
-                np.sum(chan_probs[0]),
-                chan_probs[0][0]
-                + chan_probs[0][1]
-                - chan_probs[0][3]
-                - chan_probs[0][2],
-                chan_probs[0][0]
-                + chan_probs[0][2]
-                - chan_probs[0][1]
-                - chan_probs[0][3],
-                chan_probs[0][0]
-                + chan_probs[0][3]
-                - chan_probs[0][1]
-                - chan_probs[0][2],
-            ]
-            print(
-                "Effective logical channel (level-1) from chan probs = {}".format(
-                    process_mat
-                )
-            )
-            decoder_probs = ut.GetErrorProbabilities(
-                qcode.PauliOperatorsLST, chan_probs, 0
-            )
-        else:
-            pass
-        decoder_knowledge[l] = PauliConvertToTransfer(decoder_probs, qcode)
+    # Generate the reference channel for partial ML decoder
+    # Reference channel at present is only created for level 1
+    l = 0
+    qcode = submit.eccs[l]
+    (nrows, ncols) = (4 ** submit.eccs[l].K, 4 ** submit.eccs[l].K)
+    diagmask = [
+        q * ncols * nrows + ncols * j + j for q in range(qcode.N) for j in range(nrows)
+    ]
+    rawchan = np.load(fn.RawPhysicalChannel(submit, noise))[sample, :]
+    if submit.iscorr == 0:
+        chan_probs = np.reshape(np.tile(rawchan, qcode.N)[diagmask], [qcode.N, nrows])
+    elif submit.iscorr == 2:
+        chan_probs = np.reshape(rawchan[diagmask], [qcode.N, nrows])
+    else:
+        chan_probs = rawchan
+    decoder_probs = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, qcode)
+    # elif l == 1:
+    #     ComputeAdaptiveDecoder(qcode, decoder_probs)
+    #     chan_probs = np.tile(
+    #         [
+    #             ComputeResiduals(
+    #                 p, decoder_probs, qcode, lookup=qcode.tailored_lookup
+    #             )
+    #             for p in range(4)
+    #         ],
+    #         [submit.eccs[1].N, 1],
+    #     )
+    #     print("Chan probs at level 2 = {}".format(chan_probs[0]))
+    #     print("Sum of chan probs at level 2 = {}".format(np.sum(chan_probs[0])))
+    #     print(
+    #         "Infidelity at level 2 from chan probs = {}".format(
+    #             1 - chan_probs[0][0]
+    #         )
+    #     )
+    #     process_mat = [
+    #         np.sum(chan_probs[0]),
+    #         chan_probs[0][0]
+    #         + chan_probs[0][1]
+    #         - chan_probs[0][3]
+    #         - chan_probs[0][2],
+    #         chan_probs[0][0]
+    #         + chan_probs[0][2]
+    #         - chan_probs[0][1]
+    #         - chan_probs[0][3],
+    #         chan_probs[0][0]
+    #         + chan_probs[0][3]
+    #         - chan_probs[0][1]
+    #         - chan_probs[0][2],
+    #     ]
+    #     print(
+    #         "Effective logical channel (level-1) from chan probs = {}".format(
+    #             process_mat
+    #         )
+    #     )
+    #     decoder_probs = ut.GetErrorProbabilities(
+    #         qcode.PauliOperatorsLST, chan_probs, 0
+    #     )
+    # else:
+    #     pass
+    decoder_knowledge = PauliConvertToTransfer(decoder_probs, qcode)
     return decoder_knowledge

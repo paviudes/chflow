@@ -41,9 +41,9 @@ wall 3
 # Submission queue (Available options: see goo.gl/pTdqbV).
 queue X
 # Email notifications.
-email pavithran.sridhar@gmail.com
+email 2003adityajain@gmail.com
 # Output result's directory.
-outdir /project/def-jemerson/chbank
+outdir /home/aditya/Documents/chbank
 # Randomized compiling of quantum gates.
 rc 0
 # Plot settings

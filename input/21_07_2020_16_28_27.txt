@@ -1,5 +1,5 @@
 # Time stamp
-timestamp 16_07_2020_18_17_12
+timestamp 21_07_2020_16_28_27
 # Type of quantum error correcting code
 ecc Steane,Steane
 # Type of quantum channel
@@ -7,17 +7,17 @@ channel pcorr
 # Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
 repr process
 # Noise rate exponents. The actual noise rate is (2/3)^exponent.
-noiserange 12,28.5,12;2,2,1;0.3,0.3,1;0.1,0.1,1
+noiserange 20,20,1;2,2,1;0.3,0.3,1;0.1,0.1,1
 # Scales of noise range.
 scale 0.66,1.0,1.0,1.0
 # Number of samples
-samples 24
+samples 1
 # Parameters schedule
-scheduler ./../input/schedule_16_07_2020_18_17_12.txt
+scheduler ./../input/schedule_21_07_2020_16_28_27.txt
 # Decoding algorithm to be used -- 0 for the maximum likelihood decoder and 1 for minimum weight decoder.
-decoder 0,0
+decoder 1,1
 # Fraction of Pauli probabilities accessible to the ML decoder.
-dcfraction 0.1
+dcfraction 1
 # Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
 frame P
 # Number of syndromes to be sampled at top level
@@ -27,25 +27,25 @@ importance direct
 # Metrics to be computed on the effective channels at every level.
 metrics infid
 # Load distribution on cores.
-cores 144,1
+cores 1,1
 # Number of nodes
-nodes 2
+nodes 1
 # Name of the host computer.
-host cedar
+host local
 # Name of the account.
-account def-jemerson
+account default
 # Batch name.
-job full_ml
+job X
 # Wall time in hours.
-wall 3
+wall 0
 # Submission queue (Available options: see goo.gl/pTdqbV).
 queue X
 # Email notifications.
-email 2003adityajain@gmail.com
+email X
 # Output result's directory.
 outdir /home/aditya/Documents/chbank
 # Randomized compiling of quantum gates.
 rc 0
 # Plot settings
-plot name,Bare Pauli correlated
+plot name,pcorr;linestyle,None
 # Miscellaneous information: None

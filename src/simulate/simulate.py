@@ -32,20 +32,32 @@ def SimulateSampleIndex(submit, rate, sample, coreidx, results):
     np.random.seed()
     ## Load the physical channel and the reference (noisier) channel if importance sampling is selected.
     physchan = np.load(fn.PhysicalChannel(submit, rate))[sample, :]
-    if submit.decoders[0] == 2:
-        # Partial ML decoder which only has access to a few leading Pauli error probabilities.
-        decoder_knowledge = PrepareChannelDecoder(submit, rate, sample)
-    else:
-        decoder_knowledge = []
+    # if submit.decoders[0] == 2:
+    #     # Partial ML decoder which only has access to a few leading Pauli error probabilities.
+    #     decoder_knowledge = PrepareChannelDecoder(submit, rate, sample)
+    # else:
+    # decoder_knowledge = []
+    decoder_knowledge = []
     # print(
     #     "Core: {}, noise: {}, sample: {}\nPhysical channel before simulate\n{}".format(
     #         coreidx, rate, sample, physchan.reshape(4, 4)
     #     )
     # )
-    if submit.importance == 2:
-        refchan = np.load(fn.PhysicalChannel(submit, rate, sample))[sample, :]
+
+    if submit.decoders[0] == 2:
+        refchan = PrepareChannelDecoder(submit, rate, sample)[0]
+        # print(
+        #     # "Shape of physchan : {} refchan : {}".format(physchan.shape, refchan.shape)
+        # )
     else:
         refchan = np.zeros_like(physchan)
+    # print("Refchan entries : {}".format(refchan))
+
+    # if submit.importance == 2:
+    #     refchan = np.load(fn.PhysicalChannel(submit, rate, sample))[sample, :]
+    # else:
+    #     refchan = np.zeros_like(physchan)
+
     ## Benchmark the noise model.
     Benchmark(submit, rate, sample, physchan, refchan, decoder_knowledge)
     ####
@@ -155,7 +167,10 @@ def LocalSimulations(submit, node, stream=sys.stdout):
         stream.write("Importance: %g\n" % (submit.importance))
         stream.write("Decoder: %s\n" % np.array_str(submit.decoders))
         if submit.decoders[0] == 2:
-            stream.write("Fraction of Pauli probabilities for the ML Decoder: %s\n" % submit.decoder_fraction)
+            stream.write(
+                "Fraction of Pauli probabilities for the ML Decoder: %s\n"
+                % submit.decoder_fraction
+            )
         if submit.hybrid > 0:
             stream.write("Decoding bins: {}\n".format(submit.decoderbins))
         stream.write("Concatenation levels: %d\n" % (submit.levels))

@@ -5,24 +5,24 @@ ecc Steane,Steane
 # Type of quantum channel
 channel pcorr
 # Noise rates (mean delta; std delta; std theta; std phi)
-noiserange 14,25,12;2,2,1;0.3,0.3,1;0.1,0.1,1
+noiserange 20,20,1;2,2,1;0.3,0.3,1;0.1,0.1,1
 # Number of samples
-samples 25
+samples 1
 # Scales
 scale 0.66,1,1,1
 # Number of syndromes to be sampled at the top level
 stats 1000000
 # Sampling method
-importance power
+importance direct
 # Decoding strategy
 decoder 2,2
 # Fraction of Pauli probabilities available to the ML decoder
-dcfraction 0.9
+dcfraction 1
 # Metrics to be computed on the effective channels at every level.
 metrics infid
 # Load distribution on cores.
 cores 1,1
 # Output directory
-outdir /Users/pavi/Documents/chbank
+outdir /home/aditya/Documents/chbank
 # Plot settings
 plot name,pcorr;linestyle,None
