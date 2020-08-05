@@ -10,13 +10,16 @@ collect
 sbload 15_07_2020_10_36_02
 pmetrics infid
 collect
+sbload 13_07_2020_16_43_00
+pmetrics infid
+collect
 # Full ML
 sbload 13_07_2020_16_42_23
 pmetrics infid
 collect
 # Plot
 sbload 13_07_2020_16_44_27
-dcplot infid infid 15_07_2020_01_34_05,15_07_2020_10_36_02,13_07_2020_16_42_23
+dcplot infid infid 15_07_2020_01_34_05,15_07_2020_10_36_02,13_07_2020_16_43_00,13_07_2020_16_42_23
 #
 #
 #

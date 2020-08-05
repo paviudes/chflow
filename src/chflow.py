@@ -48,7 +48,7 @@ from define.QECCLfid.utils import GetErrorProbabilities
 
 from analyze.collect import IsComplete, GatherLogErrData, AddPhysicalRates
 from analyze.cplot import ChannelWisePlot
-from analyze.dcplot import DecoderCompare
+from analyze.dcplot import DecoderCompare, DecoderInstanceCompare
 from analyze.lplot import LevelWisePlot, LevelWisePlot2D
 from analyze.statplot import MCStatsPlot
 from analyze.hamplot import DoubleHammerPlot
@@ -716,7 +716,29 @@ if __name__ == "__main__":
             nbins = dbses[0].noiserates.shape[0]
             if len(user) > 4:
                 nbins = int(user[4])
-            DecoderCompare(pmet, lmet, dbses, nbins = nbins)
+            DecoderCompare(pmet, lmet, dbses, nbins=nbins)
+
+        #####################################################################
+
+        elif user[0] == "dciplot":
+            # No documentation yet.
+            # Compare decoders.
+            pmet = user[1]
+            lmet = user[2]
+            dbses = [submit]
+            if len(user) > 3:
+                for (i, ts) in enumerate(user[3].split(",")):
+                    dbses.append(Submission())
+                    LoadSub(dbses[i + 1], ts, 0)
+                    IsComplete(dbses[i + 1])
+                    if not os.path.isfile(
+                        LogicalErrorRates(dbses[i + 1], lmet, fmt="npy")
+                    ):
+                        GatherLogErrData(dbses[i + 1])
+            chids = [0]
+            if len(user) > 4:
+                chids = list(map(int, user[4].split(",")))
+            DecoderInstanceCompare(pmet, lmet, dbses, chids, nbins=nbins)
 
         #####################################################################
 
@@ -813,8 +835,21 @@ if __name__ == "__main__":
                     check = 0
                     break
             if check == 1:
-                include = np.sort(np.concatenate((np.arange(0, dbses[0].channels, dbses[0].samps), np.arange(1, dbses[0].channels, dbses[0].samps))))
-                ChannelWisePlot(user[1], user[2], dbses, thresholds=thresholds, include_input=include)
+                include = np.sort(
+                    np.concatenate(
+                        (
+                            np.arange(0, dbses[0].channels, dbses[0].samps),
+                            np.arange(1, dbses[0].channels, dbses[0].samps),
+                        )
+                    )
+                )
+                ChannelWisePlot(
+                    user[1],
+                    user[2],
+                    dbses,
+                    thresholds=thresholds,
+                    include_input=include,
+                )
             else:
                 print(
                     "\033[2mOne of the databases does not have logical error data.\033[0m"

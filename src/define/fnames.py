@@ -11,6 +11,12 @@ def DecodersPlot(dbs, pmet, lmet):
     return fname
 
 
+def DecodersInstancePlot(dbs, pmet, lmet):
+    # File name containing scatter bins.
+    fname = "%s/results/dciplot_%s_%s.pdf" % (dbs.outdir, pmet, lmet)
+    return fname
+
+
 def HammerPlot(dbs, lmet, pmets):
     # File name containing scatter bins.
     fname = "%s/results/hammer_%s_%s.pdf" % (dbs.outdir, "_".join(pmets), lmet)
