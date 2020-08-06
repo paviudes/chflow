@@ -130,22 +130,24 @@ def DecoderInstanceCompare(
                     % (ml.Metrics[logmet]["latex"].replace("$", ""), l),
                     "color": gv.Colors[c % gv.n_Colors],
                     "marker": gv.Markers[c % gv.n_Markers],
-                    "linestyle": "",
+                    "linestyle": "--",
                 }
                 for d in range(ndb):
                     if dbses[d].decoders[l - 1] == 0:
                         ax1.axhline(
                             y=np.load(fn.LogicalErrorRates(dbses[d], logmet))[ch, l],
                             linestyle="--",
-                            color="k",
-                            label="ML",
+                            linewidth=gv.line_width,
+                            color="green",
+                            label="Maximum likelihood",
                         )
                     elif dbses[d].decoders[l - 1] == 1:
                         ax1.axhline(
                             y=np.load(fn.LogicalErrorRates(dbses[d], logmet))[ch, l],
                             linestyle="--",
-                            color="k",
-                            label="Min Wt",
+                            linewidth=gv.line_width,
+                            color="red",
+                            label="Minimum weight",
                         )
                     else:
                         settings["xaxis"].append(dbses[d].decoder_fraction)
@@ -154,34 +156,43 @@ def DecoderInstanceCompare(
                         )
 
                 # Plotting
+                # print("X: {}\nY: {}".format(settings["xaxis"], settings["yaxis"]))
                 plotobj = ax1.plot(
                     settings["xaxis"],
-                    settings["xaxis"],
+                    settings["yaxis"],
                     color=settings["color"],
                     alpha=0.75,
                     marker="o",  # settings["marker"]
                     markersize=gv.marker_size,
                     linestyle=settings["linestyle"],
                     linewidth=gv.line_width,
-                    label="$%s = %s$"
-                    % (
-                        ml.Metrics[phymet]["latex"].replace("$", ""),
-                        latex_float(phyerrs[ch]),
-                    ),
+                    # label="$%s = %s$"
+                    # % (
+                    #     ml.Metrics[phymet]["latex"].replace("$", ""),
+                    #     latex_float(phyerrs[ch]),
+                    # ),
+                    label="$\\mathcal{D}_{\\alpha}$",
                 )
+                for i in range(len(settings["xaxis"])):
+                    ax1.annotate(
+                        "%d" % (settings["xaxis"][i] * (4 ** dbses[0].eccs[0].N)),
+                        (settings["xaxis"][i] * 1.02, settings["yaxis"][i] * 1.02),
+                        color="k",
+                        fontsize=gv.ticks_fontsize,
+                    )
             # Axes labels
             ax1.set_xlabel(
                 settings["xlabel"],
                 fontsize=gv.axes_labels_fontsize * 0.8,
                 labelpad=gv.axes_labelpad,
             )
-            # ax1.set_xscale("log")
+            ax1.set_xscale("log")
             ax1.set_ylabel(
                 settings["ylabel"],
                 fontsize=gv.axes_labels_fontsize,
                 labelpad=gv.axes_labelpad,
             )
-            # ax1.set_yscale("log")
+            ax1.set_yscale("log")
             ax1.tick_params(
                 axis="both",
                 which="both",
@@ -193,7 +204,7 @@ def DecoderInstanceCompare(
             )
             ax1.legend(
                 numpoints=1,
-                loc="lower right",
+                loc="center right",
                 shadow=True,
                 fontsize=gv.legend_fontsize,
                 markerscale=gv.legend_marker_scale,

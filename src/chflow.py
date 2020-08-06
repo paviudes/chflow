@@ -19,6 +19,7 @@ from define.fnames import (
     PauliDistribution,
     ChannelWise,
     MCStatsPlotFile,
+    DecodersInstancePlot,
 )
 from define.qcode import (
     QuantumErrorCorrectingCode,
@@ -569,13 +570,16 @@ if __name__ == "__main__":
             # if not (submit.host in gv.cluster_hosts):
             # Check if physical channels for the existing submission exist.
             old_outdir = submit.outdir
-            LoadTimeStamp(
-                submit,
-                time.strftime("%d/%m/%Y %H:%M:%S")
-                .replace("/", "_")
-                .replace(":", "_")
-                .replace(" ", "_"),
-            )
+            if len(user) > 1:
+                LoadTimeStamp(submit, user[1])
+            else:
+                LoadTimeStamp(
+                    submit,
+                    time.strftime("%d/%m/%Y %H:%M:%S")
+                    .replace("/", "_")
+                    .replace(":", "_")
+                    .replace(" ", "_"),
+                )
             Save(submit)
             Schedule(submit)
             PrepOutputDir(submit)
@@ -729,7 +733,7 @@ if __name__ == "__main__":
             if len(user) > 3:
                 for (i, ts) in enumerate(user[3].split(",")):
                     dbses.append(Submission())
-                    LoadSub(dbses[i + 1], ts, 0)
+                    LoadSub(dbses[i + 1], ts, 0, 0)
                     IsComplete(dbses[i + 1])
                     if not os.path.isfile(
                         LogicalErrorRates(dbses[i + 1], lmet, fmt="npy")
@@ -738,7 +742,7 @@ if __name__ == "__main__":
             chids = [0]
             if len(user) > 4:
                 chids = list(map(int, user[4].split(",")))
-            DecoderInstanceCompare(pmet, lmet, dbses, chids, nbins=nbins)
+            DecoderInstanceCompare(pmet, lmet, dbses, chids)
 
         #####################################################################
 
@@ -1276,6 +1280,8 @@ if __name__ == "__main__":
                 plot_file = HammerPlot(submit, logmet, phymet.split(","))
             elif plot_option == "mcplot":
                 plot_file = MCStatsPlotFile(submit, logmet, phymet.split(",")[0])
+            elif plot_option == "dciplot":
+                plot_file = DecodersInstancePlot(submit, phymet.split(",")[0], logmet)
             else:
                 print("\033[2mUnknown plot option %s.\033[0m" % (plot_option))
                 continue

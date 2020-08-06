@@ -141,7 +141,7 @@ def Bin2Int(binseq):
     return inum
 
 
-def Load(qecc):
+def Load(qecc, lookup_load=1):
     # Load all the essential information for quantum error correction
     # If the logicals or pure errors are not specified in the input file, we must construct them by Gaussian elimination.
     # Reconstructs the entire Pauli basis.
@@ -173,10 +173,11 @@ def Load(qecc):
     ConstructNormalizer(qecc)
     # Transformations between Pauli operators by Clifford conjugations
     PauliCliffordConjugations(qecc)
-    # # Compute the minimum weight decoding table
-    PrepareSyndromeLookUp(qecc)
-    # Compute correctable indices
-    mw.ComputeCorrectableIndices(qecc)
+    if lookup_load == 1:
+        # Compute the minimum weight decoding table
+        PrepareSyndromeLookUp(qecc)
+        # Compute correctable indices
+        mw.ComputeCorrectableIndices(qecc)
     # Generate group elements
     # qecc.stabilizers = qc.GenerateGroup(qecc.S)
     # qecc.pure_errrors = qc.GenerateGroup(qecc.T)

@@ -98,6 +98,7 @@ def RandomUnitary(prox, dim, method="qr", randH=None):
         )
     return randU
 
+
 def CreateIIDPauli(infid, qcode):
     # Create an IID Pauli distribution for a given infidelity.
     single_qubit_errors = np.array(
@@ -130,7 +131,7 @@ def IIDWtihCrossTalk(infid, qcode, iid_fraction, subset_fraction):
     # )
     ### Constructed the purely corelated channel.
     # Add a random sumset of 10% of all two qubit errors
-    weights_to_boost = [2]
+    weights_to_boost = [2, 3]
     subset_fraction_weights = {2: subset_fraction}
     for w in weights_to_boost:
         if w not in subset_fraction_weights:

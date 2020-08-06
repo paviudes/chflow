@@ -12,7 +12,7 @@ from define import globalvars as gv
 # from define import *
 
 
-def Update(submit, pname, newvalue):
+def Update(submit, pname, newvalue, lookup_load=1):
     # Update the parameters to be submitted
     if pname == "timestamp":
         LoadTimeStamp(submit, newvalue)
@@ -26,7 +26,7 @@ def Update(submit, pname, newvalue):
         submit.decoders = np.zeros(submit.levels, dtype=np.int)
         for i in range(submit.levels):
             submit.eccs.append(qec.QuantumErrorCorrectingCode(names[i]))
-            qec.Load(submit.eccs[i])
+            qec.Load(submit.eccs[i], lookup_load)
             submit.ecfiles.append(submit.eccs[i].defnfile)
             submit.decoders[i] = 0
 
@@ -203,7 +203,7 @@ def Update(submit, pname, newvalue):
     return None
 
 
-def LoadSub(submit, subid, isgen):
+def LoadSub(submit, subid, isgen, lookup_load=1):
     # Load the parameters of a submission from an input file
     # If the input file is provided as the submission id, load from that input file.
     # Else if the time stamp is provided, search for the corresponding input file and load from that.
@@ -220,6 +220,7 @@ def LoadSub(submit, subid, isgen):
                         submit,
                         variable.strip("\n").strip(" "),
                         value.strip("\n").strip(" "),
+                        lookup_load,
                     )
         return 1
     else:
