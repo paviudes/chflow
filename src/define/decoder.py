@@ -30,7 +30,8 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode):
     #     "Number of known paulis in decoder knowledge = {}".format(known_paulis.shape[0])
     # )
     # print("Total known probability = {}".format(np.sum(known_probs)))
-    decoder_probs = CreateIIDPauli(infid, qcode)
+    infid_qubit = 1 - np.power(1 - infid, 1 / qcode.N)
+    decoder_probs = CreateIIDPauli(infid_qubit, qcode)
     decoder_probs[known_paulis] = known_probs
     total_unknown = 1 - np.sum(known_probs)
     # print("Total unknown probability = {}".format(total_unknown))
