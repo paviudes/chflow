@@ -1,5 +1,14 @@
 !!Case 1!!
 sbload 21_07_2020_16_28_27
+pdplot 20,2,0.3,0.1 5 5
+notes pcorr 30 pd pdplot /Users/pavi/Dropbox/rclearn/notes/updates/figs/6Aug 1
 dciplot infid infid 20_07_2020_20_11_41,21_07_2020_21_49_52,03_08_2020_22_47_51,03_08_2020_23_03_35,03_08_2020_22_54_43,04_08_2020_18_31_52,04_08_2020_18_49_45,04_08_2020_19_00_34,21_07_2020_16_28_30
 notes infid infid pcorr30 dciplot /Users/pavi/Dropbox/rclearn/notes/updates/figs/6Aug 1,2
+quit
+!!Case 2!!
+sbload 06_08_2020_19_31_31
+pmetrics infid
+collect
+dciplot infid infid 06_08_2020_19_31_32,06_08_2020_19_31_34,06_08_2020_19_31_35,06_08_2020_19_31_37,06_08_2020_19_31_49,06_08_2020_19_31_50,06_08_2020_19_31_52,06_08_2020_19_31_53,06_08_2020_19_31_55
+notes infid infid cptp dciplot /Users/pavi/Dropbox/rclearn/notes/updates/figs/6Aug 1,2
 quit

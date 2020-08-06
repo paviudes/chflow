@@ -139,7 +139,7 @@ def DecoderInstanceCompare(
                             linestyle="--",
                             linewidth=gv.line_width,
                             color="green",
-                            label="Maximum likelihood",
+                            label="MLD",
                         )
                     elif dbses[d].decoders[l - 1] == 1:
                         ax1.axhline(
@@ -147,7 +147,7 @@ def DecoderInstanceCompare(
                             linestyle="--",
                             linewidth=gv.line_width,
                             color="red",
-                            label="Minimum weight",
+                            label="MWD",
                         )
                     else:
                         settings["xaxis"].append(dbses[d].decoder_fraction)

@@ -3,26 +3,26 @@ timestamp sample
 # Type of quantum error correcting code
 ecc Steane,Steane
 # Type of quantum channel
-channel pcorr
+channel rand
 # Noise rates (mean delta; std delta; std theta; std phi)
-noiserange 20,20,1;2,2,1;0.3,0.3,1;0.1,0.1,1
+noiserange 6,6,1;1,1,1
 # Number of samples
 samples 1
 # Scales
-scale 0.66,1,1,1
+scale 0.66,1
 # Number of syndromes to be sampled at the top level
-stats 1000000
+stats 10000
 # Sampling method
-importance direct
+importance power
 # Decoding strategy
-decoder 2,2
+decoder 1,1
 # Fraction of Pauli probabilities available to the ML decoder
-dcfraction 1
+dcfraction 0
 # Metrics to be computed on the effective channels at every level.
 metrics infid
 # Load distribution on cores.
 cores 1,1
 # Output directory
-outdir /home/aditya/Documents/chbank
+outdir /Users/pavi/Documents/chbank
 # Plot settings
-plot name,pcorr;linestyle,None
+plot name,cptp;linestyle,None

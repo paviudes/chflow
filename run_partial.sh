@@ -10,7 +10,13 @@ display() {
   ./chflow.sh $ts
 }
 
-timestamps=("21_07_2020_16_28_27" "20_07_2020_20_11_41" "21_07_2020_21_49_52" "03_08_2020_22_47_51" "03_08_2020_23_03_35" "03_08_2020_22_54_43" "04_08_2020_18_31_52" "04_08_2020_18_49_45" "04_08_2020_19_00_34" "21_07_2020_16_28_30")
+pauli_timestamps=("21_07_2020_16_28_27" "20_07_2020_20_11_41" "21_07_2020_21_49_52" "03_08_2020_22_47_51" "03_08_2020_23_03_35" "03_08_2020_22_54_43" "04_08_2020_18_31_52" "04_08_2020_18_49_45" "04_08_2020_19_00_34" "21_07_2020_16_28_30")
+
+cptp_timestamps=("06_08_2020_19_31_31" "06_08_2020_19_31_32" "06_08_2020_19_31_34" "06_08_2020_19_31_35" "06_08_2020_19_31_37" "06_08_2020_19_31_49" "06_08_2020_19_31_50" "06_08_2020_19_31_52" "06_08_2020_19_31_53" "06_08_2020_19_31_55")
+
+timestamps=("${cptp_timestamps[@]}")
+# b=("${a[@]}")
+
 alphas=(0 0.00009 0.00016 0.00029 0.00052 0.00093 0.00167 0.003 1 "ML")
 # timestamps=("04_08_2020_19_00_34")
 if [[ "$1" == "overwrite" ]]; then
@@ -37,14 +43,14 @@ elif [[ "$1" == "generate" ]]; then
     ./chflow.sh -- temp.txt
     rm input/temp.txt
 
-    oldnrate=20
-    newnrate=15
+    # oldnrate=20
+    # newnrate=15
+    #
+		# echo "REPLACE noiserange $oldnrate,$oldnrate,1;2,2,1;0.3,0.3,1;0.1,0.1,1 WITH noiserange $newnrate,$newnrate,1;2,2,1;0.3,0.3,1;0.1,0.1,1 IN input/${ts}.txt"
+		# sed -i '' "s/noiserange $oldnrate,$oldnrate,1;2,2,1;0.3,0.3,1;0.1,0.1,1/noiserange $newnrate,$newnrate,1;2,2,1;0.3,0.3,1;0.1,0.1,1/" input/${ts}.txt
 
-		echo "REPLACE noiserange $oldnrate,$oldnrate,1;2,2,1;0.3,0.3,1;0.1,0.1,1 WITH noiserange $newnrate,$newnrate,1;2,2,1;0.3,0.3,1;0.1,0.1,1 IN input/${ts}.txt"
-		sed -i '' "s/noiserange $oldnrate,$oldnrate,1;2,2,1;0.3,0.3,1;0.1,0.1,1/noiserange $newnrate,$newnrate,1;2,2,1;0.3,0.3,1;0.1,0.1,1/" input/${ts}.txt
-
-		echo "REPLACE $oldnrate WITH $newnrate IN input/schedule_${ts}.txt"
-		sed -i '' "s/15/$newnrate/" input/schedule_${ts}.txt
+		# echo "REPLACE $oldnrate WITH $newnrate IN input/schedule_${ts}.txt"
+		# sed -i '' "s/15/$newnrate/" input/schedule_${ts}.txt
 
     if [[ "$alpha" == "ML" ]]; then
       echo "REPLACE decoder 1,1 WITH decoder 0,0 IN input/${ts}.txt"
@@ -56,8 +62,8 @@ elif [[ "$1" == "generate" ]]; then
   		sed -i '' "s/dcfraction ${refalpha}/dcfraction ${alpha}/" input/${ts}.txt
     fi
 
-    echo "REPLACE direct WITH power IN input/${ts}.txt"
-		sed -i '' "s/direct/power/" input/${ts}.txt
+    # echo "REPLACE direct WITH power IN input/${ts}.txt"
+		# sed -i '' "s/direct/power/" input/${ts}.txt
 
 		echo "xxxxxxx"
   done
