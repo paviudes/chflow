@@ -50,7 +50,7 @@ class QuantumErrorCorrectingCode:
         self.group_by_weight = None
         self.defnfile = "%s.txt" % (name)
         eof = 0
-        with open(("./../code/%s" % self.defnfile), "r") as fp:
+        with open(("./../../../code/%s" % self.defnfile), "r") as fp:
             while eof == 0:
                 line = fp.readline()
                 if not (line):
@@ -1220,6 +1220,32 @@ def GetOperatorsForLSTIndex(qcode, indices):
         stab_op = GetElementInGroup(stab_index, qcode.S)
         log_index = indices[i] // (nstabs * nstabs)
         log_op = GetElementInGroup(log_index, qcode.L)
+        # print(
+        #     "pure_index = {}, pure_op = {}, stab_index = {}, stab_op = {}, log_index = {}, log_op = {}".format(
+        #         pure_index, pure_op, stab_index, stab_op, log_index, log_op
+        #     )
+        # )
+        (ops[i, :], __) = PauliProduct(pure_op, stab_op, log_op)
+    return ops
+
+
+def GetOperatorsForTLSIndex(qcode, indices):
+    r"""
+    Get the operators for the index in TLS ordering.
+    """
+    nstabs = 2 ** (qcode.N - qcode.K)
+    nlogs = 4 ** qcode.K
+    ops = np.zeros((len(indices), qcode.N), dtype=np.int)
+    for i in range(len(indices)):
+        stab_index = indices[i] % nstabs
+        stab_op = GetElementInGroup(stab_index, qcode.S)
+
+        log_index = (indices[i] // nstabs) % nlogs
+        log_op = GetElementInGroup(log_index, qcode.L)
+
+        pure_index = indices[i] // (nlogs * nstabs)
+        pure_op = GetElementInGroup(pure_index, qcode.T)
+
         # print(
         #     "pure_index = {}, pure_op = {}, stab_index = {}, stab_op = {}, log_index = {}, log_op = {}".format(
         #         pure_index, pure_op, stab_index, stab_op, log_index, log_op
