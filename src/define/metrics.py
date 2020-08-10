@@ -291,7 +291,7 @@ def InfidelityPhysical(choi, kwargs):
         infidelity = 1 - (1 / np.longdouble(2)) * np.longdouble(
             np.real(choi[0, 0] + choi[3, 0] + choi[0, 3] + choi[3, 3])
         )
-    elif kwargs["corr"] == 1:
+    elif (kwargs["corr"] == 1) or (kwargs["corr"] == 3):
         infidelity = 1 - choi[0]
     else:
         infidelity = 0
@@ -623,7 +623,7 @@ def ChannelMetrics(submit, metrics, start, end, results, rep, chtype):
                 # print("Channel %d: Function ComputeNorms(\n%s,\n%s)" % (i, np.array_str(physical, max_line_width = 150, precision = 3), metrics))
                 if not (rep == "choi"):
                     chan = crep.ConvertRepresentations(chan, "process", "choi")
-            elif submit.iscorr == 1:
+            elif (submit.iscorr == 1) or (submit.iscorr == 3):
                 chan = np.load("%s/raw_%s" % (folder, fname))[
                     int(submit.available[i, -1]), :
                 ]
@@ -641,9 +641,9 @@ def ChannelMetrics(submit, metrics, start, end, results, rep, chtype):
             chan = np.zeros(
                 (lchans.shape[0], lchans.shape[1], lchans.shape[2]), dtype=np.complex128
             )
-            for l in range(1,chan.shape[0]):
+            for l in range(1, chan.shape[0]):
                 chan[l, :, :] = crep.ConvertRepresentations(
-                    lchans[l, :, :]/lchans[l, 0, 0], "process", "choi"
+                    lchans[l, :, :] / lchans[l, 0, 0], "process", "choi"
                 )
         for m in range(len(metrics)):
             if chtype == "physical":

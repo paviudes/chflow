@@ -3,17 +3,17 @@ timestamp sample
 # Type of quantum error correcting code
 ecc Steane,Steane
 # Type of quantum channel
-channel rand
+channel npcorr
 # Noise rates (mean delta; std delta; std theta; std phi)
-noiserange 6,6,1;1,1,1
+noiserange 0.01,0.01,1;0.01,0.01,1
 # Number of samples
 samples 1
 # Scales
-scale 0.66,1
+scale 1,1
 # Number of syndromes to be sampled at the top level
-stats 10000
+stats 100000
 # Sampling method
-importance power
+importance power 
 # Decoding strategy
 decoder 1,1
 # Fraction of Pauli probabilities available to the ML decoder
@@ -25,4 +25,4 @@ cores 1,1
 # Output directory
 outdir /Users/pavi/Documents/chbank
 # Plot settings
-plot name,cptp;linestyle,None
+plot name,npcorr;linestyle,None

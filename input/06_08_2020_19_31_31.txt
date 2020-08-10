@@ -7,7 +7,7 @@ channel rand
 # Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
 repr process
 # Noise rate exponents. The actual noise rate is (2/3)^exponent.
-noiserange 6,6,1;1,1,1
+noiserange 8,8,1;1,1,1
 # Scales of noise range.
 scale 0.66,1.0
 # Number of samples

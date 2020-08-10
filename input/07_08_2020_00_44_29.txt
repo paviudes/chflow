@@ -1,0 +1,51 @@
+# Time stamp
+timestamp 07_08_2020_00_44_29
+# Type of quantum error correcting code
+ecc Steane,Steane
+# Type of quantum channel
+channel rtasu
+# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
+repr process
+# Noise rate exponents. The actual noise rate is (2/3)^exponent.
+noiserange 8,8,1;-1,-1,1
+# Scales of noise range.
+scale 0.66,1.0
+# Number of samples
+samples 1
+# Parameters schedule
+scheduler ./../input/schedule_07_08_2020_00_44_29.txt
+# Decoding algorithm to be used -- 0 for the maximum likelihood decoder and 1 for minimum weight decoder.
+decoder 2,2
+# Fraction of Pauli probabilities accessible to the ML decoder.
+dcfraction 0.00016
+# Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
+frame P
+# Number of syndromes to be sampled at top level
+stats [100000]
+# Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
+importance power
+# Metrics to be computed on the effective channels at every level.
+metrics infid
+# Load distribution on cores.
+cores 1,1
+# Number of nodes
+nodes 1
+# Name of the host computer.
+host local
+# Name of the account.
+account default
+# Batch name.
+job X
+# Wall time in hours.
+wall 0
+# Submission queue (Available options: see goo.gl/pTdqbV).
+queue X
+# Email notifications.
+email X
+# Output result's directory.
+outdir /Users/pavi/Documents/chbank
+# Randomized compiling of quantum gates.
+rc 0
+# Plot settings
+plot name,rtasu;linestyle,None
+# Miscellaneous information: None

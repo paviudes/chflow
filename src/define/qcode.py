@@ -50,7 +50,7 @@ class QuantumErrorCorrectingCode:
         self.group_by_weight = None
         self.defnfile = "%s.txt" % (name)
         eof = 0
-        with open(("./../../../code/%s" % self.defnfile), "r") as fp:
+        with open(("./../code/%s" % self.defnfile), "r") as fp:
             while eof == 0:
                 line = fp.readline()
                 if not (line):

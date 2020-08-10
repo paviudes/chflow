@@ -171,7 +171,7 @@ def IIDWtihCrossTalk(infid, qcode, iid_fraction, subset_fraction):
             selected_errors = np.arange(n_errors[i - 1], n_errors[i])
         corr_error_dist[errors_to_boost[selected_errors]] = np.random.normal(
             (0.1 ** (w - 1)) * 4 ** n * full_process_infid,
-            0.1 * 4 ** n * full_process_infid,
+            (0.1 ** (w - 1)) * 4 ** n * full_process_infid,
             size=(mq_errors,),
         )
 

@@ -17,6 +17,7 @@ from define.randchans import (
 from define import photonloss as pl
 from define import gendamp as gd
 from define import chanreps as crep
+from define.QECCLfid.multi_qubit_kraus import get_process_correlated, get_chi_diagLST
 
 
 def Identity():
@@ -282,6 +283,15 @@ def RandomHamiltonian(params):
     return krauss
 
 
+def CorrelatedNonPauli(params):
+    """
+    Return a correlated non-Pauli channel in the Pauli-Liouville respresentation.
+    """
+    phychan = get_process_correlated(params[1], params[2], params[0])
+    rawchan = get_chi_diagLST(params[1], params[2], params[0])
+    return (phychan, rawchan)
+
+
 def CorrelatedPauli(params):
     """
     Kraus operators for a random fully correlated channel.
@@ -408,6 +418,9 @@ def GetKraussForChannel(chType, *params):
     elif chType == "pcorr":
         # This is a correlated Pauli channel.
         krauss = CorrelatedPauli(params)
+
+    elif chType == "npcorr":
+        krauss = CorrelatedNonPauli(params)
 
     elif chType == "wpc":
         # Worst Pauli channel for a infidelity

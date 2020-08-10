@@ -7,7 +7,7 @@ channel pcorr
 # Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
 repr process
 # Noise rate exponents. The actual noise rate is (2/3)^exponent.
-noiserange 15,15,1;2,2,1;0.3,0.3,1;0.1,0.1,1
+noiserange 15,15,1;2,2,1;0.95,0.95,1;0.1,0.1,1
 # Scales of noise range.
 scale 0.66,1.0,1.0,1.0
 # Number of samples

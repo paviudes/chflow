@@ -790,8 +790,14 @@ if __name__ == "__main__":
             nrate = list(map(np.double, user[1].split(",")))
             nreps = int(user[2])
             max_weight = int(user[3])
+            sample = -1
+            if len(user) > 4:
+                sample = int(user[4])
             if os.path.exists(RawPhysicalChannel(submit, nrate)):
-                chi = np.mean(np.load(RawPhysicalChannel(submit, nrate)), axis=0)
+                if sample == -1:
+                    chi = np.mean(np.load(RawPhysicalChannel(submit, nrate)), axis=0)
+                else:
+                    chi = np.load(RawPhysicalChannel(submit, nrate))[sample]
             else:
                 CreatePauliDistChannels(submit)
             if submit.iscorr == 0:

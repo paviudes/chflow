@@ -2,6 +2,8 @@
 rerun() {
   echo "removing /Users/pavi/Documents/chbank/$1/channels/*"
   rm /Users/pavi/Documents/chbank/$1/channels/*
+  rm /Users/pavi/Documents/chbank/$1/metrics/*
+  rm /Users/pavi/Documents/chbank/$1/results/*.npy
   echo "Running $1"
   ./chflow.sh $ts
 }
@@ -14,10 +16,17 @@ pauli_timestamps=("21_07_2020_16_28_27" "20_07_2020_20_11_41" "21_07_2020_21_49_
 
 cptp_timestamps=("06_08_2020_19_31_31" "06_08_2020_19_31_32" "06_08_2020_19_31_34" "06_08_2020_19_31_35" "06_08_2020_19_31_37" "06_08_2020_19_31_49" "06_08_2020_19_31_50" "06_08_2020_19_31_52" "06_08_2020_19_31_53" "06_08_2020_19_31_55")
 
-timestamps=("${cptp_timestamps[@]}")
+rtasu_timestamps=("07_08_2020_00_44_26" "07_08_2020_00_44_27" "07_08_2020_00_44_29" "07_08_2020_00_44_30" "07_08_2020_00_44_31" "07_08_2020_00_44_33" "07_08_2020_00_44_36" "07_08_2020_00_44_38" "07_08_2020_00_44_39" "07_08_2020_00_44_40")
+
+nonpauli_timestamps=("10_08_2020_00_33_27" "10_08_2020_00_33_29" "10_08_2020_00_33_30" "10_08_2020_00_33_31" "10_08_2020_00_33_33" "10_08_2020_00_33_34" "10_08_2020_00_33_35" "10_08_2020_00_33_36" "10_08_2020_10_04_35" "10_08_2020_10_04_37" "10_08_2020_10_04_38" "10_08_2020_10_04_39" "10_08_2020_10_04_41" "10_08_2020_10_04_42" "10_08_2020_10_04_43" "10_08_2020_10_04_44" "10_08_2020_10_04_52" "10_08_2020_10_04_53" "10_08_2020_00_33_38" "10_08_2020_00_33_39")
+
+# nonpauli_timestamps=("10_08_2020_10_04_35" "10_08_2020_10_04_37" "10_08_2020_10_04_38" "10_08_2020_10_04_39" "10_08_2020_10_04_41" "10_08_2020_10_04_42" "10_08_2020_10_04_43" "10_08_2020_10_04_44" "10_08_2020_10_04_52" "10_08_2020_10_04_53")
+
+timestamps=("${nonpauli_timestamps[@]}")
 # b=("${a[@]}")
 
-alphas=(0 0.00009 0.00016 0.00029 0.00052 0.00093 0.00167 0.003 1 "ML")
+alphas=(0 0.00009 0.00093 0.003 0.01 0.02 0.0025 0.03 0.0035 0.04 0.0045 0.05 0.0022 0.0025 0.0027 0.03 0.0032 0.0035 0.0037 0.04 0.0042 0.0045 1 "ML")
+# alphas=(0.0022 0.0025 0.0027 0.03 0.0032 0.0035 0.0037 0.04 0.0042 0.0045)
 # timestamps=("04_08_2020_19_00_34")
 if [[ "$1" == "overwrite" ]]; then
   for (( t=0; t<${#timestamps[@]}; ++t )); do
@@ -36,6 +45,7 @@ elif [[ "$1" == "generate" ]]; then
     rm /Users/pavi/Documents/chbank/${ts}/physical/*
 
 		alpha=${alphas[t]}
+
     echo "sbload ${refts}" > input/temp.txt
 		echo "submit ${ts}" >> input/temp.txt
 		echo "quit" >> input/temp.txt
@@ -43,27 +53,51 @@ elif [[ "$1" == "generate" ]]; then
     ./chflow.sh -- temp.txt
     rm input/temp.txt
 
-    # oldnrate=20
+    # oldnrate=15
     # newnrate=15
+    # oldfrac=0.3
+    # newfrac=0.95
     #
-		# echo "REPLACE noiserange $oldnrate,$oldnrate,1;2,2,1;0.3,0.3,1;0.1,0.1,1 WITH noiserange $newnrate,$newnrate,1;2,2,1;0.3,0.3,1;0.1,0.1,1 IN input/${ts}.txt"
-		# sed -i '' "s/noiserange $oldnrate,$oldnrate,1;2,2,1;0.3,0.3,1;0.1,0.1,1/noiserange $newnrate,$newnrate,1;2,2,1;0.3,0.3,1;0.1,0.1,1/" input/${ts}.txt
-
+		# echo "REPLACE noiserange $oldnrate,$oldnrate,1;2,2,1;$oldfrac,$oldfrac,1;0.1,0.1,1 WITH noiserange $newnrate,$newnrate,1;2,2,1;$newfrac,$newfrac,1;0.1,0.1,1 IN input/${ts}.txt"
+		# sed -i '' "s/noiserange $oldnrate,$oldnrate,1;2,2,1;$oldfrac,$oldfrac,1;0.1,0.1,1/noiserange $newnrate,$newnrate,1;2,2,1;$newfrac,$newfrac,1;0.1,0.1,1/" input/${ts}.txt
+    #
 		# echo "REPLACE $oldnrate WITH $newnrate IN input/schedule_${ts}.txt"
-		# sed -i '' "s/15/$newnrate/" input/schedule_${ts}.txt
+		# sed -i '' "s/$oldnrate/$newnrate/" input/schedule_${ts}.txt
+    # echo "REPLACE $oldfrac WITH $newfrac IN input/schedule_${ts}.txt"
+		# sed -i '' "s/$oldfrac/$newfrac/" input/schedule_${ts}.txt
+
+    # oldnrate=6
+    # newnrate=8
+    #
+		# echo "REPLACE noiserange $oldnrate,$oldnrate,1;1,1,1 WITH noiserange $newnrate,$newnrate,1;1,1,1 IN input/${ts}.txt"
+		# sed -i '' "s/noiserange $oldnrate,$oldnrate,1;1,1,1/noiserange $newnrate,$newnrate,1;1,1,1/" input/${ts}.txt
+    #
+		# echo "REPLACE $oldnrate WITH $newnrate IN input/schedule_${ts}.txt"
+		# sed -i '' "s/$oldnrate/$newnrate/" input/schedule_${ts}.txt
+
+    # oldp=0.02
+    # newp=0.02
+    # oldangle=0.02
+    # newangle=0.01
+    #
+		# echo "REPLACE noiserange $oldp,$oldp,1;$oldangle,$oldangle,1; WITH noiserange $newp,$newp,1;$newangle,$newangle,1 IN input/${ts}.txt"
+		# sed -i '' "s/noiserange $oldp,$oldp,1;$oldangle,$oldangle,1/noiserange $newp,$newp,1;$newangle,$newangle,1/" input/${ts}.txt
+    #
+		# echo "REPLACE $oldp $oldangle WITH $newp $newangle IN input/schedule_${ts}.txt"
+		# sed -i '' "s/$oldp $oldangle/$newp $newangle/" input/schedule_${ts}.txt
 
     if [[ "$alpha" == "ML" ]]; then
       echo "REPLACE decoder 1,1 WITH decoder 0,0 IN input/${ts}.txt"
-  		sed -i '' "s/decoder 1,1/decoder 0,0/" input/${ts}.txt
+  		sed -i '' "s/decoder 1,1/decoder 0,0/g" input/${ts}.txt
     else
       echo "REPLACE decoder 1,1 WITH decoder 2,2 IN input/${ts}.txt"
-  		sed -i '' "s/decoder 1,1/decoder 2,2/" input/${ts}.txt
+  		sed -i '' "s/decoder 1,1/decoder 2,2/g" input/${ts}.txt
       echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
-  		sed -i '' "s/dcfraction ${refalpha}/dcfraction ${alpha}/" input/${ts}.txt
+  		sed -i '' "s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
     fi
 
-    # echo "REPLACE direct WITH power IN input/${ts}.txt"
-		# sed -i '' "s/direct/power/" input/${ts}.txt
+    # echo "REPLACE [100000] WITH [1000000] IN input/${ts}.txt"
+		# sed -i '' "s/[100000]/[1000000]/g" input/${ts}.txt
 
 		echo "xxxxxxx"
   done

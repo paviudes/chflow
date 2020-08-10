@@ -168,6 +168,14 @@ Channels = {
         "Pauli": 1,
         "corr": 1,
     },
+    "npcorr": {
+        "name": "Random correlated non Pauli channel",
+        "params": ["Probability", "Angle"],
+        "latex": ["$p$", "$\\theta$"],
+        "color": "limegreen",
+        "Pauli": 0,
+        "corr": 3,
+    },
     "wpc": {
         "name": "Worst Pauli channel",
         "params": "Infidelity",

@@ -121,6 +121,17 @@ def DecoderInstanceCompare(
         for l in range(1, nlevels + 1):
             fig = plt.figure(figsize=gv.canvas_size)
             ax1 = plt.gca()
+            ax1.plot(
+                [],
+                [],
+                color="k",
+                linestyle="--",
+                label="$%s = %s$"
+                % (
+                    ml.Metrics[phymet]["latex"].replace("$", ""),
+                    latex_float(phyerrs[0]),
+                ),
+            )
             for (c, ch) in enumerate(chids):
                 settings = {
                     "xaxis": [],
@@ -154,9 +165,11 @@ def DecoderInstanceCompare(
                         settings["yaxis"].append(
                             np.load(fn.LogicalErrorRates(dbses[d], logmet))[ch, l]
                         )
-
+                sortorder = np.argsort(settings["xaxis"])
+                settings["xaxis"] = np.array(settings["xaxis"])[sortorder]
+                settings["yaxis"] = np.array(settings["yaxis"])[sortorder]
                 # Plotting
-                # print("X: {}\nY: {}".format(settings["xaxis"], settings["yaxis"]))
+                print("X: {}\nY: {}".format(settings["xaxis"], settings["yaxis"]))
                 plotobj = ax1.plot(
                     settings["xaxis"],
                     settings["yaxis"],
@@ -204,7 +217,7 @@ def DecoderInstanceCompare(
             )
             ax1.legend(
                 numpoints=1,
-                loc="center right",
+                loc="best",
                 shadow=True,
                 fontsize=gv.legend_fontsize,
                 markerscale=gv.legend_marker_scale,

@@ -18,6 +18,7 @@ from define import chandefs as chdef
 from define import chanreps as crep
 from define import fnames as fn
 
+
 def ChannelPair(chtype, rates, dim, method="qr"):
     # Generate process matrices for two channels that can be associated to the same "family".
     channels = np.zeros((2, 4, 4), dtype=np.longdouble)
@@ -54,15 +55,15 @@ def PreparePhysicalChannels(submit, nproc=None):
         nparams = 4 ** submit.eccs[0].K * 4 ** submit.eccs[0].K
         raw_params = nparams
     elif submit.iscorr == 1:
-        # submit.rawchans = np.zeros(
-        #     (submit.noiserates.shape[0], submit.samps, 4 ** submit.eccs[0].N),
-        #     dtype=np.longdouble,
-        # )
         nparams = 2 ** (submit.eccs[0].N + submit.eccs[0].K)
         raw_params = 4 ** submit.eccs[0].N
-    else:
+    elif submit.iscorr == 2:
         nparams = submit.eccs[0].N * 4 ** submit.eccs[0].K * 4 ** submit.eccs[0].K
         raw_params = nparams
+    else:
+        nparams = 4 ** (submit.eccs[0].N + submit.eccs[0].K)
+        raw_params = 4 ** submit.eccs[0].N
+
     phychans = mp.Array(
         ct.c_double,
         np.zeros(
@@ -75,9 +76,6 @@ def PreparePhysicalChannels(submit, nproc=None):
             (submit.noiserates.shape[0] * submit.samps * raw_params), dtype=np.double
         ),
     )
-    # submit.phychans = np.zeros(
-    #     (submit.noiserates.shape[0], submit.samps, nparams), dtype=np.longdouble
-    # )
     for i in tqdm(
         range(submit.noiserates.shape[0]),
         ascii=True,
@@ -130,6 +128,11 @@ def GenChannelSamples(
 	Generate samples of various channels with a given noise rate.
 	"""
     np.random.seed()
+    nstabs = 2 ** (submit.eccs[0].N - submit.eccs[0].K)
+    nlogs = 4 ** submit.eccs[0].K
+    diagmask = np.array(
+        [nlogs * nstabs * j + j for j in range(nlogs * nstabs)], dtype=np.int
+    )
     for j in range(samps[0], samps[1]):
         # print(
         #     "Noise at {}, samp {} = {}".format(
@@ -184,7 +187,7 @@ def GenChannelSamples(
                 ),
                 submit.eccs[0],
             )
-        else:
+        elif submit.iscorr == 2:
             chans = chdef.GetKraussForChannel(submit.channel, submit.eccs[0].N, *noise)
             nentries = 4 ** submit.eccs[0].K * 4 ** submit.eccs[0].K
             for q in range(chans.shape[0]):
@@ -227,5 +230,17 @@ def GenChannelSamples(
                         "chi",
                     )
                 ).ravel()
-
+        else:
+            (
+                phychans[
+                    (noiseidx * submit.samps * nparams + j * nparams) : (
+                        noiseidx * submit.samps * nparams + (j + 1) * nparams
+                    )
+                ],
+                rawchans[
+                    (noiseidx * submit.samps * raw_params + j * raw_params) : (
+                        noiseidx * submit.samps * raw_params + (j + 1) * raw_params
+                    )
+                ],
+            ) = chdef.GetKraussForChannel(submit.channel, submit.eccs[0], *noise)
     return None
