@@ -5,13 +5,13 @@ ecc Steane,Steane
 # Type of quantum channel
 channel npcorr
 # Noise rates (mean delta; std delta; std theta; std phi)
-noiserange 0.01,0.01,1;0.01,0.01,1
+noiserange 0.02,0.02,1;0.01,0.01,1
 # Number of samples
 samples 1
 # Scales
 scale 1,1
 # Number of syndromes to be sampled at the top level
-stats 100000
+stats 1000000
 # Sampling method
 importance power 
 # Decoding strategy
@@ -23,6 +23,6 @@ metrics infid
 # Load distribution on cores.
 cores 1,1
 # Output directory
-outdir /Users/pavi/Documents/chbank
+outdir /project/def-jemerson/chbank
 # Plot settings
 plot name,npcorr;linestyle,None
