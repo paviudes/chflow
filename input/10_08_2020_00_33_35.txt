@@ -21,7 +21,7 @@ dcfraction 0.0012
 # Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
 frame P
 # Number of syndromes to be sampled at top level
-stats [100000]
+stats [100,120,145,175,212,255,308,372,449,542,655,790,954,1151,1389,1676,2023,2442,2947,3556,4291,5179,6250,7543,9102,10985,13257,15998,19306,23299,28117,33932,40949,49417,59636,71968,86851,104811,126485,152641,184206,222299,268269,323745,390693,471486,568986,686648,828642,1000000]
 # Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
 importance power
 # Metrics to be computed on the effective channels at every level.
@@ -43,7 +43,7 @@ queue X
 # Email notifications.
 email X
 # Output result's directory.
-outdir /Users/pavi/Documents/chbank
+outdir /project/def-jemerson/chbank
 # Randomized compiling of quantum gates.
 rc 0
 # Plot settings
