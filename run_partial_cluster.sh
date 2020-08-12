@@ -5,7 +5,7 @@ rerun() {
 	rm /project/def-jemerson/chbank/$1/metrics/*
 	rm /project/def-jemerson/chbank/$1/results/*.npy
 	echo "Running $1"
-	echo "./chflow.sh ${ts}" >> partial_cluster.txt
+	echo "${ts}" >> partial_cluster.txt
 }
 
 display() {
@@ -108,7 +108,7 @@ elif [[ "$1" == "generate" ]]; then
 
 		echo "REPLACE Steane,Steane WITH Steane"
 		sed -i "s/Steane,Steane/Steane" input/${ts}.txt
-		
+
 		echo "/Users/pavi/Documents WITH /project/def-jemerson IN input/${ts}.txt"
 		sed -i "s/\Users\/pavi\/Documents/\/project\/def-jemerson/g" input/${ts}.txt
 
@@ -120,6 +120,13 @@ elif [[ "$1" == "chmod" ]]; then
 		echo "Changing permissions for /project/def-jemerson/chbank/${ts}"
 		chmod -R 777 /project/def-jemerson/chbank/${ts}
 	done
+elif [[ "$1" == "zip" ]]; then
+	for (( t=0; t<${#timestamps[@]}; ++t )); do
+		ts=${timestamps[t]}
+		echo "zipping /project/def-jemerson/chbank/${ts}"
+		tar -zcvf /project/def-jemerson/chbank/${ts}.tar.gz /project/def-jemerson/chbank/${ts}
+	done
+
 else
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}

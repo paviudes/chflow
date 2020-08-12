@@ -21,6 +21,7 @@ clipboard.py
 
 # All object files
 *.o
+*.so
 
 # Test files
 **/test/*
@@ -29,8 +30,8 @@ clipboard.py
 refs/
 
 # All input files that do not start with sample_...
-# input/*.txt
-# !input/sample_*.txt
+input/*.txt
+!input/sample_*.txt
 
 # Log file
 src/log.txt

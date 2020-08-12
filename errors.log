@@ -1,0 +1,4 @@
+/cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/scipy-stack/2019a/lib/python3.7/site-packages/mpl_toolkits/axes_grid/__init__.py:12: MatplotlibDeprecationWarning: 
+The mpl_toolkits.axes_grid module was deprecated in Matplotlib 2.1 and will be removed two minor releases later. Use mpl_toolkits.axes_grid1 and mpl_toolkits.axisartist, which provide the same functionality instead.
+  obj_type='module')
+./chflow.sh: line 3: 22425 Terminated              python3 chflow.py "$@"

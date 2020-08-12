@@ -1,0 +1,44 @@
+CVXPY not available, cannot do SDPs.
+PyPDF2 is not available, cannot manipulate PDFs.
+
+	      ###      ###  ###
+	       ##     ##     ##
+	 ###   ####  #####   ##    ###  ## # ##
+	## ##  ## ##  ##     ##   ## ##  # # #
+	##     ## ##  ##     ##   ## ##  #####
+	## ##  ## ##  ##     ##   ## ##   ####
+	 ###   ## ## ####  ######  ###    # #
+	
+	Welcome to chflow version [1mv2.0[0m
+	Check out https://github.com/paviudes/chflow/wiki for help.
+
+	BSD 3-Clause License
+	Copyright (c) 2018, Pavithran S Iyer, Aditya Jain and David Poulin
+	All rights reserved.
+	
+[2mMissing or outdated packages might affect certain functionalities.[2m
+[2mPackage              | Version    | Affected functionality[0m
+[2m--------------------------------------------------------------[0m
+[2mpicos                | 1.0        | semi-definite programs, eg. Diamond norm[0m
+[2mcvxopt               | 1.0        | semi-definite programs, eg. Diamond norm[0m
+[2msklearn              | 1.0        | machine learning    [0m
+[2mxxxxxx[0m
+[2mTo install all missing packages, run "pip install -r requirements.txt".[0m
+Code: Steane X Steane
+Channel: Random correlated non Pauli channel
+Noise rates: [[0.1  0.05]]
+Samples: [0.]
+Importance: 1
+Decoder: [2 2]
+Fraction of Pauli probabilities for the ML Decoder: 0.204
+Concatenation levels: 2
+Decoding trials per level: [    100     120     145     175     212     255     308     372     449
+     542     655     790     954    1151    1389    1676    2023    2442
+    2947    3556    4291    5179    6250    7543    9102   10985   13257
+   15998   19306   23299   28117   33932   40949   49417   59636   71968
+   86851  104811  126485  152641  184206  222299  268269  323745  390693
+  471486  568986  686648  828642 1000000]
+Metrics to be computed at every level: infid
+---------------------------
+Calculating...
+
