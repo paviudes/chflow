@@ -43,7 +43,18 @@ if [[ "$1" == "overwrite" ]]; then
 		rerun $ts
 		echo "xxxxxxx"
 	done
-	echo "parallel --joblog partial_decoders.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders.txt"
+	if [[ $host == *"computecanada"* ]]; then
+		echo "parallel --joblog partial_decoders.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders.txt"
+	else
+		rm input/cedar/partial_decoders.sh
+		sbcmds=("#!/bin/bash" "#SBATCH --account=def-jemerson" "#SBATCH --begin=now" "#SBATCH --nodes=1" "#SBATCH --time=05:00:00" "#SBATCH --ntasks-per-node=48" "#SBATCH -o /project/def-jemerson/chbank/partial_output.o" "#SBATCH -e /project/def-jemerson/chbank/partial_errors.o" "#SBATCH --mail-type=ALL" "#SBATCH --mail-user=pavithran.sridhar@gmail.com")
+		for (( s=0; s<${#sbcmds[@]}; ++s )); do
+			echo "${sbcmds[s]} >> input/cedar/partial_decoders.sh"
+		done
+		echo "module load intel python scipy-stack" >> input/cedar/partial_decoders.sh
+		echo "cd /project/def-jemerson/pavi/chflow" >> input/cedar/partial_decoders.sh
+		echo "parallel --joblog partial_decoders.log --jobs ${SLURM_NTASKS_PER_NODE} ./chflow.sh {1} :::: input/partial_decoders.txt" >> input/cedar/partial_decoders.sh
+	fi
 elif [[ "$1" == "generate" ]]; then
 	refts=${timestamps[0]}
 	refalpha=${alphas[0]}
