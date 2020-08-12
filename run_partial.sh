@@ -5,6 +5,10 @@ if [[ $host == *"paviws"* ]]; then
 	outdir="/Users/pavi/Documents"
 	chflowdir="/Users/pavi/Dropbox/rclearn"
 	cores=$(sysctl -n hw.ncpu)
+elif [[ $host == "aditya-Lenovo-G50-80" ]]; then
+	outdir="/home/aditya/Documents"
+	chflowdir="/home/aditya/Desktop/Research_PhD"
+	cores=$(sysctl -n hw.ncpu)
 else
 	outdir="/project/def-jemerson/chbank"
 	chflowdir="/project/def-jemerson/pavi/chflow"
