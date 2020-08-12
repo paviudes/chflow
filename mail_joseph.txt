@@ -1,7 +1,0 @@
-Hey Joseph,
-	Hope you are well. We are curious to know if you had any immediate concerns with the paper.
-
-Meanwhile we have been exploring a related research problem -- improving the logical fidelity for concatenated codes by providing noise-reconstruction data to the decoder. Our aim is to achieve better performance than the minimum weight decoder (which we used to study predictability). We'll write to you again when we have some prelimnary numerical results.
-
-Thanks,
--Pavi and Aditya
