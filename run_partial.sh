@@ -6,6 +6,10 @@ if [[ $host == *"paviws"* ]]; then
 	chflowdir="/Users/pavi/Dropbox/rclearn"
 	cores=$(sysctl -n hw.ncpu)
 	sed_prepend="'' "
+elif [[ $host == "aditya-Lenovo-G50-80" ]]; then
+	outdir="/home/aditya/Documents"
+	chflowdir="/home/aditya/Desktop/Research_PhD"
+	cores=$(sysctl -n hw.ncpu)
 else
 	outdir="/project/def-jemerson/chbank"
 	chflowdir="/project/def-jemerson/pavi/chflow"
@@ -68,7 +72,7 @@ elif [[ "$1" == "generate" ]]; then
 		ts=${timestamps[t]}
 		alpha=${alphas[t]}
 		echo "alpha = ${alpha}"
-		
+
 		echo -e "\033[2mremoving ${outdir}/${ts}/physical/*\033[0m"
 		rm ${outdir}/${ts}/physical/*
 
@@ -100,7 +104,7 @@ elif [[ "$1" == "filter" ]]; then
 		alpha=${alphas[t]}
 		if [[ ! " ${untrust[@]} " =~ " ${alpha} " ]]; then
 			echo ${ts}
-		fi		
+		fi
 	done
 elif [[ "$1" == "chmod" ]]; then
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
