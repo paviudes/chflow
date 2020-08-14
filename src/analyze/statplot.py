@@ -206,9 +206,14 @@ def MCStatsPlot(dbses, lmet, pmet, rates, nsamples=10, cutoff=1e3):
                 # ax.set_ylim(1 / cutoff, 50 / cutoff)
 
             # Axes labels
-            ax.set_xlabel("$N$", fontsize=gv.axes_labels_fontsize, labelpad = gv.axes_labelpad)
+            ax.set_xlabel(
+                "$N$", fontsize=gv.axes_labels_fontsize, labelpad=gv.axes_labelpad
+            )
             ax.set_ylabel(
-                "$\\overline{%s_{%d}}$" % (Metrics[lmet]["latex"].replace("$",""), dbs.levels), fontsize=gv.axes_labels_fontsize, labelpad = gv.axes_labelpad
+                "$\\overline{%s_{%d}}$"
+                % (Metrics[lmet]["latex"].replace("$", ""), dbs.levels),
+                fontsize=gv.axes_labels_fontsize,
+                labelpad=gv.axes_labelpad,
             )
             ax.tick_params(
                 axis="both",
@@ -277,22 +282,25 @@ def MCompare(dbses, pmet, lmet, rates, nsamples=10, cutoff=1e6):
                     linestyle=gv.line_styles[d % len(gv.line_styles)],
                 )
             )
-            dset_labels.append(dbs.plotsettings["name"])
-
+            # dset_labels.append(dbs.plotsettings["name"]) ORIGINAL
             for r in range(rates.shape[0]):
                 for s in range(samples.shape[0]):
                     yaxis = running_averages[r, samples[s], xindices]
                     linestyle = gv.line_styles[d % len(gv.line_styles)]
-                    label = "$%s = %s$" % (Metrics[pmet]["latex"].replace("$", ""),
-                        latex_float(phyerrs[pos[r, s]])
+                    label = "$%s = %s$" % (
+                        Metrics[pmet]["latex"].replace("$", ""),
+                        latex_float(phyerrs[pos[r, s]]),
                     )
                     plt.plot(
                         xaxis,
                         yaxis,
                         linewidth=gv.line_width,
-                        label=label if d == 0 else None,
-                        color=gv.Colors[(r * samples.size + s) % len(gv.Colors)],
-                        linestyle=linestyle,
+                        # label=label if d == 0 else None, ORIGINAL
+                        label="%d" % int(dbs.decoder_fraction * 4 ** (dbs.eccs[0].N)),
+                        # color=gv.Colors[(r * samples.size + s) % len(gv.Colors)], ORIGINAL
+                        color=gv.Colors[d % len(gv.Colors)],
+                        # linestyle=linestyle, ORIGINAL
+                        linestyle="-"
                         # marker="o",
                         # markersize=gv.marker_size * 0.75,
                     )
@@ -300,9 +308,14 @@ def MCompare(dbses, pmet, lmet, rates, nsamples=10, cutoff=1e6):
         ax.set_yscale("log")
         ax.set_xscale("log")
         # Axes labels
-        ax.set_xlabel("$N$", fontsize=gv.axes_labels_fontsize, labelpad = gv.axes_labelpad)
+        ax.set_xlabel(
+            "$N$", fontsize=gv.axes_labels_fontsize, labelpad=gv.axes_labelpad
+        )
         ax.set_ylabel(
-            "$\\overline{%s_{%d}}$" % (Metrics[lmet]["latex"].replace("$",""), dbs.levels), fontsize=gv.axes_labels_fontsize, labelpad = gv.axes_labelpad
+            "$\\overline{%s_{%d}}$"
+            % (Metrics[lmet]["latex"].replace("$", ""), dbs.levels),
+            fontsize=gv.axes_labels_fontsize,
+            labelpad=gv.axes_labelpad,
         )
         ax.tick_params(
             axis="both",
@@ -321,7 +334,8 @@ def MCompare(dbses, pmet, lmet, rates, nsamples=10, cutoff=1e6):
             labels=mc_labels + dset_labels,
             numpoints=1,
             loc="upper center",
-            ncol=4,
+            # ncol=4, ORIGINAL
+            ncol=6,
             bbox_to_anchor=(0.5, 1.15),
             shadow=True,
             fontsize=gv.legend_fontsize,

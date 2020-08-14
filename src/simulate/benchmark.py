@@ -74,7 +74,7 @@ def Unpack(varname, pointer, nlevels, nmetrics, nlogs, nbins, nbreaks):
     return reshaped
 
 
-def Benchmark(submit, noise, sample, physical, refchan, dcknowledge):
+def Benchmark(submit, noise, sample, physical, refchan, dcknowledge, infidelity):
     # This is a wrapper function to the C function in benchmark.c
     # We will prepare the inputs to the C function as numpy arrays and use ctypes to convert them to C pointers.
     # After the benchmarking process is run, we will then transform the output form C pointers to numpy arrays.
@@ -118,7 +118,12 @@ def Benchmark(submit, noise, sample, physical, refchan, dcknowledge):
     if len(dcknowledge) == 0:
         dcknow = np.zeros(1, dtype=np.double)
     else:
-        dcknow = np.zeros(np.sum([2 ** (submit.eccs[l].N + submit.eccs[l].K) for l in range(nlevels)]), dtype=np.float64)
+        dcknow = np.zeros(
+            np.sum(
+                [2 ** (submit.eccs[l].N + submit.eccs[l].K) for l in range(nlevels)]
+            ),
+            dtype=np.float64,
+        )
         norm_count = 0
         for l in range(nlevels):
             for i in range(2 ** (submit.eccs[l].N + submit.eccs[l].K)):
@@ -238,6 +243,7 @@ def Benchmark(submit, noise, sample, physical, refchan, dcknowledge):
         ctypes.c_int,  # maxbin
         ctypes.c_int,  # importance
         ndpointer(dtype=np.float64, ndim=1, flags="C_CONTIGUOUS"),  # refchan
+        ctypes.c_double,  # infidelity
     )
     _bmark.Benchmark.restype = GetBMOutput(
         nlevels, nmetrics, nlogs, submit.nbins, len(submit.stats)
@@ -252,14 +258,14 @@ def Benchmark(submit, noise, sample, physical, refchan, dcknowledge):
         normphases_real,  # arg 5
         normphases_imag,  # arg 6
         ctypes.c_char_p(submit.channel.encode("utf-8")),  # arg 7
-        iscorr, # arg 8
+        iscorr,  # arg 8
         physical.astype(np.float64).ravel(),  # arg 9
-        submit.rc, # arg 10
+        submit.rc,  # arg 10
         nmetrics,  # arg 11
         metrics,  # arg 12
-        decoders, # arg 13
-        dclookups, # arg 14
-        dcknow, # arg 15
+        decoders,  # arg 13
+        dclookups,  # arg 14
+        dcknow,  # arg 15
         submit.hybrid,  # arg 16
         decoderbins,  # arg 17
         ndecoderbins,  # arg 18
@@ -270,6 +276,7 @@ def Benchmark(submit, noise, sample, physical, refchan, dcknowledge):
         submit.maxbin,  # arg 23
         submit.importance,  # arg 24
         refchan.astype(np.float64).ravel(),  # arg 25
+        infidelity,  # arg 26
     )
     # print("bout: {}\nfields: {}".format(bout, bout._fields_))
     # The output arrays are all vectorized. We need to reshape them.

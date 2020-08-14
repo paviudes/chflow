@@ -1,5 +1,5 @@
 # Time stamp
-timestamp 10_08_2020_10_04_35
+timestamp 10_08_2020_10_04_38
 # Type of quantum error correcting code
 ecc Steane,Steane
 # Type of quantum channel
@@ -13,11 +13,11 @@ scale 1.0,1.0
 # Number of samples
 samples 1
 # Parameters schedule
-scheduler ./../input/schedule_10_08_2020_10_04_35.txt
+scheduler ./../input/schedule_10_08_2020_10_04_38.txt
 # Decoding algorithm to be used -- 0 for the maximum likelihood decoder and 1 for minimum weight decoder.
 decoder 2,2
 # Fraction of Pauli probabilities accessible to the ML decoder.
-dcfraction 0.0031
+dcfraction 1
 # Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
 frame P
 # Number of syndromes to be sampled at top level
@@ -43,7 +43,7 @@ queue X
 # Email notifications.
 email X
 # Output result's directory.
-outdir /Users/pavi/Documents/chbank
+outdir /project/def-jemerson/chbank
 # Randomized compiling of quantum gates.
 rc 0
 # Plot settings

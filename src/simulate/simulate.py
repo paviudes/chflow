@@ -12,6 +12,7 @@ from define import qcode as qec
 from define import qchans as qch
 from define import submission as sub
 from define import fnames as fn
+from define.metrics import InfidelityPhysical
 from define.decoder import PrepareChannelDecoder
 from cluster import cluster as cl
 
@@ -22,9 +23,9 @@ def SimulateSampleIndex(submit, rate, sample, coreidx, results):
     if submit.overwrite == 0:
         if os.path.isfile(fn.LogicalChannel(submit, rate, sample)):
             print(
-                 "Data already exists in : {}".format(
-                     fn.LogicalChannel(submit, rate, sample)
-                 )
+                "Data already exists in : {}".format(
+                    fn.LogicalChannel(submit, rate, sample)
+                )
             )
             results.put((coreidx, rate, sample, 0))
             return None
@@ -32,6 +33,14 @@ def SimulateSampleIndex(submit, rate, sample, coreidx, results):
     np.random.seed()
     ## Load the physical channel and the reference (noisier) channel if importance sampling is selected.
     physchan = np.load(fn.PhysicalChannel(submit, rate))[sample, :]
+    rawchan = np.load(fn.RawPhysicalChannel(submit, rate))[sample, :]
+    if submit.iscorr == 0:
+        infidelity = -1
+    elif submit.iscorr == 2:
+        infidelity = InfidelityPhysical(physchan, {"corr": submit.iscorr})
+    else:
+        infidelity = InfidelityPhysical(rawchan, {"corr": submit.iscorr})
+
     # if submit.decoders[0] == 2:
     #     # Partial ML decoder which only has access to a few leading Pauli error probabilities.
     #     decoder_knowledge = PrepareChannelDecoder(submit, rate, sample)
@@ -59,7 +68,7 @@ def SimulateSampleIndex(submit, rate, sample, coreidx, results):
     #     refchan = np.zeros_like(physchan)
 
     ## Benchmark the noise model.
-    Benchmark(submit, rate, sample, physchan, refchan, decoder_knowledge)
+    Benchmark(submit, rate, sample, physchan, refchan, decoder_knowledge, infidelity)
     ####
     runtime = time.time() - start
     results.put((coreidx, rate, sample, runtime))

@@ -493,7 +493,7 @@ if __name__ == "__main__":
                 print("Console input is not set up currently.")
             else:
                 submit = Submission()
-                exists = LoadSub(submit, user[1], 1)
+                exists = LoadSub(submit, user[1], 1, 0)
             if exists == 1:
                 if len(submit.scales) == 0:
                     submit.scales = [1 for __ in range(submit.noiserates.shape[1])]
@@ -891,7 +891,7 @@ if __name__ == "__main__":
             if len(user) > 5:
                 for (i, ts) in enumerate(user[5].split(",")):
                     dbses.append(Submission())
-                    LoadSub(dbses[i + 1], ts, 0)
+                    LoadSub(dbses[i + 1], ts, 0, 0)
                     IsComplete(dbses[i + 1])
                     if not os.path.isfile(
                         LogicalErrorRates(dbses[i + 1], lmet, fmt="npy")
