@@ -1,9 +1,7 @@
 import numpy as np
 from define.QECCLfid import utils as ut
-from define.QECCLfid.minwt import ComputeResiduals
 from define.randchans import CreateIIDPauli
 from define.chanreps import PauliConvertToTransfer
-from define.qcode import ComputeAdaptiveDecoder
 from define import fnames as fn
 
 

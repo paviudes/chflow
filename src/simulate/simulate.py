@@ -33,12 +33,12 @@ def SimulateSampleIndex(submit, rate, sample, coreidx, results):
     np.random.seed()
     ## Load the physical channel and the reference (noisier) channel if importance sampling is selected.
     physchan = np.load(fn.PhysicalChannel(submit, rate))[sample, :]
-    rawchan = np.load(fn.RawPhysicalChannel(submit, rate))[sample, :]
     if submit.iscorr == 0:
         infidelity = -1
     elif submit.iscorr == 2:
         infidelity = InfidelityPhysical(physchan, {"corr": submit.iscorr})
     else:
+        rawchan = np.load(fn.RawPhysicalChannel(submit, rate))[sample, :]
         infidelity = InfidelityPhysical(rawchan, {"corr": submit.iscorr})
 
     # if submit.decoders[0] == 2:

@@ -46,7 +46,8 @@ def LevelWisePlot(phylist, logmet, dsets, inset, flow, nbins, thresholds):
                         "xaxis": None,
                         "xlabel": None,
                         "yaxis": np.load(fn.LogicalErrorRates(dsets[d], logmet))[:, l],
-                        "ylabel": "$\\overline{%s_{%d}}$" % (ml.Metrics[logmet]["latex"].replace("$",""), l),
+                        "ylabel": "$\\overline{%s_{%d}}$"
+                        % (ml.Metrics[logmet]["latex"].replace("$", ""), l),
                         "color": gv.Colors[d % gv.n_Colors]
                         if ndb > 1
                         else ml.Metrics[phylist[p]]["color"],
@@ -123,9 +124,10 @@ def LevelWisePlot(phylist, logmet, dsets, inset, flow, nbins, thresholds):
                     #         settings["xaxis"][include], settings["yaxis"][include]
                     #     )
                     # )
-                    PlotBinVarianceMetrics(
-                        ax1, dsets[0], l, logmet, phylist, nbins, include
-                    )
+                    # PlotBinVarianceMetrics(
+                    #     ax1, dsets[0], l, logmet, phylist, nbins, include
+                    # )
+                    print("Problem in the scatter metric computation.")
 
             # Title
             # ax1.title(
@@ -139,12 +141,22 @@ def LevelWisePlot(phylist, logmet, dsets, inset, flow, nbins, thresholds):
             # Axes labels
             if len(phylist) > 1:
                 ax1.set_xlabel(
-                    "Physical error metrics", fontsize=gv.axes_labels_fontsize * 0.8, labelpad = gv.axes_labelpad
+                    "Physical error metrics",
+                    fontsize=gv.axes_labels_fontsize * 0.8,
+                    labelpad=gv.axes_labelpad,
                 )
             else:
-                ax1.set_xlabel(settings["xlabel"], fontsize=gv.axes_labels_fontsize * 0.8, labelpad = gv.axes_labelpad)
+                ax1.set_xlabel(
+                    settings["xlabel"],
+                    fontsize=gv.axes_labels_fontsize * 0.8,
+                    labelpad=gv.axes_labelpad,
+                )
             ax1.set_xscale("log")
-            ax1.set_ylabel(settings["ylabel"], fontsize=gv.axes_labels_fontsize, labelpad = gv.axes_labelpad)
+            ax1.set_ylabel(
+                settings["ylabel"],
+                fontsize=gv.axes_labels_fontsize,
+                labelpad=gv.axes_labelpad,
+            )
             # if l == 1:
             #     ax1.set_ylim([3 * 10e-3, None])
             # if l == 2:
