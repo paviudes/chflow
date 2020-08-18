@@ -533,7 +533,9 @@ def UncorrectableProb(channel, kwargs):
                     crep.ConvertRepresentations(chans_ptm[q, :, :], "process", "chi")
                 )
             )
-    return uc.ComputeUnCorrProb(pauliProbs, kwargs["qcode"], kwargs["levels"])
+    return uc.ComputeUnCorrProb(
+        pauliProbs, kwargs["qcode"], kwargs["levels"], leading_fraction=kwargs["alpha"]
+    )
 
 
 def Anisotropy(channel, kwargs):
@@ -672,6 +674,7 @@ def ChannelMetrics(submit, metrics, start, end, results, rep, chtype):
                         "channel": submit.channel,
                         "chtype": chtype,
                         "rep": "choi",
+                        "alpha": submit.decoder_fraction,
                     },
                 )
             else:
