@@ -3,15 +3,15 @@ timestamp sample
 # Type of quantum error correcting code
 ecc Steane,Steane
 # Type of quantum channel
-channel npcorr
+channel rtasu
 # Noise rates (mean delta; std delta; std theta; std phi)
-noiserange 0.02,0.02,1;0.01,0.01,1
+noiserange 0.1,0.1,1;-1,-1,1
 # Number of samples
 samples 1
 # Scales
 scale 1,1
 # Number of syndromes to be sampled at the top level
-stats 1000000
+stats 1000
 # Sampling method
 importance power 
 # Decoding strategy
@@ -23,6 +23,6 @@ metrics infid
 # Load distribution on cores.
 cores 1,1
 # Output directory
-outdir /project/def-jemerson/chbank
+outdir /Users/pavi/Documents/chbank
 # Plot settings
-plot name,npcorr;linestyle,None
+plot name,rtasu;linestyle,None
