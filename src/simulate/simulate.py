@@ -43,18 +43,6 @@ def SimulateSampleIndex(submit, rate, sample, coreidx, results):
         rawchan = np.load(fn.RawPhysicalChannel(submit, rate))[sample, :]
         infidelity = InfidelityPhysical(rawchan, {"corr": submit.iscorr})
 
-    # if submit.decoders[0] == 2:
-    #     # Partial ML decoder which only has access to a few leading Pauli error probabilities.
-    #     decoder_knowledge = PrepareChannelDecoder(submit, rate, sample)
-    # else:
-    # decoder_knowledge = []
-    decoder_knowledge = []
-    # print(
-    #     "Core: {}, noise: {}, sample: {}\nPhysical channel before simulate\n{}".format(
-    #         coreidx, rate, sample, physchan.reshape(4, 4)
-    #     )
-    # )
-
     if submit.decoders[0] == 2:
         refchan = PrepareChannelDecoder(submit, rate, sample)
         # print(
@@ -70,7 +58,7 @@ def SimulateSampleIndex(submit, rate, sample, coreidx, results):
     #     refchan = np.zeros_like(physchan)
 
     ## Benchmark the noise model.
-    Benchmark(submit, rate, sample, physchan, refchan, decoder_knowledge, infidelity)
+    Benchmark(submit, rate, sample, physchan, refchan, infidelity)
     ####
     runtime = time.time() - start
     results.put((coreidx, rate, sample, runtime))

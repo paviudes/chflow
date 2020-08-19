@@ -4,7 +4,7 @@ import numpy as np
 from numpy.ctypeslib import ndpointer
 from define import fnames as fn
 
-DEBUG = 0
+DEBUG = 1
 
 
 def GetBMOutput(nlevels, nmetrics, nlogs, nbins, nbreaks):
@@ -74,7 +74,7 @@ def Unpack(varname, pointer, nlevels, nmetrics, nlogs, nbins, nbreaks):
     return reshaped
 
 
-def Benchmark(submit, noise, sample, physical, refchan, dcknowledge, infidelity):
+def Benchmark(submit, noise, sample, physical, refchan, infidelity):
     # This is a wrapper function to the C function in benchmark.c
     # We will prepare the inputs to the C function as numpy arrays and use ctypes to convert them to C pointers.
     # After the benchmarking process is run, we will then transform the output form C pointers to numpy arrays.
@@ -115,21 +115,7 @@ def Benchmark(submit, noise, sample, physical, refchan, dcknowledge, infidelity)
     )
     decoders = np.zeros(nlevels, dtype=np.int32)
     dclookups = np.zeros(nlevels * nstabs, dtype=np.int32)
-    if len(dcknowledge) == 0:
-        dcknow = np.zeros(1, dtype=np.double)
-    else:
-        dcknow = np.zeros(
-            np.sum(
-                [2 ** (submit.eccs[l].N + submit.eccs[l].K) for l in range(nlevels)]
-            ),
-            dtype=np.float64,
-        )
-        norm_count = 0
-        for l in range(nlevels):
-            for i in range(2 ** (submit.eccs[l].N + submit.eccs[l].K)):
-                dcknow[norm_count + i] = dcknowledge[l][i]
-            norm_count += 2 ** (submit.eccs[l].N + submit.eccs[l].K)
-
+    
     s_count = 0
     ss_count = 0
     norm_count = 0
@@ -203,7 +189,6 @@ def Benchmark(submit, noise, sample, physical, refchan, dcknowledge, infidelity)
             metrics,
             decoders,
             dclookups,
-            dcknow,
             submit.hybrid,
             decoderbins,
             ndecoderbins,
@@ -232,7 +217,6 @@ def Benchmark(submit, noise, sample, physical, refchan, dcknowledge, infidelity)
         ctypes.c_char_p * nmetrics,  # metrics
         ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),  # decoders
         ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),  # dclookups
-        ndpointer(dtype=np.float64, ndim=1, flags="C_CONTIGUOUS"),  # dcknowledge
         ctypes.c_int,  # hybrid
         ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),  # decoderbins
         ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),  # ndecoderbins
@@ -265,7 +249,6 @@ def Benchmark(submit, noise, sample, physical, refchan, dcknowledge, infidelity)
         metrics,  # arg 12
         decoders,  # arg 13
         dclookups,  # arg 14
-        dcknow,  # arg 15
         submit.hybrid,  # arg 16
         decoderbins,  # arg 17
         ndecoderbins,  # arg 18
@@ -372,7 +355,6 @@ def SaveBenchmarkInput(
     metrics,
     decoders,
     dclookups,
-    dcknow,
     hybrid,
     decoderbins,
     ndecoderbins,
@@ -410,9 +392,6 @@ def SaveBenchmarkInput(
     )
     np.savetxt(
         "%s/lookup.txt" % (outdir), dclookups, fmt="%d", delimiter=" ", newline=" "
-    )
-    np.savetxt(
-        "%s/dcknowledge.txt" % (outdir), dcknow, fmt="%g", delimiter=" ", newline=" "
     )
     np.savetxt(
         "%s/physical.txt" % (outdir), physical, fmt="%.14f", delimiter=" ", newline=" "
