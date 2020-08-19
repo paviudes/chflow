@@ -4,7 +4,7 @@ import numpy as np
 from numpy.ctypeslib import ndpointer
 from define import fnames as fn
 
-DEBUG = 1
+DEBUG = 0
 
 
 def GetBMOutput(nlevels, nmetrics, nlogs, nbins, nbreaks):
@@ -115,11 +115,16 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity):
     )
     decoders = np.zeros(nlevels, dtype=np.int32)
     dclookups = np.zeros(nlevels * nstabs, dtype=np.int32)
-    
+    operators_LST = np.zeros(
+        np.sum([4 ** (submit.eccs[l].N) * submit.eccs[l].N for l in range(nlevels)]),
+        dtype=np.int32,
+    )
+
     s_count = 0
     ss_count = 0
     norm_count = 0
     normphase_count = 0
+    lst_count = 0
     for l in range(nlevels):
         nstabs = 2 ** (submit.eccs[l].N - submit.eccs[l].K)
         SS[ss_count : (ss_count + nstabs * nstabs)] = submit.eccs[l].syndsigns.ravel()
@@ -150,6 +155,13 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity):
             norm_count + 2 ** (submit.eccs[l].N + submit.eccs[l].K) * submit.eccs[l].N
         )
         normphase_count = normphase_count + 2 ** (submit.eccs[l].N + submit.eccs[l].K)
+
+        # List of LST operators
+        operators_LST[
+            lst_count : (lst_count + 4 ** submit.eccs[l].N * submit.eccs[l].N)
+        ] = submit.eccs[0].PauliOperatorsLST.ravel()
+
+        lst_count += 4 ** submit.eccs[0].N * submit.eccs[0].N
 
     # Hybrid decoding -- channels that must be averaged in the intermediate levels
     if submit.hybrid == 0:
@@ -189,6 +201,7 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity):
             metrics,
             decoders,
             dclookups,
+            operators_LST,
             submit.hybrid,
             decoderbins,
             ndecoderbins,
@@ -217,6 +230,7 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity):
         ctypes.c_char_p * nmetrics,  # metrics
         ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),  # decoders
         ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),  # dclookups
+        ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),  # operators_LST
         ctypes.c_int,  # hybrid
         ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),  # decoderbins
         ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),  # ndecoderbins
@@ -249,6 +263,7 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity):
         metrics,  # arg 12
         decoders,  # arg 13
         dclookups,  # arg 14
+        operators_LST,  # arg 15
         submit.hybrid,  # arg 16
         decoderbins,  # arg 17
         ndecoderbins,  # arg 18
@@ -355,6 +370,7 @@ def SaveBenchmarkInput(
     metrics,
     decoders,
     dclookups,
+    operators_LST,
     hybrid,
     decoderbins,
     ndecoderbins,
@@ -392,6 +408,9 @@ def SaveBenchmarkInput(
     )
     np.savetxt(
         "%s/lookup.txt" % (outdir), dclookups, fmt="%d", delimiter=" ", newline=" "
+    )
+    np.savetxt(
+        "%s/lst.txt" % (outdir), operators_LST, fmt="%d", delimiter=" ", newline=" "
     )
     np.savetxt(
         "%s/physical.txt" % (outdir), physical, fmt="%.14f", delimiter=" ", newline=" "
