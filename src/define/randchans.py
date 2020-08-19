@@ -11,6 +11,8 @@ from define import globalvars as gv
 from define import chanreps as crep
 from define.QECCLfid import utils as ut
 
+# from define.qcode import PrepareSyndromeLookUp
+
 
 def HermitianConjugate(mat):
     # Return the Hermitian conjugate of a matrix
@@ -105,6 +107,8 @@ def CreateIIDPauli(infid, qcode):
         [1 - infid, infid / 3, infid / 3, infid / 3], dtype=np.double
     )
     # print("Single qubit errors: {}".format(single_qubit_errors))
+    if qcode.PauliOperatorsLST is None:
+        PrepareSyndromeLookUp(qcode)
     iid_error_dist = ut.GetErrorProbabilities(
         qcode.PauliOperatorsLST, single_qubit_errors, 0
     )
