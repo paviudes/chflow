@@ -1,7 +1,7 @@
 # Time stamp
 timestamp sample
 # Type of quantum error correcting code
-ecc Steane,Steane
+ecc Steane
 # Type of quantum channel
 channel pcorr
 # Noise rates (mean delta; std delta; std theta; std phi)
@@ -15,7 +15,7 @@ stats 1000
 # Sampling method
 importance power 
 # Decoding strategy
-decoder 3,3
+decoder 3
 # Fraction of Pauli probabilities available to the ML decoder
 dcfraction 0
 # Metrics to be computed on the effective channels at every level.

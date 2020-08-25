@@ -3,6 +3,8 @@ import ctypes
 import numpy as np
 from numpy.ctypeslib import ndpointer
 from define import fnames as fn
+from define.chanreps import ConvertRepresentations, ChangeOrdering
+from define.decoder import CompleteDecoderKnowledge
 
 DEBUG = 1
 
@@ -74,7 +76,7 @@ def Unpack(varname, pointer, nlevels, nmetrics, nlogs, nbins, nbreaks):
     return reshaped
 
 
-def Benchmark(submit, noise, sample, physical, refchan, infidelity):
+def Benchmark(submit, noise, sample, physical, refchan, infidelity, rawchan=None):
     # This is a wrapper function to the C function in benchmark.c
     # We will prepare the inputs to the C function as numpy arrays and use ctypes to convert them to C pointers.
     # After the benchmarking process is run, we will then transform the output form C pointers to numpy arrays.
@@ -119,6 +121,27 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity):
         np.sum([4 ** (submit.eccs[l].N) * submit.eccs[l].N for l in range(nlevels)]),
         dtype=np.int32,
     )
+
+    if (submit.decoders)[0] == 3:
+        if submit.iscorr == 0:
+            chan_probs = np.tile(
+                np.real(np.diag(ConvertRepresentations(physical, "process", "chi"))),
+                [submit.eccs[0].N, 1],
+            )
+        elif submit.iscorr == 2:
+            chans_ptm = np.reshape(physical, [submit.eccs[0].N, 4, 4])
+            chan_probs = np.zeros((submit.eccs[0].N, 4), dtype=np.double)
+            for q in range(submit.eccs[0].N):
+                chan_probs[q, :] = np.real(
+                    np.diag(
+                        ConvertRepresentations(chans_ptm[q, :, :], "process", "chi")
+                    )
+                )
+        else:
+            chan_probs = rawchan
+        mpinfo = ChangeOrdering(CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, submit.eccs[0]), "LST", "TLS", submit.eccs[0])
+    else:
+        mpinfo = np.zeros(4**submit.eccs[0].N, dtype=np.double)
 
     s_count = 0
     ss_count = 0
@@ -201,6 +224,7 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity):
             metrics,
             decoders,
             dclookups,
+            mpinfo,
             operators_LST,
             submit.hybrid,
             decoderbins,
@@ -230,6 +254,7 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity):
         ctypes.c_char_p * nmetrics,  # metrics
         ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),  # decoders
         ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),  # dclookups
+        ndpointer(dtype=np.float64, ndim=1, flags="C_CONTIGUOUS"),  # mpinfo
         ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),  # operators_LST
         ctypes.c_int,  # hybrid
         ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),  # decoderbins
@@ -263,6 +288,7 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity):
         metrics,  # arg 12
         decoders,  # arg 13
         dclookups,  # arg 14
+        mpinfo, # arg 15
         operators_LST,  # arg 15
         submit.hybrid,  # arg 16
         decoderbins,  # arg 17
@@ -370,6 +396,7 @@ def SaveBenchmarkInput(
     metrics,
     decoders,
     dclookups,
+    mpinfo,
     operators_LST,
     hybrid,
     decoderbins,
@@ -411,6 +438,9 @@ def SaveBenchmarkInput(
     )
     np.savetxt(
         "%s/lst.txt" % (outdir), operators_LST, fmt="%d", delimiter=" ", newline=" "
+    )
+    np.savetxt(
+        "%s/mpinfo.txt" % (outdir), mpinfo, fmt="%.14f", delimiter=" ", newline=" "
     )
     np.savetxt(
         "%s/physical.txt" % (outdir), physical, fmt="%.14f", delimiter=" ", newline=" "

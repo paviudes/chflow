@@ -86,8 +86,8 @@ line_styles = [(0, ()), (0, (5, 5)), (0, (1, 1)), (0, (3, 5, 1, 5, 1, 5))]
 # Markers
 # https://matplotlib.org/2.0.2/api/markers_api.html
 Markers = [
-    "^",  # With RC
-    "*",  # Without RC, # uncorr (predictability)
+    "o",  # With RC
+    "o",  # Without RC, # uncorr (predictability)
     "+",
     "*",  # Diamond norm (predictability)
     "^",  # Infidelity (predictability)
@@ -133,7 +133,7 @@ ticks_fontsize = 42
 ticks_length = 12
 ticks_width = 4
 ticks_pad = 40
-axes_labelpad=20
+axes_labelpad = 20
 # Curve
 line_width = 5
 marker_size = 20

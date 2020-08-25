@@ -173,7 +173,7 @@ def Load(qecc, lookup_load=1):
     ConstructNormalizer(qecc)
     # Transformations between Pauli operators by Clifford conjugations
     PauliCliffordConjugations(qecc)
-    PrepareSyndromeLookUp(qecc)
+    # PrepareSyndromeLookUp(qecc)
     if lookup_load == 1:
         # Compute the minimum weight decoding table
         PrepareSyndromeLookUp(qecc)

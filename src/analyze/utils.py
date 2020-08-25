@@ -55,6 +55,7 @@ def ExtractPDFPages(information, save_folder, save_fname):
         pdfname = "%s/pg_%d%s" % (save_folder, from_page, save_fname)
         if os.path.isfile(pdfname):
             print("\033[3m!!!Warning, overwriting %s.\033[0m" % pdfname)
+            os.system("trash %s" % (pdfname))
         with open(pdfname, "wb") as out:
             pdf_writer.write(out)
         # Convert the PDF to PNG

@@ -7,7 +7,7 @@ channel npcorr
 # Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
 repr process
 # Noise rate exponents. The actual noise rate is (2/3)^exponent.
-noiserange 0.1,0.1,1;0.05,0.05,1
+noiserange 0.2,0.2,1;0.1,0.1,1
 # Scales of noise range.
 scale 1.0,1.0
 # Number of samples
@@ -15,13 +15,13 @@ samples 1
 # Parameters schedule
 scheduler ./../input/schedule_10_08_2020_16_53_03.txt
 # Decoding algorithm to be used -- 0 for the maximum likelihood decoder and 1 for minimum weight decoder.
-decoder 2,2
+decoder 3,3
 # Fraction of Pauli probabilities accessible to the ML decoder.
-dcfraction 0.0416
+dcfraction 0.0144
 # Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
 frame P
 # Number of syndromes to be sampled at top level
-stats [100,120,145,175,212,255,308,372,449,542,655,790,954,1151,1389,1676,2023,2442,2947,3556,4291,5179,6250,7543,9102,10985,13257,15998,19306,23299,28117,33932,40949,49417,59636,71968,86851,104811,126485,152641,184206,222299,268269,323745,390693,471486,568986,686648,828642,1000000]
+stats [100,115,132,152,175,202,232,268,308,355,409,471,542,625,719,828,954,1098,1264,1456,1676,1930,2222,2559,2947,3393,3906,4498,5179,5963,6866,7906,9102,10481,12067,13894,15998,18420,21209,24420,28117,32374,37275,42919,49417,56898,65512,75431,86851,100000]
 # Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
 importance power
 # Metrics to be computed on the effective channels at every level.

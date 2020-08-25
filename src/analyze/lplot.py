@@ -124,10 +124,10 @@ def LevelWisePlot(phylist, logmet, dsets, inset, flow, nbins, thresholds):
                     #         settings["xaxis"][include], settings["yaxis"][include]
                     #     )
                     # )
-                    # PlotBinVarianceMetrics(
-                    #     ax1, dsets[0], l, logmet, phylist, nbins, include
-                    # )
-                    print("Problem in the scatter metric computation.")
+                    PlotBinVarianceMetrics(
+                        ax1, dsets[0], l, logmet, phylist, nbins, include
+                    )
+                    # print("Problem in the scatter metric computation.")
 
             # Title
             # ax1.title(

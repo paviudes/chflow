@@ -395,7 +395,7 @@ def CollapseBins(bins, min_bin_size):
 		bins[:, 3] = bins[:, 3] * average_population
 		return bins
 
-	collapsed_bins = np.zeros((bins.shape[0] - np.sum(collapse), 6), dtype=np.double)
+	collapsed_bins = np.zeros((bins.shape[0] - np.sum(collapse), bins.shape[1]), dtype=np.double)
 	i = 0
 	j = 0
 	while i < collapse.shape[0]:
@@ -410,6 +410,7 @@ def CollapseBins(bins, min_bin_size):
 			)
 			collapsed_bins[j, 4] = min(bins[i, 4], bins[i + 1, 4])
 			collapsed_bins[j, 5] = max(bins[i, 5], bins[i + 1, 5])
+			collapsed_bins[j, 6] = (bins[i, 6] + bins[i + 1, 6])/2
 			i += 1
 		j += 1
 		i += 1

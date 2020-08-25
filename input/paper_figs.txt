@@ -1,32 +1,33 @@
 !!Case 1!!
 # Correlated Pauli with IID fraction 30%
-#sbload 23_06_2020_17_44_30
-#pdplot 15,2,0.3,0.1 5 5
-#notes pcorr 30 pd pdplot /Users/pavi/Dropbox/rclearn/notes/paper/figures/plots 1
-#lplot uncorr,infid infid 7,9 0.01,0.01 15
-#notes uncorr,infid infid p30 lplot /Users/pavi/Dropbox/rclearn/notes/paper/figures/plots 2
+sbload 23_06_2020_17_44_30
+pdplot 15,2,0.3,0.1 5 5
+notes pcorr 30 pd pdplot /Users/pavi/Dropbox/rclearn/notes/paper/figures/plots 1
+# infid vs uncorr: min bin fraction = 0.3
+lplot uncorr,infid infid 7,9 0.01,0.01 15
+notes uncorr,infid infid p30 lplot /Users/pavi/Dropbox/rclearn/notes/paper/figures/plots 2
 # Comparing the direct and importance sampling convergence rates, with 10^7 stats
-sbload 24_06_2020_13_30_14
-mcplot infid infid 0,24,3 1 25_06_2020_09_55_35
-notes infid infid p30 mcplot /Users/pavi/Dropbox/rclearn/notes/paper/figures/plots 1
+#sbload 24_06_2020_13_30_14
+#mcplot infid infid 0,24,3 1 25_06_2020_09_55_35
+#notes infid infid p30 mcplot /Users/pavi/Dropbox/rclearn/notes/paper/figures/plots 1
 quit
 #
 #
 #
 !!Case 2!!
 # Random CPTP
-# sbload 12_06_2020_23_17_36
+sbload 12_06_2020_23_17_36
 # infid vs uncorr: min bin fraction = 0.3
 #hamplot infid,uncorr infid 14_06_2020_20_34_54 7,9 0.01,0.01 12
 #notes infid,uncorr infid cptp hamplot /Users/pavi/Dropbox/rclearn/notes/paper/figures/plots 2
 # dnorm vs uncorr: min bin fraction = 0.1
 # Set xaxis locators with numpoints = 10.
-#hamplot dnorm,uncorr infid 14_06_2020_20_34_54 7,10 0.01,0.01 12
-#notes dnorm,uncorr infid cptp hamplot /Users/pavi/Dropbox/rclearn/notes/paper/figures/plots 2
+hamplot dnorm,uncorr infid 14_06_2020_20_34_54 7,10 0.01,0.01 12
+notes dnorm,uncorr infid cptp hamplot /Users/pavi/Dropbox/rclearn/notes/paper/figures/plots 2
 # Comparing the direct and importance sampling convergence rates, with 10^7 stats
-sbload 09_06_2020_15_29_34
-mcplot infid infid 0,6 1 12_06_2020_11_15_30
-notes infid infid cptp mcplot /Users/pavi/Dropbox/rclearn/notes/paper/figures/plots 1
+#sbload 09_06_2020_15_29_34
+#mcplot infid infid 0,6 1 12_06_2020_11_15_30
+#notes infid infid cptp mcplot /Users/pavi/Dropbox/rclearn/notes/paper/figures/plots 1
 quit
 #
 #

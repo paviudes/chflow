@@ -25,6 +25,7 @@ from define import chanreps as crep
 from define import qchans as qc
 from define import fnames as fn
 from define.QECCLfid import uncorrectable as uc
+from define.QECCLfid import utils as ut
 
 ##########################################
 Metrics = {
@@ -152,11 +153,21 @@ Metrics = {
         "name": "Uncorrectable error probability",
         "phys": "Uncorrectable error probability",
         "log": "Uncorrectable error probability of the logical channel",
-        "latex": "$p_{u}$",
+        "latex": "$\\widetilde{p}_{u}$",
         "marker": u"o",
         "color": gv.QB_GREEN,
         "desc": "The total probability of uncorrectable (Pauli) errors.",
         "func": "lambda P, kwargs: UncorrectableProb(P, kwargs)",
+    },
+    "errbg": {
+        "name": "Error budget for NR",
+        "phys": "Error budget for NR",
+        "log": "Error budget of the logical channel",
+        "latex": "$\\widetilde{e}_{\\mathsf{nr}}$",
+        "marker": u"o",
+        "color": "goldenrod",
+        "desc": "The total error budget extracted by NR.",
+        "func": "lambda P, kwargs: ErrorBudgetNR(P, kwargs)",
     },
     "anisotropy": {
         "name": "Anisotropy",
@@ -508,6 +519,33 @@ def NonPaulinessRemoval(choi, kwargs):
     nonPauli = 1 - sol["obj"]
     return nonPauli
 
+def ErrorBudgetNR(channel, kwargs):
+    # Compute the total probability of error rates given by NR, for a given leading fraction.
+    # print("channel\n{}\niscorr = {}".format(channel, kwargs["corr"]))
+    if kwargs["corr"] == 0:
+        pauliProbs = np.tile(
+            np.real(np.diag(crep.ConvertRepresentations(channel, "choi", "chi"))),
+            [kwargs["qcode"].N, 1],
+        )
+        # print(
+        #     "Pauli probs\n1-p = {}, p/3 = {}.".format(
+        #         pauliProbs[0, 0], pauliProbs[0, 1]
+        #     )
+        # )
+    elif kwargs["corr"] == 1:
+        pauliProbs = channel
+    else:
+        chans_ptm = np.reshape(channel, [kwargs["qcode"].N, 4, 4])
+        pauliProbs = np.zeros((kwargs["qcode"].N, 4), dtype=np.double)
+        for q in range(kwargs["qcode"].N):
+            pauliProbs[q, :] = np.real(
+                np.diag(
+                    crep.ConvertRepresentations(chans_ptm[q, :, :], "process", "chi")
+                )
+            )
+    errorbudget = ut.GetErrorBudget(pauliProbs, max(1, int(kwargs["alpha"] * 4**kwargs["qcode"].N)))
+    return errorbudget
+
 
 def UncorrectableProb(channel, kwargs):
     # Compute the probability of uncorrectable errors for a code.
@@ -658,6 +696,7 @@ def ChannelMetrics(submit, metrics, start, end, results, rep, chtype):
                         "channel": submit.channel,
                         "chtype": chtype,
                         "rep": "choi",
+                        "alpha": submit.decoder_fraction
                     },
                 )
             elif chtype == "phylog":

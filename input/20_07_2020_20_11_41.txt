@@ -15,13 +15,13 @@ samples 1
 # Parameters schedule
 scheduler ./../input/schedule_20_07_2020_20_11_41.txt
 # Decoding algorithm to be used -- 0 for the maximum likelihood decoder and 1 for minimum weight decoder.
-decoder 2,2
+decoder 3,3
 # Fraction of Pauli probabilities accessible to the ML decoder.
-dcfraction 0.00009
+dcfraction 0.0001
 # Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
 frame P
 # Number of syndromes to be sampled at top level
-stats [1000000]
+stats [100,115,132,152,175,202,232,268,308,355,409,471,542,625,719,828,954,1098,1264,1456,1676,1930,2222,2559,2947,3393,3906,4498,5179,5963,6866,7906,9102,10481,12067,13894,15998,18420,21209,24420,28117,32374,37275,42919,49417,56898,65512,75431,86851,100000]
 # Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
 importance power
 # Metrics to be computed on the effective channels at every level.

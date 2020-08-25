@@ -33,6 +33,7 @@ def SimulateSampleIndex(submit, rate, sample, coreidx, results):
     np.random.seed()
     ## Load the physical channel and the reference (noisier) channel if importance sampling is selected.
     physchan = np.load(fn.PhysicalChannel(submit, rate))[sample, :]
+    rawchan = None
     if submit.iscorr == 0:
         infidelity = -1
     elif submit.iscorr == 2:
@@ -58,7 +59,7 @@ def SimulateSampleIndex(submit, rate, sample, coreidx, results):
     #     refchan = np.zeros_like(physchan)
 
     ## Benchmark the noise model.
-    Benchmark(submit, rate, sample, physchan, refchan, infidelity)
+    Benchmark(submit, rate, sample, physchan, refchan, infidelity, rawchan)
     ####
     runtime = time.time() - start
     results.put((coreidx, rate, sample, runtime))
@@ -165,7 +166,7 @@ def LocalSimulations(submit, node, stream=sys.stdout):
         )
         stream.write("Importance: %g\n" % (submit.importance))
         stream.write("Decoder: %s\n" % np.array_str(submit.decoders))
-        if submit.decoders[0] == 2:
+        if submit.decoders[0] > 1:
             stream.write(
                 "Fraction of Pauli probabilities for the ML Decoder: %s\n"
                 % submit.decoder_fraction
