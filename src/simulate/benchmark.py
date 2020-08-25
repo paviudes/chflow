@@ -8,7 +8,6 @@ from define.decoder import CompleteDecoderKnowledge
 
 DEBUG = 1
 
-
 def GetBMOutput(nlevels, nmetrics, nlogs, nbins, nbreaks):
 	# Create a class called BenchOut to mirror the C structure.
 	class BMOutput(ctypes.Structure):

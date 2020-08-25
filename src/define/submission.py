@@ -50,7 +50,7 @@ class Submission:
         self.samps = 1
         self.channels = 0
         self.available = np.array([])
-        self.overwrite = 0
+        self.overwrite = 1
         # Metrics options
         self.metrics = ["frb"]
         self.filter = {"metric": "fidelity", "lower": 0, "upper": 1}
