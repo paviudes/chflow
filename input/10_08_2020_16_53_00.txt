@@ -21,9 +21,9 @@ dcfraction 0.0025
 # Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
 frame P
 # Number of syndromes to be sampled at top level
-stats 1
+stats 100
 # Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
-importance direct
+importance power
 # Metrics to be computed on the effective channels at every level.
 metrics infid
 # Load distribution on cores.

@@ -59,6 +59,7 @@ def SimulateSampleIndex(submit, rate, sample, coreidx, results):
     #     refchan = np.zeros_like(physchan)
 
     ## Benchmark the noise model.
+    print("Infidelity = %.14f" % (infidelity))
     Benchmark(submit, rate, sample, physchan, refchan, infidelity, rawchan)
     ####
     runtime = time.time() - start

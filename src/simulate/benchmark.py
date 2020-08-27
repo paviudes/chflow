@@ -138,9 +138,9 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity, rawchan=None
 				)
 		else:
 			chan_probs = rawchan
-		mpinfo = ChangeOrdering(CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, submit.eccs[0]), "LST", "TLS", submit.eccs[0])
+		mpinfo = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, submit.eccs[0]).astype(np.float64)
 	else:
-		mpinfo = np.zeros(4**submit.eccs[0].N, dtype=np.double)
+		mpinfo = np.zeros(4**submit.eccs[0].N, dtype=np.float64)
 
 	s_count = 0
 	ss_count = 0
@@ -183,7 +183,7 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity, rawchan=None
 			lst_count : (lst_count + 4 ** submit.eccs[l].N * submit.eccs[l].N)
 		] = submit.eccs[0].PauliOperatorsLST.ravel()
 
-		lst_count += 4 ** submit.eccs[0].N * submit.eccs[0].N
+		lst_count = lst_count + 4 ** submit.eccs[0].N * submit.eccs[0].N
 
 	# Hybrid decoding -- channels that must be averaged in the intermediate levels
 	if submit.hybrid == 0:
