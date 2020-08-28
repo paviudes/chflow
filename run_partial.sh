@@ -72,8 +72,8 @@ elif [[ "$1" == "generate" ]]; then
 		alpha=${alphas[t]}
 		echo "alpha = ${alpha}"
 
-		echo -e "\033[2mremoving ${outdir}/${ts}/physical/*\033[0m"
-		rm ${outdir}/${ts}/physical/*
+		echo -e "\033[2mremoving ${outdir}/chbank/${ts}/physical/*\033[0m"
+		rm ${outdir}/chbank/${ts}/physical/*
 
 		echo "sbload ${refts}" > input/temp.txt
 		echo "submit ${ts}" >> input/temp.txt

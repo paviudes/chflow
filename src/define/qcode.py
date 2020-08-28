@@ -1211,7 +1211,14 @@ def ComputeLSTOrdering(qcode, ops):
 def GetOperatorsForLSTIndex(qcode, indices):
     r"""
     Get the operators for the index in LST ordering.
+    The index of logical operators:
+    0 --> I = 00 = 0
+    1 --> X = 10 = 2
+    2 --> Y = 11 = 3
+    3 --> Z = 01 = 1
     """
+    log_ordering = np.array([0, 2, 3, 1], dtype=np.int)
+
     nstabs = 2 ** (qcode.N - qcode.K)
     ops = np.zeros((len(indices), qcode.N), dtype=np.int)
     for i in range(len(indices)):
@@ -1220,7 +1227,7 @@ def GetOperatorsForLSTIndex(qcode, indices):
         stab_index = (indices[i] // nstabs) % nstabs
         stab_op = GetElementInGroup(stab_index, qcode.S)
         log_index = indices[i] // (nstabs * nstabs)
-        log_op = GetElementInGroup(log_index, qcode.L)
+        log_op = GetElementInGroup(log_ordering[log_index], qcode.L)
         # print(
         #     "pure_index = {}, pure_op = {}, stab_index = {}, stab_op = {}, log_index = {}, log_op = {}".format(
         #         pure_index, pure_op, stab_index, stab_op, log_index, log_op
@@ -1233,7 +1240,14 @@ def GetOperatorsForLSTIndex(qcode, indices):
 def GetOperatorsForTLSIndex(qcode, indices):
     r"""
     Get the operators for the index in TLS ordering.
+    The index of logical operators:
+    0 --> I = 00 = 0
+    1 --> X = 10 = 2
+    2 --> Y = 11 = 3
+    3 --> Z = 01 = 1
     """
+    log_ordering = np.array([0, 2, 3, 1], dtype=np.int)
+
     nstabs = 2 ** (qcode.N - qcode.K)
     nlogs = 4 ** qcode.K
     ops = np.zeros((len(indices), qcode.N), dtype=np.int)
@@ -1242,7 +1256,7 @@ def GetOperatorsForTLSIndex(qcode, indices):
         stab_op = GetElementInGroup(stab_index, qcode.S)
 
         log_index = (indices[i] // nstabs) % nlogs
-        log_op = GetElementInGroup(log_index, qcode.L)
+        log_op = GetElementInGroup(log_ordering[log_index], qcode.L)
 
         pure_index = indices[i] // (nlogs * nstabs)
         pure_op = GetElementInGroup(pure_index, qcode.T)

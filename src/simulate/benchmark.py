@@ -439,10 +439,10 @@ def SaveBenchmarkInput(
 		"%s/lst.txt" % (outdir), operators_LST, fmt="%d", delimiter=" ", newline=" "
 	)
 	np.savetxt(
-		"%s/mpinfo.txt" % (outdir), mpinfo, fmt="%.14f", delimiter=" ", newline=" "
+		"%s/mpinfo.txt" % (outdir), mpinfo, fmt="%.21f", delimiter=" ", newline=" "
 	)
 	np.savetxt(
-		"%s/physical.txt" % (outdir), physical, fmt="%.14f", delimiter=" ", newline=" "
+		"%s/physical.txt" % (outdir), physical, fmt="%.21f", delimiter=" ", newline=" "
 	)
 	np.savetxt("%s/stats.txt" % (outdir), stats, fmt="%d", delimiter=" ", newline=" ")
 	return None
