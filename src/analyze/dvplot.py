@@ -12,29 +12,40 @@ import matplotlib.pyplot as plt
 from define import fnames as fn
 from define import globalvars as gv
 from define import metrics as ml
-from analyze.bins import GetXCutOff, ComputeBinVariance
+from analyze.bins import GetXCutOff, ComputeBinVariance, CollapseBins
 from analyze.load import LoadPhysicalErrorRates
 
-
-def PlotDeviationYX(dbses, lmet, pmet, thresholds, nbins):
+def PlotDeviationYX(lmet, pmet, dbses, nbins, thresholds):
 	# Compare scatter for different physical metrics
-	min_bin_fraction = 0.1
-	ax = plt.axes([0, 0, 1, 1])
+	min_bin_fraction = 0.3
 	ndb = len(dbses)
-	maxlevel = max([dsets[i].levels for i in range(ndb)])
-	plotfname = fn.DeviationPlotFile(dsets[0], pmet, lmet)
+	maxlevel = max([dbses[i].levels for i in range(ndb)])
+	plotfname = fn.DeviationPlotFile(dbses[0], pmet, lmet)
 	with PdfPages(plotfname) as pdf:
 		for level in range(1, 1 + maxlevel):
+			fig = plt.figure(figsize=gv.canvas_size)
+			ax = plt.gca()
 			phyerrs = np.zeros((ndb, dbses[0].channels), dtype=np.double)
 			logerrs = np.zeros((ndb, dbses[0].channels), dtype=np.double)
 			collapsed_bins = [None for d in range(ndb)]
 			for d in range(ndb):
-				if pmet == "uncorr":
-					phyerrs[d, :] = np.load(fn.PhysicalErrorRates(dbses[d], pmet))[:, level]
-				else:
-					phyerrs[d, :] = np.load(fn.PhysicalErrorRates(dbses[d], pmet))
-				logerrs[d, :] = np.load(fn.LogicalErrorRates(dbses[d], lmet))[:, level]
-
+				settings = {
+					"xaxis": None,
+					"xlabel": None,
+					"yaxis": np.load(fn.LogicalErrorRates(dbses[d], lmet))[:, level],
+					"ylabel": "$\\overline{%s_{%d}}$"
+					% (ml.Metrics[lmet]["latex"].replace("$", ""), level),
+					"color": gv.Colors[d % gv.n_Colors]
+					if ndb > 1
+					else ml.Metrics[pmet]["color"],
+					"marker": gv.Markers[d % gv.n_Markers]
+					if ndb > 1
+					else ml.Metrics[pmet]["marker"],
+					"linestyle": "",
+				}
+				LoadPhysicalErrorRates(dbses[d], pmet, settings, level)
+				phyerrs[d, :] = settings["xaxis"]
+				logerrs[d, :] = settings["yaxis"]
 				if d == 0:
 				    # print("Getting X cutoff for l = {}".format(l))
 				    xcutoff = GetXCutOff(
@@ -53,6 +64,7 @@ def PlotDeviationYX(dbses, lmet, pmet, thresholds, nbins):
 				bins = ComputeBinVariance(
 					phyerrs[d, include], logerrs[d, include], space="log", nbins=nbins
 				)
+
 				collapsed_bins[d] = CollapseBins(
 					bins, min_bin_fraction * dbses[d].channels / nbins
 				)
@@ -67,15 +79,28 @@ def PlotDeviationYX(dbses, lmet, pmet, thresholds, nbins):
 				#     )
 				# )
 
-				xaxis = np.arange(collapsed_bins[d].shape[0])
+				xaxis = collapsed_bins[d][:, 6]
 				# xaxis = (bins[pmets[p]][:, 0] + bins[pmets[p]][:, 1]) / 2
-				yaxis = np.abs(collapsed_bins[d][:, 6] - collapsed_bins[d][:, 7])
-			
+				yaxis = np.abs(collapsed_bins[d][:, 6] - collapsed_bins[d][:, 7])/collapsed_bins[d][:, 6]
+				# print("Values for dvplot , xaxis = {}, yaxis = yaxis".format(xaxis,yaxis))
+				plotobj = plt.plot(
+					xaxis,
+					yaxis,
+					color=settings["color"],
+					alpha=0.75,
+					marker=settings["marker"],
+					markersize=gv.marker_size,
+					linestyle="--",
+					linewidth=gv.line_width,
+					label=dbses[d].plotsettings["name"],
+				)
+
 			# Axes
-			ax.set_xlabel("%s" % (ml.Metrics[pmet]["latex"]), fontsize=gv.axes_labels_fontsize)
-			ax.set_ylabel("$|\\overline{%s_{%d}} - %s|$" % (ml.Metrics[logmet]["latex"].replace("$", ""), level, ml.Metrics[pmet]["latex"].replace("$","")), fontsize=gv.axes_labels_fontsize)
+			ax.set_xlabel("$\\overline{%s_{%d}}$" % (ml.Metrics[lmet]["latex"].replace("$", ""), level), fontsize=gv.axes_labels_fontsize)
+			ax.set_ylabel("$\\frac{|\\overline{%s_{%d}} - %s|}{\\overline{%s_{%d}}}$" % (ml.Metrics[lmet]["latex"].replace("$", ""), level, ml.Metrics[pmet]["latex"].replace("$",""),ml.Metrics[lmet]["latex"].replace("$", ""), level), fontsize=gv.axes_labels_fontsize)
 			# ax.set_ylim([10e-9, None])
 			ax.set_yscale("log")
+			ax.set_xscale("log")
 			ax.tick_params(
 				axis="both",
 				which="both",
@@ -97,16 +122,18 @@ def PlotDeviationYX(dbses, lmet, pmet, thresholds, nbins):
 			# 	color=gv.Colors[1],
 			# )
 			# Save the plot
+			plt.legend(
+				numpoints=1,
+				loc="best",  # center_left
+				shadow=True,
+				fontsize=gv.legend_fontsize,
+				markerscale=gv.legend_marker_scale,
+			)
 			pdf.savefig(fig)
 			plt.close()
 		# Set PDF attributes
 		pdfInfo = pdf.infodict()
-		pdfInfo["Title"] = "Typical deviation of Y from X." % (
-		    ml.Metrics[logmet]["log"],
-		    ", ".join(map(str, range(1, 1 + maxlevel))),
-		    ", ".join(phynames),
-		    dsets[0].channels,
-		)
+		pdfInfo["Title"] = "Typical deviation of Y from X."
 		pdfInfo["Author"] = "Pavithran Iyer"
 		pdfInfo["ModDate"] = dt.datetime.today()
 	return None

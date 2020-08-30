@@ -782,7 +782,7 @@ if __name__ == "__main__":
                 )
             if len(thresholds) == 0:
                 thresholds = [{"lower": 1e-9, "upper": 1e-2} for __ in submit.levels]
-            PlotDeviationYX(logmet, pmets, dbses, nbins, thresholds)
+            PlotDeviationYX(logmet, phymet, dbses, nbins, thresholds)
 
         #####################################################################
 
