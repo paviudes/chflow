@@ -5,6 +5,11 @@ def DecoderKnowledgeFile(dbs, noise):
     return fname
 
 
+def DeviationPlotFile(dbs, pmet, lmet):
+    # File name containing scatter bins.
+    fname = "%s/results/dvplot_%s_%s.pdf" % (dbs.outdir, pmet, lmet)
+    return fname
+
 def DecodersPlot(dbs, pmet, lmet):
     # File name containing scatter bins.
     fname = "%s/results/dcplot_%s_%s.pdf" % (dbs.outdir, pmet, lmet)

@@ -379,8 +379,11 @@ def CollapseBins(bins, min_bin_size):
 
 	if np.sum(collapse) == 0:
 		if bins[-1, 2] < min_bin_size:
+			total_points = bins[-1, 2] + bins[-2, 2]
+			bins[-2, 6] = (bins[-1, 6] * bins[-1, 2] + bins[-2, 6] * bins[-2, 2])/total_points
+			bins[-2, 7] = (bins[-1, 7] * bins[-1, 2] + bins[-2, 7] * bins[-2, 2])/total_points
 			bins[-2, 1] = bins[-1, 1]
-			bins[-2, 2] += bins[-1, 2]
+			bins[-2, 2] = total_points
 			bins[-2, 3] = max(bins[-2, 5], bins[-1, 5]) / (
 				min(bins[-2, 4], bins[-1, 4]) * bins[-2, 2]
 			)
@@ -402,6 +405,9 @@ def CollapseBins(bins, min_bin_size):
 		if collapse[i] == 0:
 			collapsed_bins[j, :] = bins[i, :]
 		else:
+			total_points = bins[i, 2] + bins[i+1, 2]
+			collapsed_bins[j, 6] = (bins[i, 6] * bins[i, 2] + bins[i+1, 6] * bins[i+1, 2])/total_points
+			collapsed_bins[j, 7] = (bins[i, 7] * bins[i, 2] + bins[i+1, 7] * bins[i+1, 2])/total_points
 			collapsed_bins[j, 0] = bins[i, 0]
 			collapsed_bins[j, 1] = bins[i + 1, 1]
 			collapsed_bins[j, 2] = bins[i, 2] + bins[i + 1, 2]
@@ -410,7 +416,6 @@ def CollapseBins(bins, min_bin_size):
 			)
 			collapsed_bins[j, 4] = min(bins[i, 4], bins[i + 1, 4])
 			collapsed_bins[j, 5] = max(bins[i, 5], bins[i + 1, 5])
-			collapsed_bins[j, 6] = (bins[i, 6] + bins[i + 1, 6])/2
 			i += 1
 		j += 1
 		i += 1
@@ -497,7 +502,7 @@ def ComputeBinVariance(xdata, ydata, nbins=10, space="log", binfile=None, submit
 	# 			var is the variance of logical error rates in the bin.
 
 	atol = 10e-12
-	bins = np.zeros((nbins - 1, 7), dtype=np.longdouble)
+	bins = np.zeros((nbins - 1, 8), dtype=np.longdouble)
 	if space == "log":
 		window = np.logspace(
 			np.log10(np.min(xdata)), np.log10(np.max(xdata)), num=nbins, base=10
@@ -544,6 +549,7 @@ def ComputeBinVariance(xdata, ydata, nbins=10, space="log", binfile=None, submit
 			bins[i, 5] = np.max(ydata[points])
 			bins[i, 3] = bins[i, 5] / (bins[i, 4] * bins[i, 2])
 			bins[i, 6] = np.mean(ydata[points])
+			bins[i, 7] = np.mean(xdata[points])
 			# bins[i, 4] = np.mean(-np.log10(ydata[points]))
 			# bins[i, 5] = np.std(-np.log10(ydata[points]))
 			# bins[i, 3] = bins[i, 5]

@@ -20,6 +20,7 @@ from define.fnames import (
     ChannelWise,
     MCStatsPlotFile,
     DecodersInstancePlot,
+    DeviationPlotFile
 )
 from define.qcode import (
     QuantumErrorCorrectingCode,
@@ -50,6 +51,7 @@ from define.QECCLfid.utils import GetErrorProbabilities
 from analyze.collect import IsComplete, GatherLogErrData, AddPhysicalRates
 from analyze.cplot import ChannelWisePlot
 from analyze.dcplot import DecoderCompare, DecoderInstanceCompare
+from analyze.dvplot import PlotDeviationYX
 from analyze.lplot import LevelWisePlot, LevelWisePlot2D
 from analyze.statplot import MCStatsPlot
 from analyze.hamplot import DoubleHammerPlot
@@ -746,6 +748,44 @@ if __name__ == "__main__":
 
         #####################################################################
 
+        elif user[0] == "dvplot":
+            # No documentation provided yet
+            phymet = user[1].strip(" ")
+            logmet = user[2]
+            dbses = [submit]
+            if len(user) > 3:
+                for (i, ts) in enumerate(user[3].split(",")):
+                    dbses.append(Submission())
+                    LoadSub(dbses[i + 1], ts, 0)
+                    IsComplete(dbses[i + 1])
+                    if not os.path.isfile(
+                        LogicalErrorRates(dbses[i + 1], logmet, fmt="npy")
+                    ):
+                        GatherLogErrData(dbses[i + 1])
+            thresholds = []
+            nbins = 10
+            if len(user) > 6:
+                nbins = int(user[6])
+            if len(user) > 5:
+                upper_cutoffs = np.array(list(map(np.double, user[5].split(","))))
+                upper_cutoffs = np.repeat(
+                    upper_cutoffs, submit.levels // upper_cutoffs.shape[0]
+                )
+            if len(user) > 4:
+                lower_cutoffs = np.power(0.1, list(map(np.double, user[4].split(","))))
+                lower_cutoffs = np.repeat(
+                    lower_cutoffs, submit.levels // lower_cutoffs.shape[0]
+                )
+            for c in range(upper_cutoffs.shape[0]):
+                thresholds.append(
+                    {"upper": upper_cutoffs[c], "lower": lower_cutoffs[c]}
+                )
+            if len(thresholds) == 0:
+                thresholds = [{"lower": 1e-9, "upper": 1e-2} for __ in submit.levels]
+            PlotDeviationYX(logmet, pmets, dbses, nbins, thresholds)
+
+        #####################################################################
+
         elif user[0] == "hamplot":
             # No documentation provided yet
             pmets = user[1].strip(" ").split(",")
@@ -1284,6 +1324,8 @@ if __name__ == "__main__":
                 plot_file = PauliDistribution(submit.outdir, submit.channel)
             elif plot_option == "hamplot":
                 plot_file = HammerPlot(submit, logmet, phymet.split(","))
+            elif plot_option == "dvplot":
+                plot_file = DeviationPlotFile(submit, phymet, logmet)
             elif plot_option == "mcplot":
                 plot_file = MCStatsPlotFile(submit, logmet, phymet.split(",")[0])
             elif plot_option == "dciplot":
