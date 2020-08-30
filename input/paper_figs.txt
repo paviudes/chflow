@@ -50,3 +50,20 @@ quit
 #
 #
 #
+!!Case 4!!
+# Random CPTP uncorr uncorr hamplot
+sbload 12_06_2020_23_17_36
+# uncorr vs uncorr: min bin fraction = 0.3. NO log scale for scatter metric
+hamplot uncorr,uncorr infid 14_06_2020_20_34_54 7,9 0.01,0.01 12
+notes uncorr,uncorr infid cptp hamplot /home/oem/Desktop/Research_PhD/rcnotes/paper/figures/plots 2
+quit
+#
+#
+!!Case 5!!
+# Identical axes uncorr uncorr hamplot
+sbload 12_06_2020_22_29_03
+# uncorr vs uncorr: min bin fraction = 0.3. Log scale for scatter metric.
+hamplot uncorr,uncorr infid 14_06_2020_22_48_38 7,9 0.01,0.01 12
+notes uncorr,uncorr infid ia hamplot /home/oem/Desktop/Research_PhD/rcnotes/paper/figures/plots 2
+quit
+#
