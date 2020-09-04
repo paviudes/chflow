@@ -118,10 +118,11 @@ def DiamondNorm(choi, idnchan):
 	return dnorm
 
 
-############### Diamond norm using .
 def DiamondNormSimpler(choi, idnchan):
 	"""
 	Compute the Diamond norm using functions in CVXOPT.
+
+	The program follows the precription in https://arxiv.org/abs/1207.5726.
 
 	The Diamond distance is defined as follows.
 	Maximize:
