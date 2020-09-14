@@ -429,25 +429,31 @@ def TwirlChannels(submit):
     r"""
     Twirl all the channels in a database, in place.
     """
+    print("iscorr = %d" % (submit.iscorr))
     if submit.iscorr == 0:
         nparams = 4 ** (2 * submit.eccs[0].K)
     elif submit.iscorr == 1:
-        print("Twirling is not set up for fully correlated channels.")
+        print("These are already Pauli channels.")
         return None
-    else:
+    elif submit.iscorr == 2:
         nparams = submit.eccs[0].N * 4 ** (2 * submit.eccs[0].K)
+    else:
+        nparams = 4 ** (submit.eccs[0].N + submit.eccs[0].K)
+
+    # print("nparams = %d" % (nparams))
 
     submit.phychans = np.zeros(
         (submit.noiserates.shape[0], submit.samps, nparams), dtype=np.double
     )
     for i in range(submit.noiserates.shape[0]):
         chans = np.load(fn.PhysicalChannel(submit, submit.noiserates[i, :]))
+        # print("Noise rate: {}\nchannel shape: {}".format(submit.noiserates[i, :], chans.shape))
         for j in range(submit.samps):
             if submit.iscorr == 0:
                 submit.phychans[i, j, :] = (
                     chans[j, :] * np.eye(4 ** submit.eccs[0].K, dtype=np.int).ravel()
                 )
-            else:
+            elif submit.iscorr == 2:
                 submit.phychans[i, j, :] = (
                     chans[j, :]
                     * np.tile(
@@ -455,6 +461,9 @@ def TwirlChannels(submit):
                         (submit.eccs[0].N, 1, 1),
                     ).ravel()
                 )
+            else:
+                submit.phychans[i, j, :] = chans[j, :] * np.eye(2**(submit.eccs[0].N + submit.eccs[0].K), dtype=np.int).ravel()
+
     submit.misc = "This is the Twirl of %s" % (submit.timestamp)
     submit.plotsettings["name"] = "With Randomized compiling"
     return None

@@ -10,6 +10,7 @@ except:
 from define import globalvars as gv
 from define import chanreps as crep
 from define.QECCLfid import utils as ut
+from define import qcode as qc
 
 # from define.qcode import PrepareSyndromeLookUp
 
@@ -108,7 +109,7 @@ def CreateIIDPauli(infid, qcode):
     )
     # print("Single qubit errors: {}".format(single_qubit_errors))
     if qcode.PauliOperatorsLST is None:
-        PrepareSyndromeLookUp(qcode)
+        qc.PrepareSyndromeLookUp(qcode)
     iid_error_dist = ut.GetErrorProbabilities(
         qcode.PauliOperatorsLST, single_qubit_errors, 0
     )

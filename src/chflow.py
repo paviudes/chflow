@@ -846,6 +846,8 @@ if __name__ == "__main__":
                 pauliprobs = chi
             else:
                 pauliprobs = list(map(np.diag, chi.reshape([submit.eccs[0].N, 4, 4])))
+            if submit.eccs[0].PauliOperatorsLST is None:
+                PrepareSyndromeLookUp(submit.eccs[0])
             dist = GetErrorProbabilities(
                 submit.eccs[0].PauliOperatorsLST, pauliprobs, submit.iscorr
             )

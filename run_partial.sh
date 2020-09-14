@@ -21,6 +21,7 @@ rerun() {
 	rm ${outdir}/chbank/$1/channels/*
 	rm ${outdir}/chbank/$1/metrics/*
 	rm ${outdir}/chbank/$1/results/*.npy
+	# rm ${outdir}/chbank/$1/physical/*.npy
 	echo "Running $1"
 	echo "${ts}" >> input/partial_decoders.txt
 }
@@ -76,6 +77,7 @@ elif [[ "$1" == "generate" ]]; then
 		rm ${outdir}/chbank/${ts}/physical/*
 
 		echo "sbload ${refts}" > input/temp.txt
+		# echo "sbtwirl" >> input/temp.txt
 		echo "submit ${ts}" >> input/temp.txt
 		echo "quit" >> input/temp.txt
 		cat input/temp.txt
@@ -83,11 +85,11 @@ elif [[ "$1" == "generate" ]]; then
 		rm input/temp.txt
 
 		if [[ "$alpha" == "ML" ]]; then
-			echo "REPLACE decoder 1,1 WITH decoder 0,0 IN input/${ts}.txt"
-			sed -i ${sed_prepend}"s/decoder 1,1/decoder 0,0/g" input/${ts}.txt
+			echo "REPLACE decoder 1,1,1 WITH decoder 0,0 IN input/${ts}.txt"
+			sed -i ${sed_prepend}"s/decoder 1,1,1/decoder 0,0,0/g" input/${ts}.txt
 		else
-			echo "REPLACE decoder 1,1 WITH decoder 3,3 IN input/${ts}.txt"
-			sed -i ${sed_prepend}"s/decoder 1,1/decoder 3,3/g" input/${ts}.txt
+			echo "REPLACE decoder 1,1,1 WITH decoder 3,3,3 IN input/${ts}.txt"
+			sed -i ${sed_prepend}"s/decoder 1,1,1/decoder 3,3,3/g" input/${ts}.txt
 			echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
 			sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
 		fi
