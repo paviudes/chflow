@@ -1,2 +1,1 @@
 Seq	Host	Starttime	JobRuntime	Send	Receive	Exitval	Signal	Command
-1	:	1600103226.490	  1239.502	0	2428	0	0	./chflow.sh 10_08_2020_00_33_27
