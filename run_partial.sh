@@ -6,10 +6,10 @@ if [[ $host == *"paviws"* ]]; then
 	chflowdir="/Users/pavi/Dropbox/rclearn"
 	cores=$(sysctl -n hw.ncpu)
 	sed_prepend="'' "
-elif [[ $host == "aditya-Lenovo-G50-80" ]]; then
-	outdir="/home/aditya/Documents"
-	chflowdir="/home/aditya/Desktop/Research_PhD"
-	cores=$(sysctl -n hw.ncpu)
+elif [[ $host == "oem-ThinkPad-X1-Carbon-Gen-8" ]]; then
+	outdir="//home/oem/Documents"
+	chflowdir="/home/oem/Desktop/Research_PhD"
+	cores=$(nproc --all)
 else
 	outdir="/project/def-jemerson/chbank"
 	chflowdir="/project/def-jemerson/pavi/chflow"
