@@ -36,7 +36,7 @@ display() {
 	./chflow.sh $ts
 }
 
-timestamps=("${pauli_timestamps[@]}")
+timestamps=("${nonpauli_timestamps[@]}")
 
 if [[ "$1" == "overwrite" ]]; then
 	rm input/partial_decoders.txt
@@ -46,6 +46,8 @@ if [[ "$1" == "overwrite" ]]; then
 		echo "xxxxxxx"
 	done
 	if [[ $host == *"paviws"* ]]; then
+		echo "parallel --joblog partial_decoders.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders.txt"
+	elif [[ $host == "oem-ThinkPad-X1-Carbon-Gen-8" ]]; then
 		echo "parallel --joblog partial_decoders.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders.txt"
 	else
 		rm input/cedar/partial_decoders.sh
@@ -77,15 +79,15 @@ elif [[ "$1" == "generate" ]]; then
 		./chflow.sh -- temp.txt
 		rm input/temp.txt
 
-		# echo "REPLACE decoder 1,1 WITH decoder 3,3 IN input/${ts}.txt"
-		# sed -i ${sed_prepend}"s/decoder 1,1/decoder 3,3/g" input/${ts}.txt
-		# echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
-		# sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
-
-		echo "REPLACE decoder 1,1,1 WITH decoder 3,3,3 IN input/${ts}.txt"
-		sed -i ${sed_prepend}"s/decoder 1,1,1/decoder 3,3,3/g" input/${ts}.txt
+		echo "REPLACE decoder 1,1 WITH decoder 3,3 IN input/${ts}.txt"
+		sed -i ${sed_prepend}"s/decoder 1,1/decoder 3,3/g" input/${ts}.txt
 		echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
 		sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
+
+		# echo "REPLACE decoder 1,1,1 WITH decoder 3,3,3 IN input/${ts}.txt"
+		# sed -i ${sed_prepend}"s/decoder 1,1,1/decoder 3,3,3/g" input/${ts}.txt
+		# echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
+		# sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
 
 		# echo "REPLACE ecc Steane WITH ecc Steane,Steane IN input/${ts}.txt"
 		# sed -i ${sed_prepend}"s/ecc Steane/ecc Steane,Steane/g" input/${ts}.txt
