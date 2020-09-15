@@ -1,13 +1,13 @@
 # Time stamp
 timestamp 10_08_2020_00_33_35
 # Type of quantum error correcting code
-ecc Steane,Steane
+ecc Steane,Steane,Steane
 # Type of quantum channel
 channel pcorr
 # Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
 repr process
 # Noise rate exponents. The actual noise rate is (2/3)^exponent.
-noiserange 14,14,1;2,2,1;0.75,0.75,1;0.1,0.1,1
+noiserange 11,11,1;2,2,1;0.75,0.75,1;0.1,0.1,1
 # Scales of noise range.
 scale 0.66,1.0,1.0,1.0
 # Number of samples
@@ -15,7 +15,7 @@ samples 1
 # Parameters schedule
 scheduler ./../input/schedule_10_08_2020_00_33_35.txt
 # Decoding algorithm to be used -- 0 for the maximum likelihood decoder and 1 for minimum weight decoder.
-decoder 3,3
+decoder 3,3,3
 # Fraction of Pauli probabilities accessible to the ML decoder.
 dcfraction 0
 # Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
