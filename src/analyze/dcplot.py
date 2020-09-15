@@ -157,7 +157,7 @@ def DecoderInstanceCompare(
                             y=np.load(fn.LogicalErrorRates(dbses[d], logmet))[ch, l],
                             linestyle="--",
                             linewidth=gv.line_width,
-                            color="red",
+                            color="0.75",
                             label="MWD",
                         )
                     else:

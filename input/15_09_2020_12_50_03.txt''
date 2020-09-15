@@ -1,5 +1,5 @@
 # Time stamp
-timestamp 10_08_2020_00_33_35
+timestamp 15_09_2020_12_50_03
 # Type of quantum error correcting code
 ecc Steane,Steane,Steane
 # Type of quantum channel
@@ -13,7 +13,7 @@ scale 0.66,1.0,1.0,1.0
 # Number of samples
 samples 1
 # Parameters schedule
-scheduler ./../input/schedule_10_08_2020_00_33_35.txt
+scheduler ./../input/schedule_15_09_2020_12_50_03.txt
 # Decoding algorithm to be used -- 0 for the maximum likelihood decoder and 1 for minimum weight decoder.
 decoder 3,3,3
 # Fraction of Pauli probabilities accessible to the ML decoder.
