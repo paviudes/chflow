@@ -7,7 +7,7 @@ if [[ $host == *"paviws"* ]]; then
 	cores=$(sysctl -n hw.ncpu)
 	sed_prepend="'' "
 elif [[ $host == "oem-ThinkPad-X1-Carbon-Gen-8" ]]; then
-	outdir="//home/oem/Documents"
+	outdir="/home/oem/Documents"
 	chflowdir="/home/oem/Desktop/Research_PhD"
 	cores=$(nproc --all)
 else
