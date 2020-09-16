@@ -1,7 +1,7 @@
 # Time stamp
 timestamp 15_09_2020_12_50_03
 # Type of quantum error correcting code
-ecc Steane,Steane,Steane
+ecc Steane,Steane
 # Type of quantum channel
 channel pcorr
 # Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
@@ -15,7 +15,7 @@ samples 1
 # Parameters schedule
 scheduler ./../input/schedule_15_09_2020_12_50_03.txt
 # Decoding algorithm to be used -- 0 for the maximum likelihood decoder and 1 for minimum weight decoder.
-decoder 3,3,3
+decoder 3,3
 # Fraction of Pauli probabilities accessible to the ML decoder.
 dcfraction 0
 # Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").

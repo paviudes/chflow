@@ -153,6 +153,7 @@ def DecoderInstanceCompare(
                             label="MLD",
                         )
                     elif dbses[d].decoders[l - 1] == 1:
+                        minwt = np.load(fn.LogicalErrorRates(dbses[d], logmet))[ch, l]
                         ax1.axhline(
                             y=np.load(fn.LogicalErrorRates(dbses[d], logmet))[ch, l],
                             linestyle="--",
@@ -169,7 +170,7 @@ def DecoderInstanceCompare(
                 settings["xaxis"] = np.array(settings["xaxis"])[sortorder]
                 settings["yaxis"] = np.array(settings["yaxis"])[sortorder]
                 # Plotting
-                print("X: {}\nY: {}".format(settings["xaxis"], settings["yaxis"]))
+                print("X: {}\nY: {}\nMWD: {}".format(settings["xaxis"], settings["yaxis"], minwt))
                 plotobj = ax1.plot(
                     settings["xaxis"],
                     settings["yaxis"],
