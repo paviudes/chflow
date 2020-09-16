@@ -51,6 +51,8 @@ if [[ "$1" == "overwrite" ]]; then
 	done
 	if [[ $host == *"paviws"* ]]; then
 		echo "parallel --joblog partial_decoders.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders.txt"
+	elif [[ $host == "oem-ThinkPad-X1-Carbon-Gen-8" ]]; then
+		echo "parallel --joblog partial_decoders.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders.txt"
 	else
 		rm input/cedar/partial_decoders.sh
 		sbcmds=("#!/bin/bash" "#SBATCH --account=def-jemerson" "#SBATCH --begin=now" "#SBATCH --nodes=1" "#SBATCH --time=05:00:00" "#SBATCH --ntasks-per-node=48" "#SBATCH -o /project/def-jemerson/chbank/partial_output.o" "#SBATCH -e /project/def-jemerson/chbank/partial_errors.o" "#SBATCH --mail-type=ALL" "#SBATCH --mail-user=pavithran.sridhar@gmail.com")
@@ -88,6 +90,11 @@ elif [[ "$1" == "generate" ]]; then
 
 		# echo "REPLACE decoder 1,1 WITH decoder 3,3 IN input/${ts}.txt"
 		# sed -i ${sed_prepend}"s/decoder 1,1/decoder 3,3/g" input/${ts}.txt
+		# echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
+		# sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
+
+		# echo "REPLACE decoder 1,1,1 WITH decoder 3,3,3 IN input/${ts}.txt"
+		# sed -i ${sed_prepend}"s/decoder 1,1,1/decoder 3,3,3/g" input/${ts}.txt
 		# echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
 		# sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
 
