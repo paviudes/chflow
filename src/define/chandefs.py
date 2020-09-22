@@ -283,11 +283,11 @@ def RandomHamiltonian(params):
     return krauss
 
 
-def CorrelatedNonPauli(params):
+def CorrelatedNonPauli(params, method):
     """
     Return a correlated non-Pauli channel in the Pauli-Liouville respresentation.
     """
-    (phychan, rawchan) = get_process_chi(params[1], params[2], params[0])
+    (phychan, rawchan) = get_process_chi(params[0], method, *params[1:])
     return (phychan, rawchan)
 
 
@@ -419,7 +419,10 @@ def GetKraussForChannel(chType, *params):
         krauss = CorrelatedPauli(params)
 
     elif chType == "npcorr":
-        krauss = CorrelatedNonPauli(params)
+        krauss = CorrelatedNonPauli(params, "random")
+
+    elif chType == "ising":
+        krauss = CorrelatedNonPauli(params, "ising")
 
     elif chType == "wpc":
         # Worst Pauli channel for a infidelity
