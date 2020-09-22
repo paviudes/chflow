@@ -1,9 +1,0 @@
-# Random CPTP
-sbload 06_09_2017_21_32_03
-lplot dnorm infid 27_05_2020_19_26_15
-notes dnorm infid cptp lplot /Users/pavi/Dropbox/rclearn/notes/figs/10June 2,3
-# Idential axis
-sbload 24_05_2020_23_25_57
-lplot dnorm infid 27_05_2020_15_55_18
-notes dnorm infid ia lplot /Users/pavi/Dropbox/rclearn/notes/figs/10June 2,3
-quit

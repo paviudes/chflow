@@ -1,4 +1,0 @@
-sbload 01_06_2020_15_11_34
-chgen
-submit
-quit

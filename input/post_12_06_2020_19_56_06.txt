@@ -1,4 +1,0 @@
-sbload 12_06_2020_19_56_06
-pmetrics infid
-lpmetrics uncorr
-quit
