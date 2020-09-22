@@ -176,6 +176,14 @@ Channels = {
         "Pauli": 0,
         "corr": 3,
     },
+    "ising": {
+        "name": "Non Pauli channel implementing Ising type interactions",
+        "params": ["J", "mu"],
+        "latex": ["$J$", "$\\mu$"],
+        "color": "limegreen",
+        "Pauli": 0,
+        "corr": 3,
+    },
     "wpc": {
         "name": "Worst Pauli channel",
         "params": "Infidelity",

@@ -49,6 +49,7 @@ class QuantumErrorCorrectingCode:
         self.weightdist = None
         self.group_by_weight = None
         self.defnfile = "%s.txt" % (name)
+        self.interaction_graph = None
         eof = 0
         with open(("./../code/%s" % self.defnfile), "r") as fp:
             while eof == 0:

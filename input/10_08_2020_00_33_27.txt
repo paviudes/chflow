@@ -43,7 +43,7 @@ queue X
 # Email notifications.
 email X
 # Output result's directory.
-outdir /home/oem/Documents/chbank
+outdir /Users/pavi/Documents/chbank
 # Randomized compiling of quantum gates.
 rc 0
 # Plot settings
