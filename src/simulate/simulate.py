@@ -60,6 +60,12 @@ def SimulateSampleIndex(submit, rate, sample, coreidx, results):
 
     ## Benchmark the noise model.
     print("Infidelity = %.14f" % (infidelity))
+    G = physchan.reshape(256, 256)
+    print("process[0, 0] = {}".format(G[0,0]))
+    print("process[0, :] = {}".format(G[0,:]))
+    print("nonzero(chi) = {}".format(np.nonzero(rawchan < 0)))
+    print("sum(chi) = {}".format(np.sum(rawchan)))
+    print("1 - chi[0,0] = {}".format(1 - rawchan[0]))
     Benchmark(submit, rate, sample, physchan, refchan, infidelity, rawchan)
     ####
     runtime = time.time() - start

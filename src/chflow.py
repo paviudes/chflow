@@ -685,6 +685,7 @@ if __name__ == "__main__":
                         {"lower": 1e-9, "upper": 1e-2} for __ in submit.levels
                     ]
                 if check == 1:
+                    print("Thresholds: {}".format(thresholds))
                     phylist = list(map(lambda phy: phy.strip(" "), user[1].split(",")))
                     LevelWisePlot(
                         phylist,

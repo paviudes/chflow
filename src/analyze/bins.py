@@ -319,7 +319,7 @@ def PlotBinVarianceDataSets(ax1, dbses, level, lmet, phymets, nbins, include_inf
 	# ax2.set_xlabel("Bins", fontsize=gv.axes_labels_fontsize * 0.6)
 	ax2.set_ylabel("$\\Delta$", fontsize=gv.axes_labels_fontsize)
 	# ax.set_ylim([10e-9, None])
-	ax2.set_yscale("log")
+	# ax2.set_yscale("log")
 	ax2.tick_params(
 		axis="both",
 		which="both",
@@ -425,10 +425,8 @@ def CollapseBins(bins, min_bin_size):
 	return CollapseBins(collapsed_bins, min_bin_size)
 
 
-def GetXCutOff(xdata, ydata, ythreshold, nbins=10, space="log"):
+def GetXCutOff(xdata, ydata, ythreshold, nbins=10, space="log", atol=10E-20):
 	# Get the X-value for which all the points have their Y-value to be at least the threshold.
-	atol = 10e-12
-
 	# print(
 	#     "xdata: {} to {}".format(
 	#         np.min(np.where(xdata <= atol, atol, xdata)), np.max(xdata)
@@ -470,12 +468,12 @@ def GetXCutOff(xdata, ydata, ythreshold, nbins=10, space="log"):
 		#         i + 1, bins[i, 0], bins[i, 1], points.shape, points, ydata[points]
 		#     )
 		# )
-		# print(
-		#     "bin {}: [{}, {}]\n{} points".format(
-		#         i + 1, bins[i, 0], bins[i, 1], points.shape
-		#     )
-		# )
 		if len(points) > 10:
+			print(
+			    "bin {}: [{}, {}]\n{} points. Y_min = {} and Y_max = {}".format(
+			        i + 1, bins[i, 0], bins[i, 1], points.shape, np.min(ydata[points]), np.max(ydata[points])
+			    )
+			)
 			if found_left == 0:
 				if np.min(ydata[points]) >= ythreshold["lower"]:
 					xcutoff["left"] = bins[i, 0]
