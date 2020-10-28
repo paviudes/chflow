@@ -211,7 +211,7 @@ def populate_symplectic(qcode):
         dictL["sx"] = list(map(lambda x: 1 if x == 1 or x == 2 else 0, L))
         dictL["sz"] = list(map(lambda x: 1 if x == 2 or x == 3 else 0, L))
         qcode.LSym.append(dictL)
-    group_S = GenerateGroup(qcode.S)
+    (group_S, __) = GenerateGroup(qcode.S)
     qcode.SGroupSym = []
     for S in group_S:
         dictS = {"sx": None, "sz": None}
@@ -219,7 +219,7 @@ def populate_symplectic(qcode):
         dictS["sz"] = list(map(lambda x: 1 if x == 2 or x == 3 else 0, S))
         qcode.SGroupSym.append(dictS)
     qcode.TGroupSym = []
-    group_T = GenerateGroup(qcode.T)
+    (group_T, __) = GenerateGroup(qcode.T)
     for T in group_T:
         dictT = {"sx": None, "sz": None}
         dictT["sx"] = list(map(lambda x: 1 if x == 1 or x == 2 else 0, T))
@@ -1038,7 +1038,7 @@ def GenerateGroup(gens):
             list(map(np.int8, np.binary_repr(i, width=gens.shape[0]))), dtype=np.int8
         )
         (group[i], phase[i]) = PauliProduct(*gens[np.nonzero(comb)])
-    return group
+    return (group, phase)
 
 
 def GetCommuting(log_op, stab_op, lgens, sgens, tgens):
@@ -1222,6 +1222,7 @@ def GetOperatorsForLSTIndex(qcode, indices):
 
     nstabs = 2 ** (qcode.N - qcode.K)
     ops = np.zeros((len(indices), qcode.N), dtype=np.int)
+    phases = np.zeros(len(indices), dtype=np.complex128)
     for i in range(len(indices)):
         pure_index = indices[i] % nstabs
         pure_op = GetElementInGroup(pure_index, qcode.T)
@@ -1234,8 +1235,8 @@ def GetOperatorsForLSTIndex(qcode, indices):
         #         pure_index, pure_op, stab_index, stab_op, log_index, log_op
         #     )
         # )
-        (ops[i, :], __) = PauliProduct(pure_op, stab_op, log_op)
-    return ops
+        (ops[i, :], phases[i]) = PauliProduct(pure_op, stab_op, log_op)
+    return (ops, phases)
 
 
 def GetOperatorsForTLSIndex(qcode, indices):
@@ -1252,6 +1253,7 @@ def GetOperatorsForTLSIndex(qcode, indices):
     nstabs = 2 ** (qcode.N - qcode.K)
     nlogs = 4 ** qcode.K
     ops = np.zeros((len(indices), qcode.N), dtype=np.int)
+    phases = np.zeros(len(indices), dtype=np.complex128)
     for i in range(len(indices)):
         stab_index = indices[i] % nstabs
         stab_op = GetElementInGroup(stab_index, qcode.S)
@@ -1267,8 +1269,8 @@ def GetOperatorsForTLSIndex(qcode, indices):
         #         pure_index, pure_op, stab_index, stab_op, log_index, log_op
         #     )
         # )
-        (ops[i, :], __) = PauliProduct(pure_op, stab_op, log_op)
-    return ops
+        (ops[i, :], phases[i]) = PauliProduct(pure_op, stab_op, log_op)
+    return (ops, phases)
 
 
 def GetElementInGroup(group_index, gens):
