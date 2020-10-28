@@ -1225,17 +1225,20 @@ def GetOperatorsForLSTIndex(qcode, indices):
     phases = np.zeros(len(indices), dtype=np.complex128)
     for i in range(len(indices)):
         pure_index = indices[i] % nstabs
-        pure_op = GetElementInGroup(pure_index, qcode.T)
+        (pure_op, pure_ph) = GetElementInGroup(pure_index, qcode.T)
         stab_index = (indices[i] // nstabs) % nstabs
-        stab_op = GetElementInGroup(stab_index, qcode.S)
+        (stab_op, stab_ph) = GetElementInGroup(stab_index, qcode.S)
         log_index = indices[i] // (nstabs * nstabs)
-        log_op = GetElementInGroup(log_ordering[log_index], qcode.L)
+        (log_op, log_ph) = GetElementInGroup(log_ordering[log_index], qcode.L)
+        if log_ordering[log_index] == 3:
+            log_ph *= 1j
         # print(
         #     "pure_index = {}, pure_op = {}, stab_index = {}, stab_op = {}, log_index = {}, log_op = {}".format(
         #         pure_index, pure_op, stab_index, stab_op, log_index, log_op
         #     )
         # )
         (ops[i, :], phases[i]) = PauliProduct(pure_op, stab_op, log_op)
+        phases[i] *= stab_ph * log_ph * pure_ph
     return (ops, phases)
 
 
@@ -1256,13 +1259,15 @@ def GetOperatorsForTLSIndex(qcode, indices):
     phases = np.zeros(len(indices), dtype=np.complex128)
     for i in range(len(indices)):
         stab_index = indices[i] % nstabs
-        stab_op = GetElementInGroup(stab_index, qcode.S)
+        (stab_op,stab_ph) = GetElementInGroup(stab_index, qcode.S)
 
         log_index = (indices[i] // nstabs) % nlogs
-        log_op = GetElementInGroup(log_ordering[log_index], qcode.L)
+        (log_op, log_ph) = GetElementInGroup(log_ordering[log_index], qcode.L)
+        if log_ordering[log_index] == 3:
+            log_ph *= 1j
 
         pure_index = indices[i] // (nlogs * nstabs)
-        pure_op = GetElementInGroup(pure_index, qcode.T)
+        (pure_op, pure_ph) = GetElementInGroup(pure_index, qcode.T)
 
         # print(
         #     "pure_index = {}, pure_op = {}, stab_index = {}, stab_op = {}, log_index = {}, log_op = {}".format(
@@ -1270,6 +1275,7 @@ def GetOperatorsForTLSIndex(qcode, indices):
         #     )
         # )
         (ops[i, :], phases[i]) = PauliProduct(pure_op, stab_op, log_op)
+        phases[i] *= stab_ph * log_ph * pure_ph
     return (ops, phases)
 
 
@@ -1278,7 +1284,7 @@ def GetElementInGroup(group_index, gens):
     Get element given its index and weight_enumerators
     """
     if group_index == 0:
-        return np.zeros(gens.shape[1], dtype=np.int)
+        return (np.zeros(gens.shape[1], dtype=np.int),1)
     include_gens = np.array(
         list(map(np.int8, np.binary_repr(group_index, width=gens.shape[0]))),
         dtype=np.int8,
@@ -1288,8 +1294,8 @@ def GetElementInGroup(group_index, gens):
     #         np.binary_repr(group_index, width=gens.shape[0]), include_gens
     #     )
     # )
-    (element, __) = PauliProduct(*gens[np.nonzero(include_gens)])
-    return element
+    (element,phase) = PauliProduct(*gens[np.nonzero(include_gens)])
+    return (element,phase)
 
 
 if __name__ == "__main__":
