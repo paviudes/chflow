@@ -63,7 +63,7 @@ if [[ "$1" == "overwrite" ]]; then
 		done
 		echo "module load intel python scipy-stack" >> input/cedar/partial_decoders.sh
 		echo "cd /project/def-jemerson/pavi/chflow" >> input/cedar/partial_decoders.sh
-		echo "parallel --joblog partial_decoders.log --jobs ${SLURM_NTASKS_PER_NODE} ./chflow.sh {1} :::: input/partial_decoders.txt" >> input/cedar/partial_decoders.sh
+		echo "parallel --joblog partial_decoders.log ./chflow.sh {1} :::: input/partial_decoders.txt" >> input/cedar/partial_decoders.sh
 		echo "sbatch input/cedar/partial_decoders.sh"
 	fi
 elif [[ "$1" == "generate" ]]; then
