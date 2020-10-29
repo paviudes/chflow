@@ -21,6 +21,7 @@ elif [[ $host == "oem-ThinkPad-X1-Carbon-Gen-8" ]]; then
 else
 	outdir="/project/def-jemerson/chbank"
 	chflowdir="/project/def-jemerson/pavi/chflow"
+	nonpauli_timestamps=("21_07_2020_16_28_27" "20_07_2020_20_11_41" "21_07_2020_21_49_52" "03_08_2020_22_47_51" "03_08_2020_23_03_35" "03_08_2020_22_54_43" "04_08_2020_18_31_52" "04_08_2020_18_49_45" "04_08_2020_19_00_34" "21_07_2020_16_28_30" "25_08_2020_01_24_08" "25_08_2020_01_24_23")
 	cores=$(nproc --all)
 fi
 
@@ -40,7 +41,7 @@ display() {
 	./chflow.sh $ts
 }
 
-timestamps=("${pauli_timestamps[@]}")
+timestamps=("${nonpauli_timestamps[@]}")
 
 if [[ "$1" == "overwrite" ]]; then
 	rm input/partial_decoders.txt
@@ -83,25 +84,20 @@ elif [[ "$1" == "generate" ]]; then
 		./chflow.sh -- temp.txt
 		rm input/temp.txt
 
-		echo "REPLACE decoder 1 WITH decoder 3 IN input/${ts}.txt"
-		sed -i ${sed_prepend}"s/decoder 1/decoder 3/g" input/${ts}.txt
-		echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
-		sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
+		# echo "REPLACE decoder 1 WITH decoder 3 IN input/${ts}.txt"
+		# sed -i ${sed_prepend}"s/decoder 1/decoder 3/g" input/${ts}.txt
+		# echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
+		# sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
 
 		# echo "REPLACE decoder 1,1 WITH decoder 3,3 IN input/${ts}.txt"
 		# sed -i ${sed_prepend}"s/decoder 1,1/decoder 3,3/g" input/${ts}.txt
 		# echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
 		# sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
 
-		# echo "REPLACE decoder 1,1,1 WITH decoder 3,3,3 IN input/${ts}.txt"
-		# sed -i ${sed_prepend}"s/decoder 1,1,1/decoder 3,3,3/g" input/${ts}.txt
-		# echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
-		# sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
-
-		# echo "REPLACE decoder 1,1,1 WITH decoder 3,3,3 IN input/${ts}.txt"
-		# sed -i ${sed_prepend}"s/decoder 1,1,1/decoder 3,3,3/g" input/${ts}.txt
-		# echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
-		# sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
+		echo "REPLACE decoder 1,1,1 WITH decoder 3,3,3 IN input/${ts}.txt"
+		sed -i ${sed_prepend}"s/decoder 1,1,1/decoder 3,3,3/g" input/${ts}.txt
+		echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
+		sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
 
 		# echo "REPLACE ecc Steane WITH ecc Steane,Steane IN input/${ts}.txt"
 		# sed -i ${sed_prepend}"s/ecc Steane/ecc Steane,Steane/g" input/${ts}.txt
