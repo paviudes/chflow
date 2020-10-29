@@ -21,12 +21,13 @@ elif [[ $host == "oem-ThinkPad-X1-Carbon-Gen-8" ]]; then
 else
 	outdir="/project/def-jemerson/chbank"
 	chflowdir="/project/def-jemerson/pavi/chflow"
-	nonpauli_timestamps=("21_07_2020_16_28_27" "20_07_2020_20_11_41" "21_07_2020_21_49_52" "03_08_2020_22_47_51" "03_08_2020_23_03_35" "03_08_2020_22_54_43" "04_08_2020_18_31_52" "04_08_2020_18_49_45" "04_08_2020_19_00_34" "21_07_2020_16_28_30" "25_08_2020_01_24_08" "25_08_2020_01_24_23")
-	# cores=$(nproc --all)
-	alphas=(0 0.0001 0.0003 0.0005 0.0007 0.0012 0.0025 0.0036 0.005 0.01 0.02 1)
+	ising_timestamps=("29_10_2020_13_16_31" "29_10_2020_13_16_32" "29_10_2020_13_16_33" "29_10_2020_13_16_34" "29_10_2020_13_16_35" "29_10_2020_13_16_36" "29_10_2020_13_16_37" "29_10_2020_13_16_38" "29_10_2020_13_16_39" "29_10_2020_13_16_40" "29_10_2020_13_16_41" "29_10_2020_13_16_42" "29_10_2020_13_16_43" "29_10_2020_13_16_44" "29_10_2020_13_16_45" "29_10_2020_13_16_46" "29_10_2020_13_16_47" "29_10_2020_13_16_48" "29_10_2020_13_16_49" "29_10_2020_13_16_50" "29_10_2020_13_16_51" "29_10_2020_13_16_52" "29_10_2020_13_16_53" "29_10_2020_13_16_54" "29_10_2020_13_16_55" "29_10_2020_13_16_56" "29_10_2020_13_16_57" "29_10_2020_13_16_58" "29_10_2020_13_16_59" "29_10_2020_13_16_60" "29_10_2020_13_16_61" "29_10_2020_13_16_62" "29_10_2020_13_16_63" "29_10_2020_13_16_64" "29_10_2020_13_16_65" "29_10_2020_13_16_66" "29_10_2020_13_16_67" "29_10_2020_13_16_68" "29_10_2020_13_16_69" "29_10_2020_13_16_70" "29_10_2020_13_16_71" "29_10_2020_13_16_72" "29_10_2020_13_16_73" "29_10_2020_13_16_74" "29_10_2020_13_16_75" "29_10_2020_13_16_76" "29_10_2020_13_16_77" "29_10_2020_13_16_78")
+	cores=48
+	alphas=(0 0.0001 0.00011 0.00013 0.00015 0.00016 0.00019 0.00021 0.00024 0.00027 0.00031 0.00035 0.00039 0.00044 0.0005  0.00057 0.00064 0.00073 0.00082 0.00093 0.00105 0.00119 0.00135 0.00153 0.00173 0.00196 0.00222 0.00251 0.00284 0.00322 0.00364 0.00413 0.00467 0.00529 0.00599 0.00678 0.00767 0.00868 0.00983 0.01113 0.01259 0.01426 0.01614 0.01827 0.02068 0.02341 0.0265 1)
 	sed_prepend=""
 fi
 
+alphas=(0 0.0001 0.00011 0.00013 0.00015 0.00016 0.00019 0.00021 0.00024 0.00027 0.00031 0.00035 0.00039 0.00044 0.0005  0.00057 0.00064 0.00073 0.00082 0.00093 0.00105 0.00119 0.00135 0.00153 0.00173 0.00196 0.00222 0.00251 0.00284 0.00322 0.00364 0.00413 0.00467 0.00529 0.00599 0.00678 0.00767 0.00868 0.00983 0.01113 0.01259 0.01426 0.01614 0.01827 0.02068 0.02341 0.0265 1)
 
 rerun() {
 	echo "removing ${outdir}/chbank/$1/channels/*"
@@ -90,15 +91,15 @@ elif [[ "$1" == "generate" ]]; then
 		# echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
 		# sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
 
-		echo "REPLACE decoder 1,1 WITH decoder 3,3 IN input/${ts}.txt"
-		sed -i ${sed_prepend}"s/decoder 1,1/decoder 3,3/g" input/${ts}.txt
-		echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
-		sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
-
-		# echo "REPLACE decoder 1,1,1 WITH decoder 3,3,3 IN input/${ts}.txt"
-		# sed -i ${sed_prepend}"s/decoder 1,1,1/decoder 3,3,3/g" input/${ts}.txt
+		# echo "REPLACE decoder 1,1 WITH decoder 3,3 IN input/${ts}.txt"
+		# sed -i ${sed_prepend}"s/decoder 1,1/decoder 3,3/g" input/${ts}.txt
 		# echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
 		# sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
+
+		echo "REPLACE decoder 1,1,1 WITH decoder 3,3,3 IN input/${ts}.txt"
+		sed -i ${sed_prepend}"s/decoder 1,1,1/decoder 3,3,3/g" input/${ts}.txt
+		echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
+		sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
 
 		# echo "REPLACE ecc Steane WITH ecc Steane,Steane IN input/${ts}.txt"
 		# sed -i ${sed_prepend}"s/ecc Steane/ecc Steane,Steane/g" input/${ts}.txt
