@@ -23,9 +23,10 @@ else
 	chflowdir="/project/def-jemerson/pavi/chflow"
 	nonpauli_timestamps=("21_07_2020_16_28_27" "20_07_2020_20_11_41" "21_07_2020_21_49_52" "03_08_2020_22_47_51" "03_08_2020_23_03_35" "03_08_2020_22_54_43" "04_08_2020_18_31_52" "04_08_2020_18_49_45" "04_08_2020_19_00_34" "21_07_2020_16_28_30" "25_08_2020_01_24_08" "25_08_2020_01_24_23")
 	cores=$(nproc --all)
+	alphas=(0 0.0001 0.0003 0.0005 0.0007 0.0012 0.0025 0.0036 0.005 0.01 0.02 1)
+	sed_prepend=""
 fi
 
-untrust=(0.0013 0.0015 0.0017 0.0019 0.0021 0.0023 0.0025 0.0026)
 
 rerun() {
 	echo "removing ${outdir}/chbank/$1/channels/*"
@@ -58,7 +59,7 @@ if [[ "$1" == "overwrite" ]]; then
 		rm input/cedar/partial_decoders.sh
 		sbcmds=("#!/bin/bash" "#SBATCH --account=def-jemerson" "#SBATCH --begin=now" "#SBATCH --nodes=1" "#SBATCH --time=05:00:00" "#SBATCH --ntasks-per-node=48" "#SBATCH -o /project/def-jemerson/chbank/partial_output.o" "#SBATCH -e /project/def-jemerson/chbank/partial_errors.o" "#SBATCH --mail-type=ALL" "#SBATCH --mail-user=pavithran.sridhar@gmail.com")
 		for (( s=0; s<${#sbcmds[@]}; ++s )); do
-			echo "${sbcmds[s]} >> input/cedar/partial_decoders.sh"
+			echo "${sbcmds[s]}" >> input/cedar/partial_decoders.sh
 		done
 		echo "module load intel python scipy-stack" >> input/cedar/partial_decoders.sh
 		echo "cd /project/def-jemerson/pavi/chflow" >> input/cedar/partial_decoders.sh
@@ -89,15 +90,15 @@ elif [[ "$1" == "generate" ]]; then
 		# echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
 		# sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
 
-		# echo "REPLACE decoder 1,1 WITH decoder 3,3 IN input/${ts}.txt"
-		# sed -i ${sed_prepend}"s/decoder 1,1/decoder 3,3/g" input/${ts}.txt
-		# echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
-		# sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
-
-		echo "REPLACE decoder 1,1,1 WITH decoder 3,3,3 IN input/${ts}.txt"
-		sed -i ${sed_prepend}"s/decoder 1,1,1/decoder 3,3,3/g" input/${ts}.txt
+		echo "REPLACE decoder 1,1 WITH decoder 3,3 IN input/${ts}.txt"
+		sed -i ${sed_prepend}"s/decoder 1,1/decoder 3,3/g" input/${ts}.txt
 		echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
 		sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
+
+		# echo "REPLACE decoder 1,1,1 WITH decoder 3,3,3 IN input/${ts}.txt"
+		# sed -i ${sed_prepend}"s/decoder 1,1,1/decoder 3,3,3/g" input/${ts}.txt
+		# echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
+		# sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
 
 		# echo "REPLACE ecc Steane WITH ecc Steane,Steane IN input/${ts}.txt"
 		# sed -i ${sed_prepend}"s/ecc Steane/ecc Steane,Steane/g" input/${ts}.txt
