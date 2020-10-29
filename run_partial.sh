@@ -43,7 +43,7 @@ display() {
 	./chflow.sh $ts
 }
 
-timestamps=("${nonpauli_timestamps[@]}")
+timestamps=("${ising_timestamps[@]}")
 
 if [[ "$1" == "overwrite" ]]; then
 	rm input/partial_decoders.txt
