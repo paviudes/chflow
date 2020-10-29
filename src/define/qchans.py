@@ -178,8 +178,8 @@ Channels = {
     },
     "ising": {
         "name": "Non Pauli channel implementing Ising type interactions",
-        "params": ["J", "mu"],
-        "latex": ["$J$", "$\\mu$"],
+        "params": ["J", "mu", "time"],
+        "latex": ["$J$", "$\\mu$", "$t$"],
         "color": "limegreen",
         "Pauli": 0,
         "corr": 3,
