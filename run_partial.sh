@@ -44,11 +44,7 @@ display() {
 	./chflow.sh $ts
 }
 
-<<<<<<< HEAD
 timestamps=("${ising_level3_timestamps[@]}")
-=======
-timestamps=("${nonpauli_timestamps[@]}")
->>>>>>> 8bb79d16d69b5204965e225a6e17366201963664
 
 if [[ "$1" == "overwrite" ]]; then
 	rm input/partial_decoders_l3.txt
@@ -96,17 +92,10 @@ elif [[ "$1" == "generate" ]]; then
 		# echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
 		# sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
 
-<<<<<<< HEAD
 		#echo "REPLACE decoder 1,1 WITH decoder 3,3 IN input/${ts}.txt"
 		#sed -i ${sed_prepend}"s/decoder 1,1/decoder 3,3/g" input/${ts}.txt
 		#echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
 		#sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
-=======
-		# echo "REPLACE decoder 1,1 WITH decoder 3,3 IN input/${ts}.txt"
-		# sed -i ${sed_prepend}"s/decoder 1,1/decoder 3,3/g" input/${ts}.txt
-		# echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
-		# sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
->>>>>>> 8bb79d16d69b5204965e225a6e17366201963664
 
 		echo "REPLACE decoder 1,1,1 WITH decoder 3,3,3 IN input/${ts}.txt"
 		sed -i ${sed_prepend}"s/decoder 1,1,1/decoder 3,3,3/g" input/${ts}.txt
