@@ -23,6 +23,7 @@ else
 	chflowdir="/project/def-jemerson/pavi/chflow"
 	ising_timestamps=("29_10_2020_13_16_31" "29_10_2020_13_16_32" "29_10_2020_13_16_33" "29_10_2020_13_16_34" "29_10_2020_13_16_35" "29_10_2020_13_16_36" "29_10_2020_13_16_37" "29_10_2020_13_16_38" "29_10_2020_13_16_39" "29_10_2020_13_16_40" "29_10_2020_13_16_41" "29_10_2020_13_16_42" "29_10_2020_13_16_43" "29_10_2020_13_16_44" "29_10_2020_13_16_45" "29_10_2020_13_16_46" "29_10_2020_13_16_47" "29_10_2020_13_16_48" "29_10_2020_13_16_49" "29_10_2020_13_16_50" "29_10_2020_13_16_51" "29_10_2020_13_16_52" "29_10_2020_13_16_53" "29_10_2020_13_16_54" "29_10_2020_13_16_55" "29_10_2020_13_16_56" "29_10_2020_13_16_57" "29_10_2020_13_16_58" "29_10_2020_13_16_59" "29_10_2020_13_16_60" "29_10_2020_13_16_61" "29_10_2020_13_16_62" "29_10_2020_13_16_63" "29_10_2020_13_16_64" "29_10_2020_13_16_65" "29_10_2020_13_16_66" "29_10_2020_13_16_67" "29_10_2020_13_16_68" "29_10_2020_13_16_69" "29_10_2020_13_16_70" "29_10_2020_13_16_71" "29_10_2020_13_16_72" "29_10_2020_13_16_73" "29_10_2020_13_16_74" "29_10_2020_13_16_75" "29_10_2020_13_16_76" "29_10_2020_13_16_77" "29_10_2020_13_16_78")
 	cores=48
+	ising_level3_timestamps=("29_10_2020_13_17_31" "29_10_2020_13_17_32" "29_10_2020_13_17_33" "29_10_2020_13_17_34" "29_10_2020_13_17_35" "29_10_2020_13_17_36" "29_10_2020_13_17_37" "29_10_2020_13_17_38" "29_10_2020_13_17_39" "29_10_2020_13_17_40" "29_10_2020_13_17_41" "29_10_2020_13_17_42" "29_10_2020_13_17_43" "29_10_2020_13_17_44" "29_10_2020_13_17_45" "29_10_2020_13_17_46" "29_10_2020_13_17_47" "29_10_2020_13_17_48" "29_10_2020_13_17_49" "29_10_2020_13_17_50" "29_10_2020_13_17_51" "29_10_2020_13_17_52" "29_10_2020_13_17_53" "29_10_2020_13_17_54" "29_10_2020_13_17_55" "29_10_2020_13_17_56" "29_10_2020_13_17_57" "29_10_2020_13_17_58" "29_10_2020_13_17_59" "29_10_2020_13_17_60" "29_10_2020_13_17_61" "29_10_2020_13_17_62" "29_10_2020_13_17_63" "29_10_2020_13_17_64" "29_10_2020_13_17_65" "29_10_2020_13_17_66" "29_10_2020_13_17_67" "29_10_2020_13_17_68" "29_10_2020_13_17_69" "29_10_2020_13_17_70" "29_10_2020_13_17_71" "29_10_2020_13_17_72" "29_10_2020_13_17_73" "29_10_2020_13_17_74" "29_10_2020_13_17_75" "29_10_2020_13_17_76" "29_10_2020_13_17_77" "29_10_2020_13_17_78")
 	alphas=(0 0.0001 0.00011 0.00013 0.00015 0.00016 0.00019 0.00021 0.00024 0.00027 0.00031 0.00035 0.00039 0.00044 0.0005  0.00057 0.00064 0.00073 0.00082 0.00093 0.00105 0.00119 0.00135 0.00153 0.00173 0.00196 0.00222 0.00251 0.00284 0.00322 0.00364 0.00413 0.00467 0.00529 0.00599 0.00678 0.00767 0.00868 0.00983 0.01113 0.01259 0.01426 0.01614 0.01827 0.02068 0.02341 0.0265 1)
 	sed_prepend=""
 fi
@@ -36,17 +37,17 @@ rerun() {
 	rm ${outdir}/chbank/$1/results/*.npy
 	# rm ${outdir}/chbank/$1/physical/*.npy
 	echo "Running $1"
-	echo "${ts}" >> input/partial_decoders.txt
+	echo "${ts}" >> input/partial_decoders_l3.txt
 }
 
 display() {
 	./chflow.sh $ts
 }
 
-timestamps=("${ising_timestamps[@]}")
+timestamps=("${ising_level3_timestamps[@]}")
 
 if [[ "$1" == "overwrite" ]]; then
-	rm input/partial_decoders.txt
+	rm input/partial_decoders_l3.txt
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
 		rerun $ts
@@ -64,7 +65,7 @@ if [[ "$1" == "overwrite" ]]; then
 		done
 		echo "module load intel python scipy-stack" >> input/cedar/partial_decoders.sh
 		echo "cd /project/def-jemerson/pavi/chflow" >> input/cedar/partial_decoders.sh
-		echo "parallel --joblog partial_decoders.log ./chflow.sh {1} :::: input/partial_decoders.txt" >> input/cedar/partial_decoders.sh
+		echo "parallel --joblog partial_decoders.log ./chflow.sh {1} :::: input/partial_decoders_l3.txt" >> input/cedar/partial_decoders.sh
 		echo "sbatch input/cedar/partial_decoders.sh"
 	fi
 elif [[ "$1" == "generate" ]]; then
@@ -91,15 +92,15 @@ elif [[ "$1" == "generate" ]]; then
 		# echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
 		# sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
 
-		echo "REPLACE decoder 1,1 WITH decoder 3,3 IN input/${ts}.txt"
-		sed -i ${sed_prepend}"s/decoder 1,1/decoder 3,3/g" input/${ts}.txt
+		#echo "REPLACE decoder 1,1 WITH decoder 3,3 IN input/${ts}.txt"
+		#sed -i ${sed_prepend}"s/decoder 1,1/decoder 3,3/g" input/${ts}.txt
+		#echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
+		#sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
+
+		echo "REPLACE decoder 1,1,1 WITH decoder 3,3,3 IN input/${ts}.txt"
+		sed -i ${sed_prepend}"s/decoder 1,1,1/decoder 3,3,3/g" input/${ts}.txt
 		echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
 		sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
-
-		# echo "REPLACE decoder 1,1,1 WITH decoder 3,3,3 IN input/${ts}.txt"
-		# sed -i ${sed_prepend}"s/decoder 1,1,1/decoder 3,3,3/g" input/${ts}.txt
-		# echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
-		# sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
 
 		# echo "REPLACE ecc Steane WITH ecc Steane,Steane IN input/${ts}.txt"
 		# sed -i ${sed_prepend}"s/ecc Steane/ecc Steane,Steane/g" input/${ts}.txt
