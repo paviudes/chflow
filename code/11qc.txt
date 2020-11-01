@@ -1,0 +1,28 @@
+# This file defines the Steane [[11,1,5]] code, in http://codetables.de/QECC.php?q=4&n=11&k=1
+name
+11qc 11,1,5
+stabilizer
+X Z I Z I X I Z Z I I
+I Y I Z Z Y I I Z Z I
+I Z X I Z X I I I Z Z
+I Z Z Y I Y Z I I Z I
+I I Z Z X X Z Z I Z Z
+I I Z Z I I Y Z Z I Y
+I Z I Z Z Z Z Y I Z Y
+I I I Z I Z I Z X Z X
+I Z I Z I I Z I Z X X
+Z Z Z Z Z Z I I I I I
+logical
+X X X X X X X X X X X
+Z Z Z Z Z Z Z Z Z Z Z
+pureerror
+Z X X I I I Z I X I X
+Y I X X X I Y I I X I
+Y X X I Y Z Y Z X Z I
+Z X I X Z Z Z Y X Z I
+Z X Y Z Z Z I X I I Y
+Z X X I Z I X I I Y Z
+Z I Z Y Y I Z Z Z Z I
+Y I X Y I X I I Z Z I
+Z Y I I I X Y I I Y I
+Y Z I Z I Z Z Z I I X

@@ -5,7 +5,7 @@ ecc Steane
 # Type of quantum channel
 channel npcorr
 # Noise rates (mean delta; std delta; std theta; std phi)
-noiserange 0.1,0.1,1;1.1,1.1,1;2,2,1
+noiserange 0.1,0.1,1;0.5,0.5,1;2,2,1
 # Number of samples
 samples 1
 # Scales
@@ -23,6 +23,6 @@ metrics infid
 # Load distribution on cores.
 cores 1,1
 # Output directory
-outdir /Users/pavi/Documents/chbank
+outdir /home/oem/Documents/chbank 
 # Plot settings
 plot name,npcorr;linestyle,None
