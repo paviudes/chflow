@@ -3,11 +3,11 @@ timestamp 21_07_2020_16_28_27
 # Type of quantum error correcting code
 ecc Steane,Steane,Steane
 # Type of quantum channel
-channel npcorr
+channel ising
 # Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
 repr process
 # Noise rate exponents. The actual noise rate is (2/3)^exponent.
-noiserange 0.05,0.05,1;10,10,1;4,4,1
+noiserange 0.05,0.05,1;0.1,0.1,1;1,1,1
 # Scales of noise range.
 scale 1.0,1.0,1.0
 # Number of samples
@@ -21,7 +21,7 @@ dcfraction 0
 # Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
 frame P
 # Number of syndromes to be sampled at top level
-stats [100,109,120,132,145,159,175,193,212,232,255,281,308,339,372,409,449,494,542,596,655,719,790,868,954,1048,1151,1264,1389,1526,1676,1842,2023,2222,2442,2682,2947,3237,3556,3906,4291,4714,5179,5689,6250,6866,7543,8286,9102,10000]
+stats [100]
 # Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
 importance power
 # Metrics to be computed on the effective channels at every level.
@@ -47,5 +47,5 @@ outdir /Users/pavi/Documents/chbank
 # Randomized compiling of quantum gates.
 rc 0
 # Plot settings
-plot name,npcorr;linestyle,None
+plot name,ising;linestyle,None
 # Miscellaneous information: None
