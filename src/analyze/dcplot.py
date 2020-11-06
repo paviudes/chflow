@@ -110,9 +110,12 @@ def DecoderCompare(
 
 
 def DecoderInstanceCompare(
-    phymet, logmet, dbses, chids=[0], thresholds={"y": 10e-16, "x": 10e-16}
+    phymet, logmet, dbses_input, chids=[0], thresholds={"y": 10e-16, "x": 10e-16}
 ):
     # Compare performance of various decoders.
+    __, uniques = np.unique(np.array([int(dbs.decoder_fraction * 4 ** (dbs.eccs[0].N)) for dbs in dbses_input], dtype=np.int), return_index=True)
+    # print("uniques = {}".format(type(uniques)))
+    dbses = [dbses_input[d] for d in uniques]
     ndb = len(dbses)
     plotfname = fn.DecodersInstancePlot(dbses[0], phymet, logmet)
     nlevels = max([db.levels for db in dbses])
@@ -166,6 +169,8 @@ def DecoderInstanceCompare(
                         settings["yaxis"].append(
                             np.load(fn.LogicalErrorRates(dbses[d], logmet))[ch, l]
                         )
+                        # print("{} --- {}".format(int(dbses[d].decoder_fraction * (4 ** dbses[0].eccs[0].N)), dbses[d].timestamp))
+                        # print(dbses[d].decoder_fraction)
                 sortorder = np.argsort(settings["xaxis"])
                 settings["xaxis"] = np.array(settings["xaxis"])[sortorder]
                 settings["yaxis"] = np.array(settings["yaxis"])[sortorder]
@@ -193,6 +198,7 @@ def DecoderInstanceCompare(
                         (settings["xaxis"][i] * 1.02, settings["yaxis"][i] * 1.02),
                         color="k",
                         fontsize=gv.ticks_fontsize,
+                        rotation=0
                     )
             # Axes labels
             ax1.set_xlabel(

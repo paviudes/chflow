@@ -249,10 +249,13 @@ def MCStatsPlot(dbses, lmet, pmet, rates, nsamples=10, cutoff=1e3):
     return None
 
 
-def MCompare(dbses, pmet, lmet, rates, nsamples=10, cutoff=1e6):
+def MCompare(dbses_input, pmet, lmet, rates, nsamples=10, cutoff=1e6):
     """
     Compare the running averages from many datasets.
     """
+    __, uniques = np.unique([int(dbs.decoder_fraction * 4 ** (dbs.eccs[0].N)) for dbs in dbses_input], return_index=True)
+    # print("uniques = {}".format(uniques))
+    dbses = [dbses_input[d] for d in uniques]
     min_stats = 0
     # sampling_methods = {0: "Direct sampling", 1: "Importance sampling"}
     plotfname = MCStatsPlotFile(dbses[0], lmet, pmet)
@@ -286,6 +289,7 @@ def MCompare(dbses, pmet, lmet, rates, nsamples=10, cutoff=1e6):
             for r in range(rates.shape[0]):
                 for s in range(samples.shape[0]):
                     yaxis = running_averages[r, samples[s], xindices]
+                    print("xaxis\n{}\nyaxis\n{}".format(xaxis, yaxis))
                     linestyle = gv.line_styles[d % len(gv.line_styles)]
                     label = "$%s = %s$" % (
                         Metrics[pmet]["latex"].replace("$", ""),
@@ -296,7 +300,8 @@ def MCompare(dbses, pmet, lmet, rates, nsamples=10, cutoff=1e6):
                         yaxis,
                         linewidth=gv.line_width,
                         # label=label if d == 0 else None, ORIGINAL
-                        label="%d" % int(dbs.decoder_fraction * 4 ** (dbs.eccs[0].N)),
+                        # label="%d" % int(dbs.decoder_fraction * 4 ** (dbs.eccs[0].N)),
+                        label="%d,%s_%s" % (int(dbs.decoder_fraction * 4 ** (dbs.eccs[0].N)), dbs.timestamp[:2], dbs.timestamp[-2:]),
                         # color=gv.Colors[(r * samples.size + s) % len(gv.Colors)], ORIGINAL
                         color=gv.Colors[d % len(gv.Colors)],
                         # linestyle=linestyle, ORIGINAL
