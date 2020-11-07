@@ -217,21 +217,22 @@ elif [[ "$1" == "from_cluster" ]]; then
 		cd ${outdir}/chbank
 		tar -xvf $ts.tar.gz
 		cd ${chflowdir}
+		#### Bring from chflow
 		# echo "Bringing input file ${ts}.txt from cluster"
 		# scp pavi@cedar.computecanada.ca:/project/def-jemerson/pavi/chflow/input/$ts.txt ${chflowdir}/input
 		# echo "Bringing schedule_${ts}.txt from cluster"
 		# scp pavi@cedar.computecanada.ca:/project/def-jemerson/pavi/chflow/input/schedule_$ts.txt ${chflowdir}/input
-		
-		# echo "Bringing input file ${ts}.txt from cluster"
-		# scp pavi@cedar.computecanada.ca:/project/def-jemerson/input/$ts.txt ${chflowdir}/input
-		# echo "Bringing schedule_${ts}.txt from cluster"
-		# scp pavi@cedar.computecanada.ca:/project/def-jemerson/input/schedule_$ts.txt ${chflowdir}/input
+		#### Bring from def-jemerson/input
+		echo "Bringing input file ${ts}.txt from cluster"
+		scp pavi@cedar.computecanada.ca:/project/def-jemerson/input/$ts.txt ${chflowdir}/input
+		echo "Bringing schedule_${ts}.txt from cluster"
+		scp pavi@cedar.computecanada.ca:/project/def-jemerson/input/schedule_$ts.txt ${chflowdir}/input
 
 		echo "/project/def-jemerson WITH /Users/pavi/Documents IN input/${ts}.txt"
 		sed -i ${sed_prepend}"s/\/project\/def-jemerson/\/Users\/pavi\/Documents/g" input/${ts}.txt
 
-		echo "/home/a77jain/projects/def-jemerson WITH /Users/pavi/Documents IN input/${ts}.txt"
-		sed -i ${sed_prepend}"s/\/home\/a77jain\/projects\/def-jemerson/\/Users\/pavi\/Documents/g" input/${ts}.txt
+		# echo "/home/a77jain/projects/def-jemerson WITH /Users/pavi/Documents IN input/${ts}.txt"
+		# sed -i ${sed_prepend}"s/\/home\/a77jain\/projects\/def-jemerson/\/Users\/pavi\/Documents/g" input/${ts}.txt
 	done
 elif [[ "$1" == "display" ]]; then
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
