@@ -169,8 +169,7 @@ def DecoderInstanceCompare(
                         settings["yaxis"].append(
                             np.load(fn.LogicalErrorRates(dbses[d], logmet))[ch, l]
                         )
-                        # print("{} --- {}".format(int(dbses[d].decoder_fraction * (4 ** dbses[0].eccs[0].N)), dbses[d].timestamp))
-                        # print(dbses[d].decoder_fraction)
+                        print("{} --- {}".format(int(dbses[d].decoder_fraction * (4 ** dbses[0].eccs[0].N)), dbses[d].timestamp))
                 sortorder = np.argsort(settings["xaxis"])
                 settings["xaxis"] = np.array(settings["xaxis"])[sortorder]
                 settings["yaxis"] = np.array(settings["yaxis"])[sortorder]

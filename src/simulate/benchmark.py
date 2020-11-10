@@ -299,7 +299,7 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity, rawchan=None
 		submit.maxbin,  # arg 23
 		submit.importance,  # arg 24
 		refchan.astype(np.float64).ravel(),  # arg 25
-		infidelity,  # arg 26
+		submit.decoder_fraction,  # arg 26 # infidelity temporarily changed to submit.decoder_fraction
 	)
 	# print("bout: {}\nfields: {}".format(bout, bout._fields_))
 	# The output arrays are all vectorized. We need to reshape them.

@@ -52,7 +52,7 @@ else
 	ising_level3_imp_final_timestamps=("29_10_2020_13_17_31" "29_10_2020_13_17_32" "29_10_2020_13_17_34" "29_10_2020_13_17_36" "29_10_2020_13_17_38" "29_10_2020_13_17_40" "29_10_2020_13_17_42" "29_10_2020_13_17_44" "29_10_2020_13_17_50" "29_10_2020_13_17_53" "29_10_2020_13_17_63" "29_10_2020_13_17_66" "29_10_2020_13_17_78" "29_10_2020_13_17_79" "29_10_2020_13_17_80" "29_10_2020_13_17_81" "29_10_2020_13_17_82" "29_10_2020_13_17_83" "31_10_2020_13_17_54")
     ising_level3_dir_final_timestamps=("29_10_2021_13_17_31" "29_10_2021_13_17_32" "29_10_2021_13_17_34" "29_10_2021_13_17_36" "29_10_2021_13_17_38" "29_10_2021_13_17_40" "29_10_2021_13_17_42" "29_10_2021_13_17_44" "29_10_2021_13_17_50" "29_10_2021_13_17_53" "29_10_2021_13_17_63" "29_10_2021_13_17_66" "29_10_2021_13_17_78" "31_10_2021_13_17_54")
 	# alphas=(0 0.0001 0.00011 0.00013 0.00015 0.00016 0.00019 0.00021 0.00024 0.00027 0.00031 0.00035 0.00039 0.00044 0.0005  0.00057 0.00064 0.00073 0.00082 0.00093 0.00105 0.00119 0.00135 0.00153 0.00173 0.00196 0.00222 0.00251 0.00284 0.00322 0.00364 0.00413 0.00467 0.00529 0.00599 0.00678 0.00767 0.00868 0.00983 0.01113 0.01259 0.01426 0.01614 0.01827 0.02068 0.02341 0.0265 1)
-	alphas=(0 0.0001 0.00013 0.00021 0.00027 0.00035 0.00044 0.00093 0.00135 0.00326 0.00368 0.00467 0.00678 1)
+	alphas=(0 0.0001 0.00013 0.00021 0.00027 0.00035 0.00044 0.00093 0.00135 0.00326 0.00368 0.00378 0.00391 0.00403 0.00415 0.00427 0.00467 0.00678 1)
 
 	sed_prepend=""
 fi
@@ -61,9 +61,22 @@ fi
 
 rerun() {
 	echo "removing ${outdir}/$1/channels/*"
-	rm ${outdir}/$1/channels/*
-	rm ${outdir}/$1/metrics/*
-	rm ${outdir}/$1/results/*.npy
+	if [ -d ${outdir}/$1/channels ]; then
+		rm ${outdir}/$1/channels/*
+	else
+		echo "No channels found."
+	fi
+	if [ -d ${outdir}/$1/metrics ]; then
+		rm ${outdir}/$1/metrics/*
+	else
+		echo "No metrics found."
+	fi
+	if [ -d "${outdir}/$1/results" ]; then
+		rm ${outdir}/$1/results/*.npy
+	else
+		echo "No results found."
+	fi
+	
 	# rm ${outdir}/chbank/$1/physical/*.npy
 	echo "Running $1"
 	echo "${ts}" >> input/partial_decoders.txt
@@ -88,7 +101,7 @@ if [[ "$1" == "overwrite" ]]; then
 		echo "parallel --joblog partial_decoders.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders.txt"
 	else
 		rm input/cedar/partial_decoders.sh
-		sbcmds=("#!/bin/bash" "#SBATCH --account=def-jemerson" "#SBATCH --begin=now" "#SBATCH --nodes=1" "#SBATCH --time=05:00:00" "#SBATCH --ntasks-per-node=48" "#SBATCH -o /project/def-jemerson/chbank/partial_output.o" "#SBATCH -e /project/def-jemerson/chbank/partial_errors.o" "#SBATCH --mail-type=ALL" "#SBATCH --mail-user=pavithran.sridhar@gmail.com")
+		sbcmds=("#!/bin/bash" "#SBATCH --account=def-jemerson" "#SBATCH --begin=now" "#SBATCH --nodes=1" "#SBATCH --time=05:00:00" "#SBATCH --ntasks-per-node=48" "#SBATCH -o /project/def-jemerson/chbank/${USER}_partial_output.o" "#SBATCH -e /project/def-jemerson/chbank/${USER}_partial_errors.o" "#SBATCH --mail-type=ALL" "#SBATCH --mail-user=pavithran.sridhar@gmail.com")
 		for (( s=0; s<${#sbcmds[@]}; ++s )); do
 			echo "${sbcmds[s]}" >> input/cedar/partial_decoders.sh
 		done
@@ -111,11 +124,14 @@ elif [[ "$1" == "generate" ]]; then
 		echo "sbload ${refts}" > input/temp.txt
 		# echo "sbtwirl" >> input/temp.txt
 		echo "submit ${ts}" >> input/temp.txt
-		echo "quit" >> input/temp.txt
-		cat input/temp.txt
-		./chflow.sh -- temp.txt
-		rm input/temp.txt
+	end
 
+	echo "quit" >> input/temp.txt
+	cat input/temp.txt
+	./chflow.sh -- temp.txt
+	rm input/temp.txt
+
+	for (( t=1; t<${#timestamps[@]}; ++t )); do
 		# echo "REPLACE decoder 1 WITH decoder 3 IN input/${ts}.txt"
 		# sed -i ${sed_prepend}"s/decoder 1/decoder 3/g" input/${ts}.txt
 		# echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
