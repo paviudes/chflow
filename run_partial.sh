@@ -100,6 +100,7 @@ elif [[ "$1" == "generate" ]]; then
 
 	for (( t=1; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
+		alpha=${alphas[t]}
 		# echo "REPLACE decoder 1 WITH decoder 3 IN input/${ts}.txt"
 		# sed -i ${sed_prepend}"s/decoder 1/decoder 3/g" input/${ts}.txt
 		# echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
@@ -200,9 +201,12 @@ elif [[ "$1" == "pmetrics" ]]; then
 		rm input/temp.txt
 	done
 elif [[ "$1" == "plot" ]]; then
+	echo "sbload ${refts}" > input/temp.txt
+	echo "dciplot infid infid " >> input/temp.txt
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
 	done
+	rm input/temp.txt
 elif [[ "$1" == "to_cluster" ]]; then
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
