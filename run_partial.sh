@@ -56,6 +56,7 @@ display() {
 
 timestamps=("${ising_level3_imp_final_timestamps[@]}")
 log=ising_level3_imp_final_timestamps
+refts=${timestamps[0]}
 
 if [[ "$1" == "overwrite" ]]; then
 	rm input/partial_decoders.txt
@@ -80,7 +81,6 @@ if [[ "$1" == "overwrite" ]]; then
 		echo "sbatch input/cedar/partial_decoders.sh"
 	fi
 elif [[ "$1" == "generate" ]]; then
-	refts=${timestamps[0]}
 	refalpha=${alphas[0]}
 	echo "sbload ${refts}" > input/temp.txt
 	for (( t=1; t<${#timestamps[@]}; ++t )); do
