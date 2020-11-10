@@ -16,7 +16,8 @@ elif [[ $host == "oem-ThinkPad-X1-Carbon-Gen-8" ]]; then
 	outdir="/home/oem/Documents/chbank"
 	chflowdir="/home/oem/Desktop/Research_PhD/chflow"
 	cores=$(nproc --all)
-	ising_level3_imp_final_timestamps=("29_10_2020_13_17_31" "29_10_2020_13_17_32" "29_10_2020_13_17_34" "29_10_2020_13_17_36" "29_10_2020_13_17_38" "29_10_2020_13_17_40" "29_10_2020_13_17_42" "29_10_2020_13_17_44" "29_10_2020_13_17_50" "29_10_2020_13_17_53" "29_10_2020_13_17_63" "29_10_2020_13_17_66" "29_10_2020_13_17_78" "29_10_2020_13_17_79" "29_10_2020_13_17_80" "29_10_2020_13_17_81" "29_10_2020_13_17_82" "29_10_2020_13_17_83" "31_10_2020_13_17_54")
+	ising_level3_imp_final_timestamps=("29_10_2020_13_17_31" "29_10_2020_13_17_32" "29_10_2020_13_17_33" "29_10_2020_13_17_34" "29_10_2020_13_17_35" "29_10_2020_13_17_36" "29_10_2020_13_17_37" "29_10_2020_13_17_38" )
+	alphas=(0 0.00013 0.00027 0.00093 0.00368 0.00391 0.00415 0.00678)
 else
 	outdir="/project/def-jemerson/chbank"
 	chflowdir="/project/def-jemerson/${USER}/chflow"
@@ -43,7 +44,7 @@ rerun() {
 	else
 		echo "No results found."
 	fi
-	
+
 	# rm ${outdir}/$1/physical/*.npy
 	echo "Running $1"
 	echo "${ts}" >> input/partial_decoders.txt
