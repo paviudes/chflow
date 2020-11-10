@@ -8,9 +8,9 @@ if [[ $host == *"paviws"* ]]; then
 	# report_dir="/Users/pavi/OneDrive\ -\ University\ of\ Waterloo/chbank/Nov4"
 	cores=$(sysctl -n hw.ncpu)
 	sed_prepend="'' "
-	ising_level3_imp_final_timestamps=("29_10_2020_13_17_31" "29_10_2020_13_17_32" "29_10_2020_13_17_34" "29_10_2020_13_17_36" "29_10_2020_13_17_38" "29_10_2020_13_17_40" "29_10_2020_13_17_42" "29_10_2020_13_17_44" "29_10_2020_13_17_50" "29_10_2020_13_17_53" "29_10_2020_13_17_63" "29_10_2020_13_17_66" "29_10_2020_13_17_78" "29_10_2020_13_17_79" "29_10_2020_13_17_80" "29_10_2020_13_17_81" "29_10_2020_13_17_82" "29_10_2020_13_17_83" "31_10_2020_13_17_54")
+	ising_level3_imp_final_timestamps=("29_10_2020_13_17_31" "29_10_2020_13_17_32" "29_10_2020_13_17_34" "29_10_2020_13_17_36" "29_10_2020_13_17_38" "29_10_2020_13_17_40" "29_10_2020_13_17_42" "29_10_2020_13_17_44" "29_10_2020_13_17_50" "29_10_2020_13_17_53" "29_10_2020_13_17_63" "29_10_2020_13_17_66")
     ## Cluster runs
-    alphas=(0 0.0001 0.00013 0.00021 0.00027 0.00035 0.00044 0.00093 0.00135 0.00326 0.00368 0.00378 0.00391 0.00403 0.00415 0.00427 0.00467 0.00678 1)
+    alphas=(0 0.00021 0.00027 0.00135 0.00326 0.00378 0.00391 0.00415 0.00427 0.00467 0.00678 1)
 
 elif [[ $host == "oem-ThinkPad-X1-Carbon-Gen-8" ]]; then
 	outdir="/home/oem/Documents/chbank"
@@ -82,15 +82,13 @@ if [[ "$1" == "overwrite" ]]; then
 elif [[ "$1" == "generate" ]]; then
 	refts=${timestamps[0]}
 	refalpha=${alphas[0]}
+	echo "sbload ${refts}" > input/temp.txt
 	for (( t=1; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
 		alpha=${alphas[t]}
 		echo "alpha = ${alpha}"
-
 		echo -e "\033[2mremoving ${outdir}/${ts}/physical/*\033[0m"
 		rm ${outdir}/${ts}/physical/*
-
-		echo "sbload ${refts}" > input/temp.txt
 		# echo "sbtwirl" >> input/temp.txt
 		echo "submit ${ts}" >> input/temp.txt
 	done
