@@ -202,10 +202,11 @@ elif [[ "$1" == "pmetrics" ]]; then
 	done
 elif [[ "$1" == "plot" ]]; then
 	echo "sbload ${refts}" > input/temp.txt
-	echo "dciplot infid infid " >> input/temp.txt
-	for (( t=0; t<${#timestamps[@]}; ++t )); do
-		ts=${timestamps[t]}
-	done
+	printf -v joined_timestamps '%s,' "${timestamps[@]:1}"
+	echo "dciplot infid infid ${joined_timestamps}" >> input/temp.txt
+	echo "mcplot infid infid 1 1 ${joined_timestamps}" >> input/temp.txt
+	echo "quit" >> input/temp.txt
+	./chflow -- temp.txt
 	rm input/temp.txt
 elif [[ "$1" == "to_cluster" ]]; then
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
