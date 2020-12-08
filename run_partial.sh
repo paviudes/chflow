@@ -26,6 +26,7 @@ elif [[ $host == "oem-ThinkPad-X1-Carbon-Gen-8" ]]; then
 	pcorr_level3=("pcorr_l3_08_12_2020_00" "pcorr_l3_08_12_2020_01" "pcorr_l3_08_12_2020_02" "pcorr_l3_08_12_2020_03" "pcorr_l3_08_12_2020_04" "pcorr_l3_08_12_2020_05" "pcorr_l3_08_12_2020_06" "pcorr_l3_08_12_2020_07")
 	alphas=(0 0.00013 0.00027 0.00093 0.00368 0.00391 0.00415 0.00678)
 else
+	cluster="$2"
 	outdir="/project/def-jemerson/chbank"
 	chflowdir="/project/def-jemerson/${USER}/chflow"
 	cores=48
@@ -80,15 +81,16 @@ if [[ "$1" == "overwrite" ]]; then
 	elif [[ $host == "oem-ThinkPad-X1-Carbon-Gen-8" ]]; then
 		echo "parallel --joblog partial_decoders.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders.txt"
 	else
-		rm input/cedar/partial_decoders.sh
+		mkdir -p input/${cluster}
+		rm input/${cluster}/partial_decoders.sh
 		sbcmds=("#!/bin/bash" "#SBATCH --account=def-jemerson" "#SBATCH --begin=now" "#SBATCH --nodes=1" "#SBATCH --time=05:00:00" "#SBATCH --ntasks-per-node=48" "#SBATCH -o /project/def-jemerson/chbank/${USER}_partial_output.o" "#SBATCH -e /project/def-jemerson/chbank/${USER}_partial_errors.o" "#SBATCH --mail-type=ALL" "#SBATCH --mail-user=pavithran.sridhar@gmail.com")
 		for (( s=0; s<${#sbcmds[@]}; ++s )); do
-			echo "${sbcmds[s]}" >> input/cedar/partial_decoders.sh
+			echo "${sbcmds[s]}" >> input/${cluster}/partial_decoders.sh
 		done
-		echo "module load intel python scipy-stack" >> input/cedar/partial_decoders.sh
-		echo "cd /project/def-jemerson/pavi/chflow" >> input/cedar/partial_decoders.sh
-		echo "parallel --joblog partial_decoders.log ./chflow.sh {1} :::: input/partial_decoders.txt" >> input/cedar/partial_decoders.sh
-		echo "sbatch input/cedar/partial_decoders.sh"
+		echo "module load intel python scipy-stack" >> input/${cluster}/partial_decoders.sh
+		echo "cd /project/def-jemerson/pavi/chflow" >> input/${cluster}/partial_decoders.sh
+		echo "parallel --joblog partial_decoders.log ./chflow.sh {1} :::: input/partial_decoders.txt" >> input/${cluster}/partial_decoders.sh
+		echo "sbatch input/${cluster}/partial_decoders.sh"
 	fi
 elif [[ "$1" == "generate" ]]; then
 	refalpha=${alphas[0]}
@@ -226,11 +228,11 @@ elif [[ "$1" == "to_cluster" ]]; then
 		echo "zipping ${outdir}/${ts}"
 		tar -zcvf ${outdir}/${ts}.tar.gz ${outdir}/${ts}
 		echo "Sending output ${ts} to cluster"
-		scp /Users/pavi/Documents/chbank/${ts}.tar.gz pavi@cedar.computecanada.ca:/project/def-jemerson/chbank/
+		scp /Users/pavi/Documents/chbank/${ts}.tar.gz pavi@${cluster}.computecanada.ca:/project/def-jemerson/chbank/
 		echo "Sending input file ${ts}.txt to cluster"
-		scp /Users/pavi/Dropbox/rclearn/chflow/input/$ts.txt pavi@cedar.computecanada.ca:/project/def-jemerson/pavi/chflow/input/
+		scp /Users/pavi/Dropbox/rclearn/chflow/input/$ts.txt pavi@${cluster}.computecanada.ca:/project/def-jemerson/pavi/chflow/input/
 		echo "Sending input file schedule_${ts}.txt to cluster"
-		scp /Users/pavi/Dropbox/rclearn/chflow/input/schedule_$ts.txt pavi@cedar.computecanada.ca:/project/def-jemerson/pavi/chflow/input/
+		scp /Users/pavi/Dropbox/rclearn/chflow/input/schedule_$ts.txt pavi@${cluster}.computecanada.ca:/project/def-jemerson/pavi/chflow/input/
 	done
 elif [[ "$1" == "from_cluster" ]]; then
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
@@ -238,20 +240,20 @@ elif [[ "$1" == "from_cluster" ]]; then
 		echo "Trashing ${ts}"
 		trash ${outdir}/$ts
 		echo "Bringing output ${ts} from cluster"
-		scp -r pavi@cedar.computecanada.ca:/project/def-jemerson/chbank/$ts.tar.gz ${outdir}
+		scp -r pavi@${cluster}.computecanada.ca:/project/def-jemerson/chbank/$ts.tar.gz ${outdir}
 		cd ${outdir}
 		tar -xvf $ts.tar.gz
 		cd ${chflowdir}
 		#### Bring from chflow
 		echo "Bringing input file ${ts}.txt from cluster"
-		scp pavi@cedar.computecanada.ca:/project/def-jemerson/pavi/chflow/input/$ts.txt ${chflowdir}/input
+		scp pavi@${cluster}.computecanada.ca:/project/def-jemerson/pavi/chflow/input/$ts.txt ${chflowdir}/input
 		echo "Bringing schedule_${ts}.txt from cluster"
-		scp pavi@cedar.computecanada.ca:/project/def-jemerson/pavi/chflow/input/schedule_$ts.txt ${chflowdir}/input
+		scp pavi@${cluster}.computecanada.ca:/project/def-jemerson/pavi/chflow/input/schedule_$ts.txt ${chflowdir}/input
 		#### Bring from def-jemerson/input
 		# echo "Bringing input file ${ts}.txt from cluster"
-		# scp pavi@cedar.computecanada.ca:/project/def-jemerson/input/$ts.txt ${chflowdir}/input
+		# scp pavi@${cluster}.computecanada.ca:/project/def-jemerson/input/$ts.txt ${chflowdir}/input
 		# echo "Bringing schedule_${ts}.txt from cluster"
-		# scp pavi@cedar.computecanada.ca:/project/def-jemerson/input/schedule_$ts.txt ${chflowdir}/input
+		# scp pavi@${cluster}.computecanada.ca:/project/def-jemerson/input/schedule_$ts.txt ${chflowdir}/input
 		#### Prepare output directory after moving from cluster.
 		echo "/project/def-jemerson WITH /Users/pavi/Documents IN input/${ts}.txt"
 		sed -i ${sed_prepend}"s/\/project\/def-jemerson/\/Users\/pavi\/Documents/g" input/${ts}.txt
