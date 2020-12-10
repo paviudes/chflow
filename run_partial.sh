@@ -1,10 +1,11 @@
 #!/bin/bash
 host=$(hostname)
 echo "Host: $host"
+cluster="$2"
 
 if [[ $host == *"paviws"* ]]; then
 	outdir="/Users/pavi/Documents/chbank"
-	chflowdir="/Users/pavi/Dropbox/rclearn/chflow"
+	chflowdir="/Users/pavi/Documents/rclearn/chflow"
 	# report_dir="/Users/pavi/OneDrive\ -\ University\ of\ Waterloo/chbank/Nov4"
 	cores=$(sysctl -n hw.ncpu)
 	sed_prepend="'' "
@@ -25,16 +26,18 @@ elif [[ $host == "oem-ThinkPad-X1-Carbon-Gen-8" ]]; then
 	pcorr_level3=("pcorr_l3_08_12_2020_00" "pcorr_l3_08_12_2020_01" "pcorr_l3_08_12_2020_02" "pcorr_l3_08_12_2020_03" "pcorr_l3_08_12_2020_04" "pcorr_l3_08_12_2020_05" "pcorr_l3_08_12_2020_06" "pcorr_l3_08_12_2020_07")
 	alphas=(0 0.00013 0.00027 0.00093 0.00368 0.00391 0.00415 0.00678)
 else
-	cluster="$2"
 	outdir="/project/def-jemerson/chbank"
 	chflowdir="/project/def-jemerson/${USER}/chflow"
+	sed_prepend=""
+fi
+
+if [[ ! -z "$cluster" ]]; then
 	cores=32 # 48 for cedar and 32 for graham
 	ising_level3=("ising_l3_08_12_2020_00" "ising_l3_08_12_2020_01" "ising_l3_08_12_2020_02" "ising_l3_08_12_2020_03" "ising_l3_08_12_2020_04" "ising_l3_08_12_2020_05" "ising_l3_08_12_2020_06" "ising_l3_08_12_2020_07" "ising_l3_08_12_2020_08" "ising_l3_08_12_2020_09" "ising_l3_08_12_2020_10" "ising_l3_08_12_2020_11" "ising_l3_08_12_2020_12" "ising_l3_08_12_2020_13" "ising_l3_08_12_2020_14" "ising_l3_08_12_2020_15" "ising_l3_08_12_2020_16" "ising_l3_08_12_2020_17" "ising_l3_08_12_2020_18")
 	npcorr_level2=("npcorr_l2_08_12_2020_00" "npcorr_l2_08_12_2020_01" "npcorr_l2_08_12_2020_02" "npcorr_l2_08_12_2020_03" "npcorr_l2_08_12_2020_04" "npcorr_l2_08_12_2020_05" "npcorr_l2_08_12_2020_06" "npcorr_l2_08_12_2020_07" "npcorr_l2_08_12_2020_08" "npcorr_l2_08_12_2020_09" "npcorr_l2_08_12_2020_10" "npcorr_l2_08_12_2020_11" "npcorr_l2_08_12_2020_12" "npcorr_l2_08_12_2020_13" "npcorr_l2_08_12_2020_14" "npcorr_l2_08_12_2020_15" "npcorr_l2_08_12_2020_16" "npcorr_l2_08_12_2020_17" "npcorr_l2_08_12_2020_18")
 	pcorr_level2=("pcorr_l2_08_12_2020_00" "pcorr_l2_08_12_2020_01" "pcorr_l2_08_12_2020_02" "pcorr_l2_08_12_2020_03" "pcorr_l2_08_12_2020_04" "pcorr_l2_08_12_2020_05" "pcorr_l2_08_12_2020_06" "pcorr_l2_08_12_2020_07" "pcorr_l2_08_12_2020_08" "pcorr_l2_08_12_2020_09" "pcorr_l2_08_12_2020_10" "pcorr_l2_08_12_2020_11" "pcorr_l2_08_12_2020_12" "pcorr_l2_08_12_2020_13" "pcorr_l2_08_12_2020_14" "pcorr_l2_08_12_2020_15" "pcorr_l2_08_12_2020_16" "pcorr_l2_08_12_2020_17" "pcorr_l2_08_12_2020_18")
 	pcorr_level3=("pcorr_l3_08_12_2020_00" "pcorr_l3_08_12_2020_01" "pcorr_l3_08_12_2020_02" "pcorr_l3_08_12_2020_03" "pcorr_l3_08_12_2020_04" "pcorr_l3_08_12_2020_05" "pcorr_l3_08_12_2020_06" "pcorr_l3_08_12_2020_07" "pcorr_l3_08_12_2020_08" "pcorr_l3_08_12_2020_09" "pcorr_l3_08_12_2020_10" "pcorr_l3_08_12_2020_11" "pcorr_l3_08_12_2020_12" "pcorr_l3_08_12_2020_13" "pcorr_l3_08_12_2020_14" "pcorr_l3_08_12_2020_15" "pcorr_l3_08_12_2020_16" "pcorr_l3_08_12_2020_17" "pcorr_l3_08_12_2020_18")
     alphas=(0 0.0001 0.00013 0.00021 0.00027 0.00035 0.00044 0.00093 0.00135 0.00326 0.00368 0.00378 0.00391 0.00403 0.00415 0.00427 0.00467 0.00678 1)
-	sed_prepend=""
 fi
 
 rerun() {
@@ -64,8 +67,8 @@ display() {
 	./chflow.sh $ts
 }
 
-timestamps=("${ising_level3[@]}")
-log=ising_level3
+timestamps=("${pcorr_level3[@]}")
+log=pcorr_level3
 refts=${timestamps[0]}
 
 if [[ "$1" == "overwrite" ]]; then
@@ -229,9 +232,9 @@ elif [[ "$1" == "to_cluster" ]]; then
 		echo "Sending output ${ts} to cluster"
 		scp /Users/pavi/Documents/chbank/${ts}.tar.gz pavi@${cluster}.computecanada.ca:/project/def-jemerson/chbank/
 		echo "Sending input file ${ts}.txt to cluster"
-		scp /Users/pavi/Dropbox/rclearn/chflow/input/$ts.txt pavi@${cluster}.computecanada.ca:/project/def-jemerson/pavi/chflow/input/
+		scp /Users/pavi/Documents/rclearn/chflow/input/$ts.txt pavi@${cluster}.computecanada.ca:/project/def-jemerson/pavi/chflow/input/
 		echo "Sending input file schedule_${ts}.txt to cluster"
-		scp /Users/pavi/Dropbox/rclearn/chflow/input/schedule_$ts.txt pavi@${cluster}.computecanada.ca:/project/def-jemerson/pavi/chflow/input/
+		scp /Users/pavi/Documents/rclearn/chflow/input/schedule_$ts.txt pavi@${cluster}.computecanada.ca:/project/def-jemerson/pavi/chflow/input/
 	done
 elif [[ "$1" == "from_cluster" ]]; then
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
