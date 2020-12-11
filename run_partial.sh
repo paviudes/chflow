@@ -79,19 +79,23 @@ if [[ "$1" == "overwrite" ]]; then
 		echo "xxxxxxx"
 	done
 	if [[ $host == *"paviws"* ]]; then
+		echo "Run the following command."
 		echo "parallel --joblog partial_decoders.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders.txt"
 	elif [[ $host == "oem-ThinkPad-X1-Carbon-Gen-8" ]]; then
+		echo "Run the following command."
 		echo "parallel --joblog partial_decoders.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders.txt"
 	else
 		mkdir -p input/${cluster}
 		rm input/${cluster}/partial_decoders.sh
-		sbcmds=("#!/bin/bash" "#SBATCH --account=def-jemerson" "#SBATCH --begin=now" "#SBATCH --nodes=1" "#SBATCH --time=05:00:00" "#SBATCH --ntasks-per-node=48" "#SBATCH -o /project/def-jemerson/chbank/${USER}_partial_output.o" "#SBATCH -e /project/def-jemerson/chbank/${USER}_partial_errors.o" "#SBATCH --mail-type=ALL" "#SBATCH --mail-user=pavithran.sridhar@gmail.com")
+		sbcmds=("#!/bin/bash" "#SBATCH --account=def-jemerson" "#SBATCH --begin=now" "#SBATCH --nodes=1" "#SBATCH --time=05:00:00" "#SBATCH --ntasks-per-node=48" "#SBATCH -o /project/def-jemerson/chbank/${USER}_${log}_output.o" "#SBATCH -e /project/def-jemerson/chbank/${USER}_${log}_errors.o" "#SBATCH --mail-type=ALL" "#SBATCH --mail-user=pavithran.sridhar@gmail.com")
 		for (( s=0; s<${#sbcmds[@]}; ++s )); do
 			echo "${sbcmds[s]}" >> input/${cluster}/partial_decoders.sh
 		done
 		echo "module load intel python scipy-stack" >> input/${cluster}/partial_decoders.sh
 		echo "cd /project/def-jemerson/${USER}/chflow" >> input/${cluster}/partial_decoders.sh
 		echo "parallel --joblog partial_decoders.log ./chflow.sh {1} :::: input/partial_decoders.txt" >> input/${cluster}/partial_decoders.sh
+		echo "xxxxxxx"
+		echo "Run the following command."
 		echo "sbatch input/${cluster}/partial_decoders.sh"
 	fi
 elif [[ "$1" == "generate" ]]; then

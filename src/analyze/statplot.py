@@ -289,7 +289,7 @@ def MCompare(dbses_input, pmet, lmet, rates, nsamples=10, cutoff=1e6):
             for r in range(rates.shape[0]):
                 for s in range(samples.shape[0]):
                     yaxis = running_averages[r, samples[s], xindices]
-                    print("xaxis\n{}\nyaxis\n{}".format(xaxis, yaxis))
+                    # print("xaxis\n{}\nyaxis\n{}".format(xaxis, yaxis))
                     linestyle = gv.line_styles[d % len(gv.line_styles)]
                     label = "$%s = %s$" % (
                         Metrics[pmet]["latex"].replace("$", ""),
