@@ -33,8 +33,9 @@ refs/
 input/**
 #!input/sample_*.txt
 
-# Log file
+# Log files
 src/log.txt
+*.log
 
 # Optimization report from icc
 **/*.optrpt
