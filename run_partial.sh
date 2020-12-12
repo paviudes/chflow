@@ -67,8 +67,8 @@ display() {
 	./chflow.sh $ts
 }
 
-timestamps=("${ising_level3[@]}")
-log=ising_level3
+timestamps=("${pcorr_level3[@]}")
+log=pcorr_level3
 refts=${timestamps[0]}
 
 if [[ "$1" == "overwrite" ]]; then
@@ -80,10 +80,10 @@ if [[ "$1" == "overwrite" ]]; then
 	done
 	if [[ $host == *"paviws"* ]]; then
 		echo "Run the following command."
-		echo "parallel --joblog partial_decoders_${log}.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders_${log}.txt"
+		echo "\033[4mparallel --joblog partial_decoders_${log}.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders_${log}.txt\033[0m"
 	elif [[ $host == "oem-ThinkPad-X1-Carbon-Gen-8" ]]; then
 		echo "Run the following command."
-		echo "parallel --joblog partial_decoders_${log}.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders_${log}.txt"
+		echo "\033[4mparallel --joblog partial_decoders_${log}.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders_${log}.txt\033[0m"
 	else
 		mkdir -p input/${cluster}
 		rm input/${cluster}/partial_decoders_${log}.sh

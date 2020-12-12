@@ -17,7 +17,7 @@ from define.randchans import (
 from define import photonloss as pl
 from define import gendamp as gd
 from define import chanreps as crep
-from define.QECCLfid.multi_qubit_kraus import get_process_chi
+from define.QECCLfid.chans import get_process_chi
 
 
 def Identity():
@@ -418,11 +418,14 @@ def GetKraussForChannel(chType, *params):
         # This is a correlated Pauli channel.
         krauss = CorrelatedPauli(params)
 
-    elif chType == "npcorr":
-        krauss = CorrelatedNonPauli(params, "random")
+    elif chType == "usum":
+        krauss = CorrelatedNonPauli(params, "sum_unitaries")
 
     elif chType == "ising":
         krauss = CorrelatedNonPauli(params, "ising")
+
+    elif chType == "csum":
+        krauss = CorrelatedNonPauli(params, "sum_cptps")
 
     elif chType == "wpc":
         # Worst Pauli channel for a infidelity
