@@ -121,7 +121,7 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity, rawchan=None
 		dtype=np.int32,
 	)
 
-	if (submit.decoders)[0] == 3:
+	if (submit.decoders)[0] == 3 or (submit.decoders)[0] == 4: # Introduced decoder 4 to capture top alpha grouped by weight
 		if submit.iscorr == 0:
 			chan_probs = np.tile(
 				np.real(np.diag(ConvertRepresentations(physical, "process", "chi"))),
@@ -138,7 +138,10 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity, rawchan=None
 				)
 		else:
 			chan_probs = rawchan
-		mpinfo = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, submit.eccs[0]).astype(np.float64)
+		if (submit.decoders)[0] == 3:
+			mpinfo = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, submit.eccs[0], option="full").astype(np.float64)
+		else:
+			mpinfo = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, submit.eccs[0], option="weight").astype(np.float64)
 	else:
 		mpinfo = np.zeros(4**submit.eccs[0].N, dtype=np.float64)
 

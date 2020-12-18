@@ -5,24 +5,39 @@ from define.chanreps import PauliConvertToTransfer
 from define import fnames as fn
 
 
-def GetLeadingPaulis(lead_frac, qcode, chan_probs):
+def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, max_weight = None):
     # Get the leading Pauli probabilities in the iid model.
     # To get the indices of the k-largest elements: https://stackoverflow.com/questions/6910641/how-do-i-get-indices-of-n-maximum-values-in-a-numpy-array
-    nPaulis = max(1, int(lead_frac * (4 ** qcode.N)))
+    # If the option is "full", it supplies top alpha fraction of entire chi diagonal
+    # If the option is "weight", it supplies top alpha fraction of each weight until max weight
     if chan_probs.ndim == 1:
         iid_chan_probs = chan_probs
     else:
         iid_chan_probs = ut.GetErrorProbabilities(
             qcode.PauliOperatorsLST, chan_probs, 0
         )
-    leading_paulis = np.argsort(iid_chan_probs)[-nPaulis:]
+    if option == "full":
+        nPaulis = max(1, int(lead_frac * (4 ** qcode.N)))
+        leading_paulis = np.argsort(iid_chan_probs)[-nPaulis:]
+    elif option == "weight":
+        if max_weight is None:
+            max_weight = qcode.N//2 + 1
+        if qcode.group_by_weight is None:
+            PrepareSyndromeLookUp(qcode)
+        n_errors_weight = [qcode.group_by_weight[w].size for w in range(max_weight + 1)]
+        leading_paulis = np.array([],dtype=np.int)
+        for w in range(max_weight+1):
+            errors_wtw = qcode.group_by_weight[w]
+            nPaulis = max(1, int(lead_frac * n_errors_weight[w]))
+            indices_picked = errors_wtw[np.argsort(iid_chan_probs[errors_wtw])[-nPaulis:]]
+            leading_paulis = np.concatenate((leading_paulis,indices_picked))
     return (1 - iid_chan_probs[0], leading_paulis, iid_chan_probs[leading_paulis])
 
 
-def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode):
+def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full"):
     # Complete the probabilities given to a ML decoder.
     (infid, known_paulis, known_probs) = GetLeadingPaulis(
-        leading_fraction, qcode, chan_probs
+        leading_fraction, qcode, chan_probs, option
     )
     # print(
     #     "Number of known paulis in decoder knowledge = {}".format(known_paulis.shape[0])
