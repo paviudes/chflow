@@ -140,7 +140,7 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity, rawchan=None
 			chan_probs = rawchan
 		if (submit.decoders)[0] == 3:
 			mpinfo = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, submit.eccs[0], option="full").astype(np.float64)
-		else:
+		else: # decoder is 4 i.e use top alpha by weight
 			mpinfo = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, submit.eccs[0], option="weight").astype(np.float64)
 	else:
 		mpinfo = np.zeros(4**submit.eccs[0].N, dtype=np.float64)
@@ -171,7 +171,11 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity, rawchan=None
 		] = np.imag(submit.eccs[l].normphases.ravel()).astype(np.float64)
 
 		# Decoding preferences
-		decoders[l] = submit.decoders[l]
+		# Pass 3 in place of 4 as well -- same for backend
+		if submit.decoders[l] == 4:
+			decoders[l] = 3
+		else:
+			decoders[l] = submit.decoders[l]
 		dclookups[s_count : (s_count + nstabs)] = submit.eccs[l].lookup[:, 0]
 
 		s_count = s_count + nstabs
