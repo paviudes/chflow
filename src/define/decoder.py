@@ -39,6 +39,10 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full
     (infid, known_paulis, known_probs) = GetLeadingPaulis(
         leading_fraction, qcode, chan_probs, option
     )
+    """
+    Create a function similar to GetLeadingPaulis.
+    This function will simply identify the Pauli indices (in LST) we need to keep from NR.
+    """
     # print(
     #     "Number of known paulis in decoder knowledge = {}".format(known_paulis.shape[0])
     # )
