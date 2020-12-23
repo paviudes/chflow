@@ -176,7 +176,7 @@ Channels = {
 		"Pauli": 0,
 		"corr": 3,
 	},
-	"csum": {
+	"cptp": {
 		"name": "Correlated non Pauli channel as sum of CPTP maps",
 		"params": ["Angle", "Cutoff", "Number of maps"],
 		"latex": ["$\\theta$", "K", "$n_{\\mathsf{maps}}$"],

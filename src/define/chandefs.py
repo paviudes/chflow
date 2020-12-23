@@ -424,7 +424,7 @@ def GetKraussForChannel(chType, *params):
     elif chType == "ising":
         krauss = CorrelatedNonPauli(params, "ising")
 
-    elif chType == "csum":
+    elif chType == "cptp":
         krauss = CorrelatedNonPauli(params, "sum_cptps")
 
     elif chType == "wpc":

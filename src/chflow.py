@@ -511,7 +511,7 @@ if __name__ == "__main__":
                     # print("Physical channels not found")
                     # If the simulation is to be run on a cluster, generate input using cluster nodes.
                     if submit.chgen_cluster == 0:
-                        PreparePhysicalChannels(submit)
+                        PreparePhysicalChannels(submit, nproc=1)
                 else:
                     IsComplete(submit)
 
