@@ -77,6 +77,13 @@ def PhysicalChannel(dbs, noise):
     return fname
 
 
+def ChannelInformationFile(dbs, noise):
+    # Name of the file containing the physical channel
+    noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
+    fname = "%s/physical/info_%s_%s.txt" % (dbs.outdir, dbs.channel, noisedes)
+    return fname
+
+
 def RawPhysicalChannel(dbs, noise):
     # Name of the file containing the physical channel
     noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))

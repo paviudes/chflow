@@ -17,7 +17,7 @@ from define.randchans import (
 from define import photonloss as pl
 from define import gendamp as gd
 from define import chanreps as crep
-from define.QECCLfid.chans import get_process_chi
+from define.QECCLfid.chans import GetProcessChi
 
 
 def Identity():
@@ -287,8 +287,8 @@ def CorrelatedNonPauli(params, method):
     """
     Return a correlated non-Pauli channel in the Pauli-Liouville respresentation.
     """
-    (phychan, rawchan) = get_process_chi(params[0], method, *params[1:])
-    return (phychan, rawchan)
+    (phychan, rawchan, interactions) = GetProcessChi(params[0], method, *params[1:])
+    return (phychan, rawchan, interactions)
 
 
 def CorrelatedPauli(params):

@@ -76,6 +76,8 @@ def PreparePhysicalChannels(submit, nproc=None):
             (submit.noiserates.shape[0] * submit.samps * raw_params), dtype=np.double
         ),
     )
+    misc_info = [["None" for __ in range(submit.samps)] for __ in range(submit.noiserates.shape[0])]
+
     for i in tqdm(
         range(submit.noiserates.shape[0]),
         ascii=True,
@@ -89,6 +91,7 @@ def PreparePhysicalChannels(submit, nproc=None):
                 noise[j] = np.power(submit.scales[j], submit.noiserates[i, j])
         # if submit.iscorr > 0:
         #     noise = np.insert(noise, 0, submit.eccs[0].N)
+        misc = mp.Queue()
         processes = []
         for k in range(nproc):
             processes.append(
@@ -103,6 +106,7 @@ def PreparePhysicalChannels(submit, nproc=None):
                         raw_params,
                         phychans,
                         rawchans,
+                        misc
                     ),
                 )
             )
@@ -110,6 +114,13 @@ def PreparePhysicalChannels(submit, nproc=None):
             processes[k].start()
         for k in range(nproc):
             processes[k].join()
+        # Gathering the interactions results
+        for s in range(submit.samps):
+            (samp, info) = misc.get()
+            if (info == 0):
+                info = ([("N", "N")], 0, 0, 0)
+            misc_info[i][samp] = info
+
     print("\033[0m")
     submit.phychans = np.reshape(
         phychans, [submit.noiserates.shape[0], submit.samps, nparams], order="c"
@@ -117,12 +128,14 @@ def PreparePhysicalChannels(submit, nproc=None):
     submit.rawchans = np.reshape(
         rawchans, [submit.noiserates.shape[0], submit.samps, raw_params], order="c"
     )
+    # The miscellaneous info for correlated CPTP channels contains the interactions used to generate it.
+    submit.misc = misc_info
     # print("Physical channels: {}".format(submit.phychans))
     return None
 
 
 def GenChannelSamples(
-    noise, noiseidx, samps, submit, nparams, raw_params, phychans, rawchans
+    noise, noiseidx, samps, submit, nparams, raw_params, phychans, rawchans, misc
 ):
     r"""
 	Generate samples of various channels with a given noise rate.
@@ -166,6 +179,8 @@ def GenChannelSamples(
                     "chi",
                 )
             ).ravel()
+            misc.put((j, 0))
+
         elif submit.iscorr == 1:
             rawchans[
                 (noiseidx * submit.samps * raw_params + j * raw_params) : (
@@ -187,6 +202,8 @@ def GenChannelSamples(
                 ),
                 submit.eccs[0],
             )
+            misc.put((j, 0))
+
         elif submit.iscorr == 2:
             chans = chdef.GetKraussForChannel(submit.channel, submit.eccs[0].N, *noise)
             nentries = 4 ** submit.eccs[0].K * 4 ** submit.eccs[0].K
@@ -230,6 +247,8 @@ def GenChannelSamples(
                         "chi",
                     )
                 ).ravel()
+            misc.put((j, 0))
+
         else:
             (
                 phychans[
@@ -242,5 +261,7 @@ def GenChannelSamples(
                         noiseidx * submit.samps * raw_params + (j + 1) * raw_params
                     )
                 ],
+                interactions # Information about the different interactions.
             ) = chdef.GetKraussForChannel(submit.channel, submit.eccs[0], *noise)
+            misc.put((j, interactions))
     return None
