@@ -8,15 +8,15 @@ if [[ $host == *"paviws"* ]]; then
 	chflowdir="/Users/pavi/Documents/rclearn/chflow"
 	# report_dir="/Users/pavi/OneDrive\ -\ University\ of\ Waterloo/chbank/Nov4"
 	cores=$(sysctl -n hw.ncpu)
-	sed_prepend="'' "
+	sed_prepend="''"
 	ising_level3=("ising_l3_08_12_2020_00" "ising_l3_08_12_2020_01" "ising_l3_08_12_2020_02" "ising_l3_08_12_2020_03" "ising_l3_08_12_2020_04" "ising_l3_08_12_2020_05" "ising_l3_08_12_2020_06" "ising_l3_08_12_2020_07" "ising_l3_08_12_2020_08" "ising_l3_08_12_2020_09" "ising_l3_08_12_2020_10" "ising_l3_08_12_2020_11")
 	npcorr_level2=("npcorr_l2_08_12_2020_00" "npcorr_l2_08_12_2020_01" "npcorr_l2_08_12_2020_02" "npcorr_l2_08_12_2020_03" "npcorr_l2_08_12_2020_04" "npcorr_l2_08_12_2020_05" "npcorr_l2_08_12_2020_06" "npcorr_l2_08_12_2020_07" "npcorr_l2_08_12_2020_08" "npcorr_l2_08_12_2020_09" "npcorr_l2_08_12_2020_10" "npcorr_l2_08_12_2020_11")
 	pcorr_level2=("pcorr_l2_08_12_2020_00" "pcorr_l2_08_12_2020_01" "pcorr_l2_08_12_2020_02" "pcorr_l2_08_12_2020_03" "pcorr_l2_08_12_2020_04" "pcorr_l2_08_12_2020_05" "pcorr_l2_08_12_2020_06" "pcorr_l2_08_12_2020_07" "pcorr_l2_08_12_2020_08" "pcorr_l2_08_12_2020_09" "pcorr_l2_08_12_2020_10" "pcorr_l2_08_12_2020_11")
 	pcorr_level3=("pcorr_l3_08_12_2020_00" "pcorr_l3_08_12_2020_01" "pcorr_l3_08_12_2020_02" "pcorr_l3_08_12_2020_03" "pcorr_l3_08_12_2020_04" "pcorr_l3_08_12_2020_05" "pcorr_l3_08_12_2020_06" "pcorr_l3_08_12_2020_07" "pcorr_l3_08_12_2020_08" "pcorr_l3_08_12_2020_09" "pcorr_l3_08_12_2020_10" "pcorr_l3_08_12_2020_11")
 	cptp_level2=("cptp_l2_08_12_2020_00" "cptp_l2_08_12_2020_01" "cptp_l2_08_12_2020_02" "cptp_l2_08_12_2020_03" "cptp_l2_08_12_2020_04" "cptp_l2_08_12_2020_05" "cptp_l2_08_12_2020_06" "cptp_l2_08_12_2020_07" "cptp_l2_08_12_2020_08" "cptp_l2_08_12_2020_09" "cptp_l2_08_12_2020_10" "cptp_l2_08_12_2020_11")
-	# ("29_10_2020_13_17_31" "29_10_2020_13_17_32" "29_10_2020_13_17_34" "29_10_2020_13_17_36" "29_10_2020_13_17_38" "29_10_2020_13_17_40" "29_10_2020_13_17_42" "29_10_2020_13_17_44" "29_10_2020_13_17_50" "29_10_2020_13_17_53" "29_10_2020_13_17_63" "29_10_2020_13_17_66")
-    ## Cluster runs
-    alphas=(0 0.00021 0.00027 0.00135 0.00326 0.00378 0.00391 0.00415 0.00427 0.00467 0.00678 1)
+	
+	alphas=(0 0.0002 0.0004 0.0008 0.0016 0.0032 0.0063 0.0126 0.0251 0.0501 0.1 1)
+
 elif [[ $host == "oem-ThinkPad-X1-Carbon-Gen-8" ]]; then
 	outdir="/home/oem/Documents/chbank"
 	chflowdir="/home/oem/Desktop/Research_PhD/chflow"
@@ -28,6 +28,7 @@ elif [[ $host == "oem-ThinkPad-X1-Carbon-Gen-8" ]]; then
 	cptp_level2=("cptp_l2_08_12_2020_00" "cptp_l2_08_12_2020_01" "cptp_l2_08_12_2020_02" "cptp_l2_08_12_2020_03" "cptp_l2_08_12_2020_04" "cptp_l2_08_12_2020_05" "cptp_l2_08_12_2020_06" "cptp_l2_08_12_2020_07")
 	# alphas=(0 0.00013 0.00027 0.00093 0.00368 0.00391 0.00415 0.00678)
 	alphas=(0 0.0001 0.0005 0.001 0.005 0.01 0.05 0.1)
+
 else
 	outdir="/project/def-jemerson/chbank"
 	chflowdir="/project/def-jemerson/${USER}/chflow"
@@ -63,7 +64,7 @@ rerun() {
 
 	# rm ${outdir}/$1/physical/*.npy
 	echo "Preparing $1"
-	echo "${ts}" >> input/partial_decoders_$2.txt
+	echo "$1" >> input/partial_decoders_$2.txt
 }
 
 display() {
@@ -83,10 +84,10 @@ if [[ "$1" == "overwrite" ]]; then
 	done
 	if [[ $host == *"paviws"* ]]; then
 		echo "Run the following command."
-		echo "\033[4mparallel --joblog partial_decoders_${log}.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders_${log}.txt\033[0m"
+		echo -e "\033[4mparallel --joblog partial_decoders_${log}.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders_${log}.txt\033[0m"
 	elif [[ $host == "oem-ThinkPad-X1-Carbon-Gen-8" ]]; then
 		echo "Run the following command."
-		echo "parallel --joblog partial_decoders_${log}.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders_${log}.txt"
+		echo -e "parallel --joblog partial_decoders_${log}.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders_${log}.txt"
 	else
 		mkdir -p input/${cluster}
 		rm input/${cluster}/partial_decoders_${log}.sh
@@ -109,6 +110,7 @@ elif [[ "$1" == "schedule_copy" ]]; then
 		rm ./input/schedule_${ts}.txt
 		echo -e "\033[2mcopying ./input/schedule_${timestamps[0]}.txt ./input/schedule_${ts}.txt\033[0m"
 		cp ./input/schedule_${timestamps[0]}.txt ./input/schedule_${ts}.txt
+		echo "xxxxxxx"
 	done
 
 elif [[ "$1" == "generate" ]]; then

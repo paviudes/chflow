@@ -192,7 +192,7 @@ def SavePhysicalChannels(submit):
 	# Information about the different interactions for correlated CPTP channels.
 	if not (submit.misc == "None"):
 		for r in range(submit.noiserates.shape[0]):
-			with open(fn.ChannelInformationFile(submit, submit.noiserates[i]), "w") as fp:
+			with open(fn.ChannelInformationFile(submit, submit.noiserates[r]), "w") as fp:
 				fp.write("# Miscellaneous information:\n")
 				fp.write("# -------\n")
 				for s in range(submit.samps):

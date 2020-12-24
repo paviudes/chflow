@@ -60,11 +60,12 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, max_weight = None):
 		leading_paulis = np.zeros(np.sum(nerrors_weight, dtype = np.int), dtype=np.int)
 		start = 0
 		for w in range(max_weight + 1):
-			stop = start + nerrors_weight[w]
-			errors_wtw = qcode.group_by_weight[w]
-			indices_picked = errors_wtw[np.argsort(iid_chan_probs[errors_wtw])[-nerrors_weight[w]:]]
-			leading_paulis[start:stop] = indices_picked[:]
-			start = stop
+			if (nerrors_weight[w] > 0):
+				stop = start + nerrors_weight[w]
+				errors_wtw = qcode.group_by_weight[w]
+				indices_picked = errors_wtw[np.argsort(iid_chan_probs[errors_wtw])[-nerrors_weight[w]:]]
+				leading_paulis[start:stop] = indices_picked[:]
+				start = stop
 	return (1 - iid_chan_probs[0], leading_paulis, iid_chan_probs[leading_paulis])
 
 
