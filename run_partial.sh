@@ -24,7 +24,7 @@ elif [[ $host == "oem-ThinkPad-X1-Carbon-Gen-8" ]]; then
 	ising_level3=("ising_l3_08_12_2020_00" "ising_l3_08_12_2020_01" "ising_l3_08_12_2020_02" "ising_l3_08_12_2020_03" "ising_l3_08_12_2020_04" "ising_l3_08_12_2020_05" "ising_l3_08_12_2020_06" "ising_l3_08_12_2020_07")
 	npcorr_level2=("npcorr_l2_08_12_2020_00" "npcorr_l2_08_12_2020_01" "npcorr_l2_08_12_2020_02" "npcorr_l2_08_12_2020_03" "npcorr_l2_08_12_2020_04" "npcorr_l2_08_12_2020_05" "npcorr_l2_08_12_2020_06" "npcorr_l2_08_12_2020_07")
 	pcorr_level2=("pcorr_l2_08_12_2020_00" "pcorr_l2_08_12_2020_01" "pcorr_l2_08_12_2020_02" "pcorr_l2_08_12_2020_03" "pcorr_l2_08_12_2020_04" "pcorr_l2_08_12_2020_05" "pcorr_l2_08_12_2020_06" "pcorr_l2_08_12_2020_07")
-	pcorr_level3=("pcorr_l3_08_12_2020_00" "pcorr_l3_08_12_2020_01" "pcorr_l3_08_12_2020_02" "pcorr_l3_08_12_2020_03" "pcorr_l3_08_12_2020_04" "pcorr_l3_08_12_2020_05" "pcorr_l3_08_12_2020_06" "pcorr_l3_08_12_2020_07")
+	pcorr_level3=("pcorr_l3_08_12_2020_00" "pcorr_l3_08_12_2020_01" "pcorr_l3_08_12_2020_02" "pcorr_l3_08_12_2020_03" "pcorr_l3_08_12_2020_04" "pcorr_l3_08_12_2020_05" "pcorr_l3_08_12_2020_06" "pcorr_l3_08_12_2020_07")	
 	cptp_level2=("cptp_l2_08_12_2020_00" "cptp_l2_08_12_2020_01" "cptp_l2_08_12_2020_02" "cptp_l2_08_12_2020_03" "cptp_l2_08_12_2020_04" "cptp_l2_08_12_2020_05" "cptp_l2_08_12_2020_06" "cptp_l2_08_12_2020_07")
 	# alphas=(0 0.00013 0.00027 0.00093 0.00368 0.00391 0.00415 0.00678)
 	alphas=(0 0.0001 0.0005 0.001 0.005 0.01 0.05 0.1)
@@ -36,12 +36,15 @@ else
 fi
 
 if [[ ! -z "$cluster" ]]; then
-	cores=32 # 48 for cedar, 40 for beluga and 32 for graham
+	cores=40 # 48 for cedar 40 for beluga and 32 for graham
+	# Run this in Python to generate the time stamps
+	# " ".join(["\"cptp_l2_08_12_2020_%.2d\"" % i for i in range(40)])
 	ising_level3=("ising_l3_08_12_2020_00" "ising_l3_08_12_2020_01" "ising_l3_08_12_2020_02" "ising_l3_08_12_2020_03" "ising_l3_08_12_2020_04" "ising_l3_08_12_2020_05" "ising_l3_08_12_2020_06" "ising_l3_08_12_2020_07" "ising_l3_08_12_2020_08" "ising_l3_08_12_2020_09" "ising_l3_08_12_2020_10" "ising_l3_08_12_2020_11" "ising_l3_08_12_2020_12" "ising_l3_08_12_2020_13" "ising_l3_08_12_2020_14" "ising_l3_08_12_2020_15" "ising_l3_08_12_2020_16" "ising_l3_08_12_2020_17" "ising_l3_08_12_2020_18")
 	npcorr_level2=("npcorr_l2_08_12_2020_00" "npcorr_l2_08_12_2020_01" "npcorr_l2_08_12_2020_02" "npcorr_l2_08_12_2020_03" "npcorr_l2_08_12_2020_04" "npcorr_l2_08_12_2020_05" "npcorr_l2_08_12_2020_06" "npcorr_l2_08_12_2020_07" "npcorr_l2_08_12_2020_08" "npcorr_l2_08_12_2020_09" "npcorr_l2_08_12_2020_10" "npcorr_l2_08_12_2020_11" "npcorr_l2_08_12_2020_12" "npcorr_l2_08_12_2020_13" "npcorr_l2_08_12_2020_14" "npcorr_l2_08_12_2020_15" "npcorr_l2_08_12_2020_16" "npcorr_l2_08_12_2020_17" "npcorr_l2_08_12_2020_18")
 	pcorr_level2=("pcorr_l2_08_12_2020_00" "pcorr_l2_08_12_2020_01" "pcorr_l2_08_12_2020_02" "pcorr_l2_08_12_2020_03" "pcorr_l2_08_12_2020_04" "pcorr_l2_08_12_2020_05" "pcorr_l2_08_12_2020_06" "pcorr_l2_08_12_2020_07" "pcorr_l2_08_12_2020_08" "pcorr_l2_08_12_2020_09" "pcorr_l2_08_12_2020_10" "pcorr_l2_08_12_2020_11" "pcorr_l2_08_12_2020_12" "pcorr_l2_08_12_2020_13" "pcorr_l2_08_12_2020_14" "pcorr_l2_08_12_2020_15" "pcorr_l2_08_12_2020_16" "pcorr_l2_08_12_2020_17" "pcorr_l2_08_12_2020_18")
 	pcorr_level3=("pcorr_l3_08_12_2020_00" "pcorr_l3_08_12_2020_01" "pcorr_l3_08_12_2020_02" "pcorr_l3_08_12_2020_03" "pcorr_l3_08_12_2020_04" "pcorr_l3_08_12_2020_05" "pcorr_l3_08_12_2020_06" "pcorr_l3_08_12_2020_07" "pcorr_l3_08_12_2020_08" "pcorr_l3_08_12_2020_09" "pcorr_l3_08_12_2020_10" "pcorr_l3_08_12_2020_11" "pcorr_l3_08_12_2020_12" "pcorr_l3_08_12_2020_13" "pcorr_l3_08_12_2020_14" "pcorr_l3_08_12_2020_15" "pcorr_l3_08_12_2020_16" "pcorr_l3_08_12_2020_17" "pcorr_l3_08_12_2020_18")
-    alphas=(0 0.0001 0.00013 0.00021 0.00027 0.00035 0.00044 0.00093 0.00135 0.00326 0.00368 0.00378 0.00391 0.00403 0.00415 0.00427 0.00467 0.00678 1)
+    cptp_level2=("cptp_l2_08_12_2020_00" "cptp_l2_08_12_2020_01" "cptp_l2_08_12_2020_02" "cptp_l2_08_12_2020_03" "cptp_l2_08_12_2020_04" "cptp_l2_08_12_2020_05" "cptp_l2_08_12_2020_06" "cptp_l2_08_12_2020_07" "cptp_l2_08_12_2020_08" "cptp_l2_08_12_2020_09" "cptp_l2_08_12_2020_10" "cptp_l2_08_12_2020_11" "cptp_l2_08_12_2020_12" "cptp_l2_08_12_2020_13" "cptp_l2_08_12_2020_14" "cptp_l2_08_12_2020_15" "cptp_l2_08_12_2020_16" "cptp_l2_08_12_2020_17" "cptp_l2_08_12_2020_18" "cptp_l2_08_12_2020_19" "cptp_l2_08_12_2020_20" "cptp_l2_08_12_2020_21" "cptp_l2_08_12_2020_22" "cptp_l2_08_12_2020_23" "cptp_l2_08_12_2020_24" "cptp_l2_08_12_2020_25" "cptp_l2_08_12_2020_26" "cptp_l2_08_12_2020_27" "cptp_l2_08_12_2020_28" "cptp_l2_08_12_2020_29" "cptp_l2_08_12_2020_30" "cptp_l2_08_12_2020_31" "cptp_l2_08_12_2020_32" "cptp_l2_08_12_2020_33" "cptp_l2_08_12_2020_34" "cptp_l2_08_12_2020_35" "cptp_l2_08_12_2020_36" "cptp_l2_08_12_2020_37" "cptp_l2_08_12_2020_38" "cptp_l2_08_12_2020_39")
+    alphas=(0 0.001 0.0011 0.0013 0.0015 0.0016 0.0019 0.0021 0.0024 0.0027 0.0031 0.0035 0.0039 0.0045 0.005 0.0057 0.0065 0.0073 0.0083 0.0094 0.0106 0.0121 0.0137 0.0155 0.0175 0.0198 0.0225 0.0254 0.0288 0.0326 0.0369 0.0418 0.0474 0.0537 0.0608 0.0688 0.078 0.0883 0.1 1)
 fi
 
 rerun() {
@@ -236,11 +239,12 @@ elif [[ "$1" == "pmetrics" ]]; then
 elif [[ "$1" == "plot" ]]; then
 	echo "sbload ${refts}" > input/temp.txt
 	printf -v joined_timestamps '%s,' "${timestamps[@]:1}"
-	echo "dciplot infid infid ${joined_timestamps%?}" >> input/temp.txt
-	echo "mcplot infid infid 1 1 ${joined_timestamps%?}" >> input/temp.txt
+	echo "dciplot infid infid ${joined_timestamps%?} 2" >> input/temp.txt
+	echo "mcplot infid infid 2,3 2 ${joined_timestamps%?}" >> input/temp.txt
 	echo "quit" >> input/temp.txt
 	./chflow.sh -- temp.txt
 	rm input/temp.txt
+
 elif [[ "$1" == "to_cluster" ]]; then
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
@@ -255,6 +259,7 @@ elif [[ "$1" == "to_cluster" ]]; then
 		echo "Sending input file schedule_${ts}.txt to cluster"
 		scp /Users/pavi/Documents/rclearn/chflow/input/schedule_$ts.txt pavi@${cluster}.computecanada.ca:/project/def-jemerson/pavi/chflow/input/
 	done
+
 elif [[ "$1" == "from_cluster" ]]; then
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
