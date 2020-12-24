@@ -21,6 +21,7 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, max_weight = None):
 		nPaulis = max(1, int(lead_frac * (4 ** qcode.N)))
 		leading_paulis = np.argsort(iid_chan_probs)[-nPaulis:]
 	
+	
 	elif option == "weight":
 		
 		if max_weight is None:
