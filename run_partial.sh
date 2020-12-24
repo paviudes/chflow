@@ -25,7 +25,9 @@ elif [[ $host == "oem-ThinkPad-X1-Carbon-Gen-8" ]]; then
 	npcorr_level2=("npcorr_l2_08_12_2020_00" "npcorr_l2_08_12_2020_01" "npcorr_l2_08_12_2020_02" "npcorr_l2_08_12_2020_03" "npcorr_l2_08_12_2020_04" "npcorr_l2_08_12_2020_05" "npcorr_l2_08_12_2020_06" "npcorr_l2_08_12_2020_07")
 	pcorr_level2=("pcorr_l2_08_12_2020_00" "pcorr_l2_08_12_2020_01" "pcorr_l2_08_12_2020_02" "pcorr_l2_08_12_2020_03" "pcorr_l2_08_12_2020_04" "pcorr_l2_08_12_2020_05" "pcorr_l2_08_12_2020_06" "pcorr_l2_08_12_2020_07")
 	pcorr_level3=("pcorr_l3_08_12_2020_00" "pcorr_l3_08_12_2020_01" "pcorr_l3_08_12_2020_02" "pcorr_l3_08_12_2020_03" "pcorr_l3_08_12_2020_04" "pcorr_l3_08_12_2020_05" "pcorr_l3_08_12_2020_06" "pcorr_l3_08_12_2020_07")
-	alphas=(0 0.00013 0.00027 0.00093 0.00368 0.00391 0.00415 0.00678)
+	cptp_level2=("cptp_l2_08_12_2020_00" "cptp_l2_08_12_2020_01" "cptp_l2_08_12_2020_02" "cptp_l2_08_12_2020_03" "cptp_l2_08_12_2020_04" "cptp_l2_08_12_2020_05" "cptp_l2_08_12_2020_06" "cptp_l2_08_12_2020_07")
+	# alphas=(0 0.00013 0.00027 0.00093 0.00368 0.00391 0.00415 0.00678)
+	alphas=(0 0.0001 0.0005 0.001 0.005 0.01 0.05 0.1)
 else
 	outdir="/project/def-jemerson/chbank"
 	chflowdir="/project/def-jemerson/${USER}/chflow"
@@ -68,8 +70,8 @@ display() {
 	./chflow.sh $ts
 }
 
-timestamps=("${cptp_level3[@]}")
-log=cptp_level3
+timestamps=("${cptp_level2[@]}")
+log=cptp_level2
 refts=${timestamps[0]}
 
 if [[ "$1" == "overwrite" ]]; then
@@ -84,7 +86,7 @@ if [[ "$1" == "overwrite" ]]; then
 		echo "\033[4mparallel --joblog partial_decoders_${log}.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders_${log}.txt\033[0m"
 	elif [[ $host == "oem-ThinkPad-X1-Carbon-Gen-8" ]]; then
 		echo "Run the following command."
-		echo "\033[4mparallel --joblog partial_decoders_${log}.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders_${log}.txt\033[0m"
+		echo "parallel --joblog partial_decoders_${log}.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders_${log}.txt"
 	else
 		mkdir -p input/${cluster}
 		rm input/${cluster}/partial_decoders_${log}.sh
@@ -99,6 +101,16 @@ if [[ "$1" == "overwrite" ]]; then
 		echo "Run the following command."
 		echo "sbatch input/${cluster}/partial_decoders_${log}.sh"
 	fi
+
+elif [[ "$1" == "schedule_copy" ]]; then
+	for (( t=1; t<${#timestamps[@]}; ++t )); do
+		ts=${timestamps[t]}
+		echo -e "\033[2mremoving ./input/schedule_${ts}.txt\033[0m"
+		rm ./input/schedule_${ts}.txt
+		echo -e "\033[2mcopying ./input/schedule_${timestamps[0]}.txt ./input/schedule_${ts}.txt\033[0m"
+		cp ./input/schedule_${timestamps[0]}.txt ./input/schedule_${ts}.txt
+	done
+
 elif [[ "$1" == "generate" ]]; then
 	refalpha=${alphas[0]}
 	echo "sbload ${refts}" > input/temp.txt
@@ -125,15 +137,15 @@ elif [[ "$1" == "generate" ]]; then
 		# echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
 		# sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
 
-		#echo "REPLACE decoder 1,1 WITH decoder 3,3 IN input/${ts}.txt"
-		#sed -i ${sed_prepend}"s/decoder 1,1/decoder 3,3/g" input/${ts}.txt
-		#echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
-		#sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
-
-		echo "REPLACE decoder 1,1,1 WITH decoder 3,3,3 IN input/${ts}.txt"
-		sed -i ${sed_prepend}"s/decoder 1,1,1/decoder 3,3,3/g" input/${ts}.txt
+		echo "REPLACE decoder 1,1 WITH decoder 4,4 IN input/${ts}.txt"
+		sed -i ${sed_prepend}"s/decoder 1,1/decoder 4,4/g" input/${ts}.txt
 		echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
 		sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
+
+		# echo "REPLACE decoder 1,1,1 WITH decoder 3,3,3 IN input/${ts}.txt"
+		# sed -i ${sed_prepend}"s/decoder 1,1,1/decoder 3,3,3/g" input/${ts}.txt
+		# echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
+		# sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
 
 		# echo "REPLACE ecc Steane WITH ecc Steane,Steane IN input/${ts}.txt"
 		# sed -i ${sed_prepend}"s/ecc Steane/ecc Steane,Steane/g" input/${ts}.txt
