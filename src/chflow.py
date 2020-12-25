@@ -742,7 +742,7 @@ if __name__ == "__main__":
                         LogicalErrorRates(dbses[i + 1], lmet, fmt="npy")
                     ):
                         GatherLogErrData(dbses[i + 1])
-            chids = [0]
+            chids = list(range(submit.available.shape[0]))
             if len(user) > 4:
                 chids = list(map(int, user[4].split(",")))
             DecoderInstanceCompare(pmet, lmet, dbses, chids)
@@ -941,14 +941,14 @@ if __name__ == "__main__":
                     ):
                         GatherLogErrData(dbses[i + 1])
             if len(user) > 4:
-                nsamps = int(user[4])
+                samples = np.array(list(map(int, user[4].split(","))), dtype = np.int)
             if len(user) > 3:
                 rate_range = list(map(int, user[3].split(",")))
             # rates = submit.noiserates[
             #     np.sort(np.random.choice(submit.noiserates.shape[0], nrates))[::-1], :
             # ]
-            rates = submit.noiserates[np.arange(*rate_range), :]
-            MCStatsPlot(dbses, lmet, pmet, rates, nsamples=nsamps)
+            rates = submit.available[np.arange(*rate_range), :-1]
+            MCStatsPlot(dbses, lmet, pmet, rates, samples=samples)
 
         #####################################################################
 

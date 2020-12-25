@@ -110,7 +110,7 @@ def DecoderCompare(
 
 
 def DecoderInstanceCompare(
-    phymet, logmet, dbses_input, chids=[0], thresholds={"y": 10e-16, "x": 10e-16}
+    phymet, logmet, dbses_input, chids = [0], thresholds={"y": 10e-16, "x": 10e-16}
 ):
     # Compare performance of various decoders.
     __, uniques = np.unique(np.array([int(dbs.decoder_fraction * 4 ** (dbs.eccs[0].N)) for dbs in dbses_input], dtype=np.int), return_index=True)
@@ -132,7 +132,7 @@ def DecoderInstanceCompare(
                 label="$%s = %s$"
                 % (
                     ml.Metrics[phymet]["latex"].replace("$", ""),
-                    latex_float(phyerrs[0]),
+                    latex_float(phyerrs[chids[0]]),
                 ),
             )
             for (c, ch) in enumerate(chids):

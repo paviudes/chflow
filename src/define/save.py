@@ -196,7 +196,7 @@ def SavePhysicalChannels(submit):
 				fp.write("# Miscellaneous information:\n")
 				fp.write("# -------\n")
 				for s in range(submit.samps):
-					fp.write("# rate = %s and sample = %d.\n" % (",".join(list(map(lambda x: "%d" % x, submit.noiserates[r, :]))), s))
+					fp.write("# rate = %s and sample = %d.\n" % (",".join(list(map(lambda x: "%g" % x, submit.noiserates[r, :]))), s))
 					(interactions, infidelity, budget, non_pauliness) = submit.misc[r][s]
 					fp.write("# interactions:")
 					for interac in interactions:
