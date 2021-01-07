@@ -76,8 +76,8 @@ display() {
 	./chflow.sh $ts
 }
 
-timestamps=("${aditya_cptp_level2[@]}")
-log=aditya_cptp_level2
+timestamps=("${cptp_level2[@]}")
+log=cptp_level2
 refts=${timestamps[0]}
 
 if [[ "$1" == "overwrite" ]]; then
@@ -144,15 +144,22 @@ elif [[ "$1" == "generate" ]]; then
 		# echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
 		# sed -i ${sed_prepend} "s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
 
+		# echo "REPLACE decoder 1,1 WITH decoder 4,4 IN input/${ts}.txt"
+		# sed -i "${sed_prepend}" "s/decoder 1,1/decoder 4,4/g" input/${ts}.txt
+		# echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
+		# sed -i "${sed_prepend}" "s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
+
+		echo "REPLACE decoder 1,1,1 WITH decoder 4,4,4 IN input/${ts}.txt"
+		sed -i "${sed_prepend}" "s/decoder 1,1,1/decoder 4,4,4/g" input/${ts}.txt
+		
 		echo "REPLACE decoder 1,1 WITH decoder 4,4 IN input/${ts}.txt"
 		sed -i "${sed_prepend}" "s/decoder 1,1/decoder 4,4/g" input/${ts}.txt
+		
 		echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
 		sed -i "${sed_prepend}" "s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
 
-		# echo "REPLACE decoder 1,1,1 WITH decoder 3,3,3 IN input/${ts}.txt"
-		# sed -i ${sed_prepend} "s/decoder 1,1,1/decoder 3,3,3/g" input/${ts}.txt
 		# echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
-		# sed -i ${sed_prepend} "s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
+		# sed -i "${sed_prepend}" "s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
 
 		# echo "REPLACE ecc Steane WITH ecc Steane,Steane IN input/${ts}.txt"
 		# sed -i ${sed_prepend} "s/ecc Steane/ecc Steane,Steane/g" input/${ts}.txt
@@ -197,19 +204,17 @@ elif [[ "$1" == "chmod" ]]; then
 
 elif [[ "$1" == "zip" ]]; then
 	cd ${outdir}
-	mkdir data/
+	mkdir -p data/
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
 		echo "zipping ${ts}"
 		tar -zcvf ${ts}.tar.gz ${ts}
-		# move the input files in data
+		# move the folder and the input files into data
+		mv ${ts}.tar.gz data/
 		cp ${chflowdir}/input/${ts}.txt data/
 		cp ${chflowdir}/input/schedule_${ts}.txt data/
 	done
 	# Put all the zipped folders in a zip folder.
-	printf -v joined_timestamps_tar '%s.tar.gz ' "${timestamps[@]:0}"
-	echo "Moving ${joined_timestamps_tar%?} into data." >> input/temp.txt
-	mv ${joined_timestamps_tar%?} data/
 	echo "Compressing data"
 	tar -zcvf data.tar.gz data/
 	cd ${chflowdir}
@@ -247,21 +252,23 @@ elif [[ "$1" == "unzip_cluster" ]]; then
 	done
 
 elif [[ "$1" == "pmetrics" ]]; then
+	# To do: modify this to launch chflow once and sbload and compute pmetrics for all.
+	touch input/temp.txt
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
-		echo "sbload ${ts}" > input/temp.txt
+		echo "sbload ${ts}" >> input/temp.txt
 		echo "pmetrics infid" >> input/temp.txt
 		echo "collect" >> input/temp.txt
-		echo "quit" >> input/temp.txt
-		./chflow.sh -- temp.txt
-		rm input/temp.txt
 	done
+	echo "quit" >> input/temp.txt
+	./chflow.sh -- temp.txt
+	rm input/temp.txt
 
 elif [[ "$1" == "plot" ]]; then
 	echo "sbload ${refts}" > input/temp.txt
 	printf -v joined_timestamps '%s,' "${timestamps[@]:1}"
-	echo "dciplot infid infid ${joined_timestamps%?} 5" >> input/temp.txt
-	echo "mcplot infid infid 4,5 1 ${joined_timestamps%?}" >> input/temp.txt
+	echo "dciplot infid infid ${joined_timestamps%?} 1" >> input/temp.txt
+	echo "mcplot infid infid 1,2 1 ${joined_timestamps%?}" >> input/temp.txt
 	echo "quit" >> input/temp.txt
 	./chflow.sh -- temp.txt
 	rm input/temp.txt
@@ -284,16 +291,16 @@ elif [[ "$1" == "to_cluster" ]]; then
 elif [[ "$1" == "from_cluster" ]]; then
 	# bring the data folder and unzip
 	echo "Bringing output ${ts} from cluster"
-	scp -r ${local_user}@${cluster}.computecanada.ca:/project/def-jemerson/chbank/data.tar.gz ${outdir}
+	# scp -r ${local_user}@${cluster}.computecanada.ca:/project/def-jemerson/chbank/data.tar.gz ${outdir}
 	cd ${outdir}
-	tar -xvf data.tar.gz
+	# tar -xvf data.tar.gz
 	# unzip the individual datasets.
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
-		echo "Trashing ${ts}"
-		trash ${ts}
-		mv data/${ts}.tar.gz .
-		tar -xvf ${ts}.tar.gz
+		# echo "Trashing ${ts}"
+		# trash ${ts}
+		# mv data/${ts}.tar.gz .
+		# tar -xvf ${ts}.tar.gz
 		#### Bring from chflow
 		echo "Bringing input file ${ts}.txt from ${outdir}/data"
 		mv data/${ts}.txt ${chflowdir}/input/
@@ -312,6 +319,7 @@ elif [[ "$1" == "from_cluster" ]]; then
 		#### Prepare output directory after moving from cluster with different path.
 		# echo "/home/a77jain/projects/def-jemerson WITH /Users/pavi/Documents IN input/${ts}.txt"
 		# sed -i ${sed_prepend} "s/\/home\/a77jain\/projects\/def-jemerson/\/Users\/pavi\/Documents/g" input/${ts}.txt
+		echo -e "\033[2mxxxxxxx\033[0m"
 	done
 	cd ${chflowdir}
 
