@@ -4,6 +4,7 @@ echo "Host: $host"
 cluster="$2"
 
 if [[ $host == *"paviws"* ]]; then
+	local_user=${USER}
 	outdir="/Users/pavi/Documents/chbank"
 	chflowdir="/Users/pavi/Documents/rclearn/chflow"
 	# report_dir="/Users/pavi/OneDrive\ -\ University\ of\ Waterloo/chbank/Nov4"
@@ -75,8 +76,8 @@ display() {
 	./chflow.sh $ts
 }
 
-timestamps=("${cptp_level2[@]}")
-log=cptp_level2
+timestamps=("${aditya_cptp_level2[@]}")
+log=aditya_cptp_level2
 refts=${timestamps[0]}
 
 if [[ "$1" == "overwrite" ]]; then
@@ -195,21 +196,23 @@ elif [[ "$1" == "chmod" ]]; then
 	done
 
 elif [[ "$1" == "zip" ]]; then
+	cd ${outdir}
+	mkdir data/
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
 		echo "zipping ${ts}"
-		cd ${outdir}
 		tar -zcvf ${ts}.tar.gz ${ts}
-		cd ${chflowdir}
+		# move the input files in data
+		cp ${chflowdir}/input/${ts}.txt data/
+		cp ${chflowdir}/input/schedule_${ts}.txt data/
 	done
 	# Put all the zipped folders in a zip folder.
-	cd ${outdir}
-	mkdir data/
 	printf -v joined_timestamps_tar '%s.tar.gz ' "${timestamps[@]:1}"
 	echo "Moving ${joined_timestamps_tar%?} into data." >> input/temp.txt
 	mv ${joined_timestamps_tar%?} data/
 	echo "Compressing data"
 	tar -zcvf data.tar.gz data/
+	cd ${chflowdir}
 
 elif [[ "$1" == "move_input" ]]; then
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
@@ -279,20 +282,26 @@ elif [[ "$1" == "to_cluster" ]]; then
 	done
 
 elif [[ "$1" == "from_cluster" ]]; then
+	# bring the data folder and unzip
+	echo "Bringing output ${ts} from cluster"
+	scp -r ${local_user}@${cluster}.computecanada.ca:/project/def-jemerson/chbank/$ts.tar.gz ${outdir}
+	cd ${outdir}
+	tar -xvf data.tar.gz
+	# unzip the individual datasets.
+	cd ${outdir}
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
 		echo "Trashing ${ts}"
-		trash ${outdir}/$ts
-		echo "Bringing output ${ts} from cluster"
-		scp -r pavi@${cluster}.computecanada.ca:/project/def-jemerson/chbank/$ts.tar.gz ${outdir}
-		cd ${outdir}
+		trash $ts
 		tar -xvf $ts.tar.gz
 		cd ${chflowdir}
 		#### Bring from chflow
-		echo "Bringing input file ${ts}.txt from cluster"
-		scp pavi@${cluster}.computecanada.ca:/project/def-jemerson/pavi/chflow/input/$ts.txt ${chflowdir}/input
-		echo "Bringing schedule_${ts}.txt from cluster"
-		scp pavi@${cluster}.computecanada.ca:/project/def-jemerson/pavi/chflow/input/schedule_$ts.txt ${chflowdir}/input
+		echo "Bringing input file ${ts}.txt from ${outdir}/data"
+		mv data/${ts}.txt ${chflowdir}/input
+		# scp pavi@${cluster}.computecanada.ca:/project/def-jemerson/pavi/chflow/input/$ts.txt ${chflowdir}/input
+		echo "Bringing schedule_${ts}.txt from ${outdir}/data"
+		mv data/schedule_${ts}.txt ${chflowdir}/input
+		# scp pavi@${cluster}.computecanada.ca:/project/def-jemerson/pavi/chflow/input/schedule_$ts.txt ${chflowdir}/input
 		#### Bring from def-jemerson/input
 		# echo "Bringing input file ${ts}.txt from cluster"
 		# scp pavi@${cluster}.computecanada.ca:/project/def-jemerson/input/$ts.txt ${chflowdir}/input
