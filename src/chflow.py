@@ -745,6 +745,7 @@ if __name__ == "__main__":
             chids = list(range(submit.available.shape[0]))
             if len(user) > 4:
                 chids = list(map(int, user[4].split(",")))
+            print("Doing dciplot for chids {} from available {}".format(chids, submit.available))
             DecoderInstanceCompare(pmet, lmet, dbses, chids)
 
         #####################################################################
@@ -948,6 +949,7 @@ if __name__ == "__main__":
             #     np.sort(np.random.choice(submit.noiserates.shape[0], nrates))[::-1], :
             # ]
             rates = submit.available[np.arange(*rate_range), :-1]
+            print("Doing MC Stat plot for rates {} and samples {}".format(rates,samples))
             MCStatsPlot(dbses, lmet, pmet, rates, samples=samples)
 
         #####################################################################
