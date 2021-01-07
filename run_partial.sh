@@ -8,7 +8,7 @@ if [[ $host == *"paviws"* ]]; then
 	chflowdir="/Users/pavi/Documents/rclearn/chflow"
 	# report_dir="/Users/pavi/OneDrive\ -\ University\ of\ Waterloo/chbank/Nov4"
 	cores=$(sysctl -n hw.ncpu)
-	sed_prepend="''"
+	sed_prepend=''
 	ising_level3=("ising_l3_08_12_2020_00" "ising_l3_08_12_2020_01" "ising_l3_08_12_2020_02" "ising_l3_08_12_2020_03" "ising_l3_08_12_2020_04" "ising_l3_08_12_2020_05" "ising_l3_08_12_2020_06" "ising_l3_08_12_2020_07" "ising_l3_08_12_2020_08" "ising_l3_08_12_2020_09" "ising_l3_08_12_2020_10" "ising_l3_08_12_2020_11")
 	npcorr_level2=("npcorr_l2_08_12_2020_00" "npcorr_l2_08_12_2020_01" "npcorr_l2_08_12_2020_02" "npcorr_l2_08_12_2020_03" "npcorr_l2_08_12_2020_04" "npcorr_l2_08_12_2020_05" "npcorr_l2_08_12_2020_06" "npcorr_l2_08_12_2020_07" "npcorr_l2_08_12_2020_08" "npcorr_l2_08_12_2020_09" "npcorr_l2_08_12_2020_10" "npcorr_l2_08_12_2020_11")
 	pcorr_level2=("pcorr_l2_08_12_2020_00" "pcorr_l2_08_12_2020_01" "pcorr_l2_08_12_2020_02" "pcorr_l2_08_12_2020_03" "pcorr_l2_08_12_2020_04" "pcorr_l2_08_12_2020_05" "pcorr_l2_08_12_2020_06" "pcorr_l2_08_12_2020_07" "pcorr_l2_08_12_2020_08" "pcorr_l2_08_12_2020_09" "pcorr_l2_08_12_2020_10" "pcorr_l2_08_12_2020_11")
@@ -45,7 +45,7 @@ if [[ ! -z "$cluster" ]]; then
     cptp_level2=("cptp_l2_08_12_2020_00" "cptp_l2_08_12_2020_01" "cptp_l2_08_12_2020_02" "cptp_l2_08_12_2020_03" "cptp_l2_08_12_2020_04" "cptp_l2_08_12_2020_05" "cptp_l2_08_12_2020_06" "cptp_l2_08_12_2020_07" "cptp_l2_08_12_2020_08" "cptp_l2_08_12_2020_09" "cptp_l2_08_12_2020_10" "cptp_l2_08_12_2020_11" "cptp_l2_08_12_2020_12" "cptp_l2_08_12_2020_13" "cptp_l2_08_12_2020_14" "cptp_l2_08_12_2020_15" "cptp_l2_08_12_2020_16" "cptp_l2_08_12_2020_17" "cptp_l2_08_12_2020_18" "cptp_l2_08_12_2020_19" "cptp_l2_08_12_2020_20" "cptp_l2_08_12_2020_21" "cptp_l2_08_12_2020_22" "cptp_l2_08_12_2020_23" "cptp_l2_08_12_2020_24" "cptp_l2_08_12_2020_25" "cptp_l2_08_12_2020_26" "cptp_l2_08_12_2020_27" "cptp_l2_08_12_2020_28" "cptp_l2_08_12_2020_29" "cptp_l2_08_12_2020_30" "cptp_l2_08_12_2020_31" "cptp_l2_08_12_2020_32" "cptp_l2_08_12_2020_33" "cptp_l2_08_12_2020_34" "cptp_l2_08_12_2020_35" "cptp_l2_08_12_2020_36" "cptp_l2_08_12_2020_37" "cptp_l2_08_12_2020_38" "cptp_l2_08_12_2020_39")
     aditya_cptp_level2=("cptp_l2_24_12_2020_00" "cptp_l2_24_12_2020_01" "cptp_l2_24_12_2020_02" "cptp_l2_24_12_2020_03" "cptp_l2_24_12_2020_04" "cptp_l2_24_12_2020_06" "cptp_l2_24_12_2020_07" "cptp_l2_24_12_2020_08" "cptp_l2_24_12_2020_10" "cptp_l2_24_12_2020_11" "cptp_l2_24_12_2020_12" "cptp_l2_24_12_2020_13" "cptp_l2_24_12_2020_14" "cptp_l2_24_12_2020_15" "cptp_l2_24_12_2020_16" "cptp_l2_24_12_2020_17" "cptp_l2_24_12_2020_18" "cptp_l2_24_12_2020_19" "cptp_l2_24_12_2020_20" "cptp_l2_24_12_2020_21" "cptp_l2_24_12_2020_22" "cptp_l2_24_12_2020_23" "cptp_l2_24_12_2020_24" "cptp_l2_24_12_2020_25" "cptp_l2_24_12_2020_26" "cptp_l2_24_12_2020_27" "cptp_l2_24_12_2020_28" "cptp_l2_24_12_2020_29" "cptp_l2_24_12_2020_30" "cptp_l2_24_12_2020_31" "cptp_l2_24_12_2020_32" "cptp_l2_24_12_2020_33" "cptp_l2_24_12_2020_34" "cptp_l2_24_12_2020_35" "cptp_l2_24_12_2020_36" "cptp_l2_24_12_2020_37")
     # alphas=(0 0.001 0.0011 0.0013 0.0015 0.0016 0.0019 0.0021 0.0024 0.0027 0.0031 0.0035 0.0039 0.0045 0.005 0.0057 0.0065 0.0073 0.0083 0.0094 0.0106 0.0121 0.0137 0.0155 0.0175 0.0198 0.0225 0.0254 0.0288 0.0326 0.0369 0.0418 0.0474 0.0537 0.0608 0.0688 0.078 0.0883 0.1 1)
-    alphas=(0 0.001 0.00115396  0.00133162  0.00153663  0.00236124  0.00272477  0.00314427  0.00483159  0.00557545  0.00643384  0.00742438 0.00856742  0.00988644  0.01140854  0.01316497  0.01519183 0.01753073  0.02022973  0.02334425  0.02693829  0.03108565 0.03587154  0.04139425  0.04776722  0.05512137  0.06360774 0.07340067  0.08470128  0.09774172  0.11278984  0.13015474 0.15019311  0.17331653  0.2 1)
+    alphas=(0 0.001 0.00115396 0.00133162 0.00153663 0.00236124 0.00272477 0.00314427 0.00483159 0.00557545 0.00643384 0.00742438 0.00856742 0.00988644 0.01140854 0.01316497 0.01519183 0.01753073 0.02022973 0.02334425 0.02693829 0.03108565 0.03587154 0.04139425 0.04776722 0.05512137 0.06360774 0.07340067 0.08470128 0.09774172 0.11278984 0.13015474 0.15019311 0.17331653 0.2 1)
 fi
 
 rerun() {
@@ -75,8 +75,8 @@ display() {
 	./chflow.sh $ts
 }
 
-timestamps=("${aditya_cptp_level2[@]}")
-log=aditya_cptp_level2
+timestamps=("${cptp_level2[@]}")
+log=cptp_level2
 refts=${timestamps[0]}
 
 if [[ "$1" == "overwrite" ]]; then
@@ -114,7 +114,7 @@ elif [[ "$1" == "schedule_copy" ]]; then
 		rm ./input/schedule_${ts}.txt
 		echo -e "\033[2mcopying ./input/schedule_${timestamps[0]}.txt ./input/schedule_${ts}.txt\033[0m"
 		cp ./input/schedule_${timestamps[0]}.txt ./input/schedule_${ts}.txt
-		echo "xxxxxxx"
+		echo -e "\033[2mxxxxxxx\033[0m"
 	done
 
 elif [[ "$1" == "generate" ]]; then
@@ -139,25 +139,26 @@ elif [[ "$1" == "generate" ]]; then
 		ts=${timestamps[t]}
 		alpha=${alphas[t]}
 		# echo "REPLACE decoder 1 WITH decoder 3 IN input/${ts}.txt"
-		# sed -i ${sed_prepend}"s/decoder 1/decoder 3/g" input/${ts}.txt
+		# sed -i ${sed_prepend} "s/decoder 1/decoder 3/g" input/${ts}.txt
 		# echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
-		# sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
+		# sed -i ${sed_prepend} "s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
 
 		echo "REPLACE decoder 1,1 WITH decoder 4,4 IN input/${ts}.txt"
-		sed -i ${sed_prepend}"s/decoder 1,1/decoder 4,4/g" input/${ts}.txt
+		sed -i "${sed_prepend}" "s/decoder 1,1/decoder 4,4/g" input/${ts}.txt
 		echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
-		sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
+		sed -i "${sed_prepend}" "s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
 
 		# echo "REPLACE decoder 1,1,1 WITH decoder 3,3,3 IN input/${ts}.txt"
-		# sed -i ${sed_prepend}"s/decoder 1,1,1/decoder 3,3,3/g" input/${ts}.txt
+		# sed -i ${sed_prepend} "s/decoder 1,1,1/decoder 3,3,3/g" input/${ts}.txt
 		# echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
-		# sed -i ${sed_prepend}"s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
+		# sed -i ${sed_prepend} "s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
 
 		# echo "REPLACE ecc Steane WITH ecc Steane,Steane IN input/${ts}.txt"
-		# sed -i ${sed_prepend}"s/ecc Steane/ecc Steane,Steane/g" input/${ts}.txt
+		# sed -i ${sed_prepend} "s/ecc Steane/ecc Steane,Steane/g" input/${ts}.txt
 
 		echo "xxxxxxx"
 	done
+
 elif [[ "$1" == "archive" ]]; then
 	echo "Reports in ${report_dir}"
 	mkdir -p /Users/pavi/OneDrive\ -\ University\ of\ Waterloo/chbank/Nov4
@@ -174,6 +175,7 @@ elif [[ "$1" == "archive" ]]; then
 		cp input/${ts}.txt /Users/pavi/OneDrive\ -\ University\ of\ Waterloo/chbank/Nov4
 		cp input/$schedule_${ts}.txt /Users/pavi/OneDrive\ -\ University\ of\ Waterloo/chbank/Nov4
 	done
+
 elif [[ "$1" == "filter" ]]; then
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
@@ -182,6 +184,7 @@ elif [[ "$1" == "filter" ]]; then
 			echo ${ts}
 		fi
 	done
+
 elif [[ "$1" == "chmod" ]]; then
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
@@ -190,6 +193,7 @@ elif [[ "$1" == "chmod" ]]; then
 		chmod -R 777 ${ts}
 		cd ${chflowdir}
 	done
+
 elif [[ "$1" == "zip" ]]; then
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
@@ -198,6 +202,15 @@ elif [[ "$1" == "zip" ]]; then
 		tar -zcvf ${ts}.tar.gz ${ts}
 		cd ${chflowdir}
 	done
+	# Put all the zipped folders in a zip folder.
+	cd ${outdir}
+	mkdir data/
+	printf -v joined_timestamps_tar '%s.tar.gz ' "${timestamps[@]:1}"
+	echo "Moving ${joined_timestamps_tar%?} into data." >> input/temp.txt
+	mv ${joined_timestamps_tar%?} data/
+	echo "Compressing data"
+	tar -zcvf data.tar.gz data/
+
 elif [[ "$1" == "move_input" ]]; then
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
@@ -205,6 +218,7 @@ elif [[ "$1" == "move_input" ]]; then
 		cp ${chflowdir}/input/${ts}.txt /project/def-jemerson/input/
 		cp ${chflowdir}/input/schedule_${ts}.txt /project/def-jemerson/input/
 	done
+
 elif [[ "$1" == "gdrive" ]]; then
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
@@ -215,6 +229,7 @@ elif [[ "$1" == "gdrive" ]]; then
 		echo "Copying input/schedule_${ts}.txt to Google Drive"
 		cp input/schedule_${ts}.txt /Users/pavi/Google\ Drive/channels_for_report/partial_decoders/
 	done
+
 elif [[ "$1" == "unzip_local" ]]; then
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
@@ -227,6 +242,7 @@ elif [[ "$1" == "unzip_cluster" ]]; then
 		echo "unzipping /project/def-jemerson/chbank/${ts}.tar.gz"
 		tar -xvf /project/def-jemerson/chbank/${ts}.tar.gz
 	done
+
 elif [[ "$1" == "pmetrics" ]]; then
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
@@ -237,19 +253,21 @@ elif [[ "$1" == "pmetrics" ]]; then
 		./chflow.sh -- temp.txt
 		rm input/temp.txt
 	done
+
 elif [[ "$1" == "plot" ]]; then
 	echo "sbload ${refts}" > input/temp.txt
 	printf -v joined_timestamps '%s,' "${timestamps[@]:1}"
-	echo "dciplot infid infid ${joined_timestamps%?}" >> input/temp.txt
-	echo "mcplot infid infid 1 1 ${joined_timestamps%?}" >> input/temp.txt
+	echo "dciplot infid infid ${joined_timestamps%?} 5" >> input/temp.txt
+	echo "mcplot infid infid 4,5 1 ${joined_timestamps%?}" >> input/temp.txt
 	echo "quit" >> input/temp.txt
 	./chflow.sh -- temp.txt
 	rm input/temp.txt
+
 elif [[ "$1" == "to_cluster" ]]; then
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
 		echo "/Users/pavi/Documents WITH /project/def-jemerson IN input/${ts}.txt"
-		sed -i ${sed_prepend}"s/\/Users\/pavi\/Documents/\/project\/def-jemerson/g" input/${ts}.txt
+		sed -i ${sed_prepend} "s/\/Users\/pavi\/Documents/\/project\/def-jemerson/g" input/${ts}.txt
 		echo "zipping ${outdir}/${ts}"
 		tar -zcvf ${outdir}/${ts}.tar.gz ${outdir}/${ts}
 		echo "Sending output ${ts} to cluster"
@@ -259,6 +277,7 @@ elif [[ "$1" == "to_cluster" ]]; then
 		echo "Sending input file schedule_${ts}.txt to cluster"
 		scp /Users/pavi/Documents/rclearn/chflow/input/schedule_$ts.txt pavi@${cluster}.computecanada.ca:/project/def-jemerson/pavi/chflow/input/
 	done
+
 elif [[ "$1" == "from_cluster" ]]; then
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
@@ -281,10 +300,10 @@ elif [[ "$1" == "from_cluster" ]]; then
 		# scp pavi@${cluster}.computecanada.ca:/project/def-jemerson/input/schedule_$ts.txt ${chflowdir}/input
 		#### Prepare output directory after moving from cluster.
 		echo "/project/def-jemerson WITH /Users/pavi/Documents IN input/${ts}.txt"
-		sed -i ${sed_prepend}"s/\/project\/def-jemerson/\/Users\/pavi\/Documents/g" input/${ts}.txt
+		sed -i ${sed_prepend} "s/\/project\/def-jemerson/\/Users\/pavi\/Documents/g" input/${ts}.txt
 		#### Prepare output directory after moving from cluster with different path.
 		# echo "/home/a77jain/projects/def-jemerson WITH /Users/pavi/Documents IN input/${ts}.txt"
-		# sed -i ${sed_prepend}"s/\/home\/a77jain\/projects\/def-jemerson/\/Users\/pavi\/Documents/g" input/${ts}.txt
+		# sed -i ${sed_prepend} "s/\/home\/a77jain\/projects\/def-jemerson/\/Users\/pavi\/Documents/g" input/${ts}.txt
 	done
 elif [[ "$1" == "display" ]]; then
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
