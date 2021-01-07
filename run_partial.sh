@@ -207,7 +207,7 @@ elif [[ "$1" == "zip" ]]; then
 		cp ${chflowdir}/input/schedule_${ts}.txt data/
 	done
 	# Put all the zipped folders in a zip folder.
-	printf -v joined_timestamps_tar '%s.tar.gz ' "${timestamps[@]:1}"
+	printf -v joined_timestamps_tar '%s.tar.gz ' "${timestamps[@]:0}"
 	echo "Moving ${joined_timestamps_tar%?} into data." >> input/temp.txt
 	mv ${joined_timestamps_tar%?} data/
 	echo "Compressing data"
@@ -284,23 +284,22 @@ elif [[ "$1" == "to_cluster" ]]; then
 elif [[ "$1" == "from_cluster" ]]; then
 	# bring the data folder and unzip
 	echo "Bringing output ${ts} from cluster"
-	scp -r ${local_user}@${cluster}.computecanada.ca:/project/def-jemerson/chbank/$ts.tar.gz ${outdir}
+	scp -r ${local_user}@${cluster}.computecanada.ca:/project/def-jemerson/chbank/data.tar.gz ${outdir}
 	cd ${outdir}
 	tar -xvf data.tar.gz
 	# unzip the individual datasets.
-	cd ${outdir}
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
 		echo "Trashing ${ts}"
-		trash $ts
-		tar -xvf $ts.tar.gz
-		cd ${chflowdir}
+		trash ${ts}
+		mv data/${ts}.tar.gz .
+		tar -xvf ${ts}.tar.gz
 		#### Bring from chflow
 		echo "Bringing input file ${ts}.txt from ${outdir}/data"
-		mv data/${ts}.txt ${chflowdir}/input
+		mv data/${ts}.txt ${chflowdir}/input/
 		# scp pavi@${cluster}.computecanada.ca:/project/def-jemerson/pavi/chflow/input/$ts.txt ${chflowdir}/input
 		echo "Bringing schedule_${ts}.txt from ${outdir}/data"
-		mv data/schedule_${ts}.txt ${chflowdir}/input
+		mv data/schedule_${ts}.txt ${chflowdir}/input/
 		# scp pavi@${cluster}.computecanada.ca:/project/def-jemerson/pavi/chflow/input/schedule_$ts.txt ${chflowdir}/input
 		#### Bring from def-jemerson/input
 		# echo "Bringing input file ${ts}.txt from cluster"
@@ -309,11 +308,13 @@ elif [[ "$1" == "from_cluster" ]]; then
 		# scp pavi@${cluster}.computecanada.ca:/project/def-jemerson/input/schedule_$ts.txt ${chflowdir}/input
 		#### Prepare output directory after moving from cluster.
 		echo "/project/def-jemerson WITH /Users/pavi/Documents IN input/${ts}.txt"
-		sed -i ${sed_prepend} "s/\/project\/def-jemerson/\/Users\/pavi\/Documents/g" input/${ts}.txt
+		sed -i "${sed_prepend}" "s/\/project\/def-jemerson/\/Users\/pavi\/Documents/g" ${chflowdir}/input/${ts}.txt
 		#### Prepare output directory after moving from cluster with different path.
 		# echo "/home/a77jain/projects/def-jemerson WITH /Users/pavi/Documents IN input/${ts}.txt"
 		# sed -i ${sed_prepend} "s/\/home\/a77jain\/projects\/def-jemerson/\/Users\/pavi\/Documents/g" input/${ts}.txt
 	done
+	cd ${chflowdir}
+
 elif [[ "$1" == "display" ]]; then
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
