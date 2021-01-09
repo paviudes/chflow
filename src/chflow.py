@@ -628,6 +628,7 @@ if __name__ == "__main__":
             if submit.complete > 0:
                 GatherLogErrData(submit)
 
+
         #####################################################################
 
         elif user[0] == "tplot":
@@ -949,7 +950,7 @@ if __name__ == "__main__":
             #     np.sort(np.random.choice(submit.noiserates.shape[0], nrates))[::-1], :
             # ]
             rates = submit.available[np.arange(*rate_range), :-1]
-            print("Doing MC Stat plot for rates {} and samples {}".format(rates,samples))
+            print("Doing MC Stat plot for rates {} and samples {}".format(rates, samples))
             MCStatsPlot(dbses, lmet, pmet, rates, samples=samples)
 
         #####################################################################
