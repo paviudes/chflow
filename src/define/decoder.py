@@ -100,6 +100,26 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full
 	return decoder_probs
 
 
+def PrepareNRWeights(submit):
+	# Prepare the weights of Pauli errors that will be supplied to the decoder: nr_weights.
+	# Use properties of submit to retrieve the mean and cutoff of the Poisson distribution: submit.noiserates[i, :] = (__, cutoff, __, mean)
+	# Save the nr_weights to a file.
+	qcode = submit.eccs[0]
+	max_weight = qcode.N//2 + 1
+	nr_weights = np.zeros((submit.samps, 4 ** qcode.N), dtype = np.int)
+	for r in range(submit.noiserates.shape[0]):
+		if (submit.channel == "cptp"):
+			(__, cutoff, __, mean) = submit.noiserates[r, :]
+		else:
+			mean = 1
+			cutoff = max_weight
+		for s in range(submit.samps):
+			nr_weights[s, :] = [SamplePoisson(mean, cutoff=max_weight) for __ in range(4 ** qcode.N)]
+		# Save the nr_weights to a file.
+		fn.NRWeightsFile(submit, submit.noiserates[r, :])
+	return None
+
+
 def PrepareChannelDecoder(submit, noise, sample):
 	# Generate the reference channel for partial ML decoder
 	# Reference channel at present is only created for level 1
@@ -117,48 +137,5 @@ def PrepareChannelDecoder(submit, noise, sample):
 	else:
 		chan_probs = rawchan
 	decoder_probs = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, qcode)
-	# elif l == 1:
-	#     ComputeAdaptiveDecoder(qcode, decoder_probs)
-	#     chan_probs = np.tile(
-	#         [
-	#             ComputeResiduals(
-	#                 p, decoder_probs, qcode, lookup=qcode.tailored_lookup
-	#             )
-	#             for p in range(4)
-	#         ],
-	#         [submit.eccs[1].N, 1],
-	#     )
-	#     print("Chan probs at level 2 = {}".format(chan_probs[0]))
-	#     print("Sum of chan probs at level 2 = {}".format(np.sum(chan_probs[0])))
-	#     print(
-	#         "Infidelity at level 2 from chan probs = {}".format(
-	#             1 - chan_probs[0][0]
-	#         )
-	#     )
-	#     process_mat = [
-	#         np.sum(chan_probs[0]),
-	#         chan_probs[0][0]
-	#         + chan_probs[0][1]
-	#         - chan_probs[0][3]
-	#         - chan_probs[0][2],
-	#         chan_probs[0][0]
-	#         + chan_probs[0][2]
-	#         - chan_probs[0][1]
-	#         - chan_probs[0][3],
-	#         chan_probs[0][0]
-	#         + chan_probs[0][3]
-	#         - chan_probs[0][1]
-	#         - chan_probs[0][2],
-	#     ]
-	#     print(
-	#         "Effective logical channel (level-1) from chan probs = {}".format(
-	#             process_mat
-	#         )
-	#     )
-	#     decoder_probs = ut.GetErrorProbabilities(
-	#         qcode.PauliOperatorsLST, chan_probs, 0
-	#     )
-	# else:
-	#     pass
 	decoder_knowledge = PauliConvertToTransfer(decoder_probs, qcode)
 	return decoder_knowledge

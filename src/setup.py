@@ -4,32 +4,46 @@ import sys
 def CheckDependencies():
 	# Check if all the requires packages exist
 	# if not, create a requirements text file.
-	packages = [["scipy", "0.18", "linear algebra"],
-				["numpy", "0.12", "matrix operations"],
-				["picos", "1.0", "semi-definite programs, eg. Diamond norm"],
-				["cvxopt", "1.0", "semi-definite programs, eg. Diamond norm"],
-				["multiprocessing", "1.0", "parallel computations"],
-				["sklearn", "1.0", "machine learning"],
-				["matplotlib", "1.0", "plotting"],
-				["tqdm","4.31.1", "progress bar"]]
+	packages = [["scipy", "0.18", "linear algebra", "\033[0;31mCritical"],
+				["numpy", "0.12", "matrix operations", "\033[0;31mCritical"],
+				["picos", "1.0", "semi-definite programs", "\033[0;32mMild"],
+				["cvxopt", "1.0", "semi-definite programs", "\033[0;32mMild"],
+				["cvxpy", "1.1", "Integer and non-linear programs", "\033[0;32mMild"],
+				["multiprocessing", "1.0", "parallel computations", "\033[0;31mCritical"],
+				["sklearn", "1.0", "machine learning", "\033[0;32mMild"],
+				["matplotlib", "1.0", "plotting", "\033[0;31mCritical"],
+				["tqdm", "4.31.1", "progress bar", "\033[0;31mCritical"],
+				["psutil", "5.8.0", "get system information", "\033[0;31mCritical"],
+				["ctypes", "3.3", "importing C functions", "\033[0;31mCritical"],
+				["datetime", "3.2", "Fetching date and time", "\033[0;32mMild"],
+				["PyPDF2", "1.26.0", "Manipulating PDF files", "\033[0;32mMild"]]
 	missing = []
 	for i in range(len(packages)):
 		try:
 			exec("import %s" % (packages[i][0]))
 		except:
 			missing.append(packages[i])
-	if (len(missing) > 0):
+	
+	if (len(missing) > 0):	
 		print("\033[2mMissing or outdated packages might affect certain functionalities.\033[2m")
-		print("\033[2m{:<20} | {:<10} | {:<20}\033[0m".format("Package", "Version", "Affected functionality"))
-		print("\033[2m{:<50}\033[0m".format("--------------------------------------------------------------"))
+		print("\033[2m{:<20} | {:<10} | {:<20} | {:<10}\033[0m".format("Package", "Version", "Affected functionality", "Impact"))
+		print("\033[2m{:<50}\033[0m".format("---------------------------------------------------------------------"))
+		
+		is_critical = 0
 		for i in range(len(missing)):
-			print("\033[2m{:<20} | {:<10} | {:<20}\033[0m".format(missing[i][0], missing[i][1], missing[i][2]))
+			if ("Critical" in missing[i][3]):
+				is_critical = 1
+			print("\033[2m{:<20} | {:<10} | {:<20} | {:<10}\033[0m".format(missing[i][0], missing[i][1], missing[i][2], missing[i][3]))
 		print("\033[2mxxxxxx\033[0m")
+		
 		with open("./../requirements.txt", "w") as fp:
 			fp.write("# Install the missing packages using pip install -r requirements.txt\n")
 			for i in range(len(missing)):
 				fp.write("%s>=%s\n" % (missing[i][0], missing[i][1]))
-		print("\033[2mTo install all missing packages, run \"pip install -r requirements.txt\".\033[0m")
+		print("\033[0;34mTo install all missing packages, run \"pip install -r requirements.txt\".\033[0m")
+	
+		if (is_critical):
+			print("\033[0;31mExiting due to missing critical packages ...\033[0m")
 	return None
 
 
@@ -65,6 +79,7 @@ def Clean(dist = 0):
 		# Remove all physical channels
 		os.system("mv ./../physical/*.npy ./../.ignore/ > /dev/null 2>&1")
 	return None
+
 
 if __name__ == '__main__':
 	import numpy as np

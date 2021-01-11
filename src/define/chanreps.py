@@ -1,17 +1,11 @@
-try:
-    from tqdm import tqdm
-except:
-    pass
-try:
-    import numpy as np
-    import scipy as sp
-except:
-    pass
+import numpy as np
+import scipy as sp
 import ctypes as ct
+from tqdm import tqdm
 import multiprocessing as mp
+from define import qcode as qc
 from define import fnames as fn
 from define import globalvars as gv
-from define import qcode as qc
 
 
 def HermitianConjugate(mat):

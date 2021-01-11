@@ -1,18 +1,12 @@
 import datetime as dt
-
-try:
-    import numpy as np
-    import matplotlib
-
-    matplotlib.use("Agg")
-    from matplotlib import colors, ticker, cm
-
-    # from matplotlib.mlab import griddata
-    from matplotlib.backends.backend_pdf import PdfPages
-    import matplotlib.pyplot as plt
-    from scipy.interpolate import griddata
-except:
-    pass
+import numpy as np
+import matplotlib
+matplotlib.use("Agg")
+from matplotlib import colors, ticker, cm
+# from matplotlib.mlab import griddata
+from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.pyplot as plt
+from scipy.interpolate import griddata
 from define import globalvars as gv
 from define import fnames as fn
 from define import metrics as ml

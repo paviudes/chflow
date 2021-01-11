@@ -4,6 +4,37 @@ import time
 import numpy as np
 import setup as st
 
+
+def DisplayLogoLicense():
+    # Display logo as ascii drawing from http://ascii.mastervb.net with font = xcourb.tiff
+    # Display license from the LICENSE file in chflow/
+    logo = r"""
+          ###      ###  ###
+           ##     ##     ##
+     ###   ####  #####   ##    ###  ## # ##
+    ## ##  ## ##  ##     ##   ## ##  # # #
+    ##     ## ##  ##     ##   ## ##  #####
+    ## ##  ## ##  ##     ##   ## ##   ####
+     ###   ## ## ####  ######  ###    # #
+    """
+    license = r"""
+    BSD 3-Clause License
+    Copyright (c) 2018, Pavithran S Iyer, Aditya Jain and David Poulin
+    All rights reserved.
+    """
+    url = "https://github.com/paviudes/chflow/wiki"
+    print(
+        "%s\n\t\033[0;33mWelcome to chflow version \033[1mv2.0\033[0m\n\t\033[0;33mCheck out %s for help.\n%s\033[0m"
+        % (logo, url, license)
+    )
+    return None
+
+
+# Display the logo and license information
+DisplayLogoLicense()
+# Check if all the packages exist
+st.CheckDependencies()
+
 # Files from the "define" module.
 from define.fnames import (
     PhysicalChannel,
@@ -65,31 +96,6 @@ from analyze.utils import ExtractPDFPages
 # from define import chanreps as crep
 # from define.QECCLfid import uncorrectable as uc
 # from define.QECCLfid import utils as ut
-
-
-def DisplayLogoLicense():
-    # Display logo as ascii drawing from http://ascii.mastervb.net with font = xcourb.tiff
-    # Display license from the LICENSE file in chflow/
-    logo = r"""
-	      ###      ###  ###
-	       ##     ##     ##
-	 ###   ####  #####   ##    ###  ## # ##
-	## ##  ## ##  ##     ##   ## ##  # # #
-	##     ## ##  ##     ##   ## ##  #####
-	## ##  ## ##  ##     ##   ## ##   ####
-	 ###   ## ## ####  ######  ###    # #
-	"""
-    license = r"""
-	BSD 3-Clause License
-	Copyright (c) 2018, Pavithran S Iyer, Aditya Jain and David Poulin
-	All rights reserved.
-	"""
-    url = "https://github.com/paviudes/chflow/wiki"
-    print(
-        "%s\n\tWelcome to chflow version \033[1mv2.0\033[0m\n\tCheck out %s for help.\n%s"
-        % (logo, url, license)
-    )
-    return None
 
 
 def RemoteExecution(timestamp, node):
@@ -267,12 +273,6 @@ if __name__ == "__main__":
         "quit": ["Quit", "No parameters."],
         "exit": ["Quit", "No parameters."],
     }
-
-    # Display the logo and license information
-    DisplayLogoLicense()
-
-    # Check if all the packages exist
-    st.CheckDependencies()
 
     # Handle console inputs
     fileinput = 0

@@ -1,11 +1,6 @@
 import os
 import sys
-
-try:
-    import numpy as np
-except:
-    pass
-
+import numpy as np
 from define import globalvars as gv
 from define.QECCLfid import minwt as mw
 

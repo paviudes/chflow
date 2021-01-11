@@ -1,12 +1,6 @@
 import os
-import warnings as wr
-
-try:
-    import numpy as np
-    from scipy import linalg as linalg
-    from scipy.stats import truncnorm
-except:
-    pass
+import numpy as np
+from scipy import linalg as linalg
 from define import globalvars as gv
 from define.randchans import (
     RandomCPTP,
@@ -305,19 +299,6 @@ def CorrelatedPauli(params):
         "iid_fraction": float(params[3]),
         "subset_fraction": float(params[4]),
     }
-    # print("args = {}".format(kwargs))
-    # mu = float(kwargs["average_infid"])
-    # sigma = mu / 10
-    # lower = max(10e-3, mu - 0.1)
-    # upper = min(1 - 10e-3, mu + 0.1)
-    # # print(
-    # #     "mu = {}, sigma = {}, upper = {}, lower = {}".format(
-    # #         mu, sigma, upper, lower
-    # #     )
-    # # )
-    # X = truncnorm((lower - mu) / sigma, (upper - mu) / sigma, loc=mu, scale=sigma)
-    # # print("X = {}".format(X))
-    # kwargs.update({"infid": X.rvs()})
     kwargs["infid"] = np.abs(np.random.normal(params[1], 0.1 * params[1]))
     # print("args = {}".format(kwargs))
     return RandomPauliChannel(kwargs)

@@ -1,10 +1,6 @@
 import os
-
-try:
-	import numpy as np
-	import itertools as it
-except:
-	pass
+import numpy as np
+import itertools as it
 from define import chanreps as crep
 from define import randchans as rchan
 from define import chandefs as chdef
