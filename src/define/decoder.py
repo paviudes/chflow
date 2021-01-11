@@ -106,7 +106,7 @@ def PrepareNRWeights(submit):
 	# Save the nr_weights to a file.
 	qcode = submit.eccs[0]
 	max_weight = qcode.N//2 + 1
-	nr_weights = np.zeros((submit.samps, 4 ** qcode.N), dtype = np.int)
+	nr_weights = np.zeros((submit.noiserates.shape[0], submit.samps, 4 ** qcode.N), dtype = np.int)
 	for r in range(submit.noiserates.shape[0]):
 		if (submit.channel == "cptp"):
 			(__, cutoff, __, mean) = submit.noiserates[r, :]
@@ -114,9 +114,7 @@ def PrepareNRWeights(submit):
 			mean = 1
 			cutoff = max_weight
 		for s in range(submit.samps):
-			nr_weights[s, :] = [SamplePoisson(mean, cutoff=max_weight) for __ in range(4 ** qcode.N)]
-		# Save the nr_weights to a file.
-		fn.NRWeightsFile(submit, submit.noiserates[r, :])
+			nr_weights[r, s, :] = [SamplePoisson(mean, cutoff=max_weight) for __ in range(4 ** qcode.N)]
 	return None
 
 

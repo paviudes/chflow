@@ -67,6 +67,7 @@ class Submission:
         self.hybrid = 0
         self.decoderbins = []
         self.ndecoderbins = []
+        self.nr_weights = None
         # Sampling options
         self.stats = np.array([])
         self.samplingOptions = {"direct": 0, "power": 1, "bravyi": 2}
