@@ -131,6 +131,24 @@ def PreparePhysicalChannels(submit, nproc=None):
     # The miscellaneous info for correlated CPTP channels contains the interactions used to generate it.
     submit.misc = misc_info
     # print("Physical channels: {}".format(submit.phychans))
+    # Prepare the weights of Pauli errors that will be supplied to the decoder: nr_weights.
+    PrepareNRWeights(submit)
+    return None
+
+
+def PrepareNRWeights(submit):
+    # Prepare the weights of Pauli errors that will be supplied to the decoder: nr_weights.
+    # Use properties of submit to retrieve the mean and cutoff of the Poisson distribution: submit.noiserates[i, :] = (__, cutoff, __, mean)
+    # Save the nr_weights to a file.
+    qcode = submit.eccs[0]
+    max_weight = qcode.N//2 + 1
+    nr_weights = np.zeros((submit.samps, 4 ** qcode.N), dtype = np.int)
+    for r in range(submit.noiserates.shape[0]):
+        (__, cutoff, __, mean) = submit.noiserates[r, :]
+        for s in range(submit.samps):
+            nr_weights[s, :] = [SamplePoisson(1, cutoff=max_weight) for __ in range(4 ** qcode.N)]
+        # Save the nr_weights to a file.
+        fn.NRWeightsFile(submit, submit.noiserates[r, :])
     return None
 
 

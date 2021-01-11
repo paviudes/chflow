@@ -326,13 +326,13 @@ elif [[ "$1" == "from_cluster" ]]; then
 		mv data/schedule_${ts}.txt ${chflowdir}/input/
 		
 		#### Prepare output directory after moving from cluster.
-		echo "/project/def-jemerson WITH /Users/pavi/Documents IN input/${ts}.txt"
+		echo "/project/def-jemerson/chbank WITH ${outdir} IN input/${ts}.txt"
 		replace "\/project\/def-jemerson\/chbank" ${outdir} ${chflowdir}/input/${ts}.txt
 		# sed -i "${sed_prepend}" "s/\/project\/def-jemerson/\/Users\/pavi\/Documents/g" ${chflowdir}/input/${ts}.txt
 		#### Prepare output directory after moving from cluster with different path.
 		# echo "/home/a77jain/projects/def-jemerson WITH /Users/pavi/Documents IN input/${ts}.txt"
 		# sed -i ${sed_prepend} "s/\/home\/a77jain\/projects\/def-jemerson/\/Users\/pavi\/Documents/g" input/${ts}.txt
-		echo -e "xxxxxxx"
+		echo "xxxxxxx"
 	done
 	printf "\033[0m"
 	cd ${chflowdir}

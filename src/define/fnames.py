@@ -83,6 +83,12 @@ def ChannelInformationFile(dbs, noise):
     fname = "%s/physical/info_%s_%s.txt" % (dbs.outdir, dbs.channel, noisedes)
     return fname
 
+def NRWeightsFile(dbs, noise):
+    # Name of the file containing the physical channel
+    noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
+    fname = "%s/physical/nrw_%s_%s.npy" % (dbs.outdir, dbs.channel, noisedes)
+    return fname
+
 
 def RawPhysicalChannel(dbs, noise):
     # Name of the file containing the physical channel

@@ -7,7 +7,7 @@ from scipy.special import comb
 from define.QECCLfid.utils import SamplePoisson
 
 
-def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, max_weight = None):
+def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, max_weight = None, nr_weights_all = None):
 	# Get the leading Pauli probabilities in the iid model.
 	# To get the indices of the k-largest elements: https://stackoverflow.com/questions/6910641/how-do-i-get-indices-of-n-maximum-values-in-a-numpy-array
 	# If the option is "full", it supplies top alpha fraction of entire chi diagonal
@@ -33,7 +33,8 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, max_weight = None):
 			PrepareSyndromeLookUp(qcode)
 
 		budget_pauli_count = max(1, int(lead_frac * (4 ** qcode.N)))
-		nr_weights = np.array([SamplePoisson(1,cutoff=max_weight) for __ in range(budget_pauli_count)], dtype=np.int)
+		nr_weights = nr_weights_all[ : budget_pauli_count]
+		# np.array([SamplePoisson(1, cutoff=max_weight) for __ in range(budget_pauli_count)], dtype=np.int)
 		weights, weight_count = np.unique(nr_weights, return_counts = True)
 		# print("Weights : {} and their frequencies : {} ".format(weights,weight_count))
 		nerrors_weight = np.zeros(max_weight + 1, dtype = np.int)
@@ -42,7 +43,7 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, max_weight = None):
 			w = weights[i]
 			count = weight_count[i]
 			if(count > comb(qcode.N,w)*(3**w)):
-				nerrors_weight[w] = comb(qcode.N,w)*(3**w)
+				nerrors_weight[w] = comb(qcode.N, w) * (3 ** w)
 				excess_budget += count - nerrors_weight[w]
 			else:
 				nerrors_weight[w] = count
@@ -69,10 +70,10 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, max_weight = None):
 	return (1 - iid_chan_probs[0], leading_paulis, iid_chan_probs[leading_paulis])
 
 
-def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full"):
+def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full", nr_weights = None):
 	# Complete the probabilities given to a ML decoder.
 	(infid, known_paulis, known_probs) = GetLeadingPaulis(
-		leading_fraction, qcode, chan_probs, option
+		leading_fraction, qcode, chan_probs, option, nr_weights
 	)
 	"""
 	Create a function similar to GetLeadingPaulis.
