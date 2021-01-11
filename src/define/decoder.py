@@ -115,6 +115,9 @@ def PrepareNRWeights(submit):
 			cutoff = max_weight
 		for s in range(submit.samps):
 			submit.nr_weights[r, s, :] = [SamplePoisson(mean, cutoff=max_weight) for __ in range(4 ** qcode.N)]
+		# Save the nr_weights to a file.
+		fname = fn.NRWeightsFile(submit, submit.noiserates[r, :])
+		np.save(fname, submit.nr_weights[r, :])
 	return None
 
 
