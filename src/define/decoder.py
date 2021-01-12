@@ -7,7 +7,7 @@ from scipy.special import comb
 from define.QECCLfid.utils import SamplePoisson
 
 
-def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, max_weight = None, nr_weights_all = None):
+def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, nr_weights_all = None, max_weight = None):
 	# Get the leading Pauli probabilities in the iid model.
 	# To get the indices of the k-largest elements: https://stackoverflow.com/questions/6910641/how-do-i-get-indices-of-n-maximum-values-in-a-numpy-array
 	# If the option is "full", it supplies top alpha fraction of entire chi diagonal
@@ -42,7 +42,7 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, max_weight = None, nr
 		for i in range(len(weights)):
 			w = weights[i]
 			count = weight_count[i]
-			if(count > comb(qcode.N,w)*(3**w)):
+			if(count > comb(qcode.N, w) * (3 ** w)):
 				nerrors_weight[w] = comb(qcode.N, w) * (3 ** w)
 				excess_budget += count - nerrors_weight[w]
 			else:
@@ -56,7 +56,7 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, max_weight = None, nr
 			excess_budget -= add_to_weight_w
 
 		percent_errors = [nerrors_weight[w]*100/(comb(qcode.N,w)*(3**w)) for w in range(max_weight+1)]
-		print("Percentage errors picked according to weight : {}".format(np.round(percent_errors,3)))
+		# print("Percentage errors picked according to weight : {}".format(np.round(percent_errors,3)))
 
 		leading_paulis = np.zeros(np.sum(nerrors_weight, dtype = np.int), dtype=np.int)
 		start = 0
@@ -115,9 +115,9 @@ def PrepareNRWeights(submit):
 			cutoff = max_weight
 		for s in range(submit.samps):
 			submit.nr_weights[r, s, :] = [SamplePoisson(mean, cutoff=max_weight) for __ in range(4 ** qcode.N)]
-		# Save the nr_weights to a file.
-		fname = fn.NRWeightsFile(submit, submit.noiserates[r, :])
-		np.save(fname, submit.nr_weights[r, :])
+		# # Save the nr_weights to a file.
+		# fname = fn.NRWeightsFile(submit, submit.noiserates[r, :])
+		# np.save(fname, submit.nr_weights[r, :])
 	return None
 
 

@@ -1,28 +1,21 @@
+# Critical packages
 import os
 import sys
 import datetime as dt
+import numpy as np
+import matplotlib
+matplotlib.use("Agg")
+from matplotlib import colors, ticker, cm
+from matplotlib.colors import LogNorm
+from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes, InsetPosition, mark_inset
+from scipy.interpolate import griddata
 
-try:
-    import numpy as np
-    import matplotlib
-
-    matplotlib.use("Agg")
-    from matplotlib import colors, ticker, cm
-    from matplotlib.colors import LogNorm
-    from matplotlib.backends.backend_pdf import PdfPages
-    import matplotlib.pyplot as plt
-    from mpl_toolkits.axes_grid.inset_locator import (
-        inset_axes,
-        InsetPosition,
-        mark_inset,
-    )
-    from scipy.interpolate import griddata
-except:
-    pass
-
+# Functions from other modules
 from define import qcode as qec
-from define import fnames as fn
 from define import globalvars as gv
+from define.fnames import PauliDistribution
 
 
 def PauliDistributionPlot(
@@ -63,7 +56,7 @@ def PauliDistributionPlot(
                 w, pauliprobs[leading_by_weight[w]]
             )
         )
-    plotfname = fn.PauliDistribution(outdir, channel)
+    plotfname = PauliDistribution(outdir, channel)
     with PdfPages(plotfname) as pdf:
         fig = plt.figure(figsize=gv.canvas_size)
         current = 0

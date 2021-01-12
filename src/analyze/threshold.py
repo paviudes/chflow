@@ -1,25 +1,25 @@
+# Critical packages
 import os
 import sys
 import datetime as dt
+import numpy as np
+import matplotlib
+matplotlib.use("Agg")
+from matplotlib import colors, ticker, cm
+from matplotlib.colors import LogNorm
+from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes, InsetPosition, mark_inset
+from scipy.interpolate import griddata
 
+# Non critical packages
 try:
-    import numpy as np
-    import matplotlib
-
-    matplotlib.use("Agg")
-    from matplotlib import colors, ticker, cm
-    from matplotlib.colors import LogNorm
-    from matplotlib.backends.backend_pdf import PdfPages
-    import matplotlib.pyplot as plt
-    from mpl_toolkits.axes_grid.inset_locator import (
-        inset_axes,
-        InsetPosition,
-        mark_inset,
-    )
-    from scipy.interpolate import griddata
     import PyPDF2 as pp
-except:
+except ImportError:
     pass
+
+# Functions from other modules
+from define.fnames import LogicalErrorRates, PhysicalErrorRates, ThreshPlot
 
 
 def ThresholdPlot(phymets, logmet, dbs):
@@ -32,7 +32,7 @@ def ThresholdPlot(phymets, logmet, dbs):
     phylist = list(map(lambda phy: phy.strip(" "), phymets.split(",")))
     sampreps = np.hstack((np.nonzero(dbs.available[:, -1] == 0)[0], [dbs.channels]))
     # print("sampreps\n%s" % (np.array_str(sampreps)))
-    logErrs = np.load(fn.LogicalErrorRates(dbs, logmet, fmt="npy"))
+    logErrs = np.load(LogicalErrorRates(dbs, logmet, fmt="npy"))
     logErr = np.zeros((sampreps.shape[0], dbs.levels + 1), dtype=np.longdouble)
     for i in range(sampreps.shape[0] - 1):
         for l in range(dbs.levels + 1):
@@ -52,8 +52,8 @@ def ThresholdPlot(phymets, logmet, dbs):
                 ) / np.longdouble(sampreps[i + 1] - sampreps[i])
             phyparams.append(qc.Channels[dbs.channel]["latex"][np.int8(phylist[m])])
         else:
-            # print("loading: %s" % (fn.PhysicalErrorRates(dbs, phylist[m])))
-            phyrates = np.load(fn.PhysicalErrorRates(dbs, phylist[m]))
+            # print("loading: %s" % (PhysicalErrorRates(dbs, phylist[m])))
+            phyrates = np.load(PhysicalErrorRates(dbs, phylist[m]))
             # print("metric = %s, phyrates\n%s" % (phylist[m], np.array_str(phyrates)))
             for i in range(sampreps.shape[0] - 1):
                 # print("phyrates[%d:%d, np.int8(phylist[m])]\n%s" % (sampreps[i], sampreps[i + 1], np.array_str(phyrates[sampreps[i]:sampreps[i + 1]])))
@@ -63,7 +63,7 @@ def ThresholdPlot(phymets, logmet, dbs):
             phyparams.append(ml.Metrics[phylist[m]]["latex"])
     # print("phyerrs")
     # print phyerrs
-    plotfname = fn.ThreshPlot(dbs, "_".join(phylist), logmet)
+    plotfname = ThreshPlot(dbs, "_".join(phylist), logmet)
     with PdfPages(plotfname) as pdf:
         for m in range(len(phylist)):
             fig = plt.figure(figsize=gv.canvas_size)

@@ -1,9 +1,4 @@
-import os
-import sys
-import time
-import numpy as np
-import setup as st
-
+from setup import CheckDependencies
 
 def DisplayLogoLicense():
     # Display logo as ascii drawing from http://ascii.mastervb.net with font = xcourb.tiff
@@ -17,25 +12,33 @@ def DisplayLogoLicense():
     ## ##  ## ##  ##     ##   ## ##   ####
      ###   ## ## ####  ######  ###    # #
     """
+    welcome = r"""
+    Welcome to chflow version v2.0.
+    Check out https://github.com/paviudes/chflow/wiki for help.
+    """
     license = r"""
     BSD 3-Clause License
     Copyright (c) 2018, Pavithran S Iyer, Aditya Jain and David Poulin
     All rights reserved.
     """
-    url = "https://github.com/paviudes/chflow/wiki"
-    print(
-        "%s\n\t\033[0;33mWelcome to chflow version \033[1mv2.0\033[0m\n\t\033[0;33mCheck out %s for help.\n%s\033[0m"
-        % (logo, url, license)
-    )
+    print("%s\033[0;36m%s%s\033[0m"% (logo, welcome, license))
     return None
-
 
 # Display the logo and license information
 DisplayLogoLicense()
 # Check if all the packages exist
-st.CheckDependencies()
+CheckDependencies()
 
-# Files from the "define" module.
+
+# Critical packages
+import os
+import sys
+import time
+import readline
+import numpy as np
+
+
+# Files from other modules.
 from define.fnames import (
     PhysicalChannel,
     LogicalErrorRates,
@@ -71,12 +74,7 @@ from define.merge import MergeSubs
 from define.metrics import Metrics, ComputeNorms, ComputeMetrics  # Calibrate,
 from define.qchans import Channels, SaveChan  # Twirl, PrintChan
 from define.genchans import PreparePhysicalChannels
-from define.chanreps import (
-    CreatePauliDistChannels,
-    TwirlChannels,
-    ConvertRepresentations,
-)
-
+from define.chanreps import CreatePauliDistChannels, TwirlChannels, ConvertRepresentations
 from define.QECCLfid.utils import GetErrorProbabilities
 
 from analyze.collect import IsComplete, GatherLogErrData, AddPhysicalRates
@@ -88,14 +86,6 @@ from analyze.statplot import MCStatsPlot
 from analyze.hamplot import DoubleHammerPlot
 from analyze.pdplot import PauliDistributionPlot
 from analyze.utils import ExtractPDFPages
-
-# from define import chandefs as chdef
-# from define import chanapprox as capp
-# from define import photonloss as ploss
-# from define import gendamp as gdamp
-# from define import chanreps as crep
-# from define.QECCLfid import uncorrectable as uc
-# from define.QECCLfid import utils as ut
 
 
 def RemoteExecution(timestamp, node):
@@ -274,6 +264,13 @@ if __name__ == "__main__":
         "exit": ["Quit", "No parameters."],
     }
 
+    # Read previous commands for chflow.
+    ncommands = 0
+    commands_file = "./../.chflow_commands.log"
+    if os.path.isfile(commands_file):
+        readline.read_history_file(commands_file)
+    else:
+        readline.write_history_file(commands_file)
     # Handle console inputs
     fileinput = 0
     infp = None
@@ -1364,5 +1361,10 @@ if __name__ == "__main__":
             if n_empty > max_empties:
                 isquit = 1
 
+        # Count the number of commands
+        ncommands += 1
+
     if fileinput == 1:
         infp.close()
+
+    readline.write_history_file(commands_file)

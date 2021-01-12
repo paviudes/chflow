@@ -190,11 +190,9 @@ def SavePhysicalChannels(submit):
 		if save_raw == 1:
 			np.save("%s/raw_%s" % (folder, fname), submit.rawchans[i, :, :])
 		
-		# Save the nr_rates for the partial soft decoder
-		if (4 in submit.decoders):
-			# Save the nr_weights to a file.
-			fname = fn.NRWeightsFile(submit, submit.noiserates[r, :])
-			np.save(fname, submit.nr_weights[r, :])
+		# Save the nr_rates for the partial soft decoder to a file.
+		fname = fn.NRWeightsFile(submit, submit.noiserates[i, :])
+		np.savetxt(fname, submit.nr_weights[i, :], fmt = "%d")
 		
 	# Miscellaneous information
 	# Information about the different interactions for correlated CPTP channels.
@@ -212,7 +210,7 @@ def SavePhysicalChannels(submit):
 					fp.write("\n")
 					fp.write("# budget of chi excluded in NR: %.5e.\n" % (budget))
 					fp.write("# infidelity: %.5e.\n" % (infidelity))
-					fp.write("# ||PTM - PTM_diag||_2 = %.5e.\n" % (infidelity))
+					fp.write("# ||PTM - PTM_diag||_2 = %.5e.\n" % (non_pauliness))
 					fp.write("# -------\n")
 	return None
 

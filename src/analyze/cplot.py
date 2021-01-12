@@ -1,26 +1,28 @@
+# Critical packages
 import os
 import sys
 import datetime as dt
 import numpy as np
 import matplotlib
-
 matplotlib.use("Agg")
 from matplotlib import colors, ticker, cm
 from matplotlib.colors import LogNorm
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid.inset_locator import inset_axes, InsetPosition, mark_inset
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes, InsetPosition, mark_inset
 from scipy.interpolate import griddata
 
+# Optional packages
 try:
     import PyPDF2 as pp
 except ImportError:
-    print("PyPDF2 is not available, cannot manipulate PDFs.")
+    pass
 
-from analyze.load import LoadPhysicalErrorRates
-from define import fnames as fn
+# Functions from other modules
 from define import metrics as ml
 from define import globalvars as gv
+from analyze.load import LoadPhysicalErrorRates
+from define.fnames import ChannelWise, LogicalErrorRates
 
 
 def RelativeImprovement(xaxis, yaxes, plt, ax1, xlabel, only_points, annotations=None):
@@ -81,7 +83,7 @@ def ChannelWisePlot(phymet, logmet, dbses, thresholds={"y": 10e-16, "x": 10e-16}
 	# Plot each channel in the database with a different color.
 	# Channels of similar type in different databases will be distinguished using different markers.
 	ndb = len(dbses)
-	plotfname = fn.ChannelWise(dbses[0], phymet, logmet)
+	plotfname = ChannelWise(dbses[0], phymet, logmet)
 	maxlevel = max([db.levels for db in dbses])
 	annotations = None
 	select_count = min(10, dbses[0].channels)
@@ -98,7 +100,7 @@ def ChannelWisePlot(phymet, logmet, dbses, thresholds={"y": 10e-16, "x": 10e-16}
 			# phyerrs = np.zeros((len(dbses), dbses[0].channels), dtype=np.double)
 			settings = [{} for __ in range(ndb)]
 			for d in range(ndb):
-				logerrs[d, :] = np.load(fn.LogicalErrorRates(dbses[d], logmet))[:, l]
+				logerrs[d, :] = np.load(LogicalErrorRates(dbses[d], logmet))[:, l]
 			include_RC = np.nonzero(logerrs[0, :] > thresholds["y"])[0]
 			include_nonRC = np.nonzero(logerrs[1, :] > thresholds["y"])[0]
 			include_both = np.intersect1d(include_RC, include_nonRC)
@@ -123,7 +125,7 @@ def ChannelWisePlot(phymet, logmet, dbses, thresholds={"y": 10e-16, "x": 10e-16}
 				settings[d] = {
 					"xaxis": None,
 					"xlabel": None,
-					"yaxis": np.load(fn.LogicalErrorRates(dbses[d], logmet))[:, l],
+					"yaxis": np.load(LogicalErrorRates(dbses[d], logmet))[:, l],
 					"ylabel": ylabel,
 					"color": "",
 					"marker": "",

@@ -1,22 +1,24 @@
+# Critical packages
 import os
 import sys
 import datetime as dt
 import numpy as np
 import matplotlib
-
 matplotlib.use("Agg")
 from matplotlib import colors, ticker, cm
 from matplotlib.lines import Line2D
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid.inset_locator import inset_axes, InsetPosition, mark_inset
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes, InsetPosition, mark_inset
 from scipy.interpolate import griddata
+
+# Functions from other modules
 from define.utils import IsNumber
 from define.metrics import Metrics
-from analyze.utils import DisplayForm, RealNoise, scientific_float, latex_float
-from analyze.load import LoadPhysicalErrorRates
-from define.fnames import MCStatsPlotFile, PhysicalErrorRates, RunningAverageCh
 from define import globalvars as gv
+from analyze.load import LoadPhysicalErrorRates
+from analyze.utils import DisplayForm, RealNoise, scientific_float, latex_float
+from define.fnames import MCStatsPlotFile, PhysicalErrorRates, RunningAverageCh
 
 
 def GetChannelPosition(rates, samples, available):

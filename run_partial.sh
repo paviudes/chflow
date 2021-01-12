@@ -10,11 +10,11 @@ if [[ $host == *"paviws"* ]]; then
 	outdir="/Users/pavi/Documents/chbank"
 	chflowdir="/Users/pavi/Documents/rclearn/chflow"
 	report_dir="/Users/pavi/OneDrive\ -\ University\ of\ Waterloo/chbank/Nov4"
-	sed_prepend=''
+	sed_prepend=' '
 	# CPTP
 	pavi_ws_cptp_level3=("pavi_ws_cptp_l3_00" "pavi_ws_cptp_l3_01" "pavi_ws_cptp_l3_02" "pavi_ws_cptp_l3_03" "pavi_ws_cptp_l3_04" "pavi_ws_cptp_l3_05" "pavi_ws_cptp_l3_06" "pavi_ws_cptp_l3_07" "pavi_ws_cptp_l3_08" "pavi_ws_cptp_l3_09" "pavi_ws_cptp_l3_10" "pavi_ws_cptp_l3_11")
 	pavi_beluga_cptp_level3=("pavi_beluga_cptp_l3_00" "pavi_beluga_cptp_l3_01" "pavi_beluga_cptp_l3_02" "pavi_beluga_cptp_l3_03" "pavi_beluga_cptp_l3_04" "pavi_beluga_cptp_l3_05" "pavi_beluga_cptp_l3_06" "pavi_beluga_cptp_l3_07" "pavi_beluga_cptp_l3_08" "pavi_beluga_cptp_l3_09" "pavi_beluga_cptp_l3_10" "pavi_beluga_cptp_l3_11")
-	alphas=(0 0.0002 0.0004 0.0008 0.0016 0.0032 0.0063 0.0126 0.0251 0.0501 0.1 1)
+	alphas_pavi=(0 0.0002 0.0004 0.0008 0.0016 0.0032 0.0063 0.0126 0.0251 0.0501 0.1 1)
 	# Command to rename files
 	# find . -maxdepth 1 -type d -name "pavi_beluga_cptp_l3_08_12_2020_*" -exec bash -c 'mv $0 ${0/cptp_l3_08_12_2020/cptp}' {} \;
 
@@ -92,9 +92,9 @@ usage() {
 	printf "\033[0m"
 }
 
-timestamps=("${pavi_beluga_cptp_level3[@]}")
-alphas=${#alphas_pavi[@]}
-log=pavi_beluga_cptp_level3
+timestamps=("${pavi_ws_cptp_level3[@]}")
+alphas=("${alphas_pavi[@]}")
+log=pavi_ws_cptp_level3
 refts=${timestamps[0]}
 
 if [[ "$1" == "overwrite" ]]; then
@@ -152,31 +152,39 @@ elif [[ "$1" == "generate" ]]; then
 		# echo "sbtwirl" >> input/temp.txt
 		echo "submit ${ts}" >> input/temp.txt
 	done
-	
+	printf "\033[0m"
+
 	echo "quit" >> input/temp.txt
-	cat input/temp.txt
 	./chflow.sh -- temp.txt
 	rm input/temp.txt
 
+	printf "\033[2m"
 	for (( t=1; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
 		alpha=${alphas[t]}
 		# if the simulation is for level 3
-		echo "REPLACE decoder 1,1,1 WITH decoder 4,4,4 IN input/${ts}.txt"
-		replace "decoder 1,1,1" "decoder 4,4,4" input/${ts}.txt
-		# sed -i "${sed_prepend}" "s/decoder 1,1,1/decoder 4,4,4/g" input/${ts}.txt
-		# if the simulation is for level 2
-		echo "REPLACE decoder 1,1 WITH decoder 4,4 IN input/${ts}.txt"
-		replace "decoder 1,1" "decoder 4,4" input/${ts}.txt
-		# sed -i "${sed_prepend}" "s/decoder 1,1/decoder 4,4/g" input/${ts}.txt
-		# if the simulation is for level 1
-		echo "REPLACE decoder 1 WITH decoder 4 IN input/${ts}.txt"
-		replace "decoder 1" "decoder 4" input/${ts}.txt
-		# sed -i "${sed_prepend}" "s/decoder 1/decoder 4/g" input/${ts}.txt
+		if grep -Fxq "decoder 1,1,1" input/${ts}.txt;
+		then
+			# if the simulation is for level 3
+			echo "REPLACE decoder 1,1,1 WITH decoder 4,4,4 IN input/${ts}.txt"
+			replace "decoder 1,1,1" "decoder 4,4,4" input/${ts}.txt
+		elif grep -Fxq "decoder 1,1" input/${ts}.txt;
+		then
+			# if the simulation is for level 2
+			echo "REPLACE decoder 1,1 WITH decoder 4,4 IN input/${ts}.txt"
+			replace "decoder 1,1" "decoder 4,4" input/${ts}.txt
+		elif grep -Fxq "decoder 1" input/${ts}.txt;
+		then
+			# if the simulation is for level 1
+			echo "REPLACE decoder 1 WITH decoder 4 IN input/${ts}.txt"
+			replace "decoder 1" "decoder 4" input/${ts}.txt
+		else
+			:
+		fi
+
 		# set the alpha for dcfraction.
 		echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
 		replace "dcfraction ${refalpha}" "dcfraction ${alpha}" input/${ts}.txt
-		# sed -i "${sed_prepend}" "s/dcfraction ${refalpha}/dcfraction ${alpha}/g" input/${ts}.txt
 
 		echo "xxxxxxx"
 	done

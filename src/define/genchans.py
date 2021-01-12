@@ -71,11 +71,7 @@ def PreparePhysicalChannels(submit, nproc=None):
 	)
 	misc_info = [["None" for __ in range(submit.samps)] for __ in range(submit.noiserates.shape[0])]
 
-	for i in tqdm(
-		range(submit.noiserates.shape[0]),
-		ascii=True,
-		desc="\033[2mPreparing physical channels:",
-	):
+	for i in tqdm(range(submit.noiserates.shape[0]), ascii=True, desc="Preparing physical channels:", colour = "green"):
 		noise = np.zeros(submit.noiserates.shape[1], dtype=np.longdouble)
 		for j in range(submit.noiserates.shape[1]):
 			if submit.scales[j] == 1:
@@ -114,7 +110,6 @@ def PreparePhysicalChannels(submit, nproc=None):
 				info = ([("N", "N")], 0, 0, 0)
 			misc_info[i][samp] = info
 
-	print("\033[0m")
 	submit.phychans = np.reshape(
 		phychans, [submit.noiserates.shape[0], submit.samps, nparams], order="c"
 	)

@@ -1,17 +1,10 @@
+# Critical packages
 import os
 import sys
+import numpy as np
 
-try:
-	import numpy as np
-except:
-	pass
-from define import fnames as fn
-
-# Force the module scripts to run locally -- https://stackoverflow.com/questions/279237/import-a-module-from-a-relative-path
-# import inspect as ins
-# current = os.path.realpath(os.path.abspath(os.path.dirname(ins.getfile(ins.currentframe()))))
-# if (not (current in sys.path)):
-# 	sys.path.insert(0, current)
+# Functions from other modules
+from define.fnames import LogicalChannel, PhysicalChannel, LogicalErrorRate, PhysicalErrorRates, LogicalErrorRates, RunningAverageCh, RunningAverages
 
 
 def IsEmptyFolder(dirname):
@@ -31,9 +24,9 @@ def IsComplete(submit):
 		if not IsEmptyFolder("%s/channels" % (submit.outdir)):
 			for i in range(submit.noiserates.shape[0]):
 				for j in range(submit.samps):
-					# print("%s" % (fn.LogicalChannel(submit, submit.noiserates[i], j)))
+					# print("%s" % (LogicalChannel(submit, submit.noiserates[i], j)))
 					if os.path.isfile(
-						fn.LogicalChannel(submit, submit.noiserates[i], j)
+						LogicalChannel(submit, submit.noiserates[i], j)
 					):
 						chcount = chcount + 1
 		submit.channels = chcount
@@ -45,7 +38,7 @@ def IsComplete(submit):
 			for i in range(submit.noiserates.shape[0]):
 				for j in range(submit.samps):
 					if os.path.isfile(
-						fn.LogicalChannel(submit, submit.noiserates[i], j)
+						LogicalChannel(submit, submit.noiserates[i], j)
 					):
 						submit.available[chcount, :-1] = submit.noiserates[i, :]
 						submit.available[chcount, -1] = j
@@ -78,7 +71,7 @@ def CollectPhysicalChannels(submit):
 	)
 	for i in range(submit.noiserates.shape[0]):
 		(folder, fname) = os.path.split(
-			fn.PhysicalChannel(submit, submit.noiserates[i])
+			PhysicalChannel(submit, submit.noiserates[i])
 		)
 		if os.path.isfile("%s/%s" % (folder, fname)) == 1:
 			submit.phychans[i, :, :] = np.load("%s/%s" % (folder, fname))
@@ -96,7 +89,7 @@ def GatherLogErrData(submit, additional=[]):
 		runavg = np.zeros((submit.channels, submit.stats.shape[0]), dtype=np.longdouble)
 		for i in range(submit.channels):
 			for quant in range(2):
-				fname = fn.LogicalErrorRate(
+				fname = LogicalErrorRate(
 					submit,
 					submit.available[i, :-1],
 					submit.available[i, -1],
@@ -106,20 +99,20 @@ def GatherLogErrData(submit, additional=[]):
 				if os.path.isfile(fname):
 					break
 			logerr[i, :] = np.load(fname)
-			fname = fn.RunningAverageCh(
+			fname = RunningAverageCh(
 				submit, submit.available[i, :-1], submit.available[i, -1], logmetrics[m]
 			)
 			if os.path.isfile(fname):
 				# print("running average for channel {}\n{}".format(i, np.load(fname)))
 				runavg[i, :] = np.load(fname)
 		# Save the gathered date to a numpy file.
-		fname = fn.LogicalErrorRates(submit, logmetrics[m], fmt="npy")
+		fname = LogicalErrorRates(submit, logmetrics[m], fmt="npy")
 		np.save(fname, logerr)
 		# Save the running averages to a file
-		fname = fn.RunningAverages(submit, logmetrics[m])
+		fname = RunningAverages(submit, logmetrics[m])
 		np.save(fname, runavg)
 		# Save the gathered date to a text file.
-		fname = fn.LogicalErrorRates(submit, logmetrics[m], fmt="txt")
+		fname = LogicalErrorRates(submit, logmetrics[m], fmt="txt")
 		with open(fname, "w") as fp:
 			fp.write(
 				"# Channel Noise Sample %s\n"
@@ -179,7 +172,7 @@ def ComputeThreshold(dbs, lmet):
 	# For every physical noise rate, determine if it is above or below threshold.
 	# Above threshold iff the logical error rate decreases with the level of concatenation and below otherwise.
 	# The threshold is the average of the smallest physical noise rate that is above threshold and the largest physical noise rate that is below threshold.
-	logErr = np.load(fn.LogicalErrorRates(dbs, lmet, fmt="npy"))
+	logErr = np.load(LogicalErrorRates(dbs, lmet, fmt="npy"))
 	regime = np.zeros(dbs.noiserates.shape[0], dtype=np.int8)
 	bestfit = np.zeros(2, dtype=np.float)
 	for i in range(dbs.channels):
@@ -209,9 +202,9 @@ def AddPhysicalRates(dbs):
 	# Read the physical error rates.
 	phyerr = np.zeros((len(dbs.metrics), dbs.channels), dtype=np.longdouble)
 	for m in range(len(dbs.metrics)):
-		phyerr[m, :] = np.load(fn.PhysicalErrorRates(dbs, dbs.metrics[m]))
+		phyerr[m, :] = np.load(PhysicalErrorRates(dbs, dbs.metrics[m]))
 		for i in range(dbs.channels):
-			fname = fn.LogicalErrorRate(
+			fname = LogicalErrorRate(
 				dbs, dbs.available[i, :-1], dbs.available[i, -1], dbs.metrics[m]
 			)
 			logerr = np.load(fname)

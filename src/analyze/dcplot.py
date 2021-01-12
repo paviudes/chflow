@@ -1,3 +1,4 @@
+# Critical packages
 import os
 import sys
 import datetime as dt
@@ -9,16 +10,16 @@ from matplotlib import colors, ticker, cm
 from matplotlib.colors import LogNorm
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid.inset_locator import inset_axes, InsetPosition, mark_inset
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes, InsetPosition, mark_inset
 from scipy.interpolate import griddata
 
-from analyze.load import LoadPhysicalErrorRates
-from analyze.bins import ComputeBinVariance
-from analyze.utils import latex_float
-
-from define import fnames as fn
+# Functions from other modules
 from define import metrics as ml
 from define import globalvars as gv
+from analyze.utils import latex_float
+from analyze.bins import ComputeBinVariance
+from analyze.load import LoadPhysicalErrorRates
+from define.fnames import DecodersPlot, DecodersInstancePlot, LogicalErrorRates, PhysicalErrorRates
 
 
 def DecoderCompare(
@@ -26,7 +27,7 @@ def DecoderCompare(
 ):
     # Compare performance of various decoders.
     ndb = len(dbses)
-    plotfname = fn.DecodersPlot(dbses[0], phymet, logmet)
+    plotfname = DecodersPlot(dbses[0], phymet, logmet)
     nlevels = max([db.levels for db in dbses])
     with PdfPages(plotfname) as pdf:
         for l in range(1, nlevels + 1):
@@ -36,7 +37,7 @@ def DecoderCompare(
                 settings = {
                     "xaxis": None,
                     "xlabel": None,
-                    "yaxis": np.load(fn.LogicalErrorRates(dbses[d], logmet))[:, l],
+                    "yaxis": np.load(LogicalErrorRates(dbses[d], logmet))[:, l],
                     "ylabel": "$\\overline{%s_{%d}}$"
                     % (ml.Metrics[logmet]["latex"].replace("$", ""), l),
                     "color": gv.Colors[d % gv.n_Colors]
@@ -117,9 +118,9 @@ def DecoderInstanceCompare(
     # print("uniques = {}".format(type(uniques)))
     dbses = [dbses_input[d] for d in uniques]
     ndb = len(dbses)
-    plotfname = fn.DecodersInstancePlot(dbses[0], phymet, logmet)
+    plotfname = DecodersInstancePlot(dbses[0], phymet, logmet)
     nlevels = max([db.levels for db in dbses])
-    phyerrs = np.load(fn.PhysicalErrorRates(dbses[0], phymet))
+    phyerrs = np.load(PhysicalErrorRates(dbses[0], phymet))
     with PdfPages(plotfname) as pdf:
         for l in range(1, nlevels + 1):
             fig = plt.figure(figsize=gv.canvas_size)
@@ -149,16 +150,16 @@ def DecoderInstanceCompare(
                 for d in range(ndb):
                     if dbses[d].decoders[l - 1] == 0:
                         ax1.axhline(
-                            y=np.load(fn.LogicalErrorRates(dbses[d], logmet))[ch, l],
+                            y=np.load(LogicalErrorRates(dbses[d], logmet))[ch, l],
                             linestyle="--",
                             linewidth=gv.line_width,
                             color="green",
                             label="MLD",
                         )
                     elif dbses[d].decoders[l - 1] == 1:
-                        minwt = np.load(fn.LogicalErrorRates(dbses[d], logmet))[ch, l]
+                        minwt = np.load(LogicalErrorRates(dbses[d], logmet))[ch, l]
                         ax1.axhline(
-                            y=np.load(fn.LogicalErrorRates(dbses[d], logmet))[ch, l],
+                            y=np.load(LogicalErrorRates(dbses[d], logmet))[ch, l],
                             linestyle="--",
                             linewidth=gv.line_width,
                             color="red",
@@ -167,7 +168,7 @@ def DecoderInstanceCompare(
                     else:
                         settings["xaxis"].append(dbses[d].decoder_fraction)
                         settings["yaxis"].append(
-                            np.load(fn.LogicalErrorRates(dbses[d], logmet))[ch, l]
+                            np.load(LogicalErrorRates(dbses[d], logmet))[ch, l]
                         )
                         # print("{} --- {}".format(int(dbses[d].decoder_fraction * (4 ** dbses[0].eccs[0].N)), dbses[d].timestamp))
                 sortorder = np.argsort(settings["xaxis"])

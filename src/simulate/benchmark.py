@@ -142,7 +142,7 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity, rawchan=None
 			mpinfo = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, submit.eccs[0], option="full", nr_weights = None).astype(np.float64)
 		else:
 			# decoder is 4 i.e distribute by weight guided by Poisson
-			nr_weights = np.load(fn.NRWeightsFile(submit, noise))[sample, :]
+			nr_weights = np.loadtxt(fn.NRWeightsFile(submit, noise), dtype = np.int)[sample, :]
 			mpinfo = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, submit.eccs[0], option="weight", nr_weights = nr_weights).astype(np.float64)
 	else:
 		mpinfo = np.zeros(4**submit.eccs[0].N, dtype=np.float64)
