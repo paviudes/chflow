@@ -6,18 +6,6 @@ cluster="$2"
 if [[ -n ${cluster} ]]; then
 	cores=40 # 48 for cedar, 40 for beluga and 32 for graham
 	local_user=a77jain
-	## Timestamps
-	# ISING
-	pavi_beluga_ising_level3=("pavi_beluga_ising_l3_00" "pavi_beluga_ising_l3_01" "pavi_beluga_ising_l3_02" "pavi_beluga_ising_l3_03" "pavi_beluga_ising_l3_04" "pavi_beluga_ising_l3_05" "pavi_beluga_ising_l3_06" "pavi_beluga_ising_l3_07" "pavi_beluga_ising_l3_08" "pavi_beluga_ising_l3_09" "pavi_beluga_ising_l3_10" "pavi_beluga_ising_l3_11" "pavi_beluga_ising_l3_12" "pavi_beluga_ising_l3_13" "pavi_beluga_ising_l3_14" "pavi_beluga_ising_l3_15" "pavi_beluga_ising_l3_16" "pavi_beluga_ising_l3_17" "pavi_beluga_ising_l3_18" "pavi_beluga_ising_l3_19")
-	# CPTP
-	pavi_beluga_cptp_level3=("pavi_beluga_cptp_l3_00" "pavi_beluga_cptp_l3_01" "pavi_beluga_cptp_l3_02" "pavi_beluga_cptp_l3_03" "pavi_beluga_cptp_l3_04" "pavi_beluga_cptp_l3_05" "pavi_beluga_cptp_l3_06" "pavi_beluga_cptp_l3_07" "pavi_beluga_cptp_l3_08" "pavi_beluga_cptp_l3_09" "pavi_beluga_cptp_l3_10" "pavi_beluga_cptp_l3_11" "pavi_beluga_cptp_l3_12" "pavi_beluga_cptp_l3_13" "pavi_beluga_cptp_l3_14" "pavi_beluga_cptp_l3_15" "pavi_beluga_cptp_l3_16" "pavi_beluga_cptp_l3_17" "pavi_beluga_cptp_l3_18" "pavi_beluga_cptp_l3_19")
-    aditya_cptp_level2=("cptp_l2_24_12_2020_00" "cptp_l2_24_12_2020_01" "cptp_l2_24_12_2020_02" "cptp_l2_24_12_2020_03" "cptp_l2_24_12_2020_04" "cptp_l2_24_12_2020_06" "cptp_l2_24_12_2020_07" "cptp_l2_24_12_2020_08" "cptp_l2_24_12_2020_10" "cptp_l2_24_12_2020_11" "cptp_l2_24_12_2020_12" "cptp_l2_24_12_2020_13" "cptp_l2_24_12_2020_14" "cptp_l2_24_12_2020_15" "cptp_l2_24_12_2020_16" "cptp_l2_24_12_2020_17" "cptp_l2_24_12_2020_18" "cptp_l2_24_12_2020_19" "cptp_l2_24_12_2020_20" "cptp_l2_24_12_2020_21" "cptp_l2_24_12_2020_22" "cptp_l2_24_12_2020_23" "cptp_l2_24_12_2020_24" "cptp_l2_24_12_2020_25" "cptp_l2_24_12_2020_26" "cptp_l2_24_12_2020_27" "cptp_l2_24_12_2020_28" "cptp_l2_24_12_2020_29" "cptp_l2_24_12_2020_30" "cptp_l2_24_12_2020_31" "cptp_l2_24_12_2020_32" "cptp_l2_24_12_2020_33" "cptp_l2_24_12_2020_34" "cptp_l2_24_12_2020_35" "cptp_l2_24_12_2020_36" "cptp_l2_24_12_2020_37")
-    ## Alphas
-    # pavi
-    alphas_pavi=(0 0.0001 0.00015 0.00023 0.00034 0.00051 0.00076 0.00115 0.00172 0.00258 0.00387 0.00582 0.00873 0.01311 0.01968 0.02955 0.04437 0.06661 0.1 1)
-    # aditya
-    alphas_aditya=(0 0.0001 0.00012 0.00015 0.00018 0.00022 0.00027 0.00033 0.0004 0.00048 0.00059 0.00072 0.00088 0.00107 0.0013 0.00158 0.00193 0.00235 0.00287 0.00349 0.00425 0.00518 0.00631 0.00769 0.00936 0.01141 0.01389 0.01693 0.02062 0.02512 0.0306 0.03728 0.04541 0.05532 0.06739 0.08209 0.1 1)
-
 fi
 
 if [[ $host == *"paviws"* ]]; then
@@ -56,6 +44,23 @@ else
 	outdir="/project/def-jemerson/chbank"
 	chflowdir="/project/def-jemerson/${USER}/chflow"
 fi
+
+if [[ -n ${cluster} ]]; then
+	cores=40 # 48 for cedar, 40 for beluga and 32 for graham
+	## Timestamps
+	# ISING
+	pavi_beluga_ising_level3=("pavi_beluga_ising_l3_00" "pavi_beluga_ising_l3_01" "pavi_beluga_ising_l3_02" "pavi_beluga_ising_l3_03" "pavi_beluga_ising_l3_04" "pavi_beluga_ising_l3_05" "pavi_beluga_ising_l3_06" "pavi_beluga_ising_l3_07" "pavi_beluga_ising_l3_08" "pavi_beluga_ising_l3_09" "pavi_beluga_ising_l3_10" "pavi_beluga_ising_l3_11" "pavi_beluga_ising_l3_12" "pavi_beluga_ising_l3_13" "pavi_beluga_ising_l3_14" "pavi_beluga_ising_l3_15" "pavi_beluga_ising_l3_16" "pavi_beluga_ising_l3_17" "pavi_beluga_ising_l3_18" "pavi_beluga_ising_l3_19")
+	# CPTP
+	pavi_beluga_cptp_level3=("pavi_beluga_cptp_l3_00" "pavi_beluga_cptp_l3_01" "pavi_beluga_cptp_l3_02" "pavi_beluga_cptp_l3_03" "pavi_beluga_cptp_l3_04" "pavi_beluga_cptp_l3_05" "pavi_beluga_cptp_l3_06" "pavi_beluga_cptp_l3_07" "pavi_beluga_cptp_l3_08" "pavi_beluga_cptp_l3_09" "pavi_beluga_cptp_l3_10" "pavi_beluga_cptp_l3_11" "pavi_beluga_cptp_l3_12" "pavi_beluga_cptp_l3_13" "pavi_beluga_cptp_l3_14" "pavi_beluga_cptp_l3_15" "pavi_beluga_cptp_l3_16" "pavi_beluga_cptp_l3_17" "pavi_beluga_cptp_l3_18" "pavi_beluga_cptp_l3_19" "pavi_beluga_cptp_l3_20" "pavi_beluga_cptp_l3_21" "pavi_beluga_cptp_l3_22" "pavi_beluga_cptp_l3_23" "pavi_beluga_cptp_l3_24" "pavi_beluga_cptp_l3_25" "pavi_beluga_cptp_l3_26" "pavi_beluga_cptp_l3_27" "pavi_beluga_cptp_l3_28" "pavi_beluga_cptp_l3_29" "pavi_beluga_cptp_l3_30" "pavi_beluga_cptp_l3_31" "pavi_beluga_cptp_l3_32" "pavi_beluga_cptp_l3_33" "pavi_beluga_cptp_l3_34" "pavi_beluga_cptp_l3_35" "pavi_beluga_cptp_l3_36" "pavi_beluga_cptp_l3_37")
+    aditya_cptp_level2=("cptp_l2_24_12_2020_00" "cptp_l2_24_12_2020_01" "cptp_l2_24_12_2020_02" "cptp_l2_24_12_2020_03" "cptp_l2_24_12_2020_04" "cptp_l2_24_12_2020_06" "cptp_l2_24_12_2020_07" "cptp_l2_24_12_2020_08" "cptp_l2_24_12_2020_10" "cptp_l2_24_12_2020_11" "cptp_l2_24_12_2020_12" "cptp_l2_24_12_2020_13" "cptp_l2_24_12_2020_14" "cptp_l2_24_12_2020_15" "cptp_l2_24_12_2020_16" "cptp_l2_24_12_2020_17" "cptp_l2_24_12_2020_18" "cptp_l2_24_12_2020_19" "cptp_l2_24_12_2020_20" "cptp_l2_24_12_2020_21" "cptp_l2_24_12_2020_22" "cptp_l2_24_12_2020_23" "cptp_l2_24_12_2020_24" "cptp_l2_24_12_2020_25" "cptp_l2_24_12_2020_26" "cptp_l2_24_12_2020_27" "cptp_l2_24_12_2020_28" "cptp_l2_24_12_2020_29" "cptp_l2_24_12_2020_30" "cptp_l2_24_12_2020_31" "cptp_l2_24_12_2020_32" "cptp_l2_24_12_2020_33" "cptp_l2_24_12_2020_34" "cptp_l2_24_12_2020_35" "cptp_l2_24_12_2020_36" "cptp_l2_24_12_2020_37")
+    ## Alphas
+    # pavi
+    alphas_pavi=(0 0.0001 0.00012 0.00015 0.00018 0.00022 0.00027 0.00033 0.0004 0.00048 0.00059 0.00072 0.00088 0.00107 0.0013 0.00158 0.00193 0.00235 0.00287 0.00349 0.00425 0.00518 0.00631 0.00769 0.00936 0.01141 0.01389 0.01693 0.02062 0.02512 0.0306 0.03728 0.04541 0.05532 0.06739 0.08209 0.1 1)
+    # aditya
+    alphas_aditya=(0 0.0001 0.00012 0.00015 0.00018 0.00022 0.00027 0.00033 0.0004 0.00048 0.00059 0.00072 0.00088 0.00107 0.0013 0.00158 0.00193 0.00235 0.00287 0.00349 0.00425 0.00518 0.00631 0.00769 0.00936 0.01141 0.01389 0.01693 0.02062 0.02512 0.0306 0.03728 0.04541 0.05532 0.06739 0.08209 0.1 1)
+
+fi
+
 
 rerun() {
 	echo "removing ${outdir}/$1/channels/*"
@@ -97,9 +102,9 @@ usage() {
 	printf "\033[0m"
 }
 
-timestamps=("${pavi_ws_cptp_level3[@]}")
+timestamps=("${pavi_beluga_cptp_level3[@]}")
 alphas=("${alphas_pavi[@]}")
-log=pavi_ws_cptp_level3
+log=pavi_beluga_cptp_level3
 refts=${timestamps[0]}
 
 if [[ "$1" == "overwrite" ]]; then

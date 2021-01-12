@@ -519,13 +519,7 @@ if __name__ == "__main__":
                         / np.longdouble(submit.cores[0])
                     )
                 )
-                # else:
-                # 	# prepare the set of parameters
-                # 	submit.params = np.zeros((submit.noiserates.shape[0] * submit.samps, submit.noiserates.shape[1] + 1), dtype = np.longdouble)
-                # 	for i in range(submit.noiserates.shape[0]):
-                # 		for j in range(submit.samps):
-                # 			submit.params[i * submit.samps + j, :-1] = submit.noiserates[i, :]
-                # 			submit.params[i * submit.samps + j, -1] = j
+
         #####################################################################
 
         elif user[0] == "chgen":
