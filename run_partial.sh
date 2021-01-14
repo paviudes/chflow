@@ -301,8 +301,8 @@ elif [[ "$1" == "plot" ]]; then
 	printf "\033[2m"
 	echo "sbload ${refts}" > input/temp.txt
 	printf -v joined_timestamps '%s,' "${timestamps[@]:1}"
-	echo "dciplot infid infid ${joined_timestamps%?} 1" >> input/temp.txt
-	echo "mcplot infid infid 1,2 4 ${joined_timestamps%?}" >> input/temp.txt
+	echo "dciplot infid infid ${joined_timestamps%?} 0" >> input/temp.txt
+	echo "mcplot infid infid 0,1 4 ${joined_timestamps%?}" >> input/temp.txt
 	echo "quit" >> input/temp.txt
 	./chflow.sh -- temp.txt
 	rm input/temp.txt
@@ -353,6 +353,9 @@ elif [[ "$1" == "from_cluster" ]]; then
 		echo "xxxxxxx"
 	done
 	printf "\033[0m"
+	# To do:
+	# 1. Add a timestamp to the data.tar.gz file so that it can be kept as a record.
+	# 2. Remove all the tar.gz files for the individual channel datasets.
 	cd ${chflowdir}
 
 else
