@@ -31,7 +31,7 @@ refs/
 
 # All input files that do not start with sample_...
 input/**
-#!input/sample_*.txt
+!input/update_*.txt
 
 # Log files
 src/log.txt
