@@ -110,9 +110,9 @@ usage() {
 	printf "\033[0m"
 }
 
-timestamps=("${pavi_beluga_cptp_l3_00[@]}")
+timestamps=("${pavi_beluga_cptp_level3[@]}")
 alphas=("${alphas_pavi[@]}")
-log=pavi_beluga_cptp_l3
+log=pavi_beluga_cptp_level3
 refts=${timestamps[0]}
 
 if [[ "$1" == "overwrite" ]]; then
