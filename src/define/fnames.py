@@ -40,6 +40,13 @@ def PauliDistribution(outdir, channel):
     return fname
 
 
+def NRWeightsPlotFile(dbs, noise, sample):
+    # Name of the file containing the relative budgets in NR for Pauli error weights.
+    noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
+    fname = "%s/results/nrdist_%s_s%d.npy" % (dbs.outdir, noisedes, sample)
+    return fname
+
+
 def BinSummary(submit, phymet, logmet, level):
     # Name of the file containing the summary of bins
     fname = "%s/results/bins_summary_%s_%s_l%d.txt" % (
