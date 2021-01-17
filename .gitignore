@@ -1,6 +1,9 @@
 # Directory containing all files removed by "clean"
 .ignore/
 
+# Missing packages for setup
+requirements.txt
+
 # Physical channels -- these can be generated from chflow
 physical/*.npy
 
