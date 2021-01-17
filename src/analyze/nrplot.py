@@ -18,10 +18,10 @@ def NRWeightsPlot(dbses, noise, sample):
 	# Plot histograms one on top of each other: stacked histogram.
 	nq = dbses[0].eccs[0].N
 	nr_weights = np.loadtxt(NRWeightsFile(dbses[0], noise), dtype = np.int)[sample, :]
-	alphas = np.array([dbs.decoder_fraction for dbs in dbses], dtype = np.float)
+	alphas = np.array([dbs.decoder_fraction for dbs in dbses], dtype = np.float)[1:]
 	(__, percentages) = ComputeNRBudget(nr_weights, alphas, nq)
 
-	print("percentages\n{}".format(percentages))
+	# print("percentages\n{}".format(percentages))
 
 	(n_rows, n_cols) = percentages.shape
 	

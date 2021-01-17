@@ -101,7 +101,7 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, nr_weights_all = None
 		# # percent_errors = [nerrors_weight[w]*100/(comb(qcode.N,w)*(3**w)) for w in range(max_weight+1)]
 		# # print("Percentage errors picked according to weight : {}".format(np.round(percent_errors,3)))
 
-		(nerrors_weight, __) = ComputeNRBudget(nr_weights_all, [lead_frac], nq, max_weight=max_weight)
+		(nerrors_weight, __) = ComputeNRBudget(nr_weights_all, [lead_frac], qcode.N, max_weight=max_weight)
 
 		leading_paulis = np.zeros(np.sum(nerrors_weight, dtype = np.int), dtype=np.int)
 		start = 0
