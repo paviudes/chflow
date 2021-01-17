@@ -20,17 +20,23 @@ def ComputeNRBudget(nr_weights_all, alphas, nq):
 	n_alphas = alphas.size
 	relative_budget = np.zeros((n_alphas, max_weight + 1), dtype=np.float)
 	
+	# Count the frequency of each weight.
+	weight_counts = np.zeros(max_weight + 1, dtype=np.int)
+	min_weight_counts = np.zeros(max_weight + 1, dtype=np.int)
+	for w in range(max_weight + 1):
+		weight_counts[w] = np.count_nonzero(nr_weights_all == w)
+	min_weight_counts[0] = 1
+
 	for (alpha_count, alpha) in enumerate(alphas):
-		budget_pauli_count = max(int(alpha * n_paulis), 1)
-		nr_weights = nr_weights_all[ : budget_pauli_count]
-		weights, weight_count = np.unique(nr_weights, return_counts = True)
-		# print("alpha = {}\nWeights : {} and their frequencies : {} ".format(alpha, weights, weight_count))
+		weight_count_alpha = np.maximum((alpha * weight_counts).astype(np.int), min_weight_counts)
+		budget_pauli_count = np.sum(weight_count_alpha)
+		# print("alpha = {}, budget_pauli_count = {}\nweight_count_alpha\n{}".format(alpha, budget_pauli_count, weight_count_alpha))
 		
 		# Resetting the number of errors of each weight to the theoretical maximum
 		nerrors_weight = np.zeros(max_weight + 1, dtype = np.int)
 		excess_budget = 0
-		for (i, w) in enumerate(weights):
-			count = weight_count[i]
+		for w in range(weight_counts.size):
+			count = weight_count_alpha[w]
 			if(count > comb(nq, w) * (3 ** w)):
 				nerrors_weight[w] = comb(nq, w) * (3 ** w)
 				excess_budget += count - nerrors_weight[w]
@@ -44,6 +50,7 @@ def ComputeNRBudget(nr_weights_all, alphas, nq):
 			add_to_weight_w = min(excess_budget, need_weight_w)
 			nerrors_weight[w] += add_to_weight_w
 			excess_budget -= add_to_weight_w
+		
 		relative_budget[alpha_count, :] = [nerrors_weight[w]*100/budget_pauli_count for w in range(max_weight+1)]
 	
 	return relative_budget
@@ -56,6 +63,9 @@ def NRWeightsPlot(dbses, noise, sample):
 	nr_weights = np.loadtxt(NRWeightsFile(dbses[0], noise), dtype = np.int)[sample, :]
 	alphas = np.array([dbs.decoder_fraction for dbs in dbses], dtype = np.float)
 	percentages = ComputeNRBudget(nr_weights, alphas, nq)
+
+	print("percentages\n{}".format(percentages))
+
 	(n_rows, n_cols) = percentages.shape
 	
 	plotfname = NRWeightsPlotFile(dbses[0], noise, sample)
@@ -74,7 +84,7 @@ def NRWeightsPlot(dbses, noise, sample):
 		# plt.title('Weight wise distribution of NR data')
 		# plt.xticks(ind[::5], np.round(alphas,4)[::5], rotation = 45)
 		
-		plt.xticks(np.arange(n_rows), np.round(alphas, 4), rotation = 45)
+		plt.xticks(np.arange(n_rows), (alphas * 4**nq).astype(np.int), rotation = 45)
 		ax = plt.gca()
 		ax.tick_params(axis="both", which="both", pad=gv.ticks_pad, direction="inout", length=gv.ticks_length, width=gv.ticks_width, labelsize=gv.ticks_fontsize)
 

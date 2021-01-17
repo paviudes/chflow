@@ -24,7 +24,7 @@ if [[ $host == *"paviws"* ]]; then
 	# find . -maxdepth 1 -type d -name "pavi_beluga_cptp_l3_08_12_2020_*" -exec bash -c 'mv $0 ${0/cptp_l3_08_12_2020/cptp}' {} \;
 
 elif [[ $host == "pavitp" ]]; then
-	outdir="/home/pavi/Documents/chbank/aditya_cptp/cptp_l2"
+	outdir="/home/pavi/Documents/chbank/aditya_cptp/cptp_l3"
 	chflowdir="/home/pavi/Documents/chflow"
 	cores=$(nproc --all)
 	

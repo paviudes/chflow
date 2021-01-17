@@ -34,7 +34,6 @@ CheckDependencies()
 import os
 import sys
 import time
-#import readline
 import numpy as np
 
 
@@ -66,6 +65,15 @@ from define.qcode import (
 	PrintQEC,
 )
 
+# Non critical packages
+found_readline = 1
+try:
+	import readline
+except ImportError:
+	found_readline = 0
+
+
+# Functions from other modules.
 from define import globalvars as gv
 from define.verifychans import IsQuantumChannel
 from define.submission import Submission, PrintSub, MergeSubs, Select
@@ -267,13 +275,13 @@ if __name__ == "__main__":
 		"exit": ["Quit", "No parameters."],
 	}
 
-	# Read previous commands for chflow.
-	ncommands = 0
-	commands_file = "./../.chflow_commands.log"
-	# if os.path.isfile(commands_file):
-	# 	readline.read_history_file(commands_file)
-	# else:
-	# 	readline.write_history_file(commands_file)
+	if (found_readline == 1):
+		# Read previous commands for chflow.
+		commands_file = "./../.chflow_commands.log"
+		if os.path.isfile(commands_file):
+			readline.read_history_file(commands_file)
+		else:
+			readline.write_history_file(commands_file)
 	# Handle console inputs
 	fileinput = 0
 	infp = None
@@ -1398,10 +1406,8 @@ if __name__ == "__main__":
 			if n_empty > max_empties:
 				isquit = 1
 
-		# Count the number of commands
-		ncommands += 1
-
 	if fileinput == 1:
 		infp.close()
 
-	# readline.write_history_file(commands_file)
+	if (found_readline == 1):
+		readline.write_history_file(commands_file)
