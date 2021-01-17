@@ -55,7 +55,8 @@ from define.fnames import (
 	MCStatsPlotFile,
 	DecodersInstancePlot,
 	DeviationPlotFile,
-	NRWeightsFile
+	NRWeightsFile,
+	NRWeightsPlotFile
 )
 from define.qcode import (
 	QuantumErrorCorrectingCode,
@@ -748,9 +749,8 @@ if __name__ == "__main__":
 		
 		elif user[0] == "nrplot":
 			# Plot the relative budget taken by the Pauli error weights in the NR data.
-			channel = int(user[0])
-			noise = submit.available[channel, :-1]
-			sample = int(submit.available[channel, -1])
+			noise = submit.noiserates[int(user[0]), :]
+			sample = int(user[1])
 			
 			dbses = [submit]
 			if len(user) > 3:
@@ -1342,20 +1342,34 @@ if __name__ == "__main__":
 			plot_option = user[4]
 			notes_location = user[5]
 			pages = list(map(int, user[6].split(",")))
+			
 			if plot_option == "lplot":
 				plot_file = LevelWise(submit, phymet.replace(",", "_"), logmet)
+			
 			elif plot_option == "cplot":
 				plot_file = ChannelWise(submit, phymet, logmet)
+			
 			elif plot_option == "pdplot":
 				plot_file = PauliDistribution(submit.outdir, submit.channel)
+			
+			elif plot_option == "nrplot":
+				# The phymet is to be used as "noise" index and the logmet as "sample"
+				noise = submit.noiserates[int(phymet), :]
+				sample = int(logmet)
+				plot_file = NRWeightsPlotFile(submit, noise, sample)
+			
 			elif plot_option == "hamplot":
 				plot_file = HammerPlot(submit, logmet, phymet.split(","))
+			
 			elif plot_option == "dvplot":
 				plot_file = DeviationPlotFile(submit, phymet, logmet)
+			
 			elif plot_option == "mcplot":
 				plot_file = MCStatsPlotFile(submit, logmet, phymet.split(",")[0])
+			
 			elif plot_option == "dciplot":
 				plot_file = DecodersInstancePlot(submit, phymet.split(",")[0], logmet)
+			
 			else:
 				print("\033[2mUnknown plot option %s.\033[0m" % (plot_option))
 				continue

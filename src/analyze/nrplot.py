@@ -58,7 +58,7 @@ def NRWeightsPlot(dbses, noise, sample):
 	percentages = ComputeNRBudget(nr_weights, alphas, nq)
 	(n_rows, n_cols) = percentages.shape
 	
-	plotfname = NRWeightsPlotFile(dbses[0], phymet, logmet)
+	plotfname = NRWeightsPlotFile(dbses[0], noise, sample)
 	with PdfPages(plotfname) as pdf:
 		fig = plt.figure(figsize=gv.canvas_size)
 
