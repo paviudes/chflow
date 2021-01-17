@@ -34,7 +34,7 @@ CheckDependencies()
 import os
 import sys
 import time
-import readline
+#import readline
 import numpy as np
 
 
@@ -270,10 +270,10 @@ if __name__ == "__main__":
 	# Read previous commands for chflow.
 	ncommands = 0
 	commands_file = "./../.chflow_commands.log"
-	if os.path.isfile(commands_file):
-		readline.read_history_file(commands_file)
-	else:
-		readline.write_history_file(commands_file)
+	# if os.path.isfile(commands_file):
+	# 	readline.read_history_file(commands_file)
+	# else:
+	# 	readline.write_history_file(commands_file)
 	# Handle console inputs
 	fileinput = 0
 	infp = None
@@ -749,8 +749,8 @@ if __name__ == "__main__":
 		
 		elif user[0] == "nrplot":
 			# Plot the relative budget taken by the Pauli error weights in the NR data.
-			noise = submit.noiserates[int(user[0]), :]
-			sample = int(user[1])
+			noise = submit.noiserates[int(user[1]), :]
+			sample = int(user[2])
 			
 			dbses = [submit]
 			if len(user) > 3:
@@ -759,7 +759,7 @@ if __name__ == "__main__":
 					LoadSub(dbses[i + 1], ts, 0, 0)
 					IsComplete(dbses[i + 1])
 					is_complete = 1
-					if not os.path.isfile(NRWeightsFile(dbs, noise)):
+					if not os.path.isfile(NRWeightsFile(dbses[i + 1], noise)):
 						print("\033[2mNRWeightsFile for noise rate {} does not exist. Cannot plot.\033[0m".format(noise))
 						is_complete = 0
 			
@@ -1404,4 +1404,4 @@ if __name__ == "__main__":
 	if fileinput == 1:
 		infp.close()
 
-	readline.write_history_file(commands_file)
+	# readline.write_history_file(commands_file)

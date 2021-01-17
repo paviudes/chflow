@@ -16,12 +16,12 @@ from define.fnames import NRWeightsFile, NRWeightsPlotFile
 def ComputeNRBudget(nr_weights_all, alphas, nq):
 	# Compute the relative budget of weight-w error rates in the NR dataset.
 	n_paulis = nr_weights_all.size
-	max_weight = np.max(nr_weights_all)
+	max_weight = nr_weights_all.max()
 	n_alphas = alphas.size
 	relative_budget = np.zeros((n_alphas, max_weight + 1), dtype=np.float)
 	
 	for (alpha_count, alpha) in enumerate(alphas):
-		budget_pauli_count = max(int(alpha * n_paulis),1)
+		budget_pauli_count = max(int(alpha * n_paulis), 1)
 		nr_weights = nr_weights_all[ : budget_pauli_count]
 		weights, weight_count = np.unique(nr_weights, return_counts = True)
 		# print("alpha = {}\nWeights : {} and their frequencies : {} ".format(alpha, weights, weight_count))
@@ -53,8 +53,8 @@ def NRWeightsPlot(dbses, noise, sample):
 	# Compute the relative budget taken up by the set of Pauli error rates for each weight, in the NR dataset.
 	# Plot histograms one on top of each other: stacked histogram.
 	nq = dbses[0].eccs[0].N
-	nr_weights = np.loadtxt(NRWeightsFile(dbs, noise))[sample, :]
-	alphas = np.array([dbs.dcfraction for dbs in dbses], dtype = np.float)
+	nr_weights = np.loadtxt(NRWeightsFile(dbses[0], noise), dtype = np.int)[sample, :]
+	alphas = np.array([dbs.decoder_fraction for dbs in dbses], dtype = np.float)
 	percentages = ComputeNRBudget(nr_weights, alphas, nq)
 	(n_rows, n_cols) = percentages.shape
 	
@@ -75,6 +75,7 @@ def NRWeightsPlot(dbses, noise, sample):
 		# plt.xticks(ind[::5], np.round(alphas,4)[::5], rotation = 45)
 		
 		plt.xticks(np.arange(n_rows), np.round(alphas, 4), rotation = 45)
+		ax = plt.gca()
 		ax.tick_params(axis="both", which="both", pad=gv.ticks_pad, direction="inout", length=gv.ticks_length, width=gv.ticks_width, labelsize=gv.ticks_fontsize)
 
 		# plt.yticks(np.arange(0, 100, 25))

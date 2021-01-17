@@ -23,6 +23,11 @@ if [[ $host == *"paviws"* ]]; then
 	# Command to rename files
 	# find . -maxdepth 1 -type d -name "pavi_beluga_cptp_l3_08_12_2020_*" -exec bash -c 'mv $0 ${0/cptp_l3_08_12_2020/cptp}' {} \;
 
+elif [[ $host == "pavitp" ]]; then
+	outdir="/home/pavi/Documents/chbank/aditya_cptp/cptp_l2"
+	chflowdir="/home/pavi/Documents/chflow"
+	cores=$(nproc --all)
+	
 elif [[ $host == "oem-ThinkPad-X1-Carbon-Gen-8" ]]; then
 	if [[ -z ${local_user} ]]; then
 		local_user=${USER}
@@ -52,6 +57,8 @@ if [[ -n ${cluster} ]]; then
 	pavi_beluga_ising_level3=("pavi_beluga_ising_l3_00" "pavi_beluga_ising_l3_01" "pavi_beluga_ising_l3_02" "pavi_beluga_ising_l3_03" "pavi_beluga_ising_l3_04" "pavi_beluga_ising_l3_05" "pavi_beluga_ising_l3_06" "pavi_beluga_ising_l3_07" "pavi_beluga_ising_l3_08" "pavi_beluga_ising_l3_09" "pavi_beluga_ising_l3_10" "pavi_beluga_ising_l3_11" "pavi_beluga_ising_l3_12" "pavi_beluga_ising_l3_13" "pavi_beluga_ising_l3_14" "pavi_beluga_ising_l3_15" "pavi_beluga_ising_l3_16" "pavi_beluga_ising_l3_17" "pavi_beluga_ising_l3_18" "pavi_beluga_ising_l3_19")
 	# CPTP
 	pavi_beluga_cptp_level3=("pavi_beluga_cptp_l3_00" "pavi_beluga_cptp_l3_01" "pavi_beluga_cptp_l3_02" "pavi_beluga_cptp_l3_03" "pavi_beluga_cptp_l3_04" "pavi_beluga_cptp_l3_05" "pavi_beluga_cptp_l3_06" "pavi_beluga_cptp_l3_07" "pavi_beluga_cptp_l3_08" "pavi_beluga_cptp_l3_09" "pavi_beluga_cptp_l3_10" "pavi_beluga_cptp_l3_11" "pavi_beluga_cptp_l3_12" "pavi_beluga_cptp_l3_13" "pavi_beluga_cptp_l3_14" "pavi_beluga_cptp_l3_15" "pavi_beluga_cptp_l3_16" "pavi_beluga_cptp_l3_17" "pavi_beluga_cptp_l3_18" "pavi_beluga_cptp_l3_19" "pavi_beluga_cptp_l3_20" "pavi_beluga_cptp_l3_21" "pavi_beluga_cptp_l3_22" "pavi_beluga_cptp_l3_23" "pavi_beluga_cptp_l3_24" "pavi_beluga_cptp_l3_25" "pavi_beluga_cptp_l3_26" "pavi_beluga_cptp_l3_27" "pavi_beluga_cptp_l3_28" "pavi_beluga_cptp_l3_29" "pavi_beluga_cptp_l3_30" "pavi_beluga_cptp_l3_31" "pavi_beluga_cptp_l3_32" "pavi_beluga_cptp_l3_33" "pavi_beluga_cptp_l3_34" "pavi_beluga_cptp_l3_35" "pavi_beluga_cptp_l3_36" "pavi_beluga_cptp_l3_37")
+    aditya_beluga_cptp_level3=("aditya_beluga_cptp_l3_00" "aditya_beluga_cptp_l3_01" "aditya_beluga_cptp_l3_02" "aditya_beluga_cptp_l3_03" "aditya_beluga_cptp_l3_04" "aditya_beluga_cptp_l3_05" "aditya_beluga_cptp_l3_06" "aditya_beluga_cptp_l3_07" "aditya_beluga_cptp_l3_08" "aditya_beluga_cptp_l3_09" "aditya_beluga_cptp_l3_10" "aditya_beluga_cptp_l3_11" "aditya_beluga_cptp_l3_12" "aditya_beluga_cptp_l3_13" "aditya_beluga_cptp_l3_14" "aditya_beluga_cptp_l3_15" "aditya_beluga_cptp_l3_16" "aditya_beluga_cptp_l3_17" "aditya_beluga_cptp_l3_18" "aditya_beluga_cptp_l3_19" "aditya_beluga_cptp_l3_20" "aditya_beluga_cptp_l3_21" "aditya_beluga_cptp_l3_22" "aditya_beluga_cptp_l3_23" "aditya_beluga_cptp_l3_24" "aditya_beluga_cptp_l3_25" "aditya_beluga_cptp_l3_26" "aditya_beluga_cptp_l3_27" "aditya_beluga_cptp_l3_28" "aditya_beluga_cptp_l3_29" "aditya_beluga_cptp_l3_30" "aditya_beluga_cptp_l3_31" "aditya_beluga_cptp_l3_32" "aditya_beluga_cptp_l3_33" "aditya_beluga_cptp_l3_34" "aditya_beluga_cptp_l3_35" "aditya_beluga_cptp_l3_36" "aditya_beluga_cptp_l3_37")
+    
     aditya_cptp_level2=("cptp_l2_24_12_2020_00" "cptp_l2_24_12_2020_01" "cptp_l2_24_12_2020_02" "cptp_l2_24_12_2020_03" "cptp_l2_24_12_2020_04" "cptp_l2_24_12_2020_06" "cptp_l2_24_12_2020_07" "cptp_l2_24_12_2020_08" "cptp_l2_24_12_2020_10" "cptp_l2_24_12_2020_11" "cptp_l2_24_12_2020_12" "cptp_l2_24_12_2020_13" "cptp_l2_24_12_2020_14" "cptp_l2_24_12_2020_15" "cptp_l2_24_12_2020_16" "cptp_l2_24_12_2020_17" "cptp_l2_24_12_2020_18" "cptp_l2_24_12_2020_19" "cptp_l2_24_12_2020_20" "cptp_l2_24_12_2020_21" "cptp_l2_24_12_2020_22" "cptp_l2_24_12_2020_23" "cptp_l2_24_12_2020_24" "cptp_l2_24_12_2020_25" "cptp_l2_24_12_2020_26" "cptp_l2_24_12_2020_27" "cptp_l2_24_12_2020_28" "cptp_l2_24_12_2020_29" "cptp_l2_24_12_2020_30" "cptp_l2_24_12_2020_31" "cptp_l2_24_12_2020_32" "cptp_l2_24_12_2020_33" "cptp_l2_24_12_2020_34" "cptp_l2_24_12_2020_35" "cptp_l2_24_12_2020_36" "cptp_l2_24_12_2020_37")
     ## Alphas
     # pavi
@@ -102,9 +109,9 @@ usage() {
 	printf "\033[0m"
 }
 
-timestamps=("${pavi_beluga_cptp_level3[@]}")
-alphas=("${alphas_pavi[@]}")
-log=pavi_beluga_cptp_level3
+timestamps=("${aditya_beluga_cptp_level3[@]}")
+alphas=("${alphas_aditya[@]}")
+log=aditya_beluga_cptp_level3
 refts=${timestamps[0]}
 
 if [[ "$1" == "overwrite" ]]; then
