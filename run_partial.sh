@@ -51,6 +51,7 @@ fi
 
 if [[ -n ${cluster} ]]; then
 	cores=40 # 48 for cedar, 40 for beluga and 32 for graham
+	email=pavithran.sridhar@gmail.com
 	## Timestamps
 	# ISING
 	pavi_beluga_ising_level3=("pavi_beluga_ising_l3_00" "pavi_beluga_ising_l3_01" "pavi_beluga_ising_l3_02" "pavi_beluga_ising_l3_03" "pavi_beluga_ising_l3_04" "pavi_beluga_ising_l3_05" "pavi_beluga_ising_l3_06" "pavi_beluga_ising_l3_07" "pavi_beluga_ising_l3_08" "pavi_beluga_ising_l3_09" "pavi_beluga_ising_l3_10" "pavi_beluga_ising_l3_11" "pavi_beluga_ising_l3_12" "pavi_beluga_ising_l3_13" "pavi_beluga_ising_l3_14" "pavi_beluga_ising_l3_15" "pavi_beluga_ising_l3_16" "pavi_beluga_ising_l3_17" "pavi_beluga_ising_l3_18" "pavi_beluga_ising_l3_19")
@@ -108,9 +109,9 @@ usage() {
 	printf "\033[0m"
 }
 
-timestamps=("${pavi_ws_cptp_level3[@]}")
+timestamps=("${pavi_beluga_cptp_l3_00[@]}")
 alphas=("${alphas_pavi[@]}")
-log=pavi_ws_cptp_level3
+log=pavi_beluga_cptp_l3
 refts=${timestamps[0]}
 
 if [[ "$1" == "overwrite" ]]; then
