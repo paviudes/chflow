@@ -125,7 +125,7 @@ if [[ "$1" == "overwrite" ]]; then
 	printf "\033[2m"
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
-		rerun $ts $log
+		rerun ${ts} ${log}
 		echo "xxxxxxx"
 	done
 	
