@@ -115,9 +115,9 @@ usage() {
 	printf "\033[0m"
 }
 
-timestamps=("${pavi_ws_cptp_level3[@]}")
-alphas=("${alphas_pavi[@]}")
-log=pavi_ws_cptp_level3
+timestamps=("${aditya_beluga_cptp_level2[@]}")
+alphas=("${alphas_aditya[@]}")
+log=aditya_beluga_cptp_level2
 refts=${timestamps[0]}
 
 if [[ "$1" == "overwrite" ]]; then
@@ -337,8 +337,8 @@ elif [[ "$1" == "plot" ]]; then
 	echo "sbload ${refts}" > input/temp.txt
 	printf -v joined_timestamps '%s,' "${timestamps[@]:1}"
 	echo "nrplot 0 0 ${joined_timestamps%?}" >> input/temp.txt
-	# echo "dciplot infid infid ${joined_timestamps%?} 0" >> input/temp.txt
-	# echo "mcplot infid infid 0,1 4 ${joined_timestamps%?}" >> input/temp.txt
+	echo "dciplot infid infid ${joined_timestamps%?} 0" >> input/temp.txt
+	echo "mcplot infid infid 0,1 0 ${joined_timestamps%?}" >> input/temp.txt
 	echo "quit" >> input/temp.txt
 	./chflow.sh -- temp.txt
 	rm input/temp.txt
@@ -373,6 +373,7 @@ elif [[ "$1" == "from_cluster" ]]; then
 		trash ${ts}
 		cp data/${ts}.tar.gz .
 		tar -xvf ${ts}.tar.gz
+		trash ${ts}.tar.gz
 		
 		#### Copying input files to chflow
 		echo "Copying input file ${ts}.txt from data"

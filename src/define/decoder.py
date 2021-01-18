@@ -6,6 +6,16 @@ from define import fnames as fn
 from scipy.special import comb
 from define.QECCLfid.utils import SamplePoisson
 
+def GetTotalErrorBudget(dbs, noise, sample):
+	# Compute the total number of distinct Pauli error rates included in the NR dataset.
+	nrw = np.loadtxt(fn.NRWeightsFile(dbs, noise))[sample, :]
+	max_weight = 1 + dbs.eccs[0].N//2
+	(weight_count_alpha, __) = ComputeNRBudget(nrw, [dbs.decoder_fraction], dbs.eccs[0].N, max_weight=max_weight)
+	budget = np.sum(weight_count_alpha)
+	# print("alpha = {}, budget = {}".format(dbs.decoder_fraction, budget))
+	return budget
+
+
 def ComputeNRBudget(nr_weights_all, alphas, nq, max_weight=None):
 	# Compute the relative budget of weight-w error rates in the NR dataset.
 	n_paulis = nr_weights_all.size

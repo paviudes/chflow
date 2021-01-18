@@ -10,22 +10,31 @@ import matplotlib.pyplot as plt
 # Functions from other modules
 from define import qcode as qec
 import define.globalvars as gv
-from define.decoder import ComputeNRBudget
 from define.fnames import NRWeightsFile, NRWeightsPlotFile
+from define.decoder import ComputeNRBudget, GetTotalErrorBudget
 
-def NRWeightsPlot(dbses, noise, sample):
+
+def NRWeightsPlot(dbses_input, noise, sample):
 	# Compute the relative budget taken up by the set of Pauli error rates for each weight, in the NR dataset.
 	# Plot histograms one on top of each other: stacked histogram.
+	
+	# Only show alpha values that correspond to distinct number of Pauli error rates.
+	max_weight = 1 + dbses_input[0].eccs[0].N//2
+	budgets, uniques = np.unique(np.array([GetTotalErrorBudget(dbs, noise, sample) for dbs in dbses_input[1:-1]], dtype=np.int), return_index=True)
+	# print("uniques = {}".format(type(uniques)))
+	dbses = [dbses_input[d + 1] for d in uniques]
+
 	nq = dbses[0].eccs[0].N
 	nr_weights = np.loadtxt(NRWeightsFile(dbses[0], noise), dtype = np.int)[sample, :]
-	alphas = np.array([dbs.decoder_fraction for dbs in dbses], dtype = np.float)[1:]
+	alphas = np.array([dbs.decoder_fraction for dbs in dbses], dtype = np.float)
+	xticklabels = budgets
 	(__, percentages) = ComputeNRBudget(nr_weights, alphas, nq)
-
-	# print("percentages\n{}".format(percentages))
-
 	(n_rows, n_cols) = percentages.shape
 	
-	plotfname = NRWeightsPlotFile(dbses[0], noise, sample)
+	# print("percentages\n{}".format(np.round(percentages, 1)))
+	# print("alphas\n{}\nxticklabels\n{}rows\n{}".format(alphas, xticklabels, np.arange(n_rows)))
+
+	plotfname = NRWeightsPlotFile(dbses_input[0], noise, sample)
 	with PdfPages(plotfname) as pdf:
 		fig = plt.figure(figsize=gv.canvas_size)
 
@@ -41,7 +50,7 @@ def NRWeightsPlot(dbses, noise, sample):
 		# plt.title('Weight wise distribution of NR data')
 		# plt.xticks(ind[::5], np.round(alphas,4)[::5], rotation = 45)
 		
-		plt.xticks(np.arange(n_rows), (alphas * 4**nq).astype(np.int), rotation = 45)
+		plt.xticks(np.arange(n_rows), xticklabels, rotation = 45)
 		ax = plt.gca()
 		ax.tick_params(axis="both", which="both", pad=gv.ticks_pad, direction="inout", length=gv.ticks_length, width=gv.ticks_width, labelsize=gv.ticks_fontsize)
 
