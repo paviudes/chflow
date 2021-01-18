@@ -5,7 +5,12 @@ cluster="$2"
 
 if [[ -n ${cluster} ]]; then
 	cores=40 # 48 for cedar, 40 for beluga and 32 for graham
-	local_user=a77jain
+	local_user=${USER}
+	if [[ $local_user == *"pavi"* ]]; then
+		email=pavithran.sridhar@gmail.com
+	elif [[ $local_user == *"a77jain"* ]]; then
+		email=2003adityajain@gmail.com
+	fi
 fi
 
 if [[ $host == *"paviws"* ]]; then
@@ -110,9 +115,9 @@ usage() {
 	printf "\033[0m"
 }
 
-timestamps=("${pavi_beluga_cptp_level3[@]}")
+timestamps=("${pavi_ws_cptp_level3[@]}")
 alphas=("${alphas_pavi[@]}")
-log=pavi_beluga_cptp_level3
+log=pavi_ws_cptp_level3
 refts=${timestamps[0]}
 
 if [[ "$1" == "overwrite" ]]; then
@@ -123,12 +128,15 @@ if [[ "$1" == "overwrite" ]]; then
 		rerun $ts $log
 		echo "xxxxxxx"
 	done
+	
 	if [[ $host == *"paviws"* ]]; then
 		echo "Run the following command."
 		echo -e "\033[4mparallel --joblog partial_decoders_${log}.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders_${log}.txt\033[0m"
+	
 	elif [[ $host == "oem-ThinkPad-X1-Carbon-Gen-8" ]]; then
 		echo "Run the following command."
 		echo -e "parallel --joblog partial_decoders_${log}.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders_${log}.txt"
+	
 	else
 		mkdir -p input/${cluster}
 		rm input/${cluster}/partial_decoders_${log}.sh
@@ -138,8 +146,27 @@ if [[ "$1" == "overwrite" ]]; then
 		done
 		echo "module load intel python scipy-stack" >> input/${cluster}/partial_decoders_${log}.sh
 		echo "cd /project/def-jemerson/${USER}/chflow" >> input/${cluster}/partial_decoders_${log}.sh
+		echo "start=\$(date +%s)"
 		echo "parallel --joblog partial_decoders_${log}.log ./chflow.sh {1} :::: input/partial_decoders_${log}.txt" >> input/${cluster}/partial_decoders_${log}.sh
+		echo "end=\$(date +%s)"
+		echo "runtime=\$((end/3600-start/3600))"
+		
+		# Prepare a summary email
+		touch input/summary.txt
+		echo "The following job was completed on ${cluster} in ${runtime} hours." >> input/summary.txt
+		echo "Job name: ${log}" >> input/summary.txt
+		printf -v joined_timestamps '%s, ' "${timestamps[@]:0}"
+		echo "Time stamps: ${joined_timestamps%?}" >> input/summary.txt
+		printf -v joined_alphas '%s, ' "${alphas[@]:0}"
+		echo "Alphas: ${alphas%?}" >> input/summary.txt
+		echo "User: ${local_user}" >> input/summary.txt
+		echo "Host: ${host}" >> input/summary.txt
+		echo "Date: $(date)" >> input/summary.txt
+		cat input/summary.txt | mail -s "[${cluster}] ${log} done" ${email}
+		rm input/summary.txt
+
 		echo "xxxxxxx"
+		
 		echo "Run the following command."
 		echo "sbatch input/${cluster}/partial_decoders_${log}.sh"
 	fi
@@ -338,33 +365,47 @@ elif [[ "$1" == "from_cluster" ]]; then
 	scp -r ${local_user}@${cluster}.computecanada.ca:/project/def-jemerson/chbank/data.tar.gz ${outdir}
 	cd ${outdir}
 	tar -xvf data.tar.gz
+	
 	# unzip the individual datasets.
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
 		echo "Trashing ${ts}"
 		trash ${ts}
-		mv data/${ts}.tar.gz .
+		cp data/${ts}.tar.gz .
 		tar -xvf ${ts}.tar.gz
 		
-		#### Moving input files to chflow
-		echo "Moving input file ${ts}.txt from data"
-		mv data/${ts}.txt ${chflowdir}/input/
-		echo "Moving schedule_${ts}.txt from data"
-		mv data/schedule_${ts}.txt ${chflowdir}/input/
+		#### Copying input files to chflow
+		echo "Copying input file ${ts}.txt from data"
+		cp data/${ts}.txt ${chflowdir}/input/
+		echo "Copying schedule_${ts}.txt from data"
+		cp data/schedule_${ts}.txt ${chflowdir}/input/
 		
 		#### Prepare output directory after moving from cluster.
 		echo "/project/def-jemerson/chbank WITH ${outdir} IN input/${ts}.txt"
 		replace "\/project\/def-jemerson\/chbank" ${outdir//\//\\\/} ${chflowdir}/input/${ts}.txt
-		# sed -i "${sed_prepend}" "s/\/project\/def-jemerson/\/Users\/pavi\/Documents/g" ${chflowdir}/input/${ts}.txt
-		#### Prepare output directory after moving from cluster with different path.
-		# echo "/home/a77jain/projects/def-jemerson WITH /Users/pavi/Documents IN input/${ts}.txt"
-		# sed -i ${sed_prepend} "s/\/home\/a77jain\/projects\/def-jemerson/\/Users\/pavi\/Documents/g" input/${ts}.txt
+		
 		echo "xxxxxxx"
 	done
 	printf "\033[0m"
-	# To do:
-	# 1. Add a timestamp to the data.tar.gz file so that it can be kept as a record.
-	# 2. Remove all the tar.gz files for the individual channel datasets.
+	
+	printf "\033[2m"
+	# Add a new timestamp for the data record.
+	datetime=$(date +%d_%m_%Y_%H_%M_%S)
+	echo "Add the time stamp ${datetime} to the data folders so that it can be kept as a record."
+	mv data "data_${datetime}"
+	
+	# Adding an information file for the folder.
+	echo "Data folder: $(date)" > data_${datetime}/info.txt
+	printf -v joined_timestamps '%s,' "${timestamps[@]:0}"
+	echo "Timestamps: ${joined_timestamps%?}" >> data_${datetime}/info.txt
+	printf -v joined_alphas '%s,' "${alphas[@]:0}"
+	echo "Alphas: ${joined_alphas%?}" >> data_${datetime}/info.txt
+
+	# Zipping data folder for records
+	tar -zcvf "data_${datetime}.tar.gz" "data_${datetime}"
+	
+	printf "\033[0m"
+
 	cd ${chflowdir}
 
 else
