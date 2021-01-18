@@ -45,14 +45,14 @@ def NRWeightsPlot(dbses_input, noise, sample):
 			bottoms += percentages[:, w]
 		
 		plt.ylabel("Relative budget", fontsize=gv.axes_labels_fontsize)
-		plt.xlabel("$\\alpha$", fontsize=gv.axes_labels_fontsize)
+		plt.xlabel("Number of Pauli errors", fontsize=gv.axes_labels_fontsize)
 		
 		# plt.title('Weight wise distribution of NR data')
 		# plt.xticks(ind[::5], np.round(alphas,4)[::5], rotation = 45)
 		
 		plt.xticks(np.arange(n_rows), xticklabels, rotation = 45)
 		ax = plt.gca()
-		ax.tick_params(axis="both", which="both", pad=gv.ticks_pad, direction="inout", length=gv.ticks_length, width=gv.ticks_width, labelsize=gv.ticks_fontsize)
+		ax.tick_params(axis="both", which="both", pad=gv.ticks_pad * 0.5, direction="inout", length=gv.ticks_length, width=gv.ticks_width, labelsize=gv.ticks_fontsize)
 
 		# plt.yticks(np.arange(0, 100, 25))
 
