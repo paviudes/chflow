@@ -13,16 +13,16 @@ from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes, InsetPosition, mark_inset
 from scipy.interpolate import griddata
+from adjustText import adjust_text
 
 # Functions from other modules
 from define import metrics as ml
 from define import globalvars as gv
-from define.decoder import GetTotalErrorBudget
-from analyze.utils import latex_float
+from define.decoder import GetTotalErrorBudget, GetLeadingPaulis
+from analyze.utils import latex_float, scientific_float
 from analyze.bins import ComputeBinVariance
 from analyze.load import LoadPhysicalErrorRates
-from define.fnames import DecodersPlot, DecodersInstancePlot, LogicalErrorRates, PhysicalErrorRates
-
+from define.fnames import DecodersPlot, DecodersInstancePlot, LogicalErrorRates, PhysicalErrorRates, NRWeightsFile, RawPhysicalChannel
 
 def DecoderCompare(
 	phymet, logmet, dbses, nbins=10, thresholds={"y": 10e-16, "x": 10e-16}
@@ -117,8 +117,11 @@ def DecoderInstanceCompare(
 ):
 	# Compare performance of various decoders.
 	# Only show alpha values that correspond to distinct number of Pauli error rates.
-	max_weight = 1 + dbses_input[0].eccs[0].N//2
-	(budgets, uniques) = np.unique(np.array([GetTotalErrorBudget(dbs, dbs.available[chids[0], :-1], int(dbs.available[chids[0], -1])) for dbs in dbses_input[1:]], dtype=np.int), return_index=True)
+	qcode = dbses_input[0].eccs[0]
+	max_weight = 1 + qcode.N//2
+	noise = dbses_input[0].available[chids[0], :-1]
+	sample = int(dbses_input[0].available[chids[0], -1])
+	(budgets, uniques) = np.unique(np.array([GetTotalErrorBudget(dbs, noise, sample) for dbs in dbses_input[1:]], dtype=np.int), return_index=True)
 	# Add the entries for the minimum weight decoder.
 	if (np.prod(dbses_input[0].decoders) == 1):
 		budgets = np.concatenate(([0], budgets))
@@ -134,11 +137,24 @@ def DecoderInstanceCompare(
 
 	# max_budget = np.sum([comb(dbses[0].eccs[0].N, i) * 3**i for i in range(max_weight + 1)])/4**dbses[0].eccs[0].N
 
+	# The top xticklabels show the Pauli error budget left out in the NR data set.
+	alphas = np.array([dbs.decoder_fraction for dbs in dbses], dtype = np.float)
+	nr_weights = np.loadtxt(NRWeightsFile(dbses[0], noise), dtype = np.int)[sample, :]
+	chan_probs = np.load(RawPhysicalChannel(dbses_input[0], noise))[sample, :]
+	budget_left = np.zeros(alphas.size, dtype = np.double)
+	for (i, alpha) in enumerate(alphas):
+		(__, __, knownPaulis) = GetLeadingPaulis(alpha, qcode, chan_probs, "weight", nr_weights)
+		budget_left[i] = 1 - np.sum(knownPaulis)
+		# xticklabels_top[i] = scientific_float(1 - np.sum(knownPaulis))
+
+	# Stretch X axis by enlarging the canvas
+	extended = (gv.canvas_size[0], gv.canvas_size[1])
+
 	with PdfPages(plotfname) as pdf:
 		for l in range(1, nlevels + 1):
 			# fig = plt.figure(figsize=gv.canvas_size)
 			# ax1 = plt.gca()
-			(fig, (ax2, ax1)) = plt.subplots(2, 1, sharex=True, figsize=gv.canvas_size, gridspec_kw={'height_ratios': [1, 3]})
+			(fig, (ax2, ax1)) = plt.subplots(2, 1, sharex=True, figsize=extended, gridspec_kw={'height_ratios': [1, 3]})
 			ax1.plot(
 				[],
 				[],
@@ -154,7 +170,7 @@ def DecoderInstanceCompare(
 			for (c, ch) in enumerate(chids):
 				settings = {
 					"xaxis": [],
-					"xlabel": "$\\alpha$",
+					"xlabel": "Remaining fraction of total probability",
 					"yaxis": [],
 					"ylabel": "$\\overline{%s_{%d}}$"
 					% (ml.Metrics[logmet]["latex"].replace("$", ""), l),
@@ -183,7 +199,9 @@ def DecoderInstanceCompare(
 						# )
 						contains_minwt = 1
 					else:
-						settings["xaxis"].append(budgets[d]/(4**dbses[0].eccs[0].N))
+						# settings["xaxis"].append(budgets[d]/(4**dbses[0].eccs[0].N))
+						settings["xaxis"].append(budget_left[d])
+						# budget_left
 						settings["yaxis"].append(
 							np.load(LogicalErrorRates(dbses[d], logmet))[ch, l]
 						)
@@ -226,16 +244,24 @@ def DecoderInstanceCompare(
 						minwt_bottom = minwt_perf
 
 				# print("X axis for dcplot\n{}".format(settings["xaxis"]))
-
+				texts = []
 				for i in range(len(settings["xaxis"])):
-					ax1.annotate(
-						"%d" % (budgets[i + 1]),
-						(settings["xaxis"][i] * 1.02, settings["yaxis"][i] * 1.02),
-						color="k",
-						fontsize=gv.ticks_fontsize,
-						rotation=30
-					)
+					# ax1.annotate(
+					# 	"%d" % (budgets[-(i + 1)]),
+					# 	(settings["xaxis"][i] * 1.02, settings["yaxis"][i] * 1.02),
+					# 	color="k",
+					# 	fontsize=gv.ticks_fontsize,
+					# 	rotation=30
+					# )
+					texts.append(ax1.text(settings["xaxis"][i], settings["yaxis"][i], "%d" % (budgets[-(i + 1)]), fontsize=gv.ticks_fontsize * 0.75))
 			
+			# Set xticks and labels
+			# xticklabels = [lab.get_text() for lab in ax1.get_xticklabels()]
+			# print("xticklabels\n{}".format(xticklabels))
+			# ax1.set_xticks(settings["xaxis"])
+			# ax1.set_xticklabels(xticklabels)
+			ax1.invert_xaxis()
+
 			# Set the y axis limits
 			(__, minwt_top) = ax2.get_ylim()
 			ax2.set_ylim(minwt_bottom/5, 5 * minwt_top)
@@ -297,6 +323,10 @@ def DecoderInstanceCompare(
 			ax2.set_xscale("log")
 			ax2.set_yscale("log")
 			
+			# Make non overlapping annotations
+			# https://stackoverflow.com/questions/19073683/matplotlib-overlapping-annotations-text
+			adjust_text(texts, only_move={'points':'y', 'texts':'y'}, expand_points=(1, 2), precision=0.05, arrowprops=dict(arrowstyle="->", color='r', lw=0.5))
+
 			# Save the plot
 			pdf.savefig(fig)
 			plt.close()

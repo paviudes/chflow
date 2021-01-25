@@ -4,6 +4,7 @@ from define.randchans import CreateIIDPauli
 from define.chanreps import PauliConvertToTransfer
 from define import fnames as fn
 from scipy.special import comb
+from define.qcode import PrepareSyndromeLookUp
 from define.QECCLfid.utils import SamplePoisson
 
 def GetTotalErrorBudget(dbs, noise, sample):

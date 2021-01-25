@@ -70,7 +70,7 @@ def latex_float(f):
 
 def scientific_float(f):
     # Function taken from: https://stackoverflow.com/questions/13490292/format-number-using-latex-notation-in-python
-    float_str = "{0:.1e}".format(f)
+    float_str = "{0:.2e}".format(f)
     if "e" in float_str:
         base, exponent = float_str.split("e")
         return r"{0}e{1}".format(base, int(exponent))
