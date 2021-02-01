@@ -117,7 +117,8 @@ def PreparePhysicalChannels(submit, nproc=None):
 		rawchans, [submit.noiserates.shape[0], submit.samps, raw_params], order="c"
 	)
 	# The miscellaneous info for correlated CPTP channels contains the interactions used to generate it.
-	submit.misc = misc_info
+	if submit.iscorr == 3:
+		submit.misc = misc_info
 	# print("Physical channels: {}".format(submit.phychans))
 	# Prepare the weights of Pauli errors that will be supplied to the decoder: nr_weights.
 	PrepareNRWeights(submit)

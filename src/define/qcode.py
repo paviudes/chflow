@@ -2,6 +2,7 @@ import os
 import sys
 import numpy as np
 from define import globalvars as gv
+from define.QECCLfid import utils as ut
 
 class QuantumErrorCorrectingCode:
 	"""
