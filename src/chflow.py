@@ -579,6 +579,8 @@ if __name__ == "__main__":
 			else:
 				if not ("twirl" in submit.timestamp):
 					LoadTimeStamp(submit, time.strftime("%d/%m/%Y %H:%M:%S").replace("/", "_").replace(":", "_").replace(" ", "_"))
+				else:
+					LoadTimeStamp(submit, submit.timestamp)
 			Save(submit)
 			Schedule(submit)
 			PrepOutputDir(submit)
@@ -746,15 +748,15 @@ if __name__ == "__main__":
 			print("Doing dciplot for chids {} from available {}".format(chids, submit.available))
 			DecoderInstanceCompare(pmet, lmet, dbses, chids)
 
-		
+
 		#####################################################################
 
-		
+
 		elif user[0] == "nrplot":
 			# Plot the relative budget taken by the Pauli error weights in the NR data.
 			noise = submit.noiserates[int(user[1]), :]
 			sample = int(user[2])
-			
+
 			dbses = [submit]
 			if len(user) > 3:
 				for (i, ts) in enumerate(user[3].split(",")):
@@ -765,15 +767,15 @@ if __name__ == "__main__":
 					if not os.path.isfile(NRWeightsFile(dbses[i + 1], noise)):
 						print("\033[2mNRWeightsFile for noise rate {} does not exist. Cannot plot.\033[0m".format(noise))
 						is_complete = 0
-			
+
 			if (is_complete == 1):
 				print("Doing nrplot for noise {} and sample {}".format(noise, sample))
 				NRWeightsPlot(dbses, noise, sample)
 
-		
+
 		#####################################################################
 
-		
+
 		elif user[0] == "dvplot":
 			# No documentation provided yet
 			phymet = user[1].strip(" ")
@@ -1345,34 +1347,34 @@ if __name__ == "__main__":
 			plot_option = user[4]
 			notes_location = user[5]
 			pages = list(map(int, user[6].split(",")))
-			
+
 			if plot_option == "lplot":
 				plot_file = LevelWise(submit, phymet.replace(",", "_"), logmet)
-			
+
 			elif plot_option == "cplot":
 				plot_file = ChannelWise(submit, phymet, logmet)
-			
+
 			elif plot_option == "pdplot":
 				plot_file = PauliDistribution(submit.outdir, submit.channel)
-			
+
 			elif plot_option == "nrplot":
 				# The phymet is to be used as "noise" index and the logmet as "sample"
 				noise = submit.noiserates[int(phymet), :]
 				sample = int(logmet)
 				plot_file = NRWeightsPlotFile(submit, noise, sample)
-			
+
 			elif plot_option == "hamplot":
 				plot_file = HammerPlot(submit, logmet, phymet.split(","))
-			
+
 			elif plot_option == "dvplot":
 				plot_file = DeviationPlotFile(submit, phymet, logmet)
-			
+
 			elif plot_option == "mcplot":
 				plot_file = MCStatsPlotFile(submit, logmet, phymet.split(",")[0])
-			
+
 			elif plot_option == "dciplot":
 				plot_file = DecodersInstancePlot(submit, phymet.split(",")[0], logmet)
-			
+
 			else:
 				print("\033[2mUnknown plot option %s.\033[0m" % (plot_option))
 				continue
