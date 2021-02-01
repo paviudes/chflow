@@ -577,13 +577,8 @@ if __name__ == "__main__":
 			if len(user) > 1:
 				LoadTimeStamp(submit, user[1])
 			else:
-				LoadTimeStamp(
-					submit,
-					time.strftime("%d/%m/%Y %H:%M:%S")
-					.replace("/", "_")
-					.replace(":", "_")
-					.replace(" ", "_"),
-				)
+				if not ("twirl" in submit.timestamp):
+					LoadTimeStamp(submit, time.strftime("%d/%m/%Y %H:%M:%S").replace("/", "_").replace(":", "_").replace(" ", "_"))
 			Save(submit)
 			Schedule(submit)
 			PrepOutputDir(submit)

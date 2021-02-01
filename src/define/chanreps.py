@@ -458,6 +458,7 @@ def TwirlChannels(submit):
             else:
                 submit.phychans[i, j, :] = chans[j, :] * np.eye(2**(submit.eccs[0].N + submit.eccs[0].K), dtype=np.int).ravel()
 
-    submit.misc = "This is the Twirl of %s" % (submit.timestamp)
+    # submit.misc = "This is the Twirl of %s" % (submit.timestamp)
     submit.plotsettings["name"] = "With Randomized compiling"
+    submit.timestamp = "twirl_%s" % (submit.timestamp)
     return None
