@@ -1,4 +1,7 @@
+# Critical packages
 import numpy as np
+
+# Functions from other modules
 from define import fnames as fn
 from define import metrics as ml
 

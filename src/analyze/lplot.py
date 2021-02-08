@@ -1,24 +1,24 @@
+# Critical packages
 import os
 import sys
-import datetime as dt
-
 import numpy as np
+import datetime as dt
 import matplotlib
-
 matplotlib.use("Agg")
 from matplotlib import colors, ticker, cm
 from matplotlib.colors import LogNorm
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid.inset_locator import inset_axes, InsetPosition, mark_inset
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes, InsetPosition, mark_inset
 from matplotlib.ticker import LogLocator
 
-from define import fnames as fn
+# Functions from other modules
 from define import globalvars as gv
 from define import metrics as ml
 from define import qchans as qc
 from analyze.utils import GetNKDString
 from analyze.load import LoadPhysicalErrorRates
+from define.fnames import LevelWise, LogicalErrorRates, PhysicalErrorRates
 from analyze.bins import PlotBinVarianceDataSets, PlotBinVarianceMetrics, GetXCutOff
 
 

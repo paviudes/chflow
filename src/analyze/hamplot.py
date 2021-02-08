@@ -1,25 +1,19 @@
+# Critical packages
 import os
 import sys
 import datetime as dt
+import numpy as np
+import matplotlib
+matplotlib.use("Agg")
+from matplotlib import colors, ticker, cm
+from matplotlib.colors import LogNorm
+from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes, InsetPosition, mark_inset
+from matplotlib.ticker import LogLocator
+from scipy.interpolate import griddata
 
-try:
-    import numpy as np
-    import matplotlib
-
-    matplotlib.use("Agg")
-    from matplotlib import colors, ticker, cm
-    from matplotlib.colors import LogNorm
-    from matplotlib.backends.backend_pdf import PdfPages
-    import matplotlib.pyplot as plt
-    from mpl_toolkits.axes_grid.inset_locator import (
-        inset_axes,
-        InsetPosition,
-        mark_inset,
-    )
-    from matplotlib.ticker import LogLocator
-    from scipy.interpolate import griddata
-except:
-    pass
+# Functions from other modules
 from define import fnames as fn
 from define import metrics as ml
 from define import globalvars as gv

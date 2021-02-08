@@ -1,7 +1,4 @@
-try:
-    import numpy as np
-except:
-    pass
+import numpy as np
 from define import chanreps as crep
 
 

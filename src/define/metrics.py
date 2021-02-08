@@ -1,25 +1,28 @@
+# Critical packages
 import os
 import sys
 import time
-import datetime as dt
+import numpy as np
 import ctypes as ct
-from define.dnorm import DiamondNormSimpler
+from scipy import linalg as linalg
+import matplotlib
+from matplotlib import colors, ticker, cm
+matplotlib.use("Agg")
+from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.pyplot as plt
+from scipy.interpolate import griddata
+import multiprocessing as mp
 
+# Non important packages
 try:
-    import numpy as np
-    from scipy import linalg as linalg
-    import matplotlib
-    from matplotlib import colors, ticker, cm
-
-    matplotlib.use("Agg")
-    from matplotlib.backends.backend_pdf import PdfPages
-    import matplotlib.pyplot as plt
-    from scipy.interpolate import griddata
-    import multiprocessing as mp
+    import datetime as dt
     import picos as pic
     import cvxopt as cvx
-except:
+except ImportError as ex:
     pass
+
+# Imports from other files
+from define.dnorm import DiamondNormSimpler
 from define import globalvars as gv
 from define import chanreps as crep
 from define import qchans as qc

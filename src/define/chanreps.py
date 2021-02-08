@@ -1,17 +1,11 @@
-try:
-    from tqdm import tqdm
-except:
-    pass
-try:
-    import numpy as np
-    import scipy as sp
-except:
-    pass
+import numpy as np
+import scipy as sp
 import ctypes as ct
+from tqdm import tqdm
 import multiprocessing as mp
+from define import qcode as qc
 from define import fnames as fn
 from define import globalvars as gv
-from define import qcode as qc
 
 
 def HermitianConjugate(mat):
@@ -464,6 +458,7 @@ def TwirlChannels(submit):
             else:
                 submit.phychans[i, j, :] = chans[j, :] * np.eye(2**(submit.eccs[0].N + submit.eccs[0].K), dtype=np.int).ravel()
 
-    submit.misc = "This is the Twirl of %s" % (submit.timestamp)
+    # submit.misc = "This is the Twirl of %s" % (submit.timestamp)
     submit.plotsettings["name"] = "With Randomized compiling"
+    submit.timestamp = "twirl_%s" % (submit.timestamp)
     return None

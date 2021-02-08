@@ -1,22 +1,24 @@
+# Critical packages
 import os
 import sys
 import datetime as dt
 import numpy as np
 import matplotlib
-
 matplotlib.use("Agg")
 from matplotlib import colors, ticker, cm
 from matplotlib.lines import Line2D
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid.inset_locator import inset_axes, InsetPosition, mark_inset
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes, InsetPosition, mark_inset
 from scipy.interpolate import griddata
+
+# Functions from other modules
 from define.utils import IsNumber
 from define.metrics import Metrics
-from analyze.utils import DisplayForm, RealNoise, scientific_float, latex_float
-from analyze.load import LoadPhysicalErrorRates
-from define.fnames import MCStatsPlotFile, PhysicalErrorRates, RunningAverageCh
 from define import globalvars as gv
+from analyze.load import LoadPhysicalErrorRates
+from analyze.utils import DisplayForm, RealNoise, scientific_float, latex_float
+from define.fnames import MCStatsPlotFile, PhysicalErrorRates, RunningAverageCh
 
 
 def GetChannelPosition(rates, samples, available):
@@ -111,14 +113,14 @@ def LoadRunningAverages(dbs, lmet, rates, samples):
         (rates.shape[0], samples.size, dbs.stats.size), dtype=np.double
     )
     for r in range(rates.shape[0]):
-        for s in samples:
+        for s in range(samples.size):
             running_averages[r, s, :] = np.load(
-                RunningAverageCh(dbs, rates[r, :], s, lmet)
+                RunningAverageCh(dbs, rates[r, :], samples[s], lmet)
             )
     return running_averages
 
 
-def MCStatsPlot(dbses, lmet, pmet, rates, nsamples=10, cutoff=1e3):
+def MCStatsPlot(dbses, lmet, pmet, rates, samples=None, cutoff=1e3):
     # Plot the logical error rate vs. number of syndromes sampled at the top level.
     # The figure contains one plot for every concatenated level.
     # In every plot, there is one curve for every value of the noise parameters.
@@ -129,8 +131,11 @@ def MCStatsPlot(dbses, lmet, pmet, rates, nsamples=10, cutoff=1e3):
     # Plot the running average of the metric with respect the the number of samples used to compute that average.
     # See https://faculty.washington.edu/stuve/log_error.pdf on how to compute error bars for log plot.
     # To estimate d(z = log y), we have: dz = d(log y) = 1/ln(10) * d(ln y) = 1/ln(10) * (dy)/y
+    if samples is None:
+        samples = np.arange(dbs.samps)
+    
     if len(dbses) > 1:
-        return MCompare(dbses, pmet, lmet, rates, nsamples, cutoff)
+        return MCompare(dbses, pmet, lmet, rates, samples, cutoff)
     else:
         dbs = dbses[0]
     min_stats = 0
@@ -139,7 +144,6 @@ def MCStatsPlot(dbses, lmet, pmet, rates, nsamples=10, cutoff=1e3):
     phyerrs = settings["xaxis"]
 
     plotfname = MCStatsPlotFile(dbs, lmet, pmet)
-    samples = np.arange(min(dbs.samps, nsamples))
     running_averages = LoadRunningAverages(dbs, lmet, rates, samples)
 
     # Compute the position of rate, sample in the availaibe list of channels.
@@ -249,7 +253,7 @@ def MCStatsPlot(dbses, lmet, pmet, rates, nsamples=10, cutoff=1e3):
     return None
 
 
-def MCompare(dbses_input, pmet, lmet, rates, nsamples=10, cutoff=1e6):
+def MCompare(dbses_input, pmet, lmet, rates, samples=None, cutoff=1e6):
     """
     Compare the running averages from many datasets.
     """
@@ -259,7 +263,8 @@ def MCompare(dbses_input, pmet, lmet, rates, nsamples=10, cutoff=1e6):
     min_stats = 0
     # sampling_methods = {0: "Direct sampling", 1: "Importance sampling"}
     plotfname = MCStatsPlotFile(dbses[0], lmet, pmet)
-    samples = np.arange(min(dbses[0].samps, nsamples))
+    if samples is None:
+        samples = np.arange(dbses[0].samps)
     with PdfPages(plotfname) as pdf:
         fig = plt.figure(figsize=gv.canvas_size)
         ax = plt.gca()
@@ -288,7 +293,7 @@ def MCompare(dbses_input, pmet, lmet, rates, nsamples=10, cutoff=1e6):
             # dset_labels.append(dbs.plotsettings["name"]) ORIGINAL
             for r in range(rates.shape[0]):
                 for s in range(samples.shape[0]):
-                    yaxis = running_averages[r, samples[s], xindices]
+                    yaxis = running_averages[r, s, xindices]
                     # print("xaxis\n{}\nyaxis\n{}".format(xaxis, yaxis))
                     linestyle = gv.line_styles[d % len(gv.line_styles)]
                     label = "$%s = %s$" % (

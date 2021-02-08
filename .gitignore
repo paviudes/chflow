@@ -1,6 +1,9 @@
 # Directory containing all files removed by "clean"
 .ignore/
 
+# Missing packages for setup
+requirements.txt
+
 # Physical channels -- these can be generated from chflow
 physical/*.npy
 
@@ -31,7 +34,7 @@ refs/
 
 # All input files that do not start with sample_...
 input/**
-#!input/sample_*.txt
+!input/update_*.txt
 
 # Log files
 src/log.txt

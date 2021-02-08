@@ -1,12 +1,8 @@
 import os
-
-try:
-    import numpy as np
-    from scipy import linalg as linalg
-    from scipy.stats import poisson
-    from scipy.special import comb
-except:
-    pass
+import numpy as np
+from scipy import linalg as linalg
+from scipy.stats import poisson
+from scipy.special import comb
 from define import globalvars as gv
 from define import chanreps as crep
 from define.QECCLfid import utils as ut

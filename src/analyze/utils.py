@@ -1,40 +1,25 @@
+# Critical packages
 import os
 import sys
 import datetime as dt
+import numpy as np
+import matplotlib
+matplotlib.use("Agg")
+from matplotlib import colors, ticker, cm
+from matplotlib.colors import LogNorm
+from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes, InsetPosition, mark_inset
+from scipy.interpolate import griddata
 
+# Non critical packages
 try:
-    import numpy as np
-    import matplotlib
-
-    matplotlib.use("Agg")
-    from matplotlib import colors, ticker, cm
-    from matplotlib.colors import LogNorm
-    from matplotlib.backends.backend_pdf import PdfPages
-    import matplotlib.pyplot as plt
-    from mpl_toolkits.axes_grid.inset_locator import (
-        inset_axes,
-        InsetPosition,
-        mark_inset,
-    )
-    from scipy.interpolate import griddata
     import PyPDF2 as pp
-except:
+except ImportError:
     pass
-from define.QECCLfid import uncorrectable as uc
 
-# Force the module scripts to run locally -- https://stackoverflow.com/questions/279237/import-a-module-from-a-relative-path
-# import inspect as ins
-# current = os.path.realpath(os.path.abspath(os.path.dirname(ins.getfile(ins.currentframe()))))
-# if (not (current in sys.path)):
-# 	sys.path.insert(0, current)
-
+# Functions from other modules
 from define import qchans as qc
-from define import qcode as qec
-from define import fnames as fn
-from define import globalvars as gv
-from define import metrics as ml
-from define import submission as sub
-from analyze import collect as cl
 
 
 def ExtractPDFPages(information, save_folder, save_fname):
@@ -85,7 +70,7 @@ def latex_float(f):
 
 def scientific_float(f):
     # Function taken from: https://stackoverflow.com/questions/13490292/format-number-using-latex-notation-in-python
-    float_str = "{0:.1e}".format(f)
+    float_str = "{0:.2e}".format(f)
     if "e" in float_str:
         base, exponent = float_str.split("e")
         return r"{0}e{1}".format(base, int(exponent))

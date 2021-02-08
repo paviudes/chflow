@@ -40,6 +40,13 @@ def PauliDistribution(outdir, channel):
     return fname
 
 
+def NRWeightsPlotFile(dbs, noise, sample):
+    # Name of the file containing the relative budgets in NR for Pauli error weights.
+    noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
+    fname = "%s/results/nrdist_%s_s%d.pdf" % (dbs.outdir, noisedes, sample)
+    return fname
+
+
 def BinSummary(submit, phymet, logmet, level):
     # Name of the file containing the summary of bins
     fname = "%s/results/bins_summary_%s_%s_l%d.txt" % (
@@ -74,6 +81,19 @@ def PhysicalChannel(dbs, noise):
     # Name of the file containing the physical channel
     noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
     fname = "%s/physical/%s_%s.npy" % (dbs.outdir, dbs.channel, noisedes)
+    return fname
+
+
+def ChannelInformationFile(dbs, noise):
+    # Name of the file containing the physical channel
+    noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
+    fname = "%s/physical/info_%s_%s.txt" % (dbs.outdir, dbs.channel, noisedes)
+    return fname
+
+def NRWeightsFile(dbs, noise):
+    # Name of the file containing the physical channel
+    noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
+    fname = "%s/physical/nrw_%s_%s.txt" % (dbs.outdir, dbs.channel, noisedes)
     return fname
 
 

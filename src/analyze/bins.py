@@ -1,30 +1,30 @@
+# Critical packages
 import os
 import sys
 import datetime as dt
 
-try:
-	import numpy as np
-	import matplotlib
+import numpy as np
+import matplotlib
+matplotlib.use("Agg")
+from matplotlib import colors, ticker, cm
+from matplotlib.colors import LogNorm
+from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes, InsetPosition, mark_inset
+from matplotlib.ticker import LogLocator
+from scipy.interpolate import griddata
 
-	matplotlib.use("Agg")
-	from matplotlib import colors, ticker, cm
-	from matplotlib.colors import LogNorm
-	from matplotlib.backends.backend_pdf import PdfPages
-	import matplotlib.pyplot as plt
-	from mpl_toolkits.axes_grid.inset_locator import (
-		inset_axes,
-		InsetPosition,
-		mark_inset,
-	)
-	from matplotlib.ticker import LogLocator
-	from scipy.interpolate import griddata
+# Non critical packages
+try:
 	import PyPDF2 as pp
-except:
+except ImportError:
 	pass
-from define import fnames as fn
-from define import globalvars as gv
+
+# Functions from other modules
 from define import metrics as ml
+from define import globalvars as gv
 from analyze.utils import scientific_float
+from define.fnames import SyndromeBins, SyndromeBinsPlot, LogicalErrorRates, PhysicalErrorRates, CompareScatters
 
 
 def BinsPlot(dbs, lmet, pvals):
@@ -33,7 +33,7 @@ def BinsPlot(dbs, lmet, pvals):
 	# For each channel, the bins array is formatted as: bins[level, synd prob, metric val].
 	npoints = 6
 	nchans = 0
-	plotfname = fn.SyndromeBinsPlot(dbs, lmet, pvals)
+	plotfname = SyndromeBinsPlot(dbs, lmet, pvals)
 	with PdfPages(plotfname) as pdf:
 		for i in range(dbs.channels):
 			if pvals == -1:
@@ -46,7 +46,7 @@ def BinsPlot(dbs, lmet, pvals):
 				# print("p = %s" % (np.array_str(dbs.available[i, :])))
 				nchans = nchans + 1
 				bins = np.load(
-					fn.SyndromeBins(
+					SyndromeBins(
 						dbs, dbs.available[i, :-1], dbs.available[i, -1], lmet
 					)
 				)
@@ -136,15 +136,15 @@ def PlotBinVarianceMetrics(ax1, dbs, level, lmet, pmets, nbins, include_info):
 	# Mark the region corresponding to the inset axes on ax1 and draw lines in grey linking the two axes.
 	mark_inset(ax1, ax2, loc1=2, loc2=4, fc="none")
 	phyerrs = np.zeros((len(pmets), dbs.channels), dtype=np.double)
-	logerrs = np.load(fn.LogicalErrorRates(dbs, lmet))[:, level]
-	plotfname = fn.CompareScatters(dbs, lmet, pmets, mode="metrics")
+	logerrs = np.load(LogicalErrorRates(dbs, lmet))[:, level]
+	plotfname = CompareScatters(dbs, lmet, pmets, mode="metrics")
 	collapsed_bins = {mt: None for mt in pmets}
 	fig = plt.figure(figsize=gv.canvas_size)
 	for p in range(len(pmets)):
 		if pmets[p] == "uncorr":
-			phyerrs[p, :] = np.load(fn.PhysicalErrorRates(dbs, pmets[p]))[:, level]
+			phyerrs[p, :] = np.load(PhysicalErrorRates(dbs, pmets[p]))[:, level]
 		else:
-			phyerrs[p, :] = np.load(fn.PhysicalErrorRates(dbs, pmets[p]))
+			phyerrs[p, :] = np.load(PhysicalErrorRates(dbs, pmets[p]))
 
 		# print("Computing bins for {} at level {}".format(pmets[p], level))
 
@@ -263,10 +263,10 @@ def PlotBinVarianceDataSets(ax1, dbses, level, lmet, phymets, nbins, include_inf
 	collapsed_bins = [None for d in range(ndb)]
 	for d in range(ndb):
 		if pmets[d] == "uncorr":
-			phyerrs[d, :] = np.load(fn.PhysicalErrorRates(dbses[d], pmets[d]))[:, level]
+			phyerrs[d, :] = np.load(PhysicalErrorRates(dbses[d], pmets[d]))[:, level]
 		else:
-			phyerrs[d, :] = np.load(fn.PhysicalErrorRates(dbses[d], pmets[d]))
-		logerrs[d, :] = np.load(fn.LogicalErrorRates(dbses[d], lmet))[:, level]
+			phyerrs[d, :] = np.load(PhysicalErrorRates(dbses[d], pmets[d]))
+		logerrs[d, :] = np.load(LogicalErrorRates(dbses[d], lmet))[:, level]
 
 		include = include_info[pmets[d]]
 

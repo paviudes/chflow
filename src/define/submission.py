@@ -67,6 +67,7 @@ class Submission:
         self.hybrid = 0
         self.decoderbins = []
         self.ndecoderbins = []
+        self.nr_weights = None
         # Sampling options
         self.stats = np.array([])
         self.samplingOptions = {"direct": 0, "power": 1, "bravyi": 2}
@@ -283,10 +284,37 @@ def Select(submit, chan_indices):
     # Identify the details of the physical noise maps given their channel indices.
     os.system("mkdir -p %s/physical/selected" % (submit.outdir))
     print("C   noise   samp")
-    phychans = np.zeros(
-        (len(chan_indices), 4 ** submit.eccs[0].K * 4 ** submit.eccs[0].K),
-        dtype=np.double,
-    )
+    
+    if (submit.iscorr == 0):
+        phychans = np.zeros(
+            (len(chan_indices), 4 ** submit.eccs[0].K * 4 ** submit.eccs[0].K),
+            dtype=np.double,
+        )
+    elif (submit.iscorr == 1):
+        phychans = np.zeros(
+            (len(chan_indices), 2**(submit.eccs[0].N + submit.eccs[0].K)),
+            dtype=np.double,
+        )
+    elif (submit.iscorr == 2):
+        phychans = np.zeros(
+            (len(chan_indices), submit.eccs[0].N * 4 ** submit.eccs[0].K * 4 ** submit.eccs[0].K),
+            dtype=np.double,
+        )
+    elif (submit.iscorr == 3):
+        phychans = np.zeros(
+            (len(chan_indices), 4**(submit.eccs[0].N + submit.eccs[0].K)),
+            dtype=np.double,
+        )
+    else:
+        pass
+
+
+    if (submit.available.shape[0] == 0):
+        submit.available = np.zeros((submit.noiserates.shape[0] * submit.samps, submit.noiserates.shape[1] + 1), dtype = np.double)
+        for i in range(submit.noiserates.shape[0]):
+            for j in range(submit.samps):
+                submit.available[i * submit.samps + j, :] = np.concatenate((submit.noiserates[i, :], [j]))
+    # print("available:\n{}".format(submit.available))
     selected = submit.available[chan_indices, :]
     for c in range(len(chan_indices)):
         print(
@@ -305,10 +333,17 @@ def Select(submit, chan_indices):
             )
         )
         chanfile = fn.PhysicalChannel(submit, submit.available[chan_indices[c], :-1])
-        phychans[c, :] = np.load(chanfile)[
-            int(submit.available[chan_indices[c], -1]), :
-        ]
-        chan = np.reshape(phychans[c, :], [4, 4])
+        phychans[c, :] = np.load(chanfile)[int(submit.available[chan_indices[c], -1]), :]
+        if (submit.iscorr == 0):
+            chan = np.reshape(phychans[c, :], [4, 4])
+        elif (submit.iscorr == 1):
+            chan = phychans[c, :]
+        elif (submit.iscorr == 2):
+            chan = np.reshape(phychans[c, :], [submit.eccs[0].N, 4, 4])
+        elif (submit.iscorr == 3):
+            chan = np.reshape(phychans[c, :], [2**(submit.eccs[0].N + submit.eccs[0].K), 2**(submit.eccs[0].N + submit.eccs[0].K)])
+        else:
+            pass
         # Save the channel into a new folder
         (folder, fname) = os.path.split(chanfile)
         (name, extn) = os.path.splitext(fname)

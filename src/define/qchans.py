@@ -1,10 +1,6 @@
 import os
-
-try:
-	import numpy as np
-	import itertools as it
-except:
-	pass
+import numpy as np
+import itertools as it
 from define import chanreps as crep
 from define import randchans as rchan
 from define import chandefs as chdef
@@ -184,10 +180,10 @@ Channels = {
 		"Pauli": 0,
 		"corr": 3,
 	},
-	"csum": {
+	"cptp": {
 		"name": "Correlated non Pauli channel as sum of CPTP maps",
-		"params": ["Angle", "Cutoff", "Number of maps"],
-		"latex": ["$\\theta$", "K", "$n_{\\mathsf{maps}}$"],
+		"params": ["Angle", "Cutoff", "Number of maps", "Mean"],
+		"latex": ["$\\theta$", "K", "$n_{\\mathsf{maps}}$", "\\mu"],
 		"color": "limegreen",
 		"Pauli": 0,
 		"corr": 3,
