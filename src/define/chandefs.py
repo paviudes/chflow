@@ -65,6 +65,21 @@ def Depolarizing(params):
     return PauliChannel([1 - params[0], params[0] / 3, params[0] / 3, params[0] / 3])
 
 
+def BiasedPauliXZ(params):
+	"""
+	Pauli noise model with a bias between the X and Z error rates.
+	The bias is specified as a ratio between pX and pZ.
+	pY is simply pX pZ.
+	pI = 1 - pX - pY - pZ
+	"""
+	pX = params[0]
+	ratio = params[1]
+	pZ = ratio * pX
+	pY = pX * pZ
+	pI = 1 - pX - pY - pZ
+	return PauliChannel([pI, PX, pY, pZ])
+
+
 def PauliChannel(params):
     """
     Kraus operators for the Pauli channel.
@@ -372,6 +387,10 @@ def GetKraussForChannel(chType, *params):
     elif chType == "pauli":
         # Generic Pauli channel
         krauss = PauliChannel(params)
+
+    elif chType == "bpauli":
+    	# Biased Pauli channel
+    	kraus = BiasedPauliXZ(params)
 
     elif chType == "up":
         # Generic Pauli channel

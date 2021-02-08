@@ -68,6 +68,14 @@ Channels = {
 		"Pauli": 1,
 		"corr": 0,
 	},
+	"bpauli": {
+		"name": "Biased Pauli channel",
+		"params": ["Prob X", "ratio"],
+		"latex": ["$p_{X}$", "$p_{X}/p_{Z}$"],
+		"color": "red",
+		"Pauli": 1,
+		"corr": 0,
+	},
 	"up": {
 		"name": "Uncorrelated Pauli channel",
 		"params": ["Infidelity"],
