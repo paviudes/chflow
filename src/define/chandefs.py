@@ -66,12 +66,13 @@ def BiasedPauliXZ(params):
 	pY is simply pX pZ.
 	pI = 1 - pX - pY - pZ
 	"""
-	pX = params[0]
-	ratio = params[1]
-	pZ = ratio * pX
-	pY = pX * pZ
+	rX = params[0]
+	rZ = params[1]
+    pX = rX * (1 - rZ)
+    pZ = rZ * (1 - rX)
+	pY = rX * rZ
 	pI = 1 - pX - pY - pZ
-	return PauliChannel([pI, PX, pY, pZ])
+	return PauliChannel([pI, pX, pY, pZ])
 
 
 def PauliChannel(params):
