@@ -35,17 +35,24 @@ def CompareSubs(pmet, lmet, *dbses):
             ax_right = ax.twinx()
             for d in range(ndb):
                 # Plot multiple logical error rates, with respect to the same physical error rates.
+                # We use linestyles to distinguish between codes, and colors/markers to distinguish between y-axis metrics.
                 settings = {"xaxis": None, "xlabel": None, "yaxis": np.load(LogicalErrorRates(dbses[d], lmet))[: , l], "ylabel": "$\\overline{%s_{%d}}$" % (ml.Metrics[lmet]["latex"].replace("$", ""), l)}
                 LoadPhysicalErrorRates(dbses[0], pmet, settings, l)
-                settings.update({"color": gv.Colors[d % gv.n_Colors], "marker": gv.Markers[d % gv.n_Markers], "linestyle": gv.line_styles[d % gv.n_line_styles]})
-                ax.plot(settings["xaxis"], settings["yaxis"], color=settings["color"], marker=settings["marker"], markersize=gv.marker_size, linestyle=settings["linestyle"], label = dbses[d].eccs[0].name)
-                
+                settings.update({"color": ml.Metrics[lmet]["color"], "marker": ml.Metrics[lmet]["marker"], "linestyle": gv.line_styles[d % gv.n_line_styles]})
+                ax.plot(settings["xaxis"], settings["yaxis"], color=settings["color"], marker=settings["marker"], markersize=gv.marker_size, linestyle=settings["linestyle"], linewidth=gv.line_width)
+                # Empty plot for the legend entry containing different linestyles.
+                ax.plot([], [], color="k", linestyle=settings["linestyle"], linewidth=gv.line_width, label = dbses[d].eccs[0].name)
+
                 # Right y-axis for uncorr
                 uncorr = np.load(PhysicalErrorRates(dbses[d], "uncorr"))
-                ax_right.plot(settings["xaxis"], uncorr[:, l], color=settings["color"], marker=ml.Metrics["uncorr"]["marker"], markersize=gv.marker_size, linestyle=settings["linestyle"], label = dbses[d].eccs[0].name)
+                ax_right.plot(settings["xaxis"], uncorr[:, l], color=ml.Metrics["uncorr"]["color"], marker=ml.Metrics["uncorr"]["marker"], markersize=gv.marker_size, linestyle=settings["linestyle"], linewidth=gv.line_width)
                 
                 print("level {} and database {}".format(l, dbses[d].timestamp))
                 print("X\n{}\nY left\n{}\nY right\n{}".format(settings["xaxis"], settings["yaxis"], uncorr[:, l]))
+
+            # Empty plots for the legend entries containing different colors/markers.
+            ax.plot([], [], color=ml.Metrics[lmet]["color"], marker=ml.Metrics[lmet]["marker"], markersize=gv.marker_size, label = ml.Metrics[lmet]["latex"], linestyle="None")
+            ax.plot([], [], color=ml.Metrics["uncorr"]["color"], marker=ml.Metrics["uncorr"]["marker"], markersize=gv.marker_size, label = ml.Metrics["uncorr"]["latex"], linestyle="None")
 
             # Axes labels
             ax.set_xlabel(settings["xlabel"], fontsize=gv.axes_labels_fontsize)
@@ -58,7 +65,7 @@ def CompareSubs(pmet, lmet, *dbses):
             ax_right.tick_params(axis="both", which="both", pad=gv.ticks_pad, direction="inout", length=gv.ticks_length, width=gv.ticks_width, labelsize=gv.ticks_fontsize)
             
             # legend
-            ax.legend(numpoints=1, loc="best", shadow=True, fontsize=gv.legend_fontsize, markerscale=gv.legend_marker_scale)
+            ax.legend(loc="best", shadow=True, fontsize=gv.legend_fontsize, markerscale=gv.legend_marker_scale)
 
             # Save the plot
             pdf.savefig(fig)
@@ -66,7 +73,7 @@ def CompareSubs(pmet, lmet, *dbses):
 
         # Set PDF attributes
         pdfInfo = pdf.infodict()
-        pdfInfo["Title"] = "Comparison of %s for databases %s up to %d levels." % ( settings["ylabel"], "_".join([dbses[i].timestamp for i in range(ndb)]), nlevels)
+        pdfInfo["Title"] = "Comparison of %s for databases %s up to %d levels." % (ml.Metrics[lmet]["log"], "_".join([dbses[i].timestamp for i in range(ndb)]), nlevels)
         pdfInfo["Author"] = "Pavithran Iyer"
         pdfInfo["ModDate"] = dt.datetime.today()
     

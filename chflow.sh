@@ -14,6 +14,7 @@ if [[ $host == *"paviws"* ]]; then
 	sed_prepend=' '
 	
 elif [[ $host == "pavitp" ]]; then
+	local_user=${USER}
 	outdir="/home/pavi/Documents/chbank"
 	chflowdir="/home/pavi/Documents/chflow"
 	cores=$(nproc --all)
@@ -57,32 +58,34 @@ if [[ "$1" == "zip" ]]; then
 elif [[ "$1" == "from_cluster" ]]; then
 	cd ${outdir}
 	printf "\033[2m"
-	echo "Bringing simulation from ${cluster}"
-
+	echo "Bringing simulation data from ${cluster} to ${outdir}"
 	# unzip the individual datasets.
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
 
-		scp -r ${local_user}@${cluster}.computecanada.ca:/project/def-jemerson/chbank/${ts}.tar.gz ${outdir}
+		trash ${outdir}/${ts}.tar.gz
+		
+		echo "scp ${local_user}@${cluster}.computecanada.ca:/project/def-jemerson/chbank/${ts}.tar.gz ${outdir}"
+		scp ${local_user}@${cluster}.computecanada.ca:/project/def-jemerson/chbank/${ts}.tar.gz .
 	
 		echo "Setting up ${ts}"
-		trash ${ts}.tar.gz
 		trash ${ts}
 		tar -xvf ${ts}.tar.gz
 		
 		#### Copying input files to chflow
 		echo "Copying input and schedule files"
 		cp ${ts}/input/${ts}.txt ${chflowdir}/input/
-		echo "Copying schedule_${ts}.txt from data"
 		cp ${ts}/input/schedule_${ts}.txt ${chflowdir}/input/
 		
 		#### Prepare output directory after moving from cluster.
-		echo "/project/def-jemerson/chbank WITH ${outdir} IN input/${ts}.txt"
+		echo "REPLACING /project/def-jemerson/chbank WITH ${outdir} IN ${chflowdir}/input/${ts}.txt"
 		replace "\/project\/def-jemerson\/chbank" ${outdir//\//\\\/} ${chflowdir}/input/${ts}.txt
 		
 		echo "xxxxxxx"
 	done
 	printf "\033[0m"
+	cd ${chflowdir}
+	
 
 elif [[ "$1" == "chmod" ]]; then
 	cd ${outdir}
