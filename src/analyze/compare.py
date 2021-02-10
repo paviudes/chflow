@@ -38,26 +38,26 @@ def CompareSubs(pmet, lmet, *dbses):
                 # We use linestyles to distinguish between codes, and colors/markers to distinguish between y-axis metrics.
                 settings = {"xaxis": None, "xlabel": None, "yaxis": np.load(LogicalErrorRates(dbses[d], lmet))[: , l], "ylabel": "$\\overline{%s_{%d}}$" % (ml.Metrics[lmet]["latex"].replace("$", ""), l)}
                 LoadPhysicalErrorRates(dbses[0], pmet, settings, l)
-                settings.update({"color": ml.Metrics[lmet]["color"], "marker": ml.Metrics[lmet]["marker"], "linestyle": gv.line_styles[d % gv.n_line_styles]})
-                ax.plot(settings["xaxis"], settings["yaxis"], color=settings["color"], marker=settings["marker"], markersize=gv.marker_size, linestyle=settings["linestyle"], linewidth=gv.line_width)
+                settings.update({"color": "grey", "marker": ml.Metrics[lmet]["marker"], "linestyle": gv.line_styles[d % gv.n_line_styles]})
+                ax_right.plot(settings["xaxis"], settings["yaxis"], color=settings["color"], alpha = 0.5, marker=settings["marker"], markersize=gv.marker_size, linestyle=settings["linestyle"], linewidth=gv.line_width)
                 # Empty plot for the legend entry containing different linestyles.
                 ax.plot([], [], color="k", linestyle=settings["linestyle"], linewidth=gv.line_width, label = dbses[d].eccs[0].name)
 
                 # Right y-axis for uncorr
                 uncorr = np.load(PhysicalErrorRates(dbses[d], "uncorr"))
-                ax_right.plot(settings["xaxis"], uncorr[:, l], color=ml.Metrics["uncorr"]["color"], marker=ml.Metrics["uncorr"]["marker"], markersize=gv.marker_size, linestyle=settings["linestyle"], linewidth=gv.line_width)
+                ax.plot(settings["xaxis"], uncorr[:, l], color=ml.Metrics["uncorr"]["color"], marker=ml.Metrics["uncorr"]["marker"], markersize=gv.marker_size, linestyle=settings["linestyle"], linewidth=gv.line_width)
                 
                 print("level {} and database {}".format(l, dbses[d].timestamp))
                 print("X\n{}\nY left\n{}\nY right\n{}".format(settings["xaxis"], settings["yaxis"], uncorr[:, l]))
 
             # Empty plots for the legend entries containing different colors/markers.
-            ax.plot([], [], color=ml.Metrics[lmet]["color"], marker=ml.Metrics[lmet]["marker"], markersize=gv.marker_size, label = ml.Metrics[lmet]["latex"], linestyle="None")
+            ax.plot([], [], color="grey", alpha=0.5, marker=ml.Metrics[lmet]["marker"], markersize=gv.marker_size, label = ml.Metrics[lmet]["latex"], linestyle="None")
             ax.plot([], [], color=ml.Metrics["uncorr"]["color"], marker=ml.Metrics["uncorr"]["marker"], markersize=gv.marker_size, label = ml.Metrics["uncorr"]["latex"], linestyle="None")
 
             # Axes labels
             ax.set_xlabel(settings["xlabel"], fontsize=gv.axes_labels_fontsize)
-            ax.set_ylabel(settings["ylabel"], fontsize=gv.axes_labels_fontsize)
-            ax_right.set_ylabel(ml.Metrics["uncorr"]["latex"], fontsize=gv.axes_labels_fontsize)
+            ax_right.set_ylabel(settings["ylabel"], fontsize=gv.axes_labels_fontsize)
+            ax.set_ylabel(ml.Metrics["uncorr"]["latex"], fontsize=gv.axes_labels_fontsize)
             ax.set_xscale("log")
             ax.set_yscale("log")
             ax_right.set_yscale("log")
