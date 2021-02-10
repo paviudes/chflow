@@ -1,25 +1,27 @@
 # Time stamp
 timestamp biased_pauli_cyclic
 # Type of quantum error correcting code
-ecc Steane
+ecc 7qc_cyclic,7qc_cyclic
 # Type of quantum channel
 channel bpauli
 # Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
 repr process
 # Noise rate exponents. The actual noise rate is (2/3)^exponent.
-noiserange 7,7,1;7,7,1
+noiserange 8,24,41;12,12,1
 # Scales of noise range.
 scale 0.66,0.66
 # Number of samples
 samples 1
-# Decoding algorithm to be used -- 0 for the maximum likelihood decoder, 1 for minimum weight decoder, 4 for soft decoder.
-decoder 1
+# Parameters schedule
+scheduler ./../input/schedule_biased_pauli_cyclic.txt
+# Decoding algorithm to be used -- 0 for the maximum likelihood decoder and 1 for minimum weight decoder.
+decoder 1,1
 # Fraction of Pauli probabilities accessible to the ML decoder.
 dcfraction 0
 # Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
 frame P
 # Number of syndromes to be sampled at top level
-stats 100
+stats 10000
 # Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
 importance power
 # Metrics to be computed on the effective channels at every level.
@@ -27,7 +29,7 @@ metrics infid
 # Load distribution on cores.
 cores 1,1
 # Number of nodes
-nodes 1
+nodes 41
 # Name of the host computer.
 host local
 # Name of the account.
@@ -46,4 +48,3 @@ outdir /home/pavi/Documents/chbank
 rc 0
 # Plot settings
 plot name,With Randomized compiling;linestyle,None
-# Miscellaneous information: None

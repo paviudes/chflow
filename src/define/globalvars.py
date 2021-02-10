@@ -83,6 +83,7 @@ hadamard = np.array(
 ## Plot settings
 # linestyles from https://matplotlib.org/gallery/lines_bars_and_markers/linestyles.html
 line_styles = [(0, ()), (0, (5, 5)), (0, (1, 1)), (0, (3, 5, 1, 5, 1, 5))]
+n_line_styles = len(line_styles)
 # Markers
 # https://matplotlib.org/2.0.2/api/markers_api.html
 Markers = [

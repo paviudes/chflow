@@ -1,7 +1,8 @@
 def CheckDependencies():
 	# Check if all the requires packages exist
 	# if not, create a requirements text file.
-	packages = [["timeit", "3.5", "Time operations", "Critical"],
+	packages = [["adjustText", "1.0", "Fancy annotations", "Mild"],
+				["timeit", "3.5", "Time operations", "Critical"],
 				["readline", "3.5", "Console input", "Mild"],
 				["scipy", "0.18", "Numerical operations", "Critical"],
 				["numpy", "0.12", "Numerical operations", "Critical"],

@@ -157,7 +157,7 @@ Metrics = {
         "phys": "Uncorrectable error probability",
         "log": "Uncorrectable error probability of the logical channel",
         "latex": "$\\widetilde{p}_{u}$",
-        "marker": u"o",
+        "marker": u"s",
         "color": gv.QB_GREEN,
         "desc": "The total probability of uncorrectable (Pauli) errors.",
         "func": "lambda P, kwargs: UncorrectableProb(P, kwargs)",

@@ -96,6 +96,7 @@ from analyze.statplot import MCStatsPlot
 from analyze.hamplot import DoubleHammerPlot
 from analyze.pdplot import PauliDistributionPlot
 from analyze.nrplot import NRWeightsPlot
+from analyze.compare import CompareSubs
 from analyze.utils import ExtractPDFPages
 
 
@@ -1125,32 +1126,29 @@ if __name__ == "__main__":
 		#####################################################################
 
 		elif user[0] == "compare":
-			tocompare = [Submission(), Submission()]
-			for i in range(2):
-				LoadSub(tocompare[i], user[1 + i])
-			if (user[3] in tocompare[0].metrics) and (user[3] in tocompare[1].metrics):
-				if os.path.isfile(
-					GatheredLogErrData(tocompare[0], logicalmetric)
-				) and os.path.isfile(GatheredLogErrData(tocompare[1], logicalmetric)):
-					CompareSubs(tocompare, user[3])
-				else:
-					print(
-						"Logical error rates data is not available for one of the simulations."
-					)
+			# Plot the logical error rate with respect to a physical noise strength, with a new figure for every concatenation layer.
+			# One or more simulation data can be plotted in the same figure with a new curve for every dataset.
+			# One of more measures of physical noise strength can be plotted on the same figure with a new curve for each definition.
+			if len(user) >= 3:
+				dbses = [submit]
+				check = 1
+				for (d, ts) in enumerate(user[3].split(",")):
+					dbses.append(Submission())
+					LoadSub(dbses[d + 1], ts, 0)
+					IsComplete(dbses[d + 1])
+					if dbses[d + 1].complete > 0:
+						if not os.path.isfile(LogicalErrorRates(dbses[d + 1], user[2], fmt="npy")):
+							GatherLogErrData(dbses[d + 1])
+					else:
+						check = 0
+						break
+			if check == 1:
+				pmet = user[1].strip(" ")
+				CompareSubs(user[1].strip(" "), user[2].strip(" "), *dbses)
 			else:
 				print(
-					"The logical metrics that are available in both simulation data are %s."
-					% (
-						", ".join(
-							[
-								Metrics[met]["name"]
-								for met in tocompare[0].metrics
-								if met in tocompare[1].metrics
-							]
-						)
-					)
+					"\033[2mOne of the databases does not have logical error data.\033[0m"
 				)
-
 		#####################################################################
 
 		elif user[0] == "sbfit":

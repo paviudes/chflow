@@ -2,8 +2,10 @@
 import numpy as np
 
 # Functions from other modules
+from define import qchans as qc
 from define import fnames as fn
 from define import metrics as ml
+from define import globalvars as gv
 
 
 def LoadPhysicalErrorRates(dbs, pmet, settings, level):
@@ -23,12 +25,25 @@ def LoadPhysicalErrorRates(dbs, pmet, settings, level):
             if settings["color"] == "":
                 settings["color"] = ml.Metrics[pmet]["color"]
     else:
-        settings["xlabel"] = qc.Channels[dbs.channel]["latex"][np.int(pmet)]
-        settings["xaxis"] = dbs.available[:, np.int(pmet)]
         settings["marker"] = gv.Markers[int(pmet)]
         settings["color"] = gv.Colors[int(pmet)]
-        if not (dbs.scales[int(pmet)] == 1):
-            settings["xaxis"] = np.power(dbs.scales[int(pmet)], phyerrs)
-
+        
+        if (dbs.channel == "bpauli"):
+            # For the biased Pauli channel, the X-axis should be eta = rX/rZ
+            settings["xlabel"] = "$\\eta = \\dfrac{r_{Z}}{r_{X}}$"
+        
+            if (dbs.scales[int(pmet)] == 1):
+                settings["xaxis"] = dbs.available[:, 1] / dbs.available[:, 0]
+            else:
+                settings["xaxis"] = np.power(dbs.scales[1], dbs.available[:, 1]) / np.power(dbs.scales[0], dbs.available[:, 0])
+        
+        else:
+            settings["xlabel"] = qc.Channels[dbs.channel]["latex"][int(pmet)]
+            settings["xaxis"] = dbs.available[:, int(pmet)]
+        
+            if not (dbs.scales[int(pmet)] == 1):
+                settings["xaxis"] = np.power(dbs.scales[int(pmet)], settings["xaxis"])
+    
     settings["linestyle"] = ["None", "--"][dbs.samps == 1]
+    
     return None

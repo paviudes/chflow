@@ -178,9 +178,9 @@ def LevelWise(submit, pmet, lmet):
     return fname
 
 
-def CompareLogErrRates(dbses, lmet):
+def CompareSubsPlot(dbses):
     # File containing the plot of comparing the logical error rates from two (or more) submission records.
-    fname = "%s/results/compare_%s_%s.pdf" % (
+    fname = "%s/results/compare_%s.pdf" % (
         dbses[0].outdir,
         "_".join([dbses[i].timestamp for i in range(1, len(dbses))]),
     )

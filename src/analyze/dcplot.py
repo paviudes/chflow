@@ -13,7 +13,13 @@ from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes, InsetPosition, mark_inset
 from scipy.interpolate import griddata
-from adjustText import adjust_text
+
+# Non critical packages
+try:
+	from adjustText import adjust_text
+	ADJUST = 1
+except ImportError:
+	ADJUST = 0
 
 # Functions from other modules
 from define import metrics as ml
@@ -325,7 +331,8 @@ def DecoderInstanceCompare(
 			
 			# Make non overlapping annotations
 			# https://stackoverflow.com/questions/19073683/matplotlib-overlapping-annotations-text
-			adjust_text(texts, only_move={'points':'y', 'texts':'y'}, expand_points=(1, 2), precision=0.05, arrowprops=dict(arrowstyle="->", color='r', lw=0.5))
+			if (ADJUST == 1):
+				adjust_text(texts, only_move={'points':'y', 'texts':'y'}, expand_points=(1, 2), precision=0.05, arrowprops=dict(arrowstyle="->", color='r', lw=0.5))
 
 			# Save the plot
 			pdf.savefig(fig)
