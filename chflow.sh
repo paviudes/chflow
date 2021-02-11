@@ -47,10 +47,10 @@ if [[ "$1" == "zip" ]]; then
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
 		echo "zipping ${ts}"
-		tar -zcvf ${ts}.tar.gz ${ts}
 		# move the input and schedule files into the output folder
 		cp ${chflowdir}/input/${ts}.txt ${ts}/input/
 		cp ${chflowdir}/input/schedule_${ts}.txt ${ts}/input/
+		tar -zcvf ${ts}.tar.gz ${ts}
 	done
 	cd ${chflowdir}
 	printf "\033[0m"
