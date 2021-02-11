@@ -30,7 +30,7 @@ def LoadPhysicalErrorRates(dbs, pmet, settings, level):
         
         if (dbs.channel == "bpauli"):
             # For the biased Pauli channel, the X-axis should be eta = rX/rZ
-            settings["xlabel"] = "$\\eta = \\dfrac{r_{Z}}{r_{X}}$"
+            settings["xlabel"] = "$\\eta = r_{Z}/r_{X}$"
         
             if (dbs.scales[int(pmet)] == 1):
                 settings["xaxis"] = dbs.available[:, 1] / dbs.available[:, 0]

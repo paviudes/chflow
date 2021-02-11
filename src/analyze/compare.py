@@ -51,7 +51,7 @@ def CompareSubs(pmet, lmet, *dbses):
                 print("X\n{}\nY left\n{}\nY right\n{}".format(settings["xaxis"], settings["yaxis"], uncorr[:, l]))
 
             # Empty plots for the legend entries containing different colors/markers.
-            ax.plot([], [], color="grey", alpha=0.5, marker=ml.Metrics[lmet]["marker"], markersize=gv.marker_size, label = ml.Metrics[lmet]["latex"], linestyle="None")
+            ax.plot([], [], color="grey", alpha=0.5, marker=ml.Metrics[lmet]["marker"], markersize=gv.marker_size, label = settings["ylabel"], linestyle="None")
             ax.plot([], [], color=ml.Metrics["uncorr"]["color"], marker=ml.Metrics["uncorr"]["marker"], markersize=gv.marker_size, label = ml.Metrics["uncorr"]["latex"], linestyle="None")
 
             # Axes labels

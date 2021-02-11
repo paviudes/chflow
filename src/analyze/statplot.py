@@ -178,6 +178,7 @@ def MCStatsPlot(dbses, lmet, pmet, rates, samples=None, cutoff=1e3):
                             label = "$1 - F = %s$" % (
                                 scientific_float(phyerrs[pos[r, s]]).replace("$", "")
                             )
+                            # label = "$e = %s$" % (",".join(list(map(lambda x: "%g" % x, rates[r]))))
                     else:
                         label = "$1 - F = %s, \\lambda=%.1f$" % (
                             latex_float(phyerrs[pos[r, s]]).replace("$", ""),
