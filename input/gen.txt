@@ -1,5 +1,0 @@
-sbload high_bias_Steane
-submit high_bias_Steane
-sbload high_bias_cyclic
-submit high_bias_cyclic
-quit
