@@ -61,17 +61,40 @@ def Depolarizing(params):
 
 def BiasedPauliXZ(params):
 	"""
-	Pauli noise model with a bias between the X and Z error rates.
-	The bias is specified as a ratio between pX and pZ.
-	pY is simply pX pZ.
+	Biased Pauli error model described in arXiv:1703.08179.
+	This is an i.i.d noise process wherein the probabilities of I, X, Y and Z, i.e., pI, pX, pY and pZ, respectively, are expressed using rates rX and rZ as follows:
+	pX = rX (1 - rZ)
+	pZ = rZ (1 - rX)
+	pY = rX rZ
 	pI = 1 - pX - pY - pZ
+	Furthermore, the bias between rX and rZ is quantified by eta = rZ / rX.
+	
+	Here we want to parameterize the channel using its infidelity:
+	p = pX + pY + pZ
+	and the bias:
+	eta = rZ / rX.
+	
+	Combining the above two equations, we can solve for rX:
+	eta (rX)^2 - rX (1 + eta) + p = 0 ,
+	which implies the following two solutions for rX:
+	(i) rX = ((1 + eta) - sqrt((1 + eta)^2 - 4 * p * eta)) / (2 * eta)
+	(ii) rX = ((1 + eta) + sqrt((1 + eta)^2 - 4 * p * eta)) / (2 * eta)
+	
+	Since rX is a rate, we want 0 <= rX <= 1, which rules out the solution in (ii).
 	"""
-	rX = params[0]
-	rZ = params[1]
+	p = params[0]
+	eta = params[1]
+
+	rX = ((1 + eta) - np.sqrt(np.power(1 + eta, 2) - 4 * p * eta)) / (2 * eta)
+	rZ = eta * rX
+
 	pX = rX * (1 - rZ)
 	pZ = rZ * (1 - rX)
 	pY = rX * rZ
 	pI = 1 - pX - pY - pZ
+
+	print("p = {}, eta = {}\npI = {}, pX = {}, pY = {}, pZ = {}".format(p, eta, pI, pX, pY, pZ))
+
 	return PauliChannel([pI, pX, pY, pZ])
 
 

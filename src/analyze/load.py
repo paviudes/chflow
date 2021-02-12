@@ -27,22 +27,11 @@ def LoadPhysicalErrorRates(dbs, pmet, settings, level):
     else:
         settings["marker"] = gv.Markers[int(pmet)]
         settings["color"] = gv.Colors[int(pmet)]
-        
-        if (dbs.channel == "bpauli"):
-            # For the biased Pauli channel, the X-axis should be eta = rX/rZ
-            settings["xlabel"] = "$\\eta = r_{Z}/r_{X}$"
-        
-            if (dbs.scales[int(pmet)] == 1):
-                settings["xaxis"] = dbs.available[:, 1] / dbs.available[:, 0]
-            else:
-                settings["xaxis"] = np.power(dbs.scales[1], dbs.available[:, 1]) / np.power(dbs.scales[0], dbs.available[:, 0])
-        
-        else:
-            settings["xlabel"] = qc.Channels[dbs.channel]["latex"][int(pmet)]
-            settings["xaxis"] = dbs.available[:, int(pmet)]
-        
-            if not (dbs.scales[int(pmet)] == 1):
-                settings["xaxis"] = np.power(dbs.scales[int(pmet)], settings["xaxis"])
+        settings["xlabel"] = qc.Channels[dbs.channel]["latex"][int(pmet)]
+        settings["xaxis"] = dbs.available[:, int(pmet)]
+    
+        if not (dbs.scales[int(pmet)] == 1):
+            settings["xaxis"] = np.power(dbs.scales[int(pmet)], settings["xaxis"])
     
     settings["linestyle"] = ["None", "--"][dbs.samps == 1]
     
