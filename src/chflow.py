@@ -521,7 +521,12 @@ if __name__ == "__main__":
 					# If the simulation is to be run on a cluster, generate input using cluster nodes.
 					if submit.chgen_cluster == 0:
 						PreparePhysicalChannels(submit, nproc=1)
-						print(np.power(submit.scales[1], submit.noiserates[:, 1]) / np.power(submit.scales[0], submit.noiserates[:, 0]))
+						eta = np.power(submit.scales[1], submit.noiserates[:, 1]) / np.power(submit.scales[0], submit.noiserates[:, 0])
+						pX = np.power(submit.scales[0], submit.noiserates[:, 0]) * (1 - np.power(submit.scales[1], submit.noiserates[:, 1]))
+						pY = np.power(submit.scales[0], submit.noiserates[:, 0]) * np.power(submit.scales[1], submit.noiserates[:, 1])
+						pZ = np.power(submit.scales[1], submit.noiserates[:, 1]) * (1 - np.power(submit.scales[0], submit.noiserates[:, 0]))
+						infid = pX + pY + pZ
+						print("eta\n{}\ninfids\n{}".format(eta, infid))
 				else:
 					IsComplete(submit)
 
