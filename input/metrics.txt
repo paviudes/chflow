@@ -1,0 +1,9 @@
+sbload high_bias_Steane
+lpmetrics uncorr
+pmetrics infid
+collect
+sbload high_bias_cyclic
+lpmetrics uncorr
+pmetrics infid
+collect
+quit
