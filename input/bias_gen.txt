@@ -1,0 +1,5 @@
+sbload vary_bias_Steane
+submit vary_bias_Steane
+sbload vary_bias_cyclic
+submit vary_bias_cyclic
+quit

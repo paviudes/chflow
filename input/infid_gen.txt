@@ -1,0 +1,5 @@
+sbload vary_infid_Steane
+submit vary_infid_Steane
+sbload vary_infid_cyclic
+submit vary_infid_cyclic
+quit
