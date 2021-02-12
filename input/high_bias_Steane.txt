@@ -7,7 +7,7 @@ channel bpauli
 # Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
 repr process
 # Noise rate exponents. The actual noise rate is (2/3)^exponent.
-noiserange 12,12,1;7,11.5,10
+noiserange ./../input/high_filter.txt 
 # Scales of noise range.
 scale 0.66,0.66
 # Number of samples
