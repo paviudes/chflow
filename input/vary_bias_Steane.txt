@@ -7,7 +7,7 @@ channel bpauli
 # Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
 repr process
 # Noise rate exponents. The actual noise rate is (2/3)^exponent.
-noiserange 10,10,1;0.25,3,12
+noiserange 9,9,1;0.25,3,12
 # Scales of noise range.
 scale 0.66,10.0
 # Number of samples
@@ -17,7 +17,7 @@ scheduler ./../input/schedule_vary_bias_Steane.txt
 # Decoding algorithm to be used -- 0 for the maximum likelihood decoder and 1 for minimum weight decoder.
 decoder 1,1,1
 # Fraction of Pauli probabilities accessible to the ML decoder.
-dcfraction 0
+dcfraction 1
 # Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
 frame P
 # Number of syndromes to be sampled at top level

@@ -132,7 +132,7 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full
 
 def PrepareNRWeights(submit):
 	# Prepare the weights of Pauli errors that will be supplied to the decoder: nr_weights.
-	# Use properties of submit to retrieve the mean and cutoff of the Poisson distribution: submit.noiserates[i, :] = (__, cutoff, __, mean)
+	# Use properties of submit to retrieve the mean and cutoff of \the Poisson distribution: submit.noiserates[i, :] = (__, cutoff, __, mean)
 	# Save the nr_weights to a file.
 	qcode = submit.eccs[0]
 	max_weight = qcode.N//2 + 1

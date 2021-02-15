@@ -70,22 +70,21 @@ def BiasedPauliXZ(params):
 	Furthermore, the bias between rX and rZ is quantified by eta = rZ / rX.
 	
 	Here we want to parameterize the channel using its infidelity:
-	p = pX + pY + pZ
+	p = pX + pY + pZ   --- (1)
 	and the bias:
-	eta = rZ / rX.
-	
-	Combining the above two equations, we can solve for rX:
-	eta (rX)^2 - rX (1 + eta) + p = 0 ,
-	which implies the following two solutions for rX:
-	(i) rX = ((1 + eta) - sqrt((1 + eta)^2 - 4 * p * eta)) / (2 * eta)
-	(ii) rX = ((1 + eta) + sqrt((1 + eta)^2 - 4 * p * eta)) / (2 * eta)
-	
-	Since rX is a rate, we want 0 <= rX <= 1, which rules out the solution in (ii).
+	eta = pZ / pX.   --- (2)
+
+	Using (2) we find:
+	rZ = eta * rX / (rX * (eta - 1) + 1)
+	and plugging this into (1), we can solve the following equation for rX:
+	(rX)^2 + rX * ((1 + eta) + p * (1 - eta)) - p = 0.
+	This yields:
+	rX = - ( ( (1 + r) + p * (1 - r) ) + sqrt( ((1 + r) + p (1 - r))^2 + 4p ) ) / 2
 	"""
 	p = params[0]
 	eta = params[1]
 
-	rX = ((1 + eta) - np.sqrt(np.power(1 + eta, 2) - 4 * p * eta)) / (2 * eta)
+	rX = ( - ( (1 + eta) + p * (1 - eta) ) + np.sqrt( np.power((1 + eta) + p * (1 - eta), 2) + 4 * p ) ) / 2
 	rZ = eta * rX
 
 	pX = rX * (1 - rZ)

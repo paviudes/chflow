@@ -1,3 +1,0 @@
-sbload high_bias_Steane
-compare 1 infid high_bias_cyclic
-quit
