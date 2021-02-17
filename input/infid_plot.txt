@@ -1,0 +1,3 @@
+sbload vary_infid_Steane
+compare 0 infid vary_infid_cyclic
+quit

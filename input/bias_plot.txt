@@ -1,0 +1,3 @@
+sbload vary_bias_Steane
+compare 1 infid vary_bias_cyclic
+quit

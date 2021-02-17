@@ -1,0 +1,9 @@
+sbload vary_infid_Steane
+lpmetrics uncorr
+pmetrics infid
+collect
+sbload vary_infid_cyclic
+lpmetrics uncorr
+pmetrics infid
+collect
+quit
