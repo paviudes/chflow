@@ -1,6 +1,6 @@
 #!/bin/bash
 
-timestamps=("biased_pauli_Steane" "biased_pauli_cyclic")
+timestamps=("vary_bias_Steane" "vary_bias_cyclic" "vary_infid_Steane" "vary_infid_cyclic")
 
 cluster="$2"
 
