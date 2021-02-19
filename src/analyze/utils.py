@@ -22,6 +22,13 @@ except ImportError:
 from define import qchans as qc
 
 
+def OrderOfMagnitude(number):
+    # Compute the order of magnitude
+    if (number < 0):
+        return np.int(np.floor(np.log10(number)))
+    return np.int(np.ceil(np.log10(number)))
+
+
 def ExtractPDFPages(information, save_folder, save_fname):
     r"""
     Extract pages from a PDF and save it into a new PDF.

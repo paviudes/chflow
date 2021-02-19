@@ -17,7 +17,7 @@ from define.utils import IsNumber
 from define.metrics import Metrics
 from define import globalvars as gv
 from analyze.load import LoadPhysicalErrorRates
-from analyze.utils import DisplayForm, RealNoise, scientific_float, latex_float
+from analyze.utils import DisplayForm, RealNoise, scientific_float, latex_float, OrderOfMagnitude
 from define.fnames import MCStatsPlotFile, PhysicalErrorRates, RunningAverageCh
 
 
@@ -163,6 +163,7 @@ def MCStatsPlot(dbses, lmet, pmet, rates, samples=None, cutoff=1e3):
                 )
             fig = plt.figure(figsize=gv.canvas_size)
             ax = plt.gca()
+            ylimits = {"min": 1, "max": 0}
             for r in range(rates.shape[0]):
                 for s in range(samples.shape[0]):
                     if filter[r, s] == 0:
@@ -170,15 +171,19 @@ def MCStatsPlot(dbses, lmet, pmet, rates, samples=None, cutoff=1e3):
                     # label = scientific_float(phyerrs[pos[r, s]])
                     xaxis = dbs.stats[xindices]
                     yaxis = running_averages[r, samples[s], xindices]
+                    if (ylimits["min"] >= np.min(yaxis)):
+                        ylimits["min"] = np.min(yaxis)
+                    if (ylimits["max"] <= np.max(yaxis)):
+                        ylimits["max"] = np.max(yaxis)
                     # print("xaxis\n{}\nyaxis\n{}".format(xaxis, yaxis))
                     label = None
                     if case == 0:
                         linestyle = gv.line_styles[s % len(gv.line_styles)]
                         if s == 0:
-                            label = "$1 - F = %s$" % (
-                                scientific_float(phyerrs[pos[r, s]]).replace("$", "")
-                            )
-                            # label = "$e = %s$" % (",".join(list(map(lambda x: "%g" % x, rates[r]))))
+                            # label = "$1 - F = %s$" % (
+                            #     scientific_float(phyerrs[pos[r, s]]).replace("$", "")
+                            # )
+                            label = "$e = %s$" % (",".join(list(map(lambda x: "%g" % x, rates[r]))))
                     else:
                         label = "$1 - F = %s, \\lambda=%.1f$" % (
                             latex_float(phyerrs[pos[r, s]]).replace("$", ""),
@@ -195,6 +200,7 @@ def MCStatsPlot(dbses, lmet, pmet, rates, samples=None, cutoff=1e3):
                         # marker="o",
                         # markersize=gv.marker_size * 0.75,
                     )
+            plt.grid(which="both", axis="both")
             # if case == 0:
             #     SetZones(plt, dbs.stats, running_averages, cutoff)
 
@@ -229,6 +235,15 @@ def MCStatsPlot(dbses, lmet, pmet, rates, samples=None, cutoff=1e3):
                 width=gv.ticks_width,
                 labelsize=gv.ticks_fontsize,
             )
+
+            if case == 0:
+                # Axes limits
+                print("ylimits: {}, {}".format(ylimits["min"], ylimits["max"]))
+                # Axes ticks
+                yticks = np.arange(OrderOfMagnitude(ylimits["min"]/5), OrderOfMagnitude(ylimits["max"] * 5))
+                ax.set_yticks(np.power(10.0, yticks), minor=True)
+                print("Y ticks\n{}".format(yticks))
+
             # Legend
             plt.legend(
                 numpoints=1,

@@ -67,7 +67,7 @@ Channels = {
 	"bpauli": {
 		"name": "Biased Pauli channel",
 		"params": ["infid", "bias"],
-		"latex": ["$p$", "$\\eta = r_{Z}/r_{X}$"],
+		"latex": ["$p$", "$\\eta = p_{Z}/p_{X}$"],
 		"color": "red",
 		"Pauli": 1,
 		"corr": 0,

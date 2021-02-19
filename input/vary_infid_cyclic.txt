@@ -7,7 +7,8 @@ channel bpauli
 # Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
 repr process
 # Noise rate exponents. The actual noise rate is (2/3)^exponent.
-noiserange 4,11.02,40;1,1,1
+# noiserange 5,12.02,40;2,2,1
+noiserange ./../input/vary_infid_filtered.txt
 # Scales of noise range.
 scale 0.66,10.0
 # Number of samples
@@ -43,7 +44,7 @@ queue X
 # Email notifications.
 email pavithran.sridhar@gmail.com
 # Output result's directory.
-outdir /home/pavi/Documents/chbank
+outdir /Users/pavi/Documents/chbank
 # Randomized compiling of quantum gates.
 rc 0
 # Plot settings

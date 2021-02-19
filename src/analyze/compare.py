@@ -19,7 +19,7 @@ from define import globalvars as gv
 from define import metrics as ml
 from define.fnames import PhysicalErrorRates, LogicalErrorRates, CompareSubsPlot
 from analyze.load import LoadPhysicalErrorRates
-
+from analyze.utils import OrderOfMagnitude
 
 def CompareSubs(pmet, lmet, *dbses):
     # Compare the Logical error rates from two submissions.
@@ -29,6 +29,7 @@ def CompareSubs(pmet, lmet, *dbses):
     
     plotfname = CompareSubsPlot(dbses)
     with PdfPages(plotfname) as pdf:
+        ylimits = {"left": {"min": 1, "max": 0}, "right": {"min": 1, "max": 0}}
         for l in range(1, nlevels + 1):
             fig = plt.figure(figsize=gv.canvas_size)
             ax = plt.gca()
@@ -40,13 +41,21 @@ def CompareSubs(pmet, lmet, *dbses):
                 LoadPhysicalErrorRates(dbses[0], pmet, settings, l)
                 settings.update({"color": "grey", "marker": ml.Metrics[lmet]["marker"], "linestyle": gv.line_styles[d % gv.n_line_styles]})
                 ax_right.plot(settings["xaxis"], settings["yaxis"], color=settings["color"], alpha = 0.5, marker=settings["marker"], markersize=gv.marker_size, linestyle=settings["linestyle"], linewidth=gv.line_width)
+                if (ylimits["right"]["min"] >= np.min(settings["yaxis"])):
+                    ylimits["right"]["min"] = np.min(settings["yaxis"])
+                if (ylimits["right"]["max"] <= np.max(settings["yaxis"])):
+                    ylimits["right"]["max"] = np.max(settings["yaxis"])
                 # Empty plot for the legend entry containing different linestyles.
                 ax.plot([], [], color="k", linestyle=settings["linestyle"], linewidth=gv.line_width, label = dbses[d].eccs[0].name)
 
-                # Right y-axis for uncorr
+                # Left y-axis for uncorr
                 uncorr = np.load(PhysicalErrorRates(dbses[d], "uncorr"))
                 ax.plot(settings["xaxis"], uncorr[:, l], color=ml.Metrics["uncorr"]["color"], marker=ml.Metrics["uncorr"]["marker"], markersize=gv.marker_size, linestyle=settings["linestyle"], linewidth=gv.line_width)
-                
+                if (ylimits["left"]["min"] >= np.min(uncorr[:, l])):
+                    ylimits["left"]["min"] = np.min(uncorr[:, l])
+                if (ylimits["left"]["max"] <= np.max(uncorr[:, l])):
+                    ylimits["left"]["max"] = np.max(uncorr[:, l])
+
                 print("level {} and database {}".format(l, dbses[d].timestamp))
                 print("X\n{}\nY left\n{}\nY right\n{}".format(settings["xaxis"], settings["yaxis"], uncorr[:, l]))
 
@@ -64,6 +73,13 @@ def CompareSubs(pmet, lmet, *dbses):
             ax.tick_params(axis="both", which="both", pad=gv.ticks_pad, direction="inout", length=gv.ticks_length, width=gv.ticks_width, labelsize=gv.ticks_fontsize)
             ax_right.tick_params(axis="both", which="both", pad=gv.ticks_pad, direction="inout", length=gv.ticks_length, width=gv.ticks_width, labelsize=gv.ticks_fontsize)
             
+            # Axes ticks
+            yticks_left = np.arange(OrderOfMagnitude(ylimits["left"]["min"]/5), OrderOfMagnitude(ylimits["left"]["max"] * 5))
+            ax.set_yticks(np.power(10.0, yticks_left), minor=True)
+            yticks_right = np.arange(OrderOfMagnitude(ylimits["right"]["min"]/5), OrderOfMagnitude(ylimits["right"]["max"] * 5))
+            ax_right.set_yticks(np.power(10.0, yticks_right), minor=True)
+            print("Y ticks\nLeft\n{}\nRight\n{}".format(yticks_left, yticks_right))
+
             # legend
             ax.legend(loc="best", shadow=True, fontsize=gv.legend_fontsize, markerscale=gv.legend_marker_scale)
 
