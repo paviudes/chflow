@@ -556,7 +556,7 @@ def UncorrectableProb(channel, kwargs):
     if kwargs["corr"] == 0:
         pauliProbs = np.tile(
             np.real(np.diag(crep.ConvertRepresentations(channel, "choi", "chi"))),
-            [kwargs["qcode"].N, 1],
+            [kwargs["qcode"][0].N, 1],
         )
         # print(
         #     "Pauli probs\n1-p = {}, p/3 = {}.".format(
@@ -566,9 +566,9 @@ def UncorrectableProb(channel, kwargs):
     elif kwargs["corr"] == 1:
         pauliProbs = channel
     else:
-        chans_ptm = np.reshape(channel, [kwargs["qcode"].N, 4, 4])
-        pauliProbs = np.zeros((kwargs["qcode"].N, 4), dtype=np.double)
-        for q in range(kwargs["qcode"].N):
+        chans_ptm = np.reshape(channel, [kwargs["qcode"][0].N, 4, 4])
+        pauliProbs = np.zeros((kwargs["qcode"][0].N, 4), dtype=np.double)
+        for q in range(kwargs["qcode"][0].N):
             pauliProbs[q, :] = np.real(
                 np.diag(
                     crep.ConvertRepresentations(chans_ptm[q, :, :], "process", "chi")
@@ -710,7 +710,7 @@ def ChannelMetrics(submit, metrics, start, end, results, rep, chtype):
                 ] = eval(Metrics[metrics[m]]["func"])(
                     chan,
                     {
-                        "qcode": submit.eccs[0],
+                        "qcode": submit.eccs,
                         "levels": nlevels,
                         "corr": submit.iscorr,
                         "channel": submit.channel,

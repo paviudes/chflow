@@ -5,7 +5,7 @@ cluster="$2"
 
 if [[ -n ${cluster} ]]; then
 	cores=40 # 48 for cedar, 40 for beluga and 32 for graham
-	local_user=${USER}
+	local_user=a77jain
 	if [[ $local_user == *"pavi"* ]]; then
 		email=pavithran.sridhar@gmail.com
 	elif [[ $local_user == *"a77jain"* ]]; then
@@ -31,7 +31,7 @@ elif [[ $host == "pavitp" ]]; then
 	outdir="/home/pavi/Documents/chbank/aditya_cptp/cptp_l3"
 	chflowdir="/home/pavi/Documents/chflow"
 	cores=$(nproc --all)
-	
+
 elif [[ $host == "oem-ThinkPad-X1-Carbon-Gen-8" ]]; then
 	if [[ -z ${local_user} ]]; then
 		local_user=${USER}
@@ -46,6 +46,8 @@ elif [[ $host == "oem-ThinkPad-X1-Carbon-Gen-8" ]]; then
 	pcorr_level3=("pcorr_l3_08_12_2020_00" "pcorr_l3_08_12_2020_01" "pcorr_l3_08_12_2020_02" "pcorr_l3_08_12_2020_03" "pcorr_l3_08_12_2020_04" "pcorr_l3_08_12_2020_05" "pcorr_l3_08_12_2020_06" "pcorr_l3_08_12_2020_07")
 	# cptp_level2=("cptp_l2_08_12_2020_00" "cptp_l2_08_12_2020_01" "cptp_l2_08_12_2020_02" "cptp_l2_08_12_2020_03" "cptp_l2_08_12_2020_04" "cptp_l2_08_12_2020_05" "cptp_l2_08_12_2020_06" "cptp_l2_08_12_2020_07")
 	cptp_level2=("cptp_l2_24_12_2020_00" "cptp_l2_24_12_2020_01" "cptp_l2_24_12_2020_02" "cptp_l2_24_12_2020_03" "cptp_l2_24_12_2020_04" "cptp_l2_24_12_2020_05" "cptp_l2_24_12_2020_06" "cptp_l2_24_12_2020_07")
+	bpauli=("vary_infid_ststst" "vary_infid_ststcy" "vary_infid_stcyst" "vary_infid_stcycy" "vary_infid_cystst" "vary_infid_cystcy" "vary_infid_cycyst" "vary_infid_cycycy")
+	codes=("Steane,Steane,Steane" "Steane,Steane,7qc_cyclic" "Steane,7qc_cyclic,Steane" "Steane,7qc_cyclic,7qc_cyclic" "7qc_cyclic,Steane,Steane" "7qc_cyclic,Steane,7qc_cyclic" "7qc_cyclic,7qc_cyclic,Steane" "7qc_cyclic,7qc_cyclic,7qc_cyclic")
 	# alphas=(0 0.00013 0.00027 0.00093 0.00368 0.00391 0.00415 0.00678)
 	alphas=(0 0.0003 0.001 0.005 0.01 0.05 0.1 1)
 
@@ -64,14 +66,14 @@ if [[ -n ${cluster} ]]; then
 	pavi_beluga_cptp_level3=("pavi_beluga_cptp_l3_00" "pavi_beluga_cptp_l3_01" "pavi_beluga_cptp_l3_02" "pavi_beluga_cptp_l3_03" "pavi_beluga_cptp_l3_04" "pavi_beluga_cptp_l3_05" "pavi_beluga_cptp_l3_06" "pavi_beluga_cptp_l3_07" "pavi_beluga_cptp_l3_08" "pavi_beluga_cptp_l3_09" "pavi_beluga_cptp_l3_10" "pavi_beluga_cptp_l3_11" "pavi_beluga_cptp_l3_12" "pavi_beluga_cptp_l3_13" "pavi_beluga_cptp_l3_14" "pavi_beluga_cptp_l3_15" "pavi_beluga_cptp_l3_16" "pavi_beluga_cptp_l3_17" "pavi_beluga_cptp_l3_18" "pavi_beluga_cptp_l3_19" "pavi_beluga_cptp_l3_20" "pavi_beluga_cptp_l3_21" "pavi_beluga_cptp_l3_22" "pavi_beluga_cptp_l3_23" "pavi_beluga_cptp_l3_24" "pavi_beluga_cptp_l3_25" "pavi_beluga_cptp_l3_26" "pavi_beluga_cptp_l3_27" "pavi_beluga_cptp_l3_28" "pavi_beluga_cptp_l3_29" "pavi_beluga_cptp_l3_30" "pavi_beluga_cptp_l3_31" "pavi_beluga_cptp_l3_32" "pavi_beluga_cptp_l3_33" "pavi_beluga_cptp_l3_34" "pavi_beluga_cptp_l3_35" "pavi_beluga_cptp_l3_36" "pavi_beluga_cptp_l3_37")
     aditya_beluga_cptp_level3=("aditya_beluga_cptp_l3_00" "aditya_beluga_cptp_l3_01" "aditya_beluga_cptp_l3_02" "aditya_beluga_cptp_l3_03" "aditya_beluga_cptp_l3_04" "aditya_beluga_cptp_l3_05" "aditya_beluga_cptp_l3_06" "aditya_beluga_cptp_l3_07" "aditya_beluga_cptp_l3_08" "aditya_beluga_cptp_l3_09" "aditya_beluga_cptp_l3_10" "aditya_beluga_cptp_l3_11" "aditya_beluga_cptp_l3_12" "aditya_beluga_cptp_l3_13" "aditya_beluga_cptp_l3_14" "aditya_beluga_cptp_l3_15" "aditya_beluga_cptp_l3_16" "aditya_beluga_cptp_l3_17" "aditya_beluga_cptp_l3_18" "aditya_beluga_cptp_l3_19" "aditya_beluga_cptp_l3_20" "aditya_beluga_cptp_l3_21" "aditya_beluga_cptp_l3_22" "aditya_beluga_cptp_l3_23" "aditya_beluga_cptp_l3_24" "aditya_beluga_cptp_l3_25" "aditya_beluga_cptp_l3_26" "aditya_beluga_cptp_l3_27" "aditya_beluga_cptp_l3_28" "aditya_beluga_cptp_l3_29" "aditya_beluga_cptp_l3_30" "aditya_beluga_cptp_l3_31" "aditya_beluga_cptp_l3_32" "aditya_beluga_cptp_l3_33" "aditya_beluga_cptp_l3_34" "aditya_beluga_cptp_l3_35" "aditya_beluga_cptp_l3_36" "aditya_beluga_cptp_l3_37")
     aditya_beluga_cptp_level2=("aditya_beluga_cptp_l2_00" "aditya_beluga_cptp_l2_01" "aditya_beluga_cptp_l2_02" "aditya_beluga_cptp_l2_03" "aditya_beluga_cptp_l2_04" "aditya_beluga_cptp_l2_05" "aditya_beluga_cptp_l2_06" "aditya_beluga_cptp_l2_07" "aditya_beluga_cptp_l2_08" "aditya_beluga_cptp_l2_09" "aditya_beluga_cptp_l2_10" "aditya_beluga_cptp_l2_11" "aditya_beluga_cptp_l2_12" "aditya_beluga_cptp_l2_13" "aditya_beluga_cptp_l2_14" "aditya_beluga_cptp_l2_15" "aditya_beluga_cptp_l2_16" "aditya_beluga_cptp_l2_17" "aditya_beluga_cptp_l2_18" "aditya_beluga_cptp_l2_19" "aditya_beluga_cptp_l2_20" "aditya_beluga_cptp_l2_21" "aditya_beluga_cptp_l2_22" "aditya_beluga_cptp_l2_23" "aditya_beluga_cptp_l2_24" "aditya_beluga_cptp_l2_25" "aditya_beluga_cptp_l2_26" "aditya_beluga_cptp_l2_27" "aditya_beluga_cptp_l2_28" "aditya_beluga_cptp_l2_29" "aditya_beluga_cptp_l2_30" "aditya_beluga_cptp_l2_31" "aditya_beluga_cptp_l2_32" "aditya_beluga_cptp_l2_33" "aditya_beluga_cptp_l2_34" "aditya_beluga_cptp_l2_35" "aditya_beluga_cptp_l2_36" "aditya_beluga_cptp_l2_37")
-    
-    # aditya_cptp_level2=("cptp_l2_24_12_2020_00" "cptp_l2_24_12_2020_01" "cptp_l2_24_12_2020_02" "cptp_l2_24_12_2020_03" "cptp_l2_24_12_2020_04" "cptp_l2_24_12_2020_06" "cptp_l2_24_12_2020_07" "cptp_l2_24_12_2020_08" "cptp_l2_24_12_2020_10" "cptp_l2_24_12_2020_11" "cptp_l2_24_12_2020_12" "cptp_l2_24_12_2020_13" "cptp_l2_24_12_2020_14" "cptp_l2_24_12_2020_15" "cptp_l2_24_12_2020_16" "cptp_l2_24_12_2020_17" "cptp_l2_24_12_2020_18" "cptp_l2_24_12_2020_19" "cptp_l2_24_12_2020_20" "cptp_l2_24_12_2020_21" "cptp_l2_24_12_2020_22" "cptp_l2_24_12_2020_23" "cptp_l2_24_12_2020_24" "cptp_l2_24_12_2020_25" "cptp_l2_24_12_2020_26" "cptp_l2_24_12_2020_27" "cptp_l2_24_12_2020_28" "cptp_l2_24_12_2020_29" "cptp_l2_24_12_2020_30" "cptp_l2_24_12_2020_31" "cptp_l2_24_12_2020_32" "cptp_l2_24_12_2020_33" "cptp_l2_24_12_2020_34" "cptp_l2_24_12_2020_35" "cptp_l2_24_12_2020_36" "cptp_l2_24_12_2020_37")
+		# Impact RC Timestamps
+		aditya_impactRC_level2=("rtz" "rtasu" "rand_cptp" "twirl_rtz" "twirl_rtasu" "twirl_rand_cptp")
+		# aditya_cptp_level2=("cptp_l2_24_12_2020_00" "cptp_l2_24_12_2020_01" "cptp_l2_24_12_2020_02" "cptp_l2_24_12_2020_03" "cptp_l2_24_12_2020_04" "cptp_l2_24_12_2020_06" "cptp_l2_24_12_2020_07" "cptp_l2_24_12_2020_08" "cptp_l2_24_12_2020_10" "cptp_l2_24_12_2020_11" "cptp_l2_24_12_2020_12" "cptp_l2_24_12_2020_13" "cptp_l2_24_12_2020_14" "cptp_l2_24_12_2020_15" "cptp_l2_24_12_2020_16" "cptp_l2_24_12_2020_17" "cptp_l2_24_12_2020_18" "cptp_l2_24_12_2020_19" "cptp_l2_24_12_2020_20" "cptp_l2_24_12_2020_21" "cptp_l2_24_12_2020_22" "cptp_l2_24_12_2020_23" "cptp_l2_24_12_2020_24" "cptp_l2_24_12_2020_25" "cptp_l2_24_12_2020_26" "cptp_l2_24_12_2020_27" "cptp_l2_24_12_2020_28" "cptp_l2_24_12_2020_29" "cptp_l2_24_12_2020_30" "cptp_l2_24_12_2020_31" "cptp_l2_24_12_2020_32" "cptp_l2_24_12_2020_33" "cptp_l2_24_12_2020_34" "cptp_l2_24_12_2020_35" "cptp_l2_24_12_2020_36" "cptp_l2_24_12_2020_37")
     ## Alphas
     # pavi
     alphas_pavi=(0 0.0001 0.00012 0.00015 0.00018 0.00022 0.00027 0.00033 0.0004 0.00048 0.00059 0.00072 0.00088 0.00107 0.0013 0.00158 0.00193 0.00235 0.00287 0.00349 0.00425 0.00518 0.00631 0.00769 0.00936 0.01141 0.01389 0.01693 0.02062 0.02512 0.0306 0.03728 0.04541 0.05532 0.06739 0.08209 0.1 1)
     # aditya
     alphas_aditya=(0 0.0001 0.00012 0.00015 0.00018 0.00022 0.00027 0.00033 0.0004 0.00048 0.00059 0.00072 0.00088 0.00107 0.0013 0.00158 0.00193 0.00235 0.00287 0.00349 0.00425 0.00518 0.00631 0.00769 0.00936 0.01141 0.01389 0.01693 0.02062 0.02512 0.0306 0.03728 0.04541 0.05532 0.06739 0.08209 0.1 1)
-
 fi
 
 
@@ -115,9 +117,9 @@ usage() {
 	printf "\033[0m"
 }
 
-timestamps=("${aditya_beluga_cptp_level2[@]}")
+timestamps=("${bpauli[@]}")
 alphas=("${alphas_aditya[@]}")
-log=aditya_beluga_cptp_level2
+log=bpauli
 refts=${timestamps[0]}
 
 if [[ "$1" == "overwrite" ]]; then
@@ -128,15 +130,15 @@ if [[ "$1" == "overwrite" ]]; then
 		rerun ${ts} ${log}
 		echo "xxxxxxx"
 	done
-	
+
 	if [[ $host == *"paviws"* ]]; then
 		echo "Run the following command."
 		echo -e "\033[4mparallel --joblog partial_decoders_${log}.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders_${log}.txt\033[0m"
-	
+
 	elif [[ $host == "oem-ThinkPad-X1-Carbon-Gen-8" ]]; then
 		echo "Run the following command."
 		echo -e "parallel --joblog partial_decoders_${log}.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders_${log}.txt"
-	
+
 	else
 		mkdir -p input/${cluster}
 		rm input/${cluster}/partial_decoders_${log}.sh
@@ -150,7 +152,7 @@ if [[ "$1" == "overwrite" ]]; then
 		echo "parallel --joblog partial_decoders_${log}.log ./chflow.sh {1} :::: input/partial_decoders_${log}.txt" >> input/${cluster}/partial_decoders_${log}.sh
 		echo "end=\$(date +%s)"
 		echo "runtime=\$((end/3600-start/3600))"
-		
+
 		# Prepare a summary email
 		touch input/summary.txt
 		echo "The following job was completed on ${cluster} in ${runtime} hours." >> input/summary.txt
@@ -166,7 +168,7 @@ if [[ "$1" == "overwrite" ]]; then
 		rm input/summary.txt
 
 		echo "xxxxxxx"
-		
+
 		echo "Run the following command."
 		echo "sbatch input/${cluster}/partial_decoders_${log}.sh"
 	fi
@@ -180,6 +182,34 @@ elif [[ "$1" == "schedule_copy" ]]; then
 		rm ./input/schedule_${ts}.txt
 		echo "copying ./input/schedule_${timestamps[0]}.txt ./input/schedule_${ts}.txt"
 		cp ./input/schedule_${timestamps[0]}.txt ./input/schedule_${ts}.txt
+		echo "xxxxxxx"
+	done
+	printf "\033[0m"
+
+elif [[ "$1" == "gen_bpauli" ]]; then
+	printf "\033[2m"
+	echo "sbload ${refts}" > input/temp.txt
+	for (( t=1; t<${#timestamps[@]}; ++t )); do
+		ts=${timestamps[t]}
+		echo "removing ${outdir}/${ts}/physical/*"
+		rm ${outdir}/${ts}/physical/*
+		# echo "sbtwirl" >> input/temp.txt
+		echo "submit ${ts}" >> input/temp.txt
+	done
+	printf "\033[0m"
+
+	echo "quit" >> input/temp.txt
+	./chflow.sh -- temp.txt
+	rm input/temp.txt
+  coderef=${codes[0]}
+	printf "\033[2m"
+	for (( t=1; t<${#timestamps[@]}; ++t )); do
+		ts=${timestamps[t]}
+		code=${codes[t]}
+		# set the alpha for dcfraction.
+		echo "REPLACE ecc ${coderef} WITH ecc ${code} IN input/${ts}.txt"
+		replace "ecc ${coderef}" "ecc ${code}" input/${ts}.txt
+
 		echo "xxxxxxx"
 	done
 	printf "\033[0m"
@@ -234,6 +264,8 @@ elif [[ "$1" == "generate" ]]; then
 		echo "xxxxxxx"
 	done
 	printf "\033[0m"
+
+
 
 elif [[ "$1" == "archive" ]]; then
 	printf "\033[2m"
@@ -332,6 +364,21 @@ elif [[ "$1" == "pmetrics" ]]; then
 	rm input/temp.txt
 	printf "\033[0m"
 
+elif [[ "$1" == "lpmetrics" ]]; then
+	# Compute physical infidelity for all channels.
+	printf "\033[2m"
+	touch input/temp.txt
+	for (( t=0; t<${#timestamps[@]}; ++t )); do
+		ts=${timestamps[t]}
+		echo "sbload ${ts}" >> input/temp.txt
+		echo "lpmetrics uncorr" >> input/temp.txt
+		echo "collect" >> input/temp.txt
+	done
+	echo "quit" >> input/temp.txt
+	./chflow.sh -- temp.txt
+	rm input/temp.txt
+	printf "\033[0m"
+
 elif [[ "$1" == "plot" ]]; then
 	printf "\033[2m"
 	echo "sbload ${refts}" > input/temp.txt
@@ -339,6 +386,16 @@ elif [[ "$1" == "plot" ]]; then
 	echo "nrplot 0 0 ${joined_timestamps%?}" >> input/temp.txt
 	echo "dciplot infid infid ${joined_timestamps%?} 0" >> input/temp.txt
 	echo "mcplot infid infid 0,1 0 ${joined_timestamps%?}" >> input/temp.txt
+	echo "quit" >> input/temp.txt
+	./chflow.sh -- temp.txt
+	rm input/temp.txt
+	printf "\033[0m"
+
+elif [[ "$1" == "compare_plot" ]]; then
+	printf "\033[2m"
+	echo "sbload ${refts}" > input/temp.txt
+	printf -v joined_timestamps '%s,' "${timestamps[@]:1}"
+	echo "compare 0 infid ${joined_timestamps%?}" >> input/temp.txt
 	echo "quit" >> input/temp.txt
 	./chflow.sh -- temp.txt
 	rm input/temp.txt
@@ -362,49 +419,49 @@ elif [[ "$1" == "from_cluster" ]]; then
 	# bring the data folder and unzip
 	printf "\033[2m"
 	echo "Bringing simulation from ${cluster}"
-	scp -r ${local_user}@${cluster}.computecanada.ca:/project/def-jemerson/chbank/data.tar.gz ${outdir}
+	scp -r ${local_user}@${cluster}.computecanada.ca:/project/def-jemerson/chbank/aditya_data.tar.gz ${outdir}
 	cd ${outdir}
-	tar -xvf data.tar.gz
-	
+	tar -xvf aditya_data.tar.gz
+
 	# unzip the individual datasets.
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
 		echo "Trashing ${ts}"
 		trash ${ts}
-		cp data/${ts}.tar.gz .
+		cp aditya_data/${ts}.tar.gz .
 		tar -xvf ${ts}.tar.gz
 		trash ${ts}.tar.gz
-		
+
 		#### Copying input files to chflow
 		echo "Copying input file ${ts}.txt from data"
-		cp data/${ts}.txt ${chflowdir}/input/
+		cp aditya_data/${ts}.txt ${chflowdir}/input/
 		echo "Copying schedule_${ts}.txt from data"
-		cp data/schedule_${ts}.txt ${chflowdir}/input/
-		
+		cp aditya_data/schedule_${ts}.txt ${chflowdir}/input/
+
 		#### Prepare output directory after moving from cluster.
 		echo "/project/def-jemerson/chbank WITH ${outdir} IN input/${ts}.txt"
 		replace "\/project\/def-jemerson\/chbank" ${outdir//\//\\\/} ${chflowdir}/input/${ts}.txt
-		
+
 		echo "xxxxxxx"
 	done
 	printf "\033[0m"
-	
+
 	printf "\033[2m"
-	# Add a new timestamp for the data record.
+	Add a new timestamp for the aditya_data record.
 	datetime=$(date +%d_%m_%Y_%H_%M_%S)
-	echo "Add the time stamp ${datetime} to the data folders so that it can be kept as a record."
-	mv data "data_${datetime}"
-	
+	echo "Add the time stamp ${datetime} to the aditya_data folders so that it can be kept as a record."
+	mv aditya_data "aditya_data_${datetime}"
+
 	# Adding an information file for the folder.
-	echo "Data folder: $(date)" > data_${datetime}/info.txt
+	echo "Data folder: $(date)" > aditya_data_${datetime}/info.txt
 	printf -v joined_timestamps '%s,' "${timestamps[@]:0}"
-	echo "Timestamps: ${joined_timestamps%?}" >> data_${datetime}/info.txt
+	echo "Timestamps: ${joined_timestamps%?}" >> aditya_data_${datetime}/info.txt
 	printf -v joined_alphas '%s,' "${alphas[@]:0}"
-	echo "Alphas: ${joined_alphas%?}" >> data_${datetime}/info.txt
+	echo "Alphas: ${joined_alphas%?}" >> aditya_data_${datetime}/info.txt
 
 	# Zipping data folder for records
-	tar -zcvf "data_${datetime}.tar.gz" "data_${datetime}"
-	
+	tar -zcvf "aditya_data_${datetime}.tar.gz" "aditya_data_${datetime}"
+
 	printf "\033[0m"
 
 	cd ${chflowdir}

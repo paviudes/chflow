@@ -26,7 +26,7 @@ def CompareSubs(pmet, lmet, *dbses):
     # The comparision only makes sense when the logical error rates are measured for two submissions that have the same physical channels.
     ndb = len(dbses)
     nlevels = min([dbs.levels for dbs in dbses])
-    
+
     plotfname = CompareSubsPlot(dbses)
     with PdfPages(plotfname) as pdf:
         ylimits = {"left": {"min": 1, "max": 0}, "right": {"min": 1, "max": 0}}
@@ -46,7 +46,8 @@ def CompareSubs(pmet, lmet, *dbses):
                 if (ylimits["right"]["max"] <= np.max(settings["yaxis"])):
                     ylimits["right"]["max"] = np.max(settings["yaxis"])
                 # Empty plot for the legend entry containing different linestyles.
-                ax.plot([], [], color="k", linestyle=settings["linestyle"], linewidth=gv.line_width, label = dbses[d].eccs[0].name)
+                label = ",".join(code.name[:3] for code in dbses[d].eccs)
+                ax.plot([], [], color="k", linestyle=settings["linestyle"], linewidth=gv.line_width, label = label)
 
                 # Left y-axis for uncorr
                 uncorr = np.load(PhysicalErrorRates(dbses[d], "uncorr"))
@@ -72,7 +73,7 @@ def CompareSubs(pmet, lmet, *dbses):
             ax_right.set_yscale("log")
             ax.tick_params(axis="both", which="both", pad=gv.ticks_pad, direction="inout", length=gv.ticks_length, width=gv.ticks_width, labelsize=gv.ticks_fontsize)
             ax_right.tick_params(axis="both", which="both", pad=gv.ticks_pad, direction="inout", length=gv.ticks_length, width=gv.ticks_width, labelsize=gv.ticks_fontsize)
-            
+
             # Axes ticks
             yticks_left = np.arange(OrderOfMagnitude(ylimits["left"]["min"]/5), OrderOfMagnitude(ylimits["left"]["max"] * 5))
             ax.set_yticks(np.power(10.0, yticks_left), minor=True)
@@ -92,5 +93,5 @@ def CompareSubs(pmet, lmet, *dbses):
         pdfInfo["Title"] = "Comparison of %s for databases %s up to %d levels." % (ml.Metrics[lmet]["log"], "_".join([dbses[i].timestamp for i in range(ndb)]), nlevels)
         pdfInfo["Author"] = "Pavithran Iyer"
         pdfInfo["ModDate"] = dt.datetime.today()
-    
+
     return None
