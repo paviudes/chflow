@@ -190,9 +190,9 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity, rawchan=None
 		# List of LST operators
 		operators_LST[
 			lst_count : (lst_count + 4 ** submit.eccs[l].N * submit.eccs[l].N)
-		] = submit.eccs[0].PauliOperatorsLST.ravel()
+		] = submit.eccs[l].PauliOperatorsLST.ravel()
 
-		lst_count = lst_count + 4 ** submit.eccs[0].N * submit.eccs[0].N
+		lst_count = lst_count + 4 ** submit.eccs[l].N * submit.eccs[l].N
 
 	# Hybrid decoding -- channels that must be averaged in the intermediate levels
 	if submit.hybrid == 0:

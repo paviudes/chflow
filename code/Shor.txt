@@ -10,3 +10,6 @@ I I I I I I Z Z I
 I I I I I I I Z Z
 X X X X X X I I I
 I I I X X X X X X
+logical
+X X X X X X X X X
+Z Z Z Z Z Z Z Z Z
