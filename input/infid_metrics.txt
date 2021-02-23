@@ -1,8 +1,8 @@
-sbload vary_infid_Steane
+sbload vary_infid_stst
 lpmetrics uncorr
 pmetrics infid
 collect
-sbload vary_infid_cyclic
+sbload vary_infid_cycy
 lpmetrics uncorr
 pmetrics infid
 collect

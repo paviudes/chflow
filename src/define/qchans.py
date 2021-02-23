@@ -166,8 +166,8 @@ Channels = {
 	},
 	"pcorr": {
 		"name": "Random correlated Pauli channel",
-		"params": "Infidelity",
-		"latex": ["$1 - p_{I}$"],
+		"params": ["Infidelity", "Method", "I.I.D fraction", "Subset fraction"],
+		"latex": ["$1 - p_{I}$", "$M$", "$f_{iid}$", "$f_{s}$"],
 		"color": "limegreen",
 		"Pauli": 1,
 		"corr": 1,
