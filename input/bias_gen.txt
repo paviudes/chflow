@@ -1,5 +1,5 @@
-sbload vary_bias_Steane
-submit vary_bias_Steane
-sbload vary_bias_cyclic
-submit vary_bias_cyclic
+sbload vary_bias_cycy
+submit vary_bias_cycy
+submit vary_bias_fqfq
+submit vary_bias_rpcy
 quit

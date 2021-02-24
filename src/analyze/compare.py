@@ -24,6 +24,7 @@ from analyze.utils import OrderOfMagnitude
 def CompareSubs(pmet, lmet, *dbses):
     # Compare the Logical error rates from two submissions.
     # The comparision only makes sense when the logical error rates are measured for two submissions that have the same physical channels.
+    MIN = 1E-30
     ndb = len(dbses)
     nlevels = min([dbs.levels for dbs in dbses])
 
@@ -75,9 +76,10 @@ def CompareSubs(pmet, lmet, *dbses):
             ax_right.tick_params(axis="both", which="both", pad=gv.ticks_pad, direction="inout", length=gv.ticks_length, width=gv.ticks_width, labelsize=gv.ticks_fontsize)
 
             # Axes ticks
-            yticks_left = np.arange(OrderOfMagnitude(ylimits["left"]["min"]/5), OrderOfMagnitude(ylimits["left"]["max"] * 5))
+            print("ylimits\n{}".format(ylimits))
+            yticks_left = np.arange(OrderOfMagnitude(max(MIN, ylimits["left"]["min"]/5)), OrderOfMagnitude(ylimits["left"]["max"] * 5))
             ax.set_yticks(np.power(10.0, yticks_left), minor=True)
-            yticks_right = np.arange(OrderOfMagnitude(ylimits["right"]["min"]/5), OrderOfMagnitude(ylimits["right"]["max"] * 5))
+            yticks_right = np.arange(OrderOfMagnitude(max(MIN, ylimits["right"]["min"]/5)), OrderOfMagnitude(ylimits["right"]["max"] * 5))
             ax_right.set_yticks(np.power(10.0, yticks_right), minor=True)
             print("Y ticks\nLeft\n{}\nRight\n{}".format(yticks_left, yticks_right))
 

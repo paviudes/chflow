@@ -1,4 +1,2 @@
 # Install the missing packages using pip install -r requirements.txt
-adjustText>=1.0
-readline>=3.5
-tensorflow>=2.4.0
+picos>=1.0

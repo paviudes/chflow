@@ -1,9 +1,16 @@
-sbload vary_bias_Steane
+sbload vary_bias_stst
 lpmetrics uncorr
 pmetrics infid
 collect
-sbload vary_bias_cyclic
+#sbload vary_bias_stcy
+#lpmetrics uncorr
+#pmetrics infid
+#collect
+sbload vary_bias_cycy
 lpmetrics uncorr
 pmetrics infid
+collect
+sbload vary_bias_fqfq
+lpmetrics uncorr
 collect
 quit
