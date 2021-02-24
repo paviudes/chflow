@@ -2,8 +2,15 @@ sbload vary_infid_stst
 lpmetrics uncorr
 pmetrics infid
 collect
+#sbload vary_infid_stcy
+#lpmetrics uncorr
+#pmetrics infid
+#collect
 sbload vary_infid_cycy
 lpmetrics uncorr
 pmetrics infid
+collect
+sbload vary_infid_fqfq
+lpmetrics uncorr
 collect
 quit

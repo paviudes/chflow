@@ -3,13 +3,13 @@ timestamp vary_infid_cycy
 # Type of quantum error correcting code
 ecc 7qc_cyclic,7qc_cyclic
 # Type of quantum channel
-channel pcorr
+channel bpauli
 # Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
 repr process
 # Noise rate exponents. The actual noise rate is (2/3)^exponent.
-noiserange 20,20,1;2,2,1;2,13,12;0.1,0.1,1
+noiserange 5,20,16;1,1,1
 # Scales of noise range.
-scale 0.66,1.0,0.66,1.0
+scale 0.66,1.0
 # Number of samples
 samples 1
 # Parameters schedule
@@ -21,13 +21,13 @@ dcfraction 0
 # Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
 frame P
 # Number of syndromes to be sampled at top level
-stats [100,109,120,132,145,159,175,193,212,232,255,281,308,339,372,409,449,494,542,596,655,719,790,868,954,1048,1151,1264,1389,1526,1676,1842,2023,2222,2442,2682,2947,3237,3556,3906,4291,4714,5179,5689,6250,6866,7543,8286,9102,10000]
+stats [100,115,132,152,175,202,232,268,308,355,409,471,542,625,719,828,954,1098,1264,1456,1676,1930,2222,2559,2947,3393,3906,4498,5179,5963,6866,7906,9102,10481,12067,13894,15998,18420,21209,24420,28117,32374,37275,42919,49417,56898,65512,75431,86851,100000]
 # Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
 importance power
 # Metrics to be computed on the effective channels at every level.
 metrics infid
 # Load distribution on cores.
-cores 8,1
+cores 12,1
 # Number of nodes
 nodes 2
 # Name of the host computer.
@@ -43,7 +43,7 @@ queue X
 # Email notifications.
 email pavithran.sridhar@gmail.com
 # Output result's directory.
-outdir /home/pavi/Documents/chbank
+outdir /Users/pavi/Documents/chbank
 # Randomized compiling of quantum gates.
 rc 0
 # Plot settings

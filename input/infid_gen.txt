@@ -1,5 +1,5 @@
-sbload vary_infid_stst
-submit vary_infid_stst
-# sbload vary_infid_cycy
+sbload vary_infid_cycy
 submit vary_infid_cycy
+submit vary_infid_fqfq
+submit vary_infid_rpcy
 quit
