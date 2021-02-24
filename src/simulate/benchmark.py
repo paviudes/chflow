@@ -153,6 +153,7 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity, rawchan=None
 	normphase_count = 0
 	lst_count = 0
 	for l in range(nlevels):
+		print("normalizer for code at level {}\n{}".format(l, submit.eccs[l].normalizer))
 		nstabs = 2 ** (submit.eccs[l].N - submit.eccs[l].K)
 		SS[ss_count : (ss_count + nstabs * nstabs)] = submit.eccs[l].syndsigns.ravel()
 		normalizer[
