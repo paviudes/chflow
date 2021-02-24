@@ -2,10 +2,10 @@
 name
 Repetition 5,1,1
 stabilizer
-Z Z I I I
-I Z Z I I
-I I Z Z I
-I I I Z Z
+X X I I I
+I X X I I
+I I X X I
+I I I X X
 logical
-X X X X X
-Z I I I I
+Z Z Z Z Z
+X I I I I
