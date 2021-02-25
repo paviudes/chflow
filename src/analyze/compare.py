@@ -47,7 +47,7 @@ def CompareSubs(pmet, lmet, *dbses):
                 if (ylimits["right"]["max"] <= np.max(settings["yaxis"])):
                     ylimits["right"]["max"] = np.max(settings["yaxis"])
                 # Empty plot for the legend entry containing different linestyles.
-                label = ",".join(code.name[:3] for code in dbses[d].eccs)
+                label = ",".join(code.name[:5] for code in dbses[d].eccs)
                 ax.plot([], [], color="k", linestyle=settings["linestyle"], linewidth=gv.line_width, label = label)
 
                 # Left y-axis for uncorr

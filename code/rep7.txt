@@ -1,0 +1,13 @@
+# This file defines the Repetition [[7,1,1]] code.
+name
+rep7 7,1,1
+stabilizer
+X X I I I I I
+I X X I I I I
+I I X X I I I
+I I I X X I I
+I I I I X X I
+I I I I I X X
+logical
+X I I I I I I
+Z Z Z Z Z Z Z

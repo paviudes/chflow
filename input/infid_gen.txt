@@ -1,5 +1,6 @@
-sbload vary_infid_cycy
-submit vary_infid_cycy
-submit vary_infid_fqfq
-submit vary_infid_rpcy
+sbload vary_infid_rpZrpX
+submit vary_infid_rpZrpX
+submit vary_infid_rpXrpZ
+submit vary_infid_rpZrpZ
+submit vary_infid_rpXrpX
 quit

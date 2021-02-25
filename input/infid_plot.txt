@@ -1,3 +1,3 @@
-sbload vary_infid_stst
-compare 0 infid vary_infid_cycy,vary_infid_fqfq
+sbload vary_infid_rpZrpX
+compare infid infid vary_infid_rpXrpZ,vary_infid_rpXrpX,vary_infid_rpZrpZ
 quit

@@ -1,16 +1,17 @@
-sbload vary_infid_stst
+sbload vary_infid_rpZrpX
 lpmetrics uncorr
 pmetrics infid
 collect
-#sbload vary_infid_stcy
-#lpmetrics uncorr
-#pmetrics infid
-#collect
-sbload vary_infid_cycy
+sbload vary_infid_rpXrpZ
 lpmetrics uncorr
 pmetrics infid
 collect
-sbload vary_infid_fqfq
+sbload vary_infid_rpXrpX
 lpmetrics uncorr
+pmetrics infid
+collect
+sbload vary_infid_rpZrpZ
+lpmetrics uncorr
+pmetrics infid
 collect
 quit

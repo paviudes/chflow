@@ -563,7 +563,7 @@ def UncorrectableProb(channel, kwargs):
         #         pauliProbs[0, 0], pauliProbs[0, 1]
         #     )
         # )
-    elif kwargs["corr"] == 1:
+    elif ((kwargs["corr"] == 1) or (kwargs["corr"] == 3)):
         pauliProbs = channel
     else:
         chans_ptm = np.reshape(channel, [kwargs["qcode"][0].N, 4, 4])

@@ -1,3 +1,4 @@
-trash /Users/pavi/Documents/chbank/vary_infid_rpcy/
-trash /Users/pavi/Documents/chbank/vary_infid_fqfq/
-trash /Users/pavi/Documents/chbank/vary_infid_cycy/
+trash /Users/pavi/Documents/chbank/vary_infid_rpZrpX/
+trash /Users/pavi/Documents/chbank/vary_infid_rpXrpZ/
+trash /Users/pavi/Documents/chbank/vary_infid_rpXrpX/
+trash /Users/pavi/Documents/chbank/vary_infid_rpZrpZ/

@@ -1,3 +1,4 @@
-./chflow.sh vary_infid_cycy
-./chflow.sh vary_infid_fqfq
-./chflow.sh vary_infid_rpcy
+./chflow.sh vary_infid_rpZrpX
+./chflow.sh vary_infid_rpXrpZ
+./chflow.sh vary_infid_rpXrpX
+./chflow.sh vary_infid_rpZrpZ

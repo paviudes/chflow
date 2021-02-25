@@ -1,11 +1,11 @@
 # This file defines the Repetition [[5,1,1]] code.
 name
-Repetition 5,1,1
+rep5 5,1,1
 stabilizer
 X X I I I
 I X X I I
 I I X X I
 I I I X X
 logical
-Z Z Z Z Z
 X I I I I
+Z Z Z Z Z
