@@ -107,7 +107,7 @@ rerun() {
 
 	# rm ${outdir}/$1/physical/*.npy
 	echo "Preparing $1"
-	echo "$1" >> input/partial_decoders_$2.txt
+	echo "$1" >> input/$2.txt
 }
 
 replace() {
@@ -153,9 +153,7 @@ if [[ "$1" == "overwrite" ]]; then
 		mkdir -p input/${cluster}
 		# rm input/${cluster}/${log}.sh
 		sbcmds_default=("#!/bin/bash" "#SBATCH --account=def-jemerson" "#SBATCH --begin=now" "#SBATCH --time=05:00:00" "#SBATCH --mail-type=ALL" "#SBATCH --mail-user=${email}")
-		for (( s=0; s<${#sbcmds_default[@]}; ++s )); do
-			echo "${sbcmds_default[s]}"
-		done
+		
 		if [[ "$jobarray" -eq "0" ]]; then
 			single_sub=("#SBATCH --nodes=1" "#SBATCH --ntasks-per-node=${cores}" "#SBATCH -o ${outdir}/${USER}_${log}_output.o" "#SBATCH -e ${outdir}/${USER}_${log}_errors.o")
 			sbcmds=("${sbcmds_default[@]}" "${single_sub[@]}")
