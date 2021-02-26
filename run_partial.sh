@@ -152,30 +152,17 @@ if [[ "$1" == "overwrite" ]]; then
 	else
 		mkdir -p input/${cluster}
 		# rm input/${cluster}/${log}.sh
-		sbcmds_default=("#!/bin/bash" "#SBATCH --account=def-jemerson" "#SBATCH --begin=now"
-			"#SBATCH --time=05:00:00"
-			"#SBATCH --mail-type=ALL"
-			"#SBATCH --mail-user=${email}")
-		
+		sbcmds_default=("#!/bin/bash" "#SBATCH --account=def-jemerson" "#SBATCH --begin=now" "#SBATCH --time=05:00:00" "#SBATCH --mail-type=ALL" "#SBATCH --mail-user=${email}")
+		for (( s=0; s<${#sbcmds_default[@]}; ++s )); do
+			echo "${sbcmds_default[s]}"
+		done
 		if [[ "$jobarray" -eq "0" ]]; then
-			single_sub=(
-				"#SBATCH --nodes=1"
-				"#SBATCH --ntasks-per-node=${cores}"
-				"#SBATCH -o ${outdir}/${USER}_${log}_output.o"
-				"#SBATCH -e ${outdir}/${USER}_${log}_errors.o"
-				)
-			sbcmds=(${sbcmds[@]} ${single_sub[@]})
+			single_sub=("#SBATCH --nodes=1" "#SBATCH --ntasks-per-node=${cores}" "#SBATCH -o ${outdir}/${USER}_${log}_output.o" "#SBATCH -e ${outdir}/${USER}_${log}_errors.o")
+			sbcmds=("${sbcmds_default[@]}" "${single_sub[@]}")
 		else
 			# Job array specification
-			array_sub=(
-				"#SBATCH --array=1-${#timestamps[@]}:1"
-				"#SBATCH --cpus-per-task=1"
-				"#SBATCH --ntasks-per-node=${cores}"
-				"#SBATCH --nodes=1"
-				"#SBATCH -o ${outdir}/${USER}_${log}_%A_%a.out"
-				"#SBATCH -e ${outdir}/${USER}_${log}_%A_%a.err"
-				)
-			sbcmds=(${sbcmds[@]} ${array_sub[@]})
+			array_sub=("#SBATCH --array=1-${#timestamps[@]}:1" "#SBATCH --cpus-per-task=1" "#SBATCH --ntasks-per-node=${cores}" "#SBATCH --nodes=1" "#SBATCH -o ${outdir}/${USER}_${log}_%A_%a.out" "#SBATCH -e ${outdir}/${USER}_${log}_%A_%a.err" )
+			sbcmds=("${sbcmds_default[@]}" "${array_sub[@]}")
 		fi
 		
 		# Writing into a submission script
@@ -209,8 +196,8 @@ if [[ "$1" == "overwrite" ]]; then
 			cat input/summary.txt | mail -s "[${cluster}] ${log} done" ${email}
 			rm input/summary.txt
 		else
-			echo "ts=\$(sed -n ${SLURM_ARRAY_TASK_ID}p input/${cluster}/${log}.txt)"
-			echo "./chflow.sh %s \${ts}"
+			echo "ts=\$(sed -n \${SLURM_ARRAY_TASK_ID}p input/${cluster}/${log}.txt)" >> input/${cluster}/${log}.sh
+			echo "./chflow.sh %s \${ts}" >> input/${cluster}/${log}.sh
 		fi
 		echo "xxxxxxx"
 		
@@ -231,7 +218,7 @@ elif [[ "$1" == "schedule_copy" ]]; then
 	done
 	printf "\033[0m"
 
-elif [[ "$1" == "gen_bpauli" ]]; then
+elif [[ "$1" == "generate" ]]; then
 	printf "\033[2m"
 	echo "sbload ${refts}" > input/temp.txt
 	for (( t=1; t<${#timestamps[@]}; ++t )); do
@@ -259,7 +246,7 @@ elif [[ "$1" == "gen_bpauli" ]]; then
 	done
 	printf "\033[0m"
 
-elif [[ "$1" == "generate" ]]; then
+elif [[ "$1" == "generate_decoder" ]]; then
 	refalpha=${alphas[0]}
 	printf "\033[2m"
 	echo "sbload ${refts}" > input/temp.txt

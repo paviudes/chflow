@@ -43,7 +43,7 @@ queue X
 # Email notifications.
 email pavithran.sridhar@gmail.com
 # Output result's directory.
-outdir /Users/pavi/Documents/chbank
+outdir /home/pavi/Documents/chbank
 # Randomized compiling of quantum gates.
 rc 0
 # Plot settings
