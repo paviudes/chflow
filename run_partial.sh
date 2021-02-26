@@ -24,6 +24,11 @@ if [[ $host == *"paviws"* ]]; then
 	# CPTP
 	pavi_ws_cptp_level3=("pavi_ws_cptp_l3_00" "pavi_ws_cptp_l3_01" "pavi_ws_cptp_l3_02" "pavi_ws_cptp_l3_03" "pavi_ws_cptp_l3_04" "pavi_ws_cptp_l3_05" "pavi_ws_cptp_l3_06" "pavi_ws_cptp_l3_07" "pavi_ws_cptp_l3_08" "pavi_ws_cptp_l3_09" "pavi_ws_cptp_l3_10" "pavi_ws_cptp_l3_11")
 	alphas_pavi=(0 0.0002 0.0004 0.0008 0.0016 0.0032 0.0063 0.0126 0.0251 0.0501 0.1 1)
+	# Biased Pauli with different codes
+	bpauli_bias=("vary_bias_ststst" "vary_bias_ststcy" "vary_bias_stcyst" "vary_bias_stcycy" "vary_bias_cystst" "vary_bias_cystcy" "vary_bias_cycyst" "vary_bias_cycycy")
+	bpauli_infid=("vary_infid_ststst" "vary_infid_ststcy" "vary_infid_stcyst" "vary_infid_stcycy" "vary_infid_cystst" "vary_infid_cystcy" "vary_infid_cycyst" "vary_infid_cycycy")
+	codes=("Steane,Steane,Steane" "Steane,Steane,7qc_cyclic" "Steane,7qc_cyclic,Steane" "Steane,7qc_cyclic,7qc_cyclic" "7qc_cyclic,Steane,Steane" "7qc_cyclic,Steane,7qc_cyclic" "7qc_cyclic,7qc_cyclic,Steane" "7qc_cyclic,7qc_cyclic,7qc_cyclic")
+	
 	# Command to rename files
 	# find . -maxdepth 1 -type d -name "pavi_beluga_cptp_l3_08_12_2020_*" -exec bash -c 'mv $0 ${0/cptp_l3_08_12_2020/cptp}' {} \;
 
@@ -66,10 +71,15 @@ if [[ -n ${cluster} ]]; then
 	pavi_beluga_cptp_level3=("pavi_beluga_cptp_l3_00" "pavi_beluga_cptp_l3_01" "pavi_beluga_cptp_l3_02" "pavi_beluga_cptp_l3_03" "pavi_beluga_cptp_l3_04" "pavi_beluga_cptp_l3_05" "pavi_beluga_cptp_l3_06" "pavi_beluga_cptp_l3_07" "pavi_beluga_cptp_l3_08" "pavi_beluga_cptp_l3_09" "pavi_beluga_cptp_l3_10" "pavi_beluga_cptp_l3_11" "pavi_beluga_cptp_l3_12" "pavi_beluga_cptp_l3_13" "pavi_beluga_cptp_l3_14" "pavi_beluga_cptp_l3_15" "pavi_beluga_cptp_l3_16" "pavi_beluga_cptp_l3_17" "pavi_beluga_cptp_l3_18" "pavi_beluga_cptp_l3_19" "pavi_beluga_cptp_l3_20" "pavi_beluga_cptp_l3_21" "pavi_beluga_cptp_l3_22" "pavi_beluga_cptp_l3_23" "pavi_beluga_cptp_l3_24" "pavi_beluga_cptp_l3_25" "pavi_beluga_cptp_l3_26" "pavi_beluga_cptp_l3_27" "pavi_beluga_cptp_l3_28" "pavi_beluga_cptp_l3_29" "pavi_beluga_cptp_l3_30" "pavi_beluga_cptp_l3_31" "pavi_beluga_cptp_l3_32" "pavi_beluga_cptp_l3_33" "pavi_beluga_cptp_l3_34" "pavi_beluga_cptp_l3_35" "pavi_beluga_cptp_l3_36" "pavi_beluga_cptp_l3_37")
     aditya_beluga_cptp_level3=("aditya_beluga_cptp_l3_00" "aditya_beluga_cptp_l3_01" "aditya_beluga_cptp_l3_02" "aditya_beluga_cptp_l3_03" "aditya_beluga_cptp_l3_04" "aditya_beluga_cptp_l3_05" "aditya_beluga_cptp_l3_06" "aditya_beluga_cptp_l3_07" "aditya_beluga_cptp_l3_08" "aditya_beluga_cptp_l3_09" "aditya_beluga_cptp_l3_10" "aditya_beluga_cptp_l3_11" "aditya_beluga_cptp_l3_12" "aditya_beluga_cptp_l3_13" "aditya_beluga_cptp_l3_14" "aditya_beluga_cptp_l3_15" "aditya_beluga_cptp_l3_16" "aditya_beluga_cptp_l3_17" "aditya_beluga_cptp_l3_18" "aditya_beluga_cptp_l3_19" "aditya_beluga_cptp_l3_20" "aditya_beluga_cptp_l3_21" "aditya_beluga_cptp_l3_22" "aditya_beluga_cptp_l3_23" "aditya_beluga_cptp_l3_24" "aditya_beluga_cptp_l3_25" "aditya_beluga_cptp_l3_26" "aditya_beluga_cptp_l3_27" "aditya_beluga_cptp_l3_28" "aditya_beluga_cptp_l3_29" "aditya_beluga_cptp_l3_30" "aditya_beluga_cptp_l3_31" "aditya_beluga_cptp_l3_32" "aditya_beluga_cptp_l3_33" "aditya_beluga_cptp_l3_34" "aditya_beluga_cptp_l3_35" "aditya_beluga_cptp_l3_36" "aditya_beluga_cptp_l3_37")
     aditya_beluga_cptp_level2=("aditya_beluga_cptp_l2_00" "aditya_beluga_cptp_l2_01" "aditya_beluga_cptp_l2_02" "aditya_beluga_cptp_l2_03" "aditya_beluga_cptp_l2_04" "aditya_beluga_cptp_l2_05" "aditya_beluga_cptp_l2_06" "aditya_beluga_cptp_l2_07" "aditya_beluga_cptp_l2_08" "aditya_beluga_cptp_l2_09" "aditya_beluga_cptp_l2_10" "aditya_beluga_cptp_l2_11" "aditya_beluga_cptp_l2_12" "aditya_beluga_cptp_l2_13" "aditya_beluga_cptp_l2_14" "aditya_beluga_cptp_l2_15" "aditya_beluga_cptp_l2_16" "aditya_beluga_cptp_l2_17" "aditya_beluga_cptp_l2_18" "aditya_beluga_cptp_l2_19" "aditya_beluga_cptp_l2_20" "aditya_beluga_cptp_l2_21" "aditya_beluga_cptp_l2_22" "aditya_beluga_cptp_l2_23" "aditya_beluga_cptp_l2_24" "aditya_beluga_cptp_l2_25" "aditya_beluga_cptp_l2_26" "aditya_beluga_cptp_l2_27" "aditya_beluga_cptp_l2_28" "aditya_beluga_cptp_l2_29" "aditya_beluga_cptp_l2_30" "aditya_beluga_cptp_l2_31" "aditya_beluga_cptp_l2_32" "aditya_beluga_cptp_l2_33" "aditya_beluga_cptp_l2_34" "aditya_beluga_cptp_l2_35" "aditya_beluga_cptp_l2_36" "aditya_beluga_cptp_l2_37")
-		# Impact RC Timestamps
-		aditya_impactRC_level2=("rtz" "rtasu" "rand_cptp" "twirl_rtz" "twirl_rtasu" "twirl_rand_cptp")
-		# aditya_cptp_level2=("cptp_l2_24_12_2020_00" "cptp_l2_24_12_2020_01" "cptp_l2_24_12_2020_02" "cptp_l2_24_12_2020_03" "cptp_l2_24_12_2020_04" "cptp_l2_24_12_2020_06" "cptp_l2_24_12_2020_07" "cptp_l2_24_12_2020_08" "cptp_l2_24_12_2020_10" "cptp_l2_24_12_2020_11" "cptp_l2_24_12_2020_12" "cptp_l2_24_12_2020_13" "cptp_l2_24_12_2020_14" "cptp_l2_24_12_2020_15" "cptp_l2_24_12_2020_16" "cptp_l2_24_12_2020_17" "cptp_l2_24_12_2020_18" "cptp_l2_24_12_2020_19" "cptp_l2_24_12_2020_20" "cptp_l2_24_12_2020_21" "cptp_l2_24_12_2020_22" "cptp_l2_24_12_2020_23" "cptp_l2_24_12_2020_24" "cptp_l2_24_12_2020_25" "cptp_l2_24_12_2020_26" "cptp_l2_24_12_2020_27" "cptp_l2_24_12_2020_28" "cptp_l2_24_12_2020_29" "cptp_l2_24_12_2020_30" "cptp_l2_24_12_2020_31" "cptp_l2_24_12_2020_32" "cptp_l2_24_12_2020_33" "cptp_l2_24_12_2020_34" "cptp_l2_24_12_2020_35" "cptp_l2_24_12_2020_36" "cptp_l2_24_12_2020_37")
-    ## Alphas
+	# Impact RC Timestamps
+	aditya_impactRC_level2=("rtz" "rtasu" "rand_cptp" "twirl_rtz" "twirl_rtasu" "twirl_rand_cptp")
+	# aditya_cptp_level2=("cptp_l2_24_12_2020_00" "cptp_l2_24_12_2020_01" "cptp_l2_24_12_2020_02" "cptp_l2_24_12_2020_03" "cptp_l2_24_12_2020_04" "cptp_l2_24_12_2020_06" "cptp_l2_24_12_2020_07" "cptp_l2_24_12_2020_08" "cptp_l2_24_12_2020_10" "cptp_l2_24_12_2020_11" "cptp_l2_24_12_2020_12" "cptp_l2_24_12_2020_13" "cptp_l2_24_12_2020_14" "cptp_l2_24_12_2020_15" "cptp_l2_24_12_2020_16" "cptp_l2_24_12_2020_17" "cptp_l2_24_12_2020_18" "cptp_l2_24_12_2020_19" "cptp_l2_24_12_2020_20" "cptp_l2_24_12_2020_21" "cptp_l2_24_12_2020_22" "cptp_l2_24_12_2020_23" "cptp_l2_24_12_2020_24" "cptp_l2_24_12_2020_25" "cptp_l2_24_12_2020_26" "cptp_l2_24_12_2020_27" "cptp_l2_24_12_2020_28" "cptp_l2_24_12_2020_29" "cptp_l2_24_12_2020_30" "cptp_l2_24_12_2020_31" "cptp_l2_24_12_2020_32" "cptp_l2_24_12_2020_33" "cptp_l2_24_12_2020_34" "cptp_l2_24_12_2020_35" "cptp_l2_24_12_2020_36" "cptp_l2_24_12_2020_37")
+    # Biased Pauli with different codes
+	bpauli_bias=("vary_bias_ststst" "vary_bias_ststcy" "vary_bias_stcyst" "vary_bias_stcycy" "vary_bias_cystst" "vary_bias_cystcy" "vary_bias_cycyst" "vary_bias_cycycy")
+	bpauli_infid=("vary_infid_ststst" "vary_infid_ststcy" "vary_infid_stcyst" "vary_infid_stcycy" "vary_infid_cystst" "vary_infid_cystcy" "vary_infid_cycyst" "vary_infid_cycycy")
+	codes=("Steane,Steane,Steane" "Steane,Steane,7qc_cyclic" "Steane,7qc_cyclic,Steane" "Steane,7qc_cyclic,7qc_cyclic" "7qc_cyclic,Steane,Steane" "7qc_cyclic,Steane,7qc_cyclic" "7qc_cyclic,7qc_cyclic,Steane" "7qc_cyclic,7qc_cyclic,7qc_cyclic")
+	jobarray=1
+	## Alphas
     # pavi
     alphas_pavi=(0 0.0001 0.00012 0.00015 0.00018 0.00022 0.00027 0.00033 0.0004 0.00048 0.00059 0.00072 0.00088 0.00107 0.0013 0.00158 0.00193 0.00235 0.00287 0.00349 0.00425 0.00518 0.00631 0.00769 0.00936 0.01141 0.01389 0.01693 0.02062 0.02512 0.0306 0.03728 0.04541 0.05532 0.06739 0.08209 0.1 1)
     # aditya
@@ -117,13 +127,13 @@ usage() {
 	printf "\033[0m"
 }
 
-timestamps=("${bpauli[@]}")
+timestamps=("${bpauli_bias[@]}")
 alphas=("${alphas_aditya[@]}")
-log=bpauli
+log=vary_bias_bpauli
 refts=${timestamps[0]}
 
 if [[ "$1" == "overwrite" ]]; then
-	rm input/partial_decoders_${log}.txt
+	rm input/${log}.txt
 	printf "\033[2m"
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
@@ -133,44 +143,79 @@ if [[ "$1" == "overwrite" ]]; then
 
 	if [[ $host == *"paviws"* ]]; then
 		echo "Run the following command."
-		echo -e "\033[4mparallel --joblog partial_decoders_${log}.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders_${log}.txt\033[0m"
+		echo -e "\033[4mparallel --joblog ${log}.log --jobs ${cores} ./chflow.sh {1} :::: input/${log}.txt\033[0m"
 
 	elif [[ $host == "oem-ThinkPad-X1-Carbon-Gen-8" ]]; then
 		echo "Run the following command."
-		echo -e "parallel --joblog partial_decoders_${log}.log --jobs ${cores} ./chflow.sh {1} :::: input/partial_decoders_${log}.txt"
+		echo -e "parallel --joblog ${log}.log --jobs ${cores} ./chflow.sh {1} :::: input/${log}.txt"
 
 	else
 		mkdir -p input/${cluster}
-		rm input/${cluster}/partial_decoders_${log}.sh
-		sbcmds=("#!/bin/bash" "#SBATCH --account=def-jemerson" "#SBATCH --begin=now" "#SBATCH --nodes=1" "#SBATCH --time=05:00:00" "#SBATCH --ntasks-per-node=${cores}" "#SBATCH -o /project/def-jemerson/chbank/${USER}_${log}_output.o" "#SBATCH -e /project/def-jemerson/chbank/${USER}_${log}_errors.o" "#SBATCH --mail-type=ALL" "#SBATCH --mail-user=${email}")
+		# rm input/${cluster}/${log}.sh
+		sbcmds_default=("#!/bin/bash" "#SBATCH --account=def-jemerson" "#SBATCH --begin=now"
+			"#SBATCH --time=05:00:00"
+			"#SBATCH --mail-type=ALL"
+			"#SBATCH --mail-user=${email}")
+		
+		if [[ "$jobarray" -eq "0" ]]; then
+			single_sub=(
+				"#SBATCH --nodes=1"
+				"#SBATCH --ntasks-per-node=${cores}"
+				"#SBATCH -o ${outdir}/${USER}_${log}_output.o"
+				"#SBATCH -e ${outdir}/${USER}_${log}_errors.o"
+				)
+			sbcmds=(${sbcmds[@]} ${single_sub[@]})
+		else
+			# Job array specification
+			array_sub=(
+				"#SBATCH --array=1-${#timestamps[@]}:1"
+				"#SBATCH --cpus-per-task=1"
+				"#SBATCH --ntasks-per-node=${cores}"
+				"#SBATCH --nodes=1"
+				"#SBATCH -o ${outdir}/${USER}_${log}_%A_%a.out"
+				"#SBATCH -e ${outdir}/${USER}_${log}_%A_%a.err"
+				)
+			sbcmds=(${sbcmds[@]} ${array_sub[@]})
+		fi
+		
+		# Writing into a submission script
+		if [[ -e input/${cluster}/${log}.sh ]]; then
+			rm input/${cluster}/${log}.sh
+		fi
+		touch input/${cluster}/${log}.sh
 		for (( s=0; s<${#sbcmds[@]}; ++s )); do
-			echo "${sbcmds[s]}" >> input/${cluster}/partial_decoders_${log}.sh
+			echo "${sbcmds[s]}" >> input/${cluster}/${log}.sh
 		done
-		echo "module load intel python scipy-stack" >> input/${cluster}/partial_decoders_${log}.sh
-		echo "cd /project/def-jemerson/${USER}/chflow" >> input/${cluster}/partial_decoders_${log}.sh
-		echo "start=\$(date +%s)"
-		echo "parallel --joblog partial_decoders_${log}.log ./chflow.sh {1} :::: input/partial_decoders_${log}.txt" >> input/${cluster}/partial_decoders_${log}.sh
-		echo "end=\$(date +%s)"
-		echo "runtime=\$((end/3600-start/3600))"
+		echo "module load intel python scipy-stack" >> input/${cluster}/${log}.sh
+		echo "cd ${chflowdir}" >> input/${cluster}/${log}.sh
+		
+		if [[ "$jobarray" -eq "0" ]]; then
+			echo "start=\$(date +%s)"
+			echo "parallel --joblog ${log}.log ./chflow.sh {1} :::: input/${log}.txt" >> input/${cluster}/${log}.sh
+			echo "end=\$(date +%s)"
+			echo "runtime=\$((end/3600-start/3600))"
 
-		# Prepare a summary email
-		touch input/summary.txt
-		echo "The following job was completed on ${cluster} in ${runtime} hours." >> input/summary.txt
-		echo "Job name: ${log}" >> input/summary.txt
-		printf -v joined_timestamps '%s, ' "${timestamps[@]:0}"
-		echo "Time stamps: ${joined_timestamps%?}" >> input/summary.txt
-		printf -v joined_alphas '%s, ' "${alphas[@]:0}"
-		echo "Alphas: ${alphas%?}" >> input/summary.txt
-		echo "User: ${local_user}" >> input/summary.txt
-		echo "Host: ${host}" >> input/summary.txt
-		echo "Date: $(date)" >> input/summary.txt
-		cat input/summary.txt | mail -s "[${cluster}] ${log} done" ${email}
-		rm input/summary.txt
-
+			# Prepare a summary email
+			touch input/summary.txt
+			echo "The following job was completed on ${cluster} in ${runtime} hours." >> input/summary.txt
+			echo "Job name: ${log}" >> input/summary.txt
+			printf -v joined_timestamps '%s, ' "${timestamps[@]:0}"
+			echo "Time stamps: ${joined_timestamps%?}" >> input/summary.txt
+			printf -v joined_alphas '%s, ' "${alphas[@]:0}"
+			echo "Alphas: ${alphas%?}" >> input/summary.txt
+			echo "User: ${local_user}" >> input/summary.txt
+			echo "Host: ${host}" >> input/summary.txt
+			echo "Date: $(date)" >> input/summary.txt
+			cat input/summary.txt | mail -s "[${cluster}] ${log} done" ${email}
+			rm input/summary.txt
+		else
+			echo "ts=\$(sed -n ${SLURM_ARRAY_TASK_ID}p input/${cluster}/${log}.txt)"
+			echo "./chflow.sh %s \${ts}"
+		fi
 		echo "xxxxxxx"
-
+		
 		echo "Run the following command."
-		echo "sbatch input/${cluster}/partial_decoders_${log}.sh"
+		echo "sbatch input/${cluster}/${log}.sh"
 	fi
 	printf "\033[0m"
 
@@ -201,7 +246,7 @@ elif [[ "$1" == "gen_bpauli" ]]; then
 	echo "quit" >> input/temp.txt
 	./chflow.sh -- temp.txt
 	rm input/temp.txt
-  coderef=${codes[0]}
+  	coderef=${codes[0]}
 	printf "\033[2m"
 	for (( t=1; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
@@ -395,7 +440,7 @@ elif [[ "$1" == "compare_plot" ]]; then
 	printf "\033[2m"
 	echo "sbload ${refts}" > input/temp.txt
 	printf -v joined_timestamps '%s,' "${timestamps[@]:1}"
-	echo "compare 0 infid ${joined_timestamps%?}" >> input/temp.txt
+	echo "compare 1 infid ${joined_timestamps%?}" >> input/temp.txt
 	echo "quit" >> input/temp.txt
 	./chflow.sh -- temp.txt
 	rm input/temp.txt
