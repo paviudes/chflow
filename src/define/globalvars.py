@@ -113,7 +113,6 @@ QB_BLUE = "#2697d0"
 Colors = [
     QB_BLUE,
     QB_GREEN,
-    "black",
     "blue",
     "brown",
     "slategray",

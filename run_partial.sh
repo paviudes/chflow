@@ -75,7 +75,8 @@ if [[ -n ${cluster} ]]; then
 	aditya_impactRC_level2=("rtz" "rtasu" "rand_cptp" "twirl_rtz" "twirl_rtasu" "twirl_rand_cptp")
 	# aditya_cptp_level2=("cptp_l2_24_12_2020_00" "cptp_l2_24_12_2020_01" "cptp_l2_24_12_2020_02" "cptp_l2_24_12_2020_03" "cptp_l2_24_12_2020_04" "cptp_l2_24_12_2020_06" "cptp_l2_24_12_2020_07" "cptp_l2_24_12_2020_08" "cptp_l2_24_12_2020_10" "cptp_l2_24_12_2020_11" "cptp_l2_24_12_2020_12" "cptp_l2_24_12_2020_13" "cptp_l2_24_12_2020_14" "cptp_l2_24_12_2020_15" "cptp_l2_24_12_2020_16" "cptp_l2_24_12_2020_17" "cptp_l2_24_12_2020_18" "cptp_l2_24_12_2020_19" "cptp_l2_24_12_2020_20" "cptp_l2_24_12_2020_21" "cptp_l2_24_12_2020_22" "cptp_l2_24_12_2020_23" "cptp_l2_24_12_2020_24" "cptp_l2_24_12_2020_25" "cptp_l2_24_12_2020_26" "cptp_l2_24_12_2020_27" "cptp_l2_24_12_2020_28" "cptp_l2_24_12_2020_29" "cptp_l2_24_12_2020_30" "cptp_l2_24_12_2020_31" "cptp_l2_24_12_2020_32" "cptp_l2_24_12_2020_33" "cptp_l2_24_12_2020_34" "cptp_l2_24_12_2020_35" "cptp_l2_24_12_2020_36" "cptp_l2_24_12_2020_37")
     # Biased Pauli with different codes
-	bpauli_bias=("vary_bias_ststst" "vary_bias_ststcy" "vary_bias_stcyst" "vary_bias_stcycy" "vary_bias_cystst" "vary_bias_cystcy" "vary_bias_cycyst" "vary_bias_cycycy")
+	# bpauli_bias=("vary_bias_ststst" "vary_bias_ststcy" "vary_bias_stcyst" "vary_bias_stcycy" "vary_bias_cystst" "vary_bias_cystcy" "vary_bias_cycyst" "vary_bias_cycycy")
+	bpauli_bias=("vary_bias_ststst" "vary_bias_ststcy" "vary_bias_cystst" "vary_bias_cycycy")
 	bpauli_infid=("vary_infid_ststst" "vary_infid_ststcy" "vary_infid_stcyst" "vary_infid_stcycy" "vary_infid_cystst" "vary_infid_cystcy" "vary_infid_cycyst" "vary_infid_cycycy")
 	codes=("Steane,Steane,Steane" "Steane,Steane,7qc_cyclic" "Steane,7qc_cyclic,Steane" "Steane,7qc_cyclic,7qc_cyclic" "7qc_cyclic,Steane,Steane" "7qc_cyclic,Steane,7qc_cyclic" "7qc_cyclic,7qc_cyclic,Steane" "7qc_cyclic,7qc_cyclic,7qc_cyclic")
 	jobarray=1
@@ -194,8 +195,8 @@ if [[ "$1" == "overwrite" ]]; then
 			cat input/summary.txt | mail -s "[${cluster}] ${log} done" ${email}
 			rm input/summary.txt
 		else
-			echo "ts=\$(sed -n \${SLURM_ARRAY_TASK_ID}p input/${cluster}/${log}.txt)" >> input/${cluster}/${log}.sh
-			echo "./chflow.sh %s \${ts}" >> input/${cluster}/${log}.sh
+			echo "ts=\$(sed -n \${SLURM_ARRAY_TASK_ID}p input/${log}.txt)" >> input/${cluster}/${log}.sh
+			echo "./chflow.sh \${ts}" >> input/${cluster}/${log}.sh
 		fi
 		echo "xxxxxxx"
 		
@@ -449,24 +450,24 @@ elif [[ "$1" == "from_cluster" ]]; then
 	# bring the data folder and unzip
 	printf "\033[2m"
 	echo "Bringing simulation from ${cluster}"
-	scp -r ${local_user}@${cluster}.computecanada.ca:/project/def-jemerson/chbank/aditya_data.tar.gz ${outdir}
+	scp -r ${local_user}@${cluster}.computecanada.ca:/project/def-jemerson/chbank/data.tar.gz ${outdir}
 	cd ${outdir}
-	tar -xvf aditya_data.tar.gz
+	tar -xvf data.tar.gz
 
 	# unzip the individual datasets.
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
 		echo "Trashing ${ts}"
 		trash ${ts}
-		cp aditya_data/${ts}.tar.gz .
+		cp data/${ts}.tar.gz .
 		tar -xvf ${ts}.tar.gz
 		trash ${ts}.tar.gz
 
 		#### Copying input files to chflow
 		echo "Copying input file ${ts}.txt from data"
-		cp aditya_data/${ts}.txt ${chflowdir}/input/
+		cp data/${ts}.txt ${chflowdir}/input/
 		echo "Copying schedule_${ts}.txt from data"
-		cp aditya_data/schedule_${ts}.txt ${chflowdir}/input/
+		cp data/schedule_${ts}.txt ${chflowdir}/input/
 
 		#### Prepare output directory after moving from cluster.
 		echo "/project/def-jemerson/chbank WITH ${outdir} IN input/${ts}.txt"
@@ -477,20 +478,20 @@ elif [[ "$1" == "from_cluster" ]]; then
 	printf "\033[0m"
 
 	printf "\033[2m"
-	Add a new timestamp for the aditya_data record.
+	# Add a new timestamp for the data record.
 	datetime=$(date +%d_%m_%Y_%H_%M_%S)
-	echo "Add the time stamp ${datetime} to the aditya_data folders so that it can be kept as a record."
-	mv aditya_data "aditya_data_${datetime}"
+	echo "Add the time stamp ${datetime} to the data folders so that it can be kept as a record."
+	mv data "data_${datetime}"
 
 	# Adding an information file for the folder.
-	echo "Data folder: $(date)" > aditya_data_${datetime}/info.txt
+	echo "Data folder: $(date)" > data_${datetime}/info.txt
 	printf -v joined_timestamps '%s,' "${timestamps[@]:0}"
-	echo "Timestamps: ${joined_timestamps%?}" >> aditya_data_${datetime}/info.txt
+	echo "Timestamps: ${joined_timestamps%?}" >> data_${datetime}/info.txt
 	printf -v joined_alphas '%s,' "${alphas[@]:0}"
-	echo "Alphas: ${joined_alphas%?}" >> aditya_data_${datetime}/info.txt
+	echo "Alphas: ${joined_alphas%?}" >> data_${datetime}/info.txt
 
 	# Zipping data folder for records
-	tar -zcvf "aditya_data_${datetime}.tar.gz" "aditya_data_${datetime}"
+	tar -zcvf "data_${datetime}.tar.gz" "data_${datetime}"
 
 	printf "\033[0m"
 

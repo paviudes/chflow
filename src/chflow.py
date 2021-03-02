@@ -1140,7 +1140,7 @@ if __name__ == "__main__":
 				check = 1
 				for (d, ts) in enumerate(user[3].split(",")):
 					dbses.append(Submission())
-					LoadSub(dbses[d + 1], ts, 0)
+					LoadSub(dbses[d + 1], ts, 0, 0)
 					IsComplete(dbses[d + 1])
 					if dbses[d + 1].complete > 0:
 						if not os.path.isfile(LogicalErrorRates(dbses[d + 1], user[2], fmt="npy")):
