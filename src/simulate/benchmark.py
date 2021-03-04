@@ -6,7 +6,7 @@ from define import fnames as fn
 from define.chanreps import ConvertRepresentations, ChangeOrdering
 from define.decoder import CompleteDecoderKnowledge
 
-DEBUG = 0
+DEBUG = 1
 
 def GetBMOutput(nlevels, nmetrics, nlogs, nbins, nbreaks):
 	# Create a class called BenchOut to mirror the C structure.
