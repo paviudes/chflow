@@ -40,6 +40,7 @@ class QuantumErrorCorrectingCode:
 		self.Paulis_correctable = None
 		self.PauliCorrectableIndices = None
 		self.PauliOperatorsLST = None
+		self.weight_convention = {"method": "Hamming"}
 		self.weightdist = None
 		self.group_by_weight = None
 		self.defnfile = "%s.txt" % (name)
@@ -893,7 +894,8 @@ def PrepareSyndromeLookUp(qecc):
 				else:
 					stabop = np.zeros(qecc.N, dtype=np.int8)
 				(correction, __) = PauliProduct(peop, logop, stabop)
-				weight = np.count_nonzero(correction > 0)
+				# weight = np.count_nonzero(correction > 0)
+				weight = ErrorWeight(correction, qecc.weight_convention)
 				if weight <= qecc.lookup[t, 1]:
 					qecc.lookup[t, 0] = ordering[lgens[0], lgens[1]]
 					qecc.lookup[t, 1] = weight
@@ -911,6 +913,29 @@ def PrepareSyndromeLookUp(qecc):
 	for w in range(qecc.N):
 		(qecc.group_by_weight[w],) = np.nonzero(qecc.weightdist == w)
 	return None
+
+
+def ErrorWeight(pauli_error, convention=None):
+	# Compute the weight of a Pauli error with respect to a decoding technique.
+	# 1. Hamming: corresponds to the number of non-identity 2 x 2 Pauli matrices in the tensor product decomposition.
+	# 2. Bias: Here we will assume relative importance for I, X, Y and Z are given.
+	if convention is None:
+		convention = {"method": "Hamming"}
+	if convention["method"] == "Hamming":
+		weight = np.count_nonzero(pauli_error > 0)
+	elif convention["method"] == "bias":
+		# We need the relative importance of I, X, Y and Z.
+		# These numbers can be >= 1, with the larger number indicating higher probability of a given type of error.
+		# The weight of the error will be computed by: multiplying the number of Paauli matrices of a given type (I, X, Y or Z) by the inverse of its relative importance.
+		weight = 0
+		paulis = ["X", "Y", "Z"]
+		for p in range(3):
+			weight += np.count_nonzero(pauli_error == 1 + p) * 1/convention["bias"][paulis[p]]
+	else:
+		weight = 0
+		pass
+	return weight
+
 
 def ComputeCorrectableIndices(qcode):
 	r"""

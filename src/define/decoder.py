@@ -7,6 +7,18 @@ from scipy.special import comb
 from define.qcode import PrepareSyndromeLookUp
 from define.QECCLfid.utils import SamplePoisson
 
+def TailorDecoder(submit, noise):
+	# Tailor a decoder to an error model by exploiting simple structure.
+	# At the moment, this only works differently from MWD for a biased Pauli error model "bpauli".
+	# We need to design the relative importance that should be given to I, X, Y and Z errors.
+	if submit.channel == "bpauli":
+		bias = noise[1]
+		pX = 0.1
+		pZ = bias * pX
+		pY = pX * pZ
+		submit.eccs[0].weight_convention = {"method": "bias", "weights": {"X": pX, "Y": pY, "Z": pZ}}
+	return None
+
 def GetTotalErrorBudget(dbs, noise, sample):
 	# Compute the total number of distinct Pauli error rates included in the NR dataset.
 	nrw = np.loadtxt(fn.NRWeightsFile(dbs, noise))[sample, :]
