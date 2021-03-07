@@ -1,5 +1,4 @@
-sbload vary_bias_cycy
-submit vary_bias_cycy
-submit vary_bias_fqfq
-submit vary_bias_rpcy
+sbload vary_bias_ststst
+submit vary_bias_ststst
+submit vary_bias_cycycy
 quit
