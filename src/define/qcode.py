@@ -930,7 +930,7 @@ def ErrorWeight(pauli_error, convention=None):
 		weight = 0
 		paulis = ["X", "Y", "Z"]
 		for p in range(3):
-			weight += np.count_nonzero(pauli_error == 1 + p) * 1/convention["bias"][paulis[p]]
+			weight += np.count_nonzero(pauli_error == 1 + p) * 1/convention["bias"]["weights"][p]
 	else:
 		weight = 0
 		pass
