@@ -17,6 +17,12 @@ def TailorDecoder(submit, noise):
 		pZ = bias * pX
 		pY = pX * pZ
 		submit.eccs[0].weight_convention = {"method": "bias", "weights": {"X": pX, "Y": pY, "Z": pZ}}
+		for l in range(submit.levels):
+			PrepareSyndromeLookUp(submit.eccs[l])
+	else:
+		submit.eccs[0].weight_convention = {"method": "Hamming"}
+		for l in range(submit.levels):
+			PrepareSyndromeLookUp(submit.eccs[l])
 	return None
 
 def GetTotalErrorBudget(dbs, noise, sample):

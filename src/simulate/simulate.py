@@ -13,7 +13,7 @@ from define import qchans as qch
 from define import submission as sub
 from define import fnames as fn
 from define.metrics import InfidelityPhysical
-from define.decoder import PrepareChannelDecoder
+from define.decoder import PrepareChannelDecoder, TailorDecoder
 from cluster import cluster as cl
 
 
@@ -44,11 +44,13 @@ def SimulateSampleIndex(submit, rate, sample, coreidx, results):
         rawchan = np.load(fn.RawPhysicalChannel(submit, rate))[sample, :]
         infidelity = InfidelityPhysical(rawchan, {"corr": submit.iscorr})
 
+    for l in range(submit.levels):
+        if submit.decoders[0] == 0:
+            TailorDecoder(submit, rate)
+
     if submit.decoders[0] == 2:
         refchan = PrepareChannelDecoder(submit, rate, sample)
-        # print(
-        #     # "Shape of physchan : {} refchan : {}".format(physchan.shape, refchan.shape)
-        # )
+        # print("Shape of physchan : {} refchan : {}".format(physchan.shape, refchan.shape))
     else:
         refchan = np.zeros_like(physchan)
     # print("Refchan entries : {}".format(refchan))
