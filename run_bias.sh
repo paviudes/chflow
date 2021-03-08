@@ -1,2 +1,2 @@
-./chflow.sh vary_bias_ststst
-./chflow.sh vary_bias_cycycy
+./chflow.sh vary_bias_st
+./chflow.sh vary_bias_cy

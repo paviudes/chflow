@@ -45,7 +45,7 @@ def SimulateSampleIndex(submit, rate, sample, coreidx, results):
         infidelity = InfidelityPhysical(rawchan, {"corr": submit.iscorr})
 
     for l in range(submit.levels):
-        if submit.decoders[0] == 0:
+        if submit.decoders[l] == 0:
             TailorDecoder(submit, rate)
 
     if submit.decoders[0] == 2:

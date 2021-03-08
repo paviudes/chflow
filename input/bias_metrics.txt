@@ -1,8 +1,8 @@
-sbload vary_bias_ststst
+sbload vary_bias_st
 lpmetrics uncorr
 pmetrics infid
 collect
-sbload vary_bias_cycycy
+sbload vary_bias_cy
 lpmetrics uncorr
 pmetrics infid
 collect

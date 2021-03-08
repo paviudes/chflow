@@ -1,4 +1,4 @@
-sbload vary_bias_ststst
-submit vary_bias_ststst
-submit vary_bias_cycycy
+sbload vary_bias_st
+submit vary_bias_st
+submit vary_bias_cy
 quit
