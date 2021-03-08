@@ -927,11 +927,12 @@ def ErrorWeight(pauli_error, convention=None):
 		# We need the relative importance of I, X, Y and Z.
 		# These numbers can be >= 1, with the larger number indicating higher probability of a given type of error.
 		# The weight of the error will be computed by: multiplying the number of Paauli matrices of a given type (I, X, Y or Z) by the inverse of its relative importance.
+		# print("Function: ErrorWeight({}, {})".format(pauli_error, convention))
 		weight = 0
 		paulis = ["X", "Y", "Z"]
 		for p in range(3):
-			weight += np.count_nonzero(pauli_error == (1 + p)) * 1/convention["bias"]["weights"][p]
-		print("Modified weight of {} = {}.".format(pauli_error, weight))
+			weight += np.count_nonzero(pauli_error == (1 + p)) * 1/(convention["weights"][paulis[p]])
+		# print("Modified weight of {} = {}.".format(pauli_error, weight))
 	else:
 		weight = 0
 		pass

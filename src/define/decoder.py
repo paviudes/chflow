@@ -11,17 +11,18 @@ def TailorDecoder(submit, noise):
 	# Tailor a decoder to an error model by exploiting simple structure.
 	# At the moment, this only works differently from MWD for a biased Pauli error model "bpauli".
 	# We need to design the relative importance that should be given to I, X, Y and Z errors.
+	# print("TailorDecoder({}, {})".format(submit.channel, noise))
 	if submit.channel == "bpauli":
 		bias = noise[1]
 		pX = 0.1
 		pZ = bias * pX
 		pY = pX * pZ
-		submit.eccs[0].weight_convention = {"method": "bias", "weights": {"X": pX, "Y": pY, "Z": pZ}}
 		for l in range(submit.levels):
+			submit.eccs[l].weight_convention = {"method": "bias", "weights": {"X": pX, "Y": pY, "Z": pZ}}
 			PrepareSyndromeLookUp(submit.eccs[l])
 	else:
-		submit.eccs[0].weight_convention = {"method": "Hamming"}
 		for l in range(submit.levels):
+			submit.eccs[l].weight_convention = {"method": "Hamming"}
 			PrepareSyndromeLookUp(submit.eccs[l])
 	return None
 
