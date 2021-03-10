@@ -575,7 +575,7 @@ def UncorrectableProb(channel, kwargs):
                 )
             )
     return uc.ComputeUnCorrProb(
-        pauliProbs, kwargs["qcode"], kwargs["levels"], leading_fraction=kwargs["alpha"]
+        pauliProbs, kwargs["qcode"], kwargs["levels"], leading_fraction=kwargs["alpha"], kwargs["submit"]
     )
 
 
@@ -710,6 +710,7 @@ def ChannelMetrics(submit, metrics, start, end, results, rep, chtype):
                 ] = eval(Metrics[metrics[m]]["func"])(
                     chan,
                     {
+                        "submit": submit,
                         "qcode": submit.eccs,
                         "levels": nlevels,
                         "corr": submit.iscorr,
