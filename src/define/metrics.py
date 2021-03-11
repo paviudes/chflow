@@ -564,9 +564,11 @@ def UncorrectableProb(channel, kwargs):
         # print("Pauli probabilities\n{}\nSum = {}.".format(pauliProbs[0, :], np.sum(pauliProbs[0, :])))
         # If the channel is "bpauli", then we need to recompute the syndrome lookup take and the correctable indices.
         if (kwargs["submit"].channel == "bpauli"):
-            bias = np.power(kwargs["submit"].scales[1], kwargs["submit"].available[kwargs["channel_index"], 1])
-            for l in range(kwargs["levels"] - 1):
-                TailorDecoder(kwargs["qcode"][l], kwargs["submit"].channel, bias=bias)
+            if (kwargs["submit"].scales[1] == 1):
+                bias = kwargs["submit"].available[kwargs["channel_index"], 1]
+            else:
+                bias = np.power(kwargs["submit"].scales[1], kwargs["submit"].available[kwargs["channel_index"], 1])
+            TailorDecoder(kwargs["qcode"][0], kwargs["submit"].channel, bias=bias)
             recompute = True
         
     elif ((kwargs["corr"] == 1) or (kwargs["corr"] == 3)):
@@ -762,24 +764,25 @@ def ComputeMetrics(submit, metrics, chtype="physical"):
             ct.c_longdouble, submit.channels * len(metrics) * (submit.levels + 1)
         )
     for i in range(nproc):
-        processes.append(
-            mp.Process(
-                target=ChannelMetrics,
-                args=(
-                    submit,
-                    metrics,
-                    i * chunk,
-                    min(submit.channels, (i + 1) * chunk),
-                    results,
-                    "process",
-                    chtype,
-                ),
-            )
-        )
-    for i in range(nproc):
-        processes[i].start()
-    for i in range(nproc):
-        processes[i].join()
+        # processes.append(
+        #     mp.Process(
+        #         target=ChannelMetrics,
+        #         args=(
+        #             submit,
+        #             metrics,
+        #             i * chunk,
+        #             min(submit.channels, (i + 1) * chunk),
+        #             results,
+        #             "process",
+        #             chtype,
+        #         ),
+        #     )
+        # )
+        ChannelMetrics(submit, metrics, i * chunk, min(submit.channels, (i + 1) * chunk), results, "process", chtype)
+    # for i in range(nproc):
+    #     processes[i].start()
+    # for i in range(nproc):
+    #     processes[i].join()
 
     if chtype == "physical":
         metvals = np.reshape(results, [submit.channels, len(metrics)], order="c")

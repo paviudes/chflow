@@ -13,9 +13,9 @@ def TailorDecoder(qecc, channel, bias=None):
 	# We need to design the relative importance that should be given to I, X, Y and Z errors.
 	# print("TailorDecoder({}, {})".format(submit.channel, noise))
 	if channel == "bpauli":
-		cX = 1
-		cZ = bias
-		cY = cZ
+		cX = int(bias)
+		cZ = 1
+		cY = int(bias)
 		qecc.weight_convention = {"method": "bias", "weights": {"X": cX, "Y": cY, "Z": cZ}}
 		PrepareSyndromeLookUp(qecc)
 		# print("Lookup table for {} code with bias {}.".format(qecc.name, bias))

@@ -859,10 +859,11 @@ def PrepareSyndromeLookUp(qecc):
 	# 	find the logical operator L such that (T.L.S) has least weight over all L and for some S.
 	# Each row of the constructed lookup table corresponds to a syndrome outcome.
 	# The row entries are the logical correction, weight of the minimum weight operator and the full minimum weight correction.
+	print("Computing lookup for {}".format(qecc.weight_convention))
 	nstabs = 2 ** (qecc.N - qecc.K)
 	nlogs = 4 ** qecc.K
 	ordering = np.array([[0, 3], [1, 2]], dtype=np.int8)
-	qecc.lookup = np.zeros((nstabs, 2 + qecc.N), dtype=np.int8)
+	qecc.lookup = np.zeros((nstabs, 2 + qecc.N), dtype=np.double)
 	qecc.PauliOperatorsLST = np.zeros((4 ** qecc.N, qecc.N), dtype=np.int)
 	qecc.weightdist = np.zeros(4 ** qecc.N, dtype=np.int)
 	for t in range(nstabs):
@@ -901,7 +902,7 @@ def PrepareSyndromeLookUp(qecc):
 					qecc.lookup[t, 1] = error_weight
 					qecc.lookup[t, 2:] = correction
 				else:
-					if (error_weight < qecc.lookup[t, 1]):
+					if (error_weight <= qecc.lookup[t, 1]):
 						qecc.lookup[t, 0] = ordering[lgens[0], lgens[1]]
 						qecc.lookup[t, 1] = error_weight
 						qecc.lookup[t, 2:] = correction
@@ -938,18 +939,18 @@ def ErrorWeight(pauli_error, convention=None):
 			error_weight = 0
 			paulis = ["X", "Y", "Z"]
 			for p in range(3):
-				error_weight += np.count_nonzero(pauli_error == (1 + p)) * 1/(convention["weights"][paulis[p]])
+				error_weight += np.count_nonzero(pauli_error == (1 + p)) * convention["weights"][paulis[p]]
 			# print("Modified weight of {} = {}.".format(pauli_error, weight))
 		else:
 			pass
-	return (hamming_weight, int(error_weight))
+	return (hamming_weight, error_weight)
 
 
 def ComputeCorrectableIndices(qcode):
 	r"""
 	Compute the indices of correctable errors in a code.
 	"""
-	minwt_reps = list(map(ut.convert_Pauli_to_symplectic, qcode.lookup[:, 2:]))
+	minwt_reps = list(map(ut.convert_Pauli_to_symplectic, qcode.lookup[:, 2:].astype(np.int)))
 	degeneracies = [
 		ut.prod_sym(unique_rep, stab)
 		for unique_rep in minwt_reps
