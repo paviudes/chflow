@@ -50,7 +50,7 @@ def CompareSubs(pmet, lmet, *dbses):
                         if (ylimits["right"]["max"] <= np.max(settings["yaxis"])):
                             ylimits["right"]["max"] = np.max(settings["yaxis"])
                         # Empty plot for the legend entry containing different codes.
-                        label = ",".join(code.name[:5] for code in dbses[d].eccs)
+                        label = ",".join(code.name[:6] for code in dbses[d].eccs[:l])
                         ax_right.plot([], [], color=settings["color"], linestyle="dotted", linewidth=gv.line_width, label = label)
 
                     if (p == 0):
@@ -62,7 +62,7 @@ def CompareSubs(pmet, lmet, *dbses):
                         if (ylimits["left"]["max"] <= np.max(uncorr[:, l])):
                             ylimits["left"]["max"] = np.max(uncorr[:, l])
                         # Empty plot for the legend entry containing different codes.
-                        label = ",".join(code.name[:5] for code in dbses[d].eccs)
+                        label = ",".join(code.name[:6] for code in dbses[d].eccs[:l])
                         ax.plot([], [], color=settings["color"], linestyle="solid", linewidth=gv.line_width, label = label)
 
                         # print("level {} and database {}".format(l, dbses[d].timestamp))

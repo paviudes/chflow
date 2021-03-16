@@ -859,7 +859,7 @@ def PrepareSyndromeLookUp(qecc):
 	# 	find the logical operator L such that (T.L.S) has least weight over all L and for some S.
 	# Each row of the constructed lookup table corresponds to a syndrome outcome.
 	# The row entries are the logical correction, weight of the minimum weight operator and the full minimum weight correction.
-	print("Computing lookup for {}".format(qecc.weight_convention))
+	# print("Computing lookup for {}".format(qecc.weight_convention))
 	nstabs = 2 ** (qecc.N - qecc.K)
 	nlogs = 4 ** qecc.K
 	ordering = np.array([[0, 3], [1, 2]], dtype=np.int8)
