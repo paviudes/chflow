@@ -6,7 +6,7 @@ from define import fnames as fn
 from define.chanreps import ConvertRepresentations, ChangeOrdering
 from define.decoder import CompleteDecoderKnowledge
 
-DEBUG = 1
+DEBUG = 0
 
 def GetBMOutput(nlevels, nmetrics, nlogs, nbins, nbreaks):
 	# Create a class called BenchOut to mirror the C structure.
@@ -115,7 +115,7 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity, rawchan=None
 		dtype=np.float64,
 	)
 	decoders = np.zeros(nlevels, dtype=np.int32)
-	dclookups = np.zeros(nlevels * nstabs, dtype=np.int32)
+	dclookups = np.zeros(np.sum([2 ** (submit.eccs[l].N - submit.eccs[l].K) for l in range(nlevels)]), dtype=np.int32)
 	operators_LST = np.zeros(
 		np.sum([4 ** (submit.eccs[l].N) * submit.eccs[l].N for l in range(nlevels)]),
 		dtype=np.int32,
@@ -179,7 +179,7 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity, rawchan=None
 			decoders[l] = 3
 		else:
 			decoders[l] = submit.decoders[l]
-		dclookups[s_count : (s_count + nstabs)] = submit.eccs[l].lookup[:, 0]
+		dclookups[s_count : (s_count + nstabs)] = submit.eccs[l].lookup[:, 0].astype(np.int32)
 
 		s_count = s_count + nstabs
 		ss_count = ss_count + nstabs * nstabs

@@ -7,7 +7,7 @@ channel bpauli
 # Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
 repr process
 # Noise rate exponents. The actual noise rate is (2/3)^exponent.
-noiserange ./../input/filtered_bias.txt
+noiserange ./../input/vary_bias_bpauli_filtered.txt
 # Scales of noise range.
 scale 0.66,10.0
 # Number of samples
@@ -35,7 +35,7 @@ host local
 # Name of the account.
 account def-jemerson
 # Batch name.
-job vary_bias_stst
+job vary_bias_st
 # Wall time in hours.
 wall 1
 # Submission queue (Available options: see goo.gl/pTdqbV).
@@ -47,4 +47,4 @@ outdir /Users/pavi/Documents/chbank
 # Randomized compiling of quantum gates.
 rc 0
 # Plot settings
-plot name,Varying bias 7qc_cyclic;linestyle,None
+plot name,Varying bias Steane;linestyle,None

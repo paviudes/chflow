@@ -922,14 +922,16 @@ if __name__ == "__main__":
 					check = 0
 					break
 			if check == 1:
-				include = np.sort(
-					np.concatenate(
-						(
-							np.arange(0, dbses[0].channels, dbses[0].samps),
-							np.arange(1, dbses[0].channels, dbses[0].samps),
-						)
-					)
-				)
+				# include = np.sort(
+				# 	np.concatenate(
+				# 		(
+				# 			np.arange(0, dbses[0].channels, dbses[0].samps),
+				# 			np.arange(1, dbses[1].channels, dbses[1].samps),
+				# 		)
+				# 	)
+				# )
+				include = None
+				# print("include: {}".format(include))
 				ChannelWisePlot(
 					user[1],
 					user[2],
