@@ -117,6 +117,7 @@ def LoadRunningAverages(dbs, lmet, rates, samples):
             running_averages[r, s, :] = np.load(
                 RunningAverageCh(dbs, rates[r, :], samples[s], lmet)
             )
+    print("loaded running averages for rates : {} sample : {} = {}".format(rates,samples,running_averages))
     return running_averages
 
 
@@ -133,7 +134,7 @@ def MCStatsPlot(dbses, lmet, pmet, rates, samples=None, cutoff=1e3):
     # To estimate d(z = log y), we have: dz = d(log y) = 1/ln(10) * d(ln y) = 1/ln(10) * (dy)/y
     if samples is None:
         samples = np.arange(dbs.samps)
-    
+
     if len(dbses) > 1:
         return MCompare(dbses, pmet, lmet, rates, samples, cutoff)
     else:
@@ -151,7 +152,7 @@ def MCStatsPlot(dbses, lmet, pmet, rates, samples=None, cutoff=1e3):
 
     filter = np.ones((rates.shape[0], samples.shape[0]), dtype=np.int)
     with PdfPages(plotfname) as pdf:
-        for case in range(2):
+        for case in range(1):
             # case 0 is the regular stat plot.
             # case 1 corresponds to a focused region plot: only the region in the green zone to the right of the stats line. Green zone is greater than 1/Stats.
             if case == 0:
@@ -170,7 +171,7 @@ def MCStatsPlot(dbses, lmet, pmet, rates, samples=None, cutoff=1e3):
                         continue
                     # label = scientific_float(phyerrs[pos[r, s]])
                     xaxis = dbs.stats[xindices]
-                    yaxis = running_averages[r, samples[s], xindices]
+                    yaxis = running_averages[r, s, xindices]
                     if (ylimits["min"] >= np.min(yaxis)):
                         ylimits["min"] = np.min(yaxis)
                     if (ylimits["max"] <= np.max(yaxis)):
@@ -273,7 +274,8 @@ def MCompare(dbses_input, pmet, lmet, rates, samples=None, cutoff=1e6):
     """
     Compare the running averages from many datasets.
     """
-    __, uniques = np.unique([int(dbs.decoder_fraction * 4 ** (dbs.eccs[0].N)) for dbs in dbses_input], return_index=True)
+    # __, uniques = np.unique([int(dbs.decoder_fraction * 4 ** (dbs.eccs[0].N)) for dbs in dbses_input], return_index=True)
+    uniques = np.arange(len(dbses_input)) # temporary to include all databases
     # print("uniques = {}".format(uniques))
     dbses = [dbses_input[d] for d in uniques]
     min_stats = 0

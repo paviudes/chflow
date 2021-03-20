@@ -33,6 +33,7 @@ def RelativeImprovement(xaxis, yaxes, plt, ax1, xlabel, only_points, l, annotati
 	https://scipython.com/blog/inset-plots-in-matplotlib/
 	"""
 	atol = 10e-8
+	tol = 0.1
 	degrading_indices = (yaxes[0, :] - yaxes[1, :]) > atol
 	print(
 		"Logical error rates:\n RC: {}\n no RC: {}".format(
@@ -51,10 +52,13 @@ def RelativeImprovement(xaxis, yaxes, plt, ax1, xlabel, only_points, l, annotati
 		ax2 = plt.axes()
 		axes_label_fontsize = gv.axes_labels_fontsize
 	for i in only_points:
-		if yaxes[1, i]/yaxes[0, i] < 1:
-			color = "red"
+		if np.abs((yaxes[1, i] - yaxes[0, i])/yaxes[1, i]) > tol:
+			if yaxes[1, i]/yaxes[0, i] < 1 :
+				color = "red"
+			else:
+				color = gv.QB_GREEN
 		else:
-			color = gv.QB_GREEN
+			color = "0.5"
 		ax2.plot(
 			xaxis[i],
 			yaxes[1, i]/yaxes[0, i],
@@ -105,7 +109,7 @@ def RelativeImprovement(xaxis, yaxes, plt, ax1, xlabel, only_points, l, annotati
 		numpoints=1,
 		loc="best",
 		shadow=True,
-		fontsize=gv.legend_fontsize,
+		fontsize=gv.legend_fontsize*1.5,
 		markerscale=gv.legend_marker_scale,
 	)
 	return None
@@ -194,6 +198,20 @@ def ChannelWisePlot(phymet, logmet, dbses, thresholds={"y": 10e-16, "x": 10e-16}
 					# 	)
 			if only_inset == True:
 				ax1 = None # Disable main plot axis
+
+			# Code to find worst deviation channel
+			yaxes = np.concatenate(
+				(
+					settings[0]["yaxis"][np.newaxis, :],
+					settings[1]["yaxis"][np.newaxis, :],
+				),
+				axis=0,
+			)
+			lis_dev = [yaxes[1, i]/yaxes[0, i] for i in include]
+			min_dev_ind = include[lis_dev.index(min(lis_dev)) ]
+			print("numerator = {}, denominator = {}".format(yaxes[1,lis_dev.index(min(lis_dev))],yaxes[0,lis_dev.index(min(lis_dev))]))
+			print("Minimum delta for level {} is {} for index {}".format(l,min(lis_dev),min_dev_ind))
+			print("Noise rate , sample : {}".format(dbses[d].available[min_dev_ind]))
 			# Plot the relative improvements in an inset plot
 			RelativeImprovement(
 				settings[1]["xaxis"],

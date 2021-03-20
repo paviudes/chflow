@@ -899,7 +899,7 @@ if __name__ == "__main__":
 
 		elif user[0] == "cplot":
 			# No documentation provided
-			thresholds = {"y": 10e-16, "x": 10e-16}
+			thresholds = {"y": 10e-8, "x": 10e-16}
 			dbses = [submit]
 			if len(user) > 5:
 				thresholds["x"] = np.power(0.1, int(user[5]))
@@ -909,7 +909,7 @@ if __name__ == "__main__":
 			if len(user) > 3:
 				for (i, ts) in enumerate(user[3].split(",")):
 					dbses.append(Submission())
-					LoadSub(dbses[i + 1], ts, 0)
+					LoadSub(dbses[i + 1], ts, 0,0)
 			check = 1
 			for d in range(len(dbses)):
 				IsComplete(dbses[d])
