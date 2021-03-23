@@ -29,6 +29,10 @@ def IsComplete(submit):
 						LogicalChannel(submit, submit.noiserates[i], j)
 					):
 						chcount = chcount + 1
+		
+		# A temporary hack to assume all channels are provided.
+		chcount = submit.noiserates.shape[0] * submit.samps
+		
 		submit.channels = chcount
 		if chcount > 0:
 			submit.available = np.zeros(
@@ -37,12 +41,18 @@ def IsComplete(submit):
 			chcount = 0
 			for i in range(submit.noiserates.shape[0]):
 				for j in range(submit.samps):
-					if os.path.isfile(
-						LogicalChannel(submit, submit.noiserates[i], j)
-					):
-						submit.available[chcount, :-1] = submit.noiserates[i, :]
-						submit.available[chcount, -1] = j
-						chcount = chcount + 1
+					# if os.path.isfile(
+					# 	LogicalChannel(submit, submit.noiserates[i], j)
+					# ):
+					# 	submit.available[chcount, :-1] = submit.noiserates[i, :]
+					# 	submit.available[chcount, -1] = j
+					# 	chcount = chcount + 1
+
+					# A temporary hack to assume all channels are provided.
+					submit.available[chcount, :-1] = submit.noiserates[i, :]
+					submit.available[chcount, -1] = j
+					chcount = chcount + 1
+					
 		submit.complete = (100 * chcount) / np.float(
 			submit.noiserates.shape[0] * submit.samps
 		)

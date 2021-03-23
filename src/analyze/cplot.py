@@ -51,35 +51,53 @@ def RelativeImprovement(xaxis, yaxes, plt, ax1, xlabel, only_points, l, annotati
 	else:
 		ax2 = plt.axes()
 		axes_label_fontsize = gv.axes_labels_fontsize
-	for i in only_points:
-		if np.abs((yaxes[1, i] - yaxes[0, i])/yaxes[1, i]) > tol:
-			if yaxes[1, i]/yaxes[0, i] < 1 :
-				color = "red"
-			else:
-				color = gv.QB_GREEN
-		else:
-			color = "0.5"
-		ax2.plot(
-			xaxis[i],
-			yaxes[1, i]/yaxes[0, i],
-			color=color,
-			marker="o",
-			alpha = 0.8,
-			markersize=gv.marker_size,
-		)
-		if annotations is not None:
-			ax2.annotate(
-				annotations[i],
-				(0.92 * xaxis[i], 0.89 * (yaxes[1, i] - yaxes[0, i]) / yaxes[1, i]),
-				color=gv.Colors[i % gv.n_Colors],
-				fontsize=gv.ticks_fontsize,
-			)
+
+	unsettled_indices, = np.nonzero(np.abs(yaxes[1, only_points] - yaxes[0, only_points]) / yaxes[1, only_points] < tol)
+	improvement_indices, = np.nonzero(yaxes[1, only_points] / yaxes[0, only_points] > 1)
+	degradation_indices, = np.nonzero(yaxes[1, only_points] / yaxes[0, only_points] < 1)
+	
+	unsettled = only_points[unsettled_indices]
+	improvements = only_points[np.setdiff1d(improvement_indices, unsettled_indices)]
+	degradations = only_points[np.setdiff1d(degradation_indices, unsettled_indices)]
+
+	# print("only_points\n{}Non RC\n{}\nRC\n{}\nimprovements\n{}\ndegradations\n{}\nunsettled\n{}".format(only_points, yaxes[1, only_points], yaxes[0, only_points], improvements, degradations, unsettled))
+
+	if (improvements.size > 0):
+		ax2.plot(xaxis[improvements], yaxes[1, improvements]/yaxes[0, improvements], color=gv.QB_GREEN, marker="o", alpha = 0.8, markersize=gv.marker_size, linestyle = "None")
+	if (degradations.size > 0):
+		ax2.plot(xaxis[degradations], yaxes[1, degradations]/yaxes[0, degradations], color="red", marker="o", alpha = 0.8, markersize=gv.marker_size, linestyle = "None")
+	if (unsettled.size > 0):
+		ax2.plot(xaxis[unsettled], yaxes[1, unsettled]/yaxes[0, unsettled], color="0.5", marker="o", alpha = 0.8, markersize=gv.marker_size, linestyle = "None")
+
+	# for i in only_points:
+	# 	if np.abs((yaxes[1, i] - yaxes[0, i])/yaxes[1, i]) > tol:
+	# 		if yaxes[1, i]/yaxes[0, i] < 1 :
+	# 			color = "red"
+	# 		else:
+	# 			color = gv.QB_GREEN
+	# 	else:
+	# 		color = "0.5"
+	# 	ax2.plot(
+	# 		xaxis[i],
+	# 		yaxes[1, i]/yaxes[0, i],
+	# 		color=color,
+	# 		marker="o",
+	# 		alpha = 0.8,
+	# 		markersize=gv.marker_size,
+	# 	)
+	# 	if annotations is not None:
+	# 		ax2.annotate(
+	# 			annotations[i],
+	# 			(0.92 * xaxis[i], 0.89 * (yaxes[1, i] - yaxes[0, i]) / yaxes[1, i]),
+	# 			color=gv.Colors[i % gv.n_Colors],
+	# 			fontsize=gv.ticks_fontsize,
+	# 		)
 	# Draw a horizontal line at Y=0 to show the break-even point RC and no RC.
 	ax2.axhline(y=1, linestyle="--")
 	ax2.set_xlabel(xlabel, fontsize=axes_label_fontsize )
 	ax2.set_ylabel("$\\delta_{%d}$" %(l), fontsize=axes_label_fontsize)
 	ax2.set_xscale("log")
-	# ax2.set_yscale("log")
+	ax2.set_yscale("log")
 	ax2.tick_params(
 		axis="both",
 		which="both",
@@ -94,8 +112,9 @@ def RelativeImprovement(xaxis, yaxes, plt, ax1, xlabel, only_points, l, annotati
 		[],
 		marker="o",
 		color=gv.QB_GREEN,
-		label="$\\delta_{%d} \geq 1$"%(l),
+		label="$\\delta_{%d} \\geq 1$"%(l),
 		markersize=gv.marker_size,
+		linestyle = "None"
 	)
 	ax2.plot(
 		[],
@@ -104,6 +123,7 @@ def RelativeImprovement(xaxis, yaxes, plt, ax1, xlabel, only_points, l, annotati
 		color="red",
 		label="$\\delta_{%d}<1$"%(l),
 		markersize=gv.marker_size,
+		linestyle = "None"
 	)
 	ax2.legend(
 		numpoints=1,
@@ -207,11 +227,11 @@ def ChannelWisePlot(phymet, logmet, dbses, thresholds={"y": 10e-16, "x": 10e-16}
 				),
 				axis=0,
 			)
-			lis_dev = [yaxes[1, i]/yaxes[0, i] for i in include]
-			min_dev_ind = include[lis_dev.index(min(lis_dev)) ]
-			print("numerator = {}, denominator = {}".format(yaxes[1,lis_dev.index(min(lis_dev))],yaxes[0,lis_dev.index(min(lis_dev))]))
-			print("Minimum delta for level {} is {} for index {}".format(l,min(lis_dev),min_dev_ind))
-			print("Noise rate , sample : {}".format(dbses[d].available[min_dev_ind]))
+			deltas = yaxes[1, include]/yaxes[0, include]
+			min_delta_index = include[np.argmin(deltas)]
+			print("numerator = {}, denominator = {}".format(yaxes[1, min_delta_index], yaxes[0, min_delta_index]))
+			print("Minimum delta for level {}: {}, is achieved for channel {}.".format(l, np.min(deltas), min_delta_index))
+			print("Noise rate , sample : {}".format(dbses[d].available[min_delta_index, :]))
 			# Plot the relative improvements in an inset plot
 			RelativeImprovement(
 				settings[1]["xaxis"],

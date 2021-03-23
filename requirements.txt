@@ -1,2 +1,2 @@
 # Install the missing packages using pip install -r requirements.txt
-tensorflow>=2.4.0
+picos>=1.0

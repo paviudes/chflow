@@ -899,7 +899,7 @@ if __name__ == "__main__":
 
 		elif user[0] == "cplot":
 			# No documentation provided
-			thresholds = {"y": 10e-8, "x": 10e-16}
+			thresholds = {"y": 10e-12, "x": 10e-16}
 			dbses = [submit]
 			if len(user) > 5:
 				thresholds["x"] = np.power(0.1, int(user[5]))
