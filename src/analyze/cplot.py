@@ -97,7 +97,7 @@ def RelativeImprovement(xaxis, yaxes, plt, ax1, xlabel, only_points, l, annotati
 	ax2.set_xlabel(xlabel, fontsize=axes_label_fontsize )
 	ax2.set_ylabel("$\\delta_{%d}$" %(l), fontsize=axes_label_fontsize)
 	ax2.set_xscale("log")
-	ax2.set_yscale("log")
+	# ax2.set_yscale("log")
 	ax2.tick_params(
 		axis="both",
 		which="both",
