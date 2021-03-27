@@ -30,7 +30,7 @@ def LevelWisePlot(phylist, logmet, dsets, inset, flow, nbins, thresholds):
 	nphy = len(phylist)
 	ndb = len(dsets)
 	maxlevel = max([dsets[i].levels for i in range(ndb)])
-	plotfname = fn.LevelWise(dsets[0], "_".join(phylist), logmet)
+	plotfname = LevelWise(dsets[0], "_".join(phylist), logmet)
 	with PdfPages(plotfname) as pdf:
 		for l in range(1, 1 + maxlevel):
 			phlines = []
@@ -46,7 +46,7 @@ def LevelWisePlot(phylist, logmet, dsets, inset, flow, nbins, thresholds):
 					settings = {
 						"xaxis": None,
 						"xlabel": None,
-						"yaxis": np.load(fn.LogicalErrorRates(dsets[d], logmet))[:, l],
+						"yaxis": np.load(LogicalErrorRates(dsets[d], logmet))[:, l],
 						"ylabel": "$\\overline{%s_{%d}}$"
 						% (ml.Metrics[logmet]["latex"].replace("$", ""), l),
 						"color": gv.Colors[d % gv.n_Colors]
@@ -218,12 +218,12 @@ def AddFlowLines(ax1, dsets, pmet, lmet, level, include, nselect=10):
 	selected = np.random.choice(include[pmet], nselect)
 	scat1 = {}
 	LoadPhysicalErrorRates(dsets[0], pmet, scat1, level)
-	scat1["yaxis"] = np.load(fn.LogicalErrorRates(dsets[0], lmet))[selected, level]
+	scat1["yaxis"] = np.load(LogicalErrorRates(dsets[0], lmet))[selected, level]
 	scat1["xaxis"] = scat1["xaxis"][selected]
 	scat2 = {}
 	LoadPhysicalErrorRates(dsets[1], pmet, scat2, level)
 	scat2["xaxis"] = scat2["xaxis"][selected]
-	scat2["yaxis"] = np.load(fn.LogicalErrorRates(dsets[1], lmet))[selected, level]
+	scat2["yaxis"] = np.load(LogicalErrorRates(dsets[1], lmet))[selected, level]
 	ax1.plot(
 		scat1["xaxis"],
 		scat1["yaxis"],
@@ -255,7 +255,7 @@ def LevelWisePlot2D(phymets, logmet, dbs):
 	# Plot performance contours for the logical error rates for every concatenation level, with repect to the dephasing and relaxation rates.
 	# Each plot will be a contour plot or a color density plot indicating the logical error, with the x-axis as the dephasing rate and the y-axis as the relaxation rate.
 	# There will be one plot for every concatenation level.
-	logErr = np.load(fn.LogicalErrorRates(dbs, logmet, fmt="npy"))
+	logErr = np.load(LogicalErrorRates(dbs, logmet, fmt="npy"))
 	phylist = list(map(lambda phy: phy.strip(" "), phymets.split(",")))
 	phyerrs = np.zeros((dbs.channels, len(phylist)), dtype=np.longdouble)
 	plotdata = np.zeros((max(100, dbs.channels), len(phylist)), dtype=np.longdouble)
@@ -268,14 +268,14 @@ def LevelWisePlot2D(phymets, logmet, dbs):
 			if not (dbs.scales[m] == 1):
 				phyerrs[:, m] = np.power(dbs.scales[m], phyerrs[:, m])
 		else:
-			phyerrs[:, m] = np.load(fn.PhysicalErrorRates(dbs, phylist[m]))
+			phyerrs[:, m] = np.load(PhysicalErrorRates(dbs, phylist[m]))
 			phyparams.append(ml.Metrics[phylist[m]]["latex"])
 		plotdata[:, m] = np.linspace(
 			phyerrs[:, m].min(), phyerrs[:, m].max(), plotdata.shape[0]
 		)
 
 	(meshX, meshY) = np.meshgrid(plotdata[:, 0], plotdata[:, 1])
-	plotfname = fn.LevelWise(dbs, phymets.replace(",", "_"), logmet)
+	plotfname = LevelWise(dbs, phymets.replace(",", "_"), logmet)
 	with PdfPages(plotfname) as pdf:
 		nqubits = 1
 		dist = 1

@@ -570,7 +570,7 @@ def UncorrectableProb(channel, kwargs):
                 bias = np.power(kwargs["submit"].scales[1], kwargs["submit"].available[kwargs["channel_index"], 1])
             TailorDecoder(kwargs["qcode"][0], kwargs["submit"].channel, bias=bias)
             recompute = True
-        
+
     elif ((kwargs["corr"] == 1) or (kwargs["corr"] == 3)):
         pauliProbs = channel
     else:
@@ -584,7 +584,7 @@ def UncorrectableProb(channel, kwargs):
             )
     # print("Lookup table given to uncorrectable for bias = {}^{} = {}.\n{}".format(kwargs["submit"].scales[1], kwargs["submit"].available[kwargs["channel_index"], 1], bias, kwargs["qcode"][0].lookup))
     return uc.ComputeUnCorrProb(
-        pauliProbs, kwargs["qcode"], kwargs["levels"], leading_fraction=kwargs["alpha"], recompute=True
+        pauliProbs, kwargs["qcode"], kwargs["levels"], leading_fraction=kwargs["alpha"], recompute=recompute
     )
 
 

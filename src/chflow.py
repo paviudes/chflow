@@ -684,14 +684,13 @@ if __name__ == "__main__":
 					lower_cutoffs = np.repeat(
 						lower_cutoffs, submit.levels // lower_cutoffs.shape[0]
 					)
-				for c in range(upper_cutoffs.shape[0]):
-					thresholds.append(
-						{"upper": upper_cutoffs[c], "lower": lower_cutoffs[c]}
-					)
+
+					for c in range(upper_cutoffs.shape[0]):
+						thresholds.append(
+							{"upper": upper_cutoffs[c], "lower": lower_cutoffs[c]}
+						)
 				if len(thresholds) == 0:
-					thresholds = [
-						{"lower": 1e-9, "upper": 1e-2} for __ in submit.levels
-					]
+					thresholds = [{"lower": 1e-9, "upper": 1e-2} for __ in range(submit.levels)]
 				if check == 1:
 					print("Thresholds: {}".format(thresholds))
 					phylist = list(map(lambda phy: phy.strip(" "), user[1].split(",")))
