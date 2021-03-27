@@ -55,7 +55,8 @@ from define.fnames import (
 	DecodersInstancePlot,
 	DeviationPlotFile,
 	NRWeightsFile,
-	NRWeightsPlotFile
+	NRWeightsPlotFile,
+	CompareSubsPlot
 )
 from define.qcode import (
 	QuantumErrorCorrectingCode,
@@ -1381,6 +1382,11 @@ if __name__ == "__main__":
 			elif plot_option == "dciplot":
 				plot_file = DecodersInstancePlot(submit, phymet.split(",")[0], logmet)
 
+			elif plot_option == "compare":
+				# We will use phymet to denote the physical and logical metrics, separated by commas.
+				# We will use logmet to denote the timestamps of the remaining datasets.
+				plot_file = CompareSubsPlot(submit, logmet.split(","))
+			
 			else:
 				print("\033[2mUnknown plot option %s.\033[0m" % (plot_option))
 				continue

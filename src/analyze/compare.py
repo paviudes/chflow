@@ -28,7 +28,7 @@ def CompareSubs(pmet, lmet, *dbses):
     ndb = len(dbses)
     nlevels = min([dbs.levels for dbs in dbses])
 
-    plotfname = CompareSubsPlot(dbses)
+    plotfname = CompareSubsPlot(dbses[0], [dbs.timestamp for dbs in dbses[1:]])
     with PdfPages(plotfname) as pdf:
         ylimits = {"left": {"min": 1, "max": 0}, "right": {"min": 1, "max": 0}}
         for l in range(1, nlevels + 1):
