@@ -101,9 +101,9 @@ def CompareSubs(pmet, lmet, *dbses):
 
                 # legend
                 if (p == 0):
-                    ax.legend(loc="best", shadow=True, fontsize=1.4 * gv.legend_fontsize, markerscale=gv.legend_marker_scale, ncol=4)
+                    ax.legend(loc="best", shadow=True, fontsize=1.4 * gv.legend_fontsize, markerscale=gv.legend_marker_scale)
                 if (p == 1):
-                    ax_right.legend(loc="best", shadow=True, fontsize=1.4 * gv.legend_fontsize, markerscale=gv.legend_marker_scale, ncol=4)
+                    ax_right.legend(loc="best", shadow=True, fontsize=1.4 * gv.legend_fontsize, markerscale=gv.legend_marker_scale)
                 # Save the plot
                 pdf.savefig(fig)
                 plt.close()
