@@ -7,7 +7,8 @@ channel bpauli
 # Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
 repr process
 # Noise rate exponents. The actual noise rate is (2/3)^exponent.
-noiserange ./../input/vary_bias_bpauli_filtered.txt
+#noiserange 10,10,1;0.15,4.05,40
+noiserange ./../input/pavi_filtered.txt
 # Scales of noise range.
 scale 0.66,10.0
 # Number of samples
@@ -21,7 +22,7 @@ dcfraction 0
 # Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
 frame P
 # Number of syndromes to be sampled at top level
-stats [100,120,145,175,212,255,308,372,449,542,655,790,954,1151,1389,1676,2023,2442,2947,3556,4291,5179,6250,7543,9102,10985,13257,15998,19306,23299,28117,33932,40949,49417,59636,71968,86851,104811,126485,152641,184206,222299,268269,323745,390693,471486,568986,686648,828642,1000000]
+stats [100,126,159,202,255,323,409,517,655,828,1048,1325,1676,2120,2682,3393,4291,5428,6866,8685,10985,13894,17575,22229,28117,35564,44984,56898,71968,91029,115139,145634,184206,232995,294705,372759,471486,596362,754312,954095,1206792,1526417,1930697,2442053,3088843,3906939,4941713,6250551,7906043,10000000]
 # Importance sampling methods (Available options: ["N"] None, ["A"] Power law sampling, ["B"] Noisy channel)
 importance power
 # Metrics to be computed on the effective channels at every level.
@@ -43,7 +44,7 @@ queue X
 # Email notifications.
 email pavithran.sridhar@gmail.com
 # Output result's directory.
-outdir /Users/pavi/Documents/chbank
+outdir /home/oem/Documents/chbank
 # Randomized compiling of quantum gates.
 rc 0
 # Plot settings
