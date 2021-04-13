@@ -145,7 +145,7 @@ def DecoderInstanceCompare(
 
 	# The top xticklabels show the Pauli error budget left out in the NR data set.
 	alphas = np.array([dbs.decoder_fraction for dbs in dbses], dtype = np.float)
-	nr_weights = np.loadtxt(NRWeightsFile(dbses[0], noise), dtype = np.int)[sample, :]
+	nr_weights = np.load(NRWeightsFile(dbses[0], noise))[sample, :]
 	chan_probs = np.load(RawPhysicalChannel(dbses_input[0], noise))[sample, :]
 	budget_left = np.zeros(alphas.size, dtype = np.double)
 	for (i, alpha) in enumerate(alphas):
@@ -236,7 +236,8 @@ def DecoderInstanceCompare(
 				if (contains_minwt == 1):
 					minwt_perf = np.load(LogicalErrorRates(dbses_input[0], logmet))[ch, l]
 					# Add an empty plot for a legend entry.
-					ax1.plot([], [], linestyle="--", linewidth=gv.line_width, color="red", label="MWD")
+					# temporarily muting the legend - debug
+					# ax1.plot([], [], linestyle="--", linewidth=gv.line_width, color="red", label="MWD")
 					ax2.plot(
 						settings["xaxis"],
 						[minwt_perf] * len(settings["xaxis"]),
@@ -260,7 +261,7 @@ def DecoderInstanceCompare(
 					# 	rotation=30
 					# )
 					texts.append(ax1.text(settings["xaxis"][i], settings["yaxis"][i], "%d" % (budgets[-(i + 1)]), fontsize=gv.ticks_fontsize * 0.75))
-			
+
 			# Set xticks and labels
 			# xticklabels = [lab.get_text() for lab in ax1.get_xticklabels()]
 			# print("xticklabels\n{}".format(xticklabels))
@@ -314,21 +315,24 @@ def DecoderInstanceCompare(
 				axis="x",
 				labeltop=False
 			)
-			ax1.legend(
-				numpoints=1,
-				loc="best",
-				shadow=True,
-				fontsize=gv.legend_fontsize,
-				markerscale=gv.legend_marker_scale,
-			)
-
+			# temporarily muting the legend
+			# ax1.legend(
+			# 	numpoints=1,
+			# 	loc="best",
+			# 	shadow=True,
+			# 	fontsize=gv.legend_fontsize,
+			# 	markerscale=gv.legend_marker_scale,
+			# )
+			locmaj = ticker.LogLocator(base=10,numticks=1)
+			ax1.yaxis.set_major_locator(locmaj)
+			ax1.grid(axis='y',which='both')
 			AddKinkLine(ax2, ax1)
-			
+
 			ax1.set_xscale("log")
 			ax1.set_yscale("log")
 			ax2.set_xscale("log")
 			ax2.set_yscale("log")
-			
+
 			# Make non overlapping annotations
 			# https://stackoverflow.com/questions/19073683/matplotlib-overlapping-annotations-text
 			if (ADJUST == 1):
