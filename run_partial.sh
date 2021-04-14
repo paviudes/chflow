@@ -5,7 +5,7 @@ cluster="$2"
 
 if [[ -n ${cluster} ]]; then
 	cores=40 # 48 for cedar, 40 for beluga and 32 for graham
-	local_user=a77jain
+	local_user=pavi
 	if [[ $local_user == *"pavi"* ]]; then
 		email=pavithran.sridhar@gmail.com
 	elif [[ $local_user == *"a77jain"* ]]; then
@@ -35,7 +35,7 @@ if [[ $host == *"paviws"* ]]; then
 	# find . -maxdepth 1 -type d -name "pavi_beluga_cptp_l3_08_12_2020_*" -exec bash -c 'mv $0 ${0/cptp_l3_08_12_2020/cptp}' {} \;
 
 elif [[ $host == "pavitp" ]]; then
-	outdir="/home/pavi/Documents/chbank/aditya_cptp/cptp_l3"
+	outdir="/home/pavi/Documents/chbank"
 	chflowdir="/home/pavi/Documents/chflow"
 	cores=$(nproc --all)
 
