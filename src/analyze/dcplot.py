@@ -394,6 +394,7 @@ def RelativeDecoderInstanceCompare(
 			# 		latex_float(phyerrs[chids[0]]),
 			# 	),
 			# )
+			yaxes = np.zeros((ndb, len(chids)), dtype = np.double)
 			for (c, ch) in enumerate(chids):
 				# Load the minimum weight performance
 				minwt_perf = np.load(LogicalErrorRates(dbses_input[0], logmet))[ch, l]
@@ -404,7 +405,7 @@ def RelativeDecoderInstanceCompare(
 			nbins = len(bins)
 			yaxes_binned = np.zeros((ndb, nbins), dtype = np.double)
 
-			for b in enumerate(yaxes_binned.shape[1]):
+			for b in range(yaxes_binned.shape[1]):
 				for d in range(ndb - 1, -1, -1):
 					yaxes_binned[d, b] = np.mean(yaxes[d, bins[b]])
 				average_phymet = np.mean(phyerrs[bins[b]])
@@ -471,8 +472,8 @@ def RelativeDecoderInstanceCompare(
 
 			# Make non overlapping annotations
 			# https://stackoverflow.com/questions/19073683/matplotlib-overlapping-annotations-text
-			if (ADJUST == 1):
-				adjust_text(texts, only_move={'points':'y', 'texts':'y'}, expand_points=(1, 2), precision=0.05, arrowprops=dict(arrowstyle="->", color='r', lw=0.5))
+			# if (ADJUST == 1):
+			# 	adjust_text(texts, only_move={'points':'y', 'texts':'y'}, expand_points=(1, 2), precision=0.05, arrowprops=dict(arrowstyle="->", color='r', lw=0.5))
 
 			# Save the plot
 			pdf.savefig(fig)
