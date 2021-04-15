@@ -330,6 +330,7 @@ def AllocateBins(values, threshold_width=1):
 	# Output is a dictionary with bin index "g" refering to the indices in the array that belong to the bin g.
 	return bins
 
+
 def RelativeDecoderInstanceCompare(
 	phymet, logmet, dbses_input, chids = [0], thresholds={"y": 10e-16, "x": 10e-16}
 ):
@@ -363,10 +364,11 @@ def RelativeDecoderInstanceCompare(
 		(__, __, knownPaulis) = GetLeadingPaulis(alpha, qcode, chan_probs, "weight", nr_weights)
 		budget_left[i] = 1 - np.sum(knownPaulis)
 
+	bin_width = 10
 	with PdfPages(plotfname) as pdf:
 		for l in range(1, nlevels + 1):
 			phyerrs = np.load(PhysicalErrorRates(dbses[0], phymet))
-			print("phyerrs: {}".format(phyerrs))
+			# print("phyerrs: {}".format(phyerrs))
 			fig = plt.figure(figsize=gv.canvas_size)
 			ax1 = plt.gca()
 			# ax1.plot(
@@ -383,55 +385,50 @@ def RelativeDecoderInstanceCompare(
 			for (c, ch) in enumerate(chids):
 				# Load the minimum weight performance
 				minwt_perf = np.load(LogicalErrorRates(dbses_input[0], logmet))[ch, l]
-				settings = {
-					"xaxis": [],
-					"xlabel": "Remaining fraction of total probability",
-					"yaxis": [],
-					"ylabel": "$\\overline{%s_{%d}}$"
-					% (ml.Metrics[logmet]["latex"].replace("$", ""), l),
-					"color": gv.Colors[c % gv.n_Colors],
-					"marker": gv.Markers[c % gv.n_Markers],
-					"linestyle": "--",
-				}
 				for d in range(ndb - 1, -1, -1):
-					if dbses[d].decoders[l - 1] == 4:
-						settings["xaxis"].append(budget_left[d])
-						settings["yaxis"].append(minwt_perf/np.load(LogicalErrorRates(dbses[d], logmet))[ch, l])
-						# print("{} --- {}".format(int(dbses[d].decoder_fraction * (4 ** dbses[0].eccs[0].N)), dbses[d].timestamp))
-				sortorder = np.argsort(settings["xaxis"])
-				settings["xaxis"] = np.array(settings["xaxis"])[sortorder]
-				settings["yaxis"] = np.array(settings["yaxis"])[sortorder]
+					yaxes[d, ch] = minwt_perf/np.load(LogicalErrorRates(dbses[d], logmet))[ch, l]
+
+			bins = AllocateBins(phyerrs, bin_width)
+			nbins = len(bins)
+			yaxes_binned = np.zeros((ndb, nbins), dtype = np.double)
+
+			for b in enumerate(yaxes_binned.shape[1]):
+				for d in range(ndb - 1, -1, -1):
+					yaxes_binned[d, b] = np.mean(yaxes[d, bins[b]])
+				average_phymet = np.mean(phyerrs[bins[b]])
+				# sortorder = np.argsort(settings["xaxis"])
+				# settings["xaxis"] = np.array(settings["xaxis"])[sortorder]
+				# settings["yaxis"] = np.array(settings["yaxis"])[sortorder]
 				# Plotting
 				# print("X: {}\nY: {}\nMWD: {}".format(settings["xaxis"], settings["yaxis"], minwt))
 				plotobj = ax1.plot(
-					settings["xaxis"],
-					settings["yaxis"],
-					color=settings["color"],
+					budget_left[::-1],
+					yaxes_binned[:, b],
+					color=gv.Colors[b % gv.n_Colors],
 					alpha=0.75,
 					marker="o",  # settings["marker"]
 					markersize=gv.marker_size,
-					linestyle=settings["linestyle"],
+					linestyle="--",
 					linewidth=gv.line_width,
-					label="$%s = %s$" % (ml.Metrics[phymet]["latex"].replace("$", ""), latex_float(phyerrs[ch]))
-					# label="$\\mathcal{D}_{\\alpha}$",
+					label="$%s = %s$" % (ml.Metrics[phymet]["latex"].replace("$", ""), latex_float(average_phymet))
 				)
 				# print("X axis for dcplot\n{}".format(settings["xaxis"]))
 				
-				texts = []
-				for i in range(len(settings["xaxis"])):
-					texts.append(ax1.text(settings["xaxis"][i], settings["yaxis"][i], "%d" % (budgets[-(i + 1)]), fontsize=gv.ticks_fontsize * 0.75))
+				# texts = []
+				# for i in range(len(settings["xaxis"])):
+				# 	texts.append(ax1.text(settings["xaxis"][i], settings["yaxis"][i], "%d" % (budgets[-(i + 1)]), fontsize=gv.ticks_fontsize * 0.75))
 
 			# Set xticks and labels
 			ax1.invert_xaxis()
 
 			# Axes labels
 			ax1.set_xlabel(
-				settings["xlabel"],
+				"Remaining fraction of total probability",
 				fontsize=gv.axes_labels_fontsize * 0.8,
 				labelpad=gv.axes_labelpad,
 			)
 			ax1.set_ylabel(
-				settings["ylabel"],
+				"$\\overline{%s_{%d}}$" % (ml.Metrics[logmet]["latex"].replace("$", ""), l),
 				fontsize=gv.axes_labels_fontsize,
 				labelpad=gv.axes_labelpad,
 			)
