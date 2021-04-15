@@ -354,9 +354,9 @@ def RelativeDecoderInstanceCompare(
 	sample = int(dbses_input[0].available[chids[0], -1])
 	(budgets, uniques) = np.unique(np.array([GetTotalErrorBudget(dbs, noise, sample) for dbs in dbses_input[1:]], dtype=np.int), return_index=True)
 	# Add the entries for the minimum weight decoder.
-	if (np.prod(dbses_input[0].decoders) == 1):
-		budgets = np.concatenate(([0], budgets))
-		uniques = np.concatenate(([0], 1 + uniques))
+	# if (np.prod(dbses_input[0].decoders) == 1):
+	# 	budgets = np.concatenate(([0], budgets))
+	# 	uniques = np.concatenate(([0], 1 + uniques))
 
 	# print("budgets = {}".format(budgets))
 
@@ -376,13 +376,13 @@ def RelativeDecoderInstanceCompare(
 		(__, __, knownPaulis) = GetLeadingPaulis(alpha, qcode, chan_probs, "weight", nr_weights)
 		budget_left[i] = 1 - np.sum(knownPaulis)
 
+	phyerrs = np.load(PhysicalErrorRates(dbses_input[0], phymet))[chids]
+	# print("phyerrs: {}".format(phyerrs))
 	bin_width = 5
 	with PdfPages(plotfname) as pdf:
 		for l in range(1, nlevels + 1):
-			phyerrs = np.load(PhysicalErrorRates(dbses[0], phymet))[chids]
-			# print("phyerrs: {}".format(phyerrs))
 			fig = plt.figure(figsize=gv.canvas_size)
-			ax1 = plt.gca()
+			ax = plt.gca()
 			yaxes = np.zeros((ndb, len(chids)), dtype = np.double)
 			for (c, ch) in enumerate(chids):
 				# Load the minimum weight performance
@@ -401,7 +401,7 @@ def RelativeDecoderInstanceCompare(
 					yaxes_binned[d, b] = np.median(yaxes[d, bins[b]])
 				average_phymet = np.median(phyerrs[bins[b]])
 				# Plotting
-				plotobj = ax1.plot(
+				plotobj = ax.plot(
 					budget_left,
 					yaxes_binned[:, b],
 					color=gv.Colors[b % gv.n_Colors],
@@ -414,23 +414,23 @@ def RelativeDecoderInstanceCompare(
 				)
 				texts = []
 				for d in range(ndb):
-					texts.append(ax1.text(budget_left[d], yaxes_binned[d, b], "%d" % (budgets[d]), fontsize=gv.ticks_fontsize * 0.75))
+					texts.append(ax.text(budget_left[d], yaxes_binned[d, b], "%d" % (budgets[d]), fontsize=gv.ticks_fontsize * 0.75))
 
 			# Set xticks and labels
-			ax1.invert_xaxis()
+			ax.invert_xaxis()
 
 			# Axes labels
-			ax1.set_xlabel(
+			ax.set_xlabel(
 				"Remaining fraction of total probability",
 				fontsize=gv.axes_labels_fontsize * 0.8,
 				labelpad=gv.axes_labelpad,
 			)
-			ax1.set_ylabel(
+			ax.set_ylabel(
 				"$\\overline{%s_{%d}}$" % (ml.Metrics[logmet]["latex"].replace("$", ""), l),
 				fontsize=gv.axes_labels_fontsize,
 				labelpad=gv.axes_labelpad,
 			)
-			ax1.tick_params(
+			ax.tick_params(
 				axis="both",
 				which="both",
 				pad=gv.ticks_pad,
@@ -440,7 +440,7 @@ def RelativeDecoderInstanceCompare(
 				labelsize=gv.ticks_fontsize,
 			)
 			# temporarily muting the legend
-			ax1.legend(
+			ax.legend(
 				numpoints=1,
 				loc="upper center",
 				ncol=4,
@@ -448,12 +448,8 @@ def RelativeDecoderInstanceCompare(
 				fontsize=gv.legend_fontsize,
 				markerscale=gv.legend_marker_scale,
 			)
-			locmaj = ticker.LogLocator(base=10,numticks=1)
-			ax1.yaxis.set_major_locator(locmaj)
-			ax1.grid(axis='y',which='both')
-
-			ax1.set_xscale("log")
-			ax1.set_yscale("log")
+			ax.set_xscale("log")
+			ax.set_yscale("log")
 
 			# Make non overlapping annotations
 			# https://stackoverflow.com/questions/19073683/matplotlib-overlapping-annotations-text

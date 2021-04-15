@@ -121,7 +121,7 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity, rawchan=None
 		dtype=np.int32,
 	)
 
-	if (submit.decoders)[0] == 3 or (submit.decoders)[0] == 4: # Introduced decoder 4 to capture top alpha grouped by weight
+	if ((submit.decoders)[0] == 3 or (submit.decoders)[0] == 4): # Introduced decoder 4 to capture top alpha grouped by weight
 		if submit.iscorr == 0:
 			chan_probs = np.tile(
 				np.real(np.diag(ConvertRepresentations(physical, "process", "chi"))),
