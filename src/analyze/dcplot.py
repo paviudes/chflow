@@ -139,7 +139,7 @@ def DecoderInstanceCompare(
 	ndb = len(dbses)
 	plotfname = DecodersInstancePlot(dbses_input[0], phymet, logmet)
 	nlevels = max([db.levels for db in dbses])
-	
+
 	# max_budget = np.sum([comb(dbses[0].eccs[0].N, i) * 3**i for i in range(max_weight + 1)])/4**dbses[0].eccs[0].N
 
 	# The top xticklabels show the Pauli error budget left out in the NR data set.
@@ -325,10 +325,22 @@ def DecoderInstanceCompare(
 	return None
 
 
-def AllocateBins(values, threshold_width=1):
-	# Arrange the values into bins, each of which have a threshold (max) width.
-	# Output is a dictionary with bin index "g" refering to the indices in the array that belong to the bin g.
-	return bins
+def AllocateBins(values, threshold_width=10):
+    # Arrange the values into bins, each of which have a threshold (max) width.
+    # Output is a dictionary with bin index "g" refering to the indices in the array that belong to the bin g.
+    sort_index = np.argsort(values)
+    bins = {}
+    bin_count = 0
+    current_bin_min = values[sort_index[0]]
+    for i in sort_index:
+        if(values[i] > threshold_width * current_bin_min):
+            bin_count += 1
+        if bin_count in bins:
+            bins[bin_count].append(i)
+        else:
+            bins[bin_count] = [i]
+            current_bin_min = values[i]
+    return bins
 
 
 def RelativeDecoderInstanceCompare(
@@ -352,7 +364,7 @@ def RelativeDecoderInstanceCompare(
 	ndb = len(dbses)
 	plotfname = DecodersInstancePlot(dbses_input[0], phymet, logmet)
 	nlevels = max([db.levels for db in dbses])
-	
+
 	# max_budget = np.sum([comb(dbses[0].eccs[0].N, i) * 3**i for i in range(max_weight + 1)])/4**dbses[0].eccs[0].N
 
 	# The top xticklabels show the Pauli error budget left out in the NR data set.
@@ -413,7 +425,7 @@ def RelativeDecoderInstanceCompare(
 					label="$%s = %s$" % (ml.Metrics[phymet]["latex"].replace("$", ""), latex_float(average_phymet))
 				)
 				# print("X axis for dcplot\n{}".format(settings["xaxis"]))
-				
+
 				# texts = []
 				# for i in range(len(settings["xaxis"])):
 				# 	texts.append(ax1.text(settings["xaxis"][i], settings["yaxis"][i], "%d" % (budgets[-(i + 1)]), fontsize=gv.ticks_fontsize * 0.75))
@@ -453,10 +465,10 @@ def RelativeDecoderInstanceCompare(
 			locmaj = ticker.LogLocator(base=10,numticks=1)
 			ax1.yaxis.set_major_locator(locmaj)
 			ax1.grid(axis='y',which='both')
-			
+
 			ax1.set_xscale("log")
 			ax1.set_yscale("log")
-			
+
 			# Make non overlapping annotations
 			# https://stackoverflow.com/questions/19073683/matplotlib-overlapping-annotations-text
 			if (ADJUST == 1):
