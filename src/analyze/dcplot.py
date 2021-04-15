@@ -139,8 +139,7 @@ def DecoderInstanceCompare(
 	ndb = len(dbses)
 	plotfname = DecodersInstancePlot(dbses_input[0], phymet, logmet)
 	nlevels = max([db.levels for db in dbses])
-	phyerrs = np.load(PhysicalErrorRates(dbses[0], phymet))
-
+	
 	# max_budget = np.sum([comb(dbses[0].eccs[0].N, i) * 3**i for i in range(max_weight + 1)])/4**dbses[0].eccs[0].N
 
 	# The top xticklabels show the Pauli error budget left out in the NR data set.
@@ -158,6 +157,8 @@ def DecoderInstanceCompare(
 
 	with PdfPages(plotfname) as pdf:
 		for l in range(1, nlevels + 1):
+			phyerrs = np.load(PhysicalErrorRates(dbses[0], phymet))[:, l-1]
+			print("phyerrs: {}".format(phyerrs))
 			# fig = plt.figure(figsize=gv.canvas_size)
 			# ax1 = plt.gca()
 			(fig, (ax2, ax1)) = plt.subplots(2, 1, sharex=True, figsize=extended, gridspec_kw={'height_ratios': [1, 3]})
@@ -195,19 +196,9 @@ def DecoderInstanceCompare(
 							label="MLD",
 						)
 					elif dbses[d].decoders[l - 1] == 1:
-						# minwt = np.load(LogicalErrorRates(dbses[d], logmet))[ch, l]
-						# ax2.axhline(
-						# 	y=np.load(LogicalErrorRates(dbses[d], logmet))[ch, l],
-						# 	linestyle="--",
-						# 	linewidth=gv.line_width,
-						# 	color="red",
-						# 	label="MWD",
-						# )
 						contains_minwt = 1
 					else:
-						# settings["xaxis"].append(budgets[d]/(4**dbses[0].eccs[0].N))
 						settings["xaxis"].append(budget_left[d])
-						# budget_left
 						settings["yaxis"].append(
 							np.load(LogicalErrorRates(dbses[d], logmet))[ch, l]
 						)
@@ -226,12 +217,8 @@ def DecoderInstanceCompare(
 					markersize=gv.marker_size,
 					linestyle=settings["linestyle"],
 					linewidth=gv.line_width,
-					# label="$%s = %s$"
-					# % (
-					#     ml.Metrics[phymet]["latex"].replace("$", ""),
-					#     latex_float(phyerrs[ch]),
-					# ),
-					label="$\\mathcal{D}_{\\alpha}$",
+					label="$%s = %s$" % (ml.Metrics[phymet]["latex"].replace("$", ""), latex_float(phyerrs[ch]))
+					# label="$\\mathcal{D}_{\\alpha}$",
 				)
 				if (contains_minwt == 1):
 					minwt_perf = np.load(LogicalErrorRates(dbses_input[0], logmet))[ch, l]
@@ -253,20 +240,9 @@ def DecoderInstanceCompare(
 				# print("X axis for dcplot\n{}".format(settings["xaxis"]))
 				texts = []
 				for i in range(len(settings["xaxis"])):
-					# ax1.annotate(
-					# 	"%d" % (budgets[-(i + 1)]),
-					# 	(settings["xaxis"][i] * 1.02, settings["yaxis"][i] * 1.02),
-					# 	color="k",
-					# 	fontsize=gv.ticks_fontsize,
-					# 	rotation=30
-					# )
 					texts.append(ax1.text(settings["xaxis"][i], settings["yaxis"][i], "%d" % (budgets[-(i + 1)]), fontsize=gv.ticks_fontsize * 0.75))
 
 			# Set xticks and labels
-			# xticklabels = [lab.get_text() for lab in ax1.get_xticklabels()]
-			# print("xticklabels\n{}".format(xticklabels))
-			# ax1.set_xticks(settings["xaxis"])
-			# ax1.set_xticklabels(xticklabels)
 			ax1.invert_xaxis()
 
 			# Set the y axis limits
@@ -279,7 +255,6 @@ def DecoderInstanceCompare(
 			ax1.spines['top'].set_visible(False)
 			ax2.spines['bottom'].set_visible(False)
 			ax2.xaxis.tick_top()
-			# ax2.tick_params(labeltop='off')
 			ax1.xaxis.tick_bottom()
 
 			# Axes labels
@@ -316,13 +291,14 @@ def DecoderInstanceCompare(
 				labeltop=False
 			)
 			# temporarily muting the legend
-			# ax1.legend(
-			# 	numpoints=1,
-			# 	loc="best",
-			# 	shadow=True,
-			# 	fontsize=gv.legend_fontsize,
-			# 	markerscale=gv.legend_marker_scale,
-			# )
+			ax1.legend(
+				numpoints=1,
+				loc="upper center",
+				ncol=4,
+				shadow=True,
+				fontsize=gv.legend_fontsize,
+				markerscale=gv.legend_marker_scale,
+			)
 			locmaj = ticker.LogLocator(base=10,numticks=1)
 			ax1.yaxis.set_major_locator(locmaj)
 			ax1.grid(axis='y',which='both')
@@ -333,6 +309,157 @@ def DecoderInstanceCompare(
 			ax2.set_xscale("log")
 			ax2.set_yscale("log")
 
+			# Make non overlapping annotations
+			# https://stackoverflow.com/questions/19073683/matplotlib-overlapping-annotations-text
+			if (ADJUST == 1):
+				adjust_text(texts, only_move={'points':'y', 'texts':'y'}, expand_points=(1, 2), precision=0.05, arrowprops=dict(arrowstyle="->", color='r', lw=0.5))
+
+			# Save the plot
+			pdf.savefig(fig)
+			plt.close()
+		# Set PDF attributes
+		pdfInfo = pdf.infodict()
+		pdfInfo["Title"] = "Comparing different decoders"
+		pdfInfo["Author"] = "Pavithran Iyer"
+		pdfInfo["ModDate"] = dt.datetime.today()
+	return None
+
+
+def AllocateBins(values, threshold_width=1):
+	# Arrange the values into bins, each of which have a threshold (max) width.
+	# Output is a dictionary with bin index "g" refering to the indices in the array that belong to the bin g.
+	return bins
+
+def RelativeDecoderInstanceCompare(
+	phymet, logmet, dbses_input, chids = [0], thresholds={"y": 10e-16, "x": 10e-16}
+):
+	# Compare performance of various decoders.
+	# Only show alpha values that correspond to distinct number of Pauli error rates.
+	qcode = dbses_input[0].eccs[0]
+	max_weight = 1 + qcode.N//2
+	noise = dbses_input[0].available[chids[0], :-1]
+	sample = int(dbses_input[0].available[chids[0], -1])
+	(budgets, uniques) = np.unique(np.array([GetTotalErrorBudget(dbs, noise, sample) for dbs in dbses_input[1:]], dtype=np.int), return_index=True)
+	# Add the entries for the minimum weight decoder.
+	if (np.prod(dbses_input[0].decoders) == 1):
+		budgets = np.concatenate(([0], budgets))
+		uniques = np.concatenate(([0], 1 + uniques))
+
+	# print("budgets = {}".format(budgets))
+
+	dbses = [dbses_input[d] for d in uniques]
+	ndb = len(dbses)
+	plotfname = DecodersInstancePlot(dbses_input[0], phymet, logmet)
+	nlevels = max([db.levels for db in dbses])
+	
+	# max_budget = np.sum([comb(dbses[0].eccs[0].N, i) * 3**i for i in range(max_weight + 1)])/4**dbses[0].eccs[0].N
+
+	# The top xticklabels show the Pauli error budget left out in the NR data set.
+	alphas = np.array([dbs.decoder_fraction for dbs in dbses], dtype = np.float)
+	nr_weights = np.load(NRWeightsFile(dbses[0], noise))[sample, :]
+	chan_probs = np.load(RawPhysicalChannel(dbses_input[0], noise))[sample, :]
+	budget_left = np.zeros(alphas.size, dtype = np.double)
+	for (i, alpha) in enumerate(alphas):
+		(__, __, knownPaulis) = GetLeadingPaulis(alpha, qcode, chan_probs, "weight", nr_weights)
+		budget_left[i] = 1 - np.sum(knownPaulis)
+
+	with PdfPages(plotfname) as pdf:
+		for l in range(1, nlevels + 1):
+			phyerrs = np.load(PhysicalErrorRates(dbses[0], phymet))
+			print("phyerrs: {}".format(phyerrs))
+			fig = plt.figure(figsize=gv.canvas_size)
+			ax1 = plt.gca()
+			# ax1.plot(
+			# 	[],
+			# 	[],
+			# 	color="k",
+			# 	linestyle="--",
+			# 	label="$%s = %s$"
+			# 	% (
+			# 		ml.Metrics[phymet]["latex"].replace("$", ""),
+			# 		latex_float(phyerrs[chids[0]]),
+			# 	),
+			# )
+			for (c, ch) in enumerate(chids):
+				# Load the minimum weight performance
+				minwt_perf = np.load(LogicalErrorRates(dbses_input[0], logmet))[ch, l]
+				settings = {
+					"xaxis": [],
+					"xlabel": "Remaining fraction of total probability",
+					"yaxis": [],
+					"ylabel": "$\\overline{%s_{%d}}$"
+					% (ml.Metrics[logmet]["latex"].replace("$", ""), l),
+					"color": gv.Colors[c % gv.n_Colors],
+					"marker": gv.Markers[c % gv.n_Markers],
+					"linestyle": "--",
+				}
+				for d in range(ndb - 1, -1, -1):
+					if dbses[d].decoders[l - 1] == 4:
+						settings["xaxis"].append(budget_left[d])
+						settings["yaxis"].append(minwt_perf/np.load(LogicalErrorRates(dbses[d], logmet))[ch, l])
+						# print("{} --- {}".format(int(dbses[d].decoder_fraction * (4 ** dbses[0].eccs[0].N)), dbses[d].timestamp))
+				sortorder = np.argsort(settings["xaxis"])
+				settings["xaxis"] = np.array(settings["xaxis"])[sortorder]
+				settings["yaxis"] = np.array(settings["yaxis"])[sortorder]
+				# Plotting
+				# print("X: {}\nY: {}\nMWD: {}".format(settings["xaxis"], settings["yaxis"], minwt))
+				plotobj = ax1.plot(
+					settings["xaxis"],
+					settings["yaxis"],
+					color=settings["color"],
+					alpha=0.75,
+					marker="o",  # settings["marker"]
+					markersize=gv.marker_size,
+					linestyle=settings["linestyle"],
+					linewidth=gv.line_width,
+					label="$%s = %s$" % (ml.Metrics[phymet]["latex"].replace("$", ""), latex_float(phyerrs[ch]))
+					# label="$\\mathcal{D}_{\\alpha}$",
+				)
+				# print("X axis for dcplot\n{}".format(settings["xaxis"]))
+				
+				texts = []
+				for i in range(len(settings["xaxis"])):
+					texts.append(ax1.text(settings["xaxis"][i], settings["yaxis"][i], "%d" % (budgets[-(i + 1)]), fontsize=gv.ticks_fontsize * 0.75))
+
+			# Set xticks and labels
+			ax1.invert_xaxis()
+
+			# Axes labels
+			ax1.set_xlabel(
+				settings["xlabel"],
+				fontsize=gv.axes_labels_fontsize * 0.8,
+				labelpad=gv.axes_labelpad,
+			)
+			ax1.set_ylabel(
+				settings["ylabel"],
+				fontsize=gv.axes_labels_fontsize,
+				labelpad=gv.axes_labelpad,
+			)
+			ax1.tick_params(
+				axis="both",
+				which="both",
+				pad=gv.ticks_pad,
+				direction="inout",
+				length=gv.ticks_length,
+				width=gv.ticks_width,
+				labelsize=gv.ticks_fontsize,
+			)
+			# temporarily muting the legend
+			ax1.legend(
+				numpoints=1,
+				loc="upper center",
+				ncol=4,
+				shadow=True,
+				fontsize=gv.legend_fontsize,
+				markerscale=gv.legend_marker_scale,
+			)
+			locmaj = ticker.LogLocator(base=10,numticks=1)
+			ax1.yaxis.set_major_locator(locmaj)
+			ax1.grid(axis='y',which='both')
+			
+			ax1.set_xscale("log")
+			ax1.set_yscale("log")
+			
 			# Make non overlapping annotations
 			# https://stackoverflow.com/questions/19073683/matplotlib-overlapping-annotations-text
 			if (ADJUST == 1):

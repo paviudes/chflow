@@ -3,6 +3,8 @@ host=$(hostname)
 # echo "Host: $host"
 cluster="$2"
 
+OS=$(uname -s)
+
 if [[ -n ${cluster} ]]; then
 	cores=40 # 48 for cedar, 40 for beluga and 32 for graham
 	local_user=pavi
@@ -20,8 +22,8 @@ if [[ $host == *"paviws"* ]]; then
 	outdir="/Users/pavi/Documents/chbank"
 	chflowdir="/Users/pavi/Documents/rclearn/chflow"
 	report_dir="/Users/pavi/OneDrive\ -\ University\ of\ Waterloo/chbank/Nov4"
-	sed_prepend=' '
 	# CPTP
+	pavi_ws_cptp_level2=("pavi_ws_cptp_l2_00" "pavi_ws_cptp_l2_01" "pavi_ws_cptp_l2_02" "pavi_ws_cptp_l2_03" "pavi_ws_cptp_l2_04" "pavi_ws_cptp_l2_05" "pavi_ws_cptp_l2_06" "pavi_ws_cptp_l2_07" "pavi_ws_cptp_l2_08" "pavi_ws_cptp_l2_09" "pavi_ws_cptp_l2_10" "pavi_ws_cptp_l2_11")
 	pavi_ws_cptp_level3=("pavi_ws_cptp_l3_00" "pavi_ws_cptp_l3_01" "pavi_ws_cptp_l3_02" "pavi_ws_cptp_l3_03" "pavi_ws_cptp_l3_04" "pavi_ws_cptp_l3_05" "pavi_ws_cptp_l3_06" "pavi_ws_cptp_l3_07" "pavi_ws_cptp_l3_08" "pavi_ws_cptp_l3_09" "pavi_ws_cptp_l3_10" "pavi_ws_cptp_l3_11")
 	alphas_pavi=(0 0.0002 0.0004 0.0008 0.0016 0.0032 0.0063 0.0126 0.0251 0.0501 0.1 1)
 	# Biased Pauli with different codes
@@ -118,8 +120,8 @@ rerun() {
 
 replace() {
 	# run sed to replace a substring with another.
-	if [[ -n ${sed_prepend} ]]; then
-		sed -i "${sed_prepend}" "s/$1/$2/g" $3
+	if [[ ${OS} == "Darwin" ]]; then
+		sed -i.bu "s/$1/$2/g" $3
 	else
 		sed -i "s/$1/$2/g" $3
 	fi
@@ -133,9 +135,9 @@ usage() {
 	printf "\033[0m"
 }
 
-timestamps=("${bpauli_bias[@]}")
-alphas=("${alphas_aditya[@]}")
-log=vary_bias_bpauli
+timestamps=("${pavi_ws_cptp_level2[@]}")
+alphas=("${alphas_pavi[@]}")
+log=pavi_ws_cptp_level2
 refts=${timestamps[0]}
 
 if [[ "$1" == "overwrite" ]]; then
@@ -301,8 +303,6 @@ elif [[ "$1" == "generate_decoder" ]]; then
 	done
 	printf "\033[0m"
 
-
-
 elif [[ "$1" == "archive" ]]; then
 	printf "\033[2m"
 	echo "Reports in ${report_dir}"
@@ -419,9 +419,9 @@ elif [[ "$1" == "plot" ]]; then
 	printf "\033[2m"
 	echo "sbload ${refts}" > input/temp.txt
 	printf -v joined_timestamps '%s,' "${timestamps[@]:1}"
-	echo "nrplot 0 0 ${joined_timestamps%?}" >> input/temp.txt
-	echo "dciplot infid infid ${joined_timestamps%?} 0" >> input/temp.txt
-	echo "mcplot infid infid 0,1 0 ${joined_timestamps%?}" >> input/temp.txt
+	# echo "nrplot 0 0 ${joined_timestamps%?}" >> input/temp.txt
+	echo "dciplot infid infid ${joined_timestamps%?} 12;24;1" >> input/temp.txt
+	# echo "mcplot infid infid 0,1 0 ${joined_timestamps%?}" >> input/temp.txt
 	echo "quit" >> input/temp.txt
 	./chflow.sh -- temp.txt
 	rm input/temp.txt

@@ -90,7 +90,7 @@ from define.QECCLfid.utils import GetErrorProbabilities
 
 from analyze.collect import IsComplete, GatherLogErrData, AddPhysicalRates
 from analyze.cplot import ChannelWisePlot
-from analyze.dcplot import DecoderCompare, DecoderInstanceCompare
+from analyze.dcplot import DecoderCompare, DecoderInstanceCompare, RelativeDecoderInstanceCompare
 from analyze.dvplot import PlotDeviationYX
 from analyze.lplot import LevelWisePlot, LevelWisePlot2D
 from analyze.statplot import MCStatsPlot
@@ -751,9 +751,13 @@ if __name__ == "__main__":
 						GatherLogErrData(dbses[i + 1])
 			chids = list(range(submit.available.shape[0]))
 			if len(user) > 4:
-				chids = list(map(int, user[4].split(",")))
-			print("Doing dciplot for chids {} from available {}".format(chids, submit.available))
-			DecoderInstanceCompare(pmet, lmet, dbses, chids)
+				if (";" in user[4]):
+					chids = np.arange(*list(map(int, user[4].split(";"))), dtype = np.int)
+				else:
+					chids = list(map(int, user[4].split(",")))
+			# print("Doing dciplot for chids {} from available {}".format(chids, submit.available))
+			print("Doing dciplot for chids {} out of the {} available channels.".format(chids, submit.channels))
+			RelativeDecoderInstanceCompare(pmet, lmet, dbses, chids)
 
 
 		#####################################################################
