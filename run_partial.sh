@@ -420,7 +420,7 @@ elif [[ "$1" == "plot" ]]; then
 	echo "sbload ${refts}" > input/temp.txt
 	printf -v joined_timestamps '%s,' "${timestamps[@]:1}"
 	# echo "nrplot 0 0 ${joined_timestamps%?}" >> input/temp.txt
-	echo "dciplot infid infid ${joined_timestamps%?} 12;24;1" >> input/temp.txt
+	echo "dciplot infid infid ${joined_timestamps%?} 0;48;1" >> input/temp.txt
 	# echo "mcplot infid infid 0,1 0 ${joined_timestamps%?}" >> input/temp.txt
 	echo "quit" >> input/temp.txt
 	./chflow.sh -- temp.txt

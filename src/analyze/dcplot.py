@@ -376,46 +376,33 @@ def RelativeDecoderInstanceCompare(
 		(__, __, knownPaulis) = GetLeadingPaulis(alpha, qcode, chan_probs, "weight", nr_weights)
 		budget_left[i] = 1 - np.sum(knownPaulis)
 
-	bin_width = 10
+	bin_width = 5
 	with PdfPages(plotfname) as pdf:
 		for l in range(1, nlevels + 1):
-			phyerrs = np.load(PhysicalErrorRates(dbses[0], phymet))
+			phyerrs = np.load(PhysicalErrorRates(dbses[0], phymet))[chids]
 			# print("phyerrs: {}".format(phyerrs))
 			fig = plt.figure(figsize=gv.canvas_size)
 			ax1 = plt.gca()
-			# ax1.plot(
-			# 	[],
-			# 	[],
-			# 	color="k",
-			# 	linestyle="--",
-			# 	label="$%s = %s$"
-			# 	% (
-			# 		ml.Metrics[phymet]["latex"].replace("$", ""),
-			# 		latex_float(phyerrs[chids[0]]),
-			# 	),
-			# )
 			yaxes = np.zeros((ndb, len(chids)), dtype = np.double)
 			for (c, ch) in enumerate(chids):
 				# Load the minimum weight performance
 				minwt_perf = np.load(LogicalErrorRates(dbses_input[0], logmet))[ch, l]
-				for d in range(ndb - 1, -1, -1):
-					yaxes[d, ch] = minwt_perf/np.load(LogicalErrorRates(dbses[d], logmet))[ch, l]
+				for d in range(ndb):
+					yaxes[d, c] = minwt_perf/np.load(LogicalErrorRates(dbses[d], logmet))[ch, l]
 
 			bins = AllocateBins(phyerrs, bin_width)
 			nbins = len(bins)
 			yaxes_binned = np.zeros((ndb, nbins), dtype = np.double)
 
+			# print("phyerrs\n{}\nbin_width = {}\nbins\n{}".format(phyerrs, bin_width, bins))
+
 			for b in range(yaxes_binned.shape[1]):
-				for d in range(ndb - 1, -1, -1):
-					yaxes_binned[d, b] = np.mean(yaxes[d, bins[b]])
-				average_phymet = np.mean(phyerrs[bins[b]])
-				# sortorder = np.argsort(settings["xaxis"])
-				# settings["xaxis"] = np.array(settings["xaxis"])[sortorder]
-				# settings["yaxis"] = np.array(settings["yaxis"])[sortorder]
+				for d in range(ndb):
+					yaxes_binned[d, b] = np.median(yaxes[d, bins[b]])
+				average_phymet = np.median(phyerrs[bins[b]])
 				# Plotting
-				# print("X: {}\nY: {}\nMWD: {}".format(settings["xaxis"], settings["yaxis"], minwt))
 				plotobj = ax1.plot(
-					budget_left[::-1],
+					budget_left,
 					yaxes_binned[:, b],
 					color=gv.Colors[b % gv.n_Colors],
 					alpha=0.75,
@@ -425,11 +412,9 @@ def RelativeDecoderInstanceCompare(
 					linewidth=gv.line_width,
 					label="$%s = %s$" % (ml.Metrics[phymet]["latex"].replace("$", ""), latex_float(average_phymet))
 				)
-				# print("X axis for dcplot\n{}".format(settings["xaxis"]))
-
-				# texts = []
-				# for i in range(len(settings["xaxis"])):
-				# 	texts.append(ax1.text(settings["xaxis"][i], settings["yaxis"][i], "%d" % (budgets[-(i + 1)]), fontsize=gv.ticks_fontsize * 0.75))
+				texts = []
+				for d in range(ndb):
+					texts.append(ax1.text(budget_left[d], yaxes_binned[d, b], "%d" % (budgets[d]), fontsize=gv.ticks_fontsize * 0.75))
 
 			# Set xticks and labels
 			ax1.invert_xaxis()
