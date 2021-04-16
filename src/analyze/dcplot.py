@@ -370,15 +370,9 @@ def RelativeDecoderInstanceCompare(
 	# The top xticklabels show the Pauli error budget left out in the NR data set.
 	alphas = np.array([dbs.decoder_fraction for dbs in dbses], dtype = np.float)
 	nr_weights = np.load(NRWeightsFile(dbses[0], noise))[sample, :]
-	chan_probs = np.load(RawPhysicalChannel(dbses_input[0], noise))[sample, :]
-	budget_left = np.zeros(alphas.size, dtype = np.double)
-	for (i, alpha) in enumerate(alphas):
-		(__, __, knownPaulis) = GetLeadingPaulis(alpha, qcode, chan_probs, "weight", nr_weights)
-		budget_left[i] = 1 - np.sum(knownPaulis)
-
 	phyerrs = np.load(PhysicalErrorRates(dbses_input[0], phymet))[chids]
 	# print("phyerrs: {}".format(phyerrs))
-	bin_width = 5
+	bin_width = 1
 	with PdfPages(plotfname) as pdf:
 		for l in range(1, nlevels + 1):
 			fig = plt.figure(figsize=gv.canvas_size)
@@ -390,23 +384,35 @@ def RelativeDecoderInstanceCompare(
 				for d in range(ndb):
 					yaxes[d, c] = minwt_perf/np.load(LogicalErrorRates(dbses[d], logmet))[ch, l]
 
+			budget_left = np.zeros((ndb, len(chids)), dtype = np.double)
+			for (c, ch) in enumerate(chids):
+				noise = dbses[0].available[chids[ch], :-1]
+				sample = int(dbses[0].available[chids[ch], -1])
+				chan_probs = np.load(RawPhysicalChannel(dbses_input[0], noise))[sample, :]
+				for (d, alpha) in enumerate(alphas):
+					(__, __, knownPaulis) = GetLeadingPaulis(alpha, qcode, chan_probs, "weight", nr_weights)
+					budget_left[d, c] = 1 - np.sum(knownPaulis)
+
 			bins = AllocateBins(phyerrs, bin_width)
 			nbins = len(bins)
 			yaxes_binned = np.zeros((ndb, nbins), dtype = np.double)
+			budgets_left_binned = np.zeros((ndb, nbins), dtype = np.double)
 
-			# print("phyerrs\n{}\nbin_width = {}\nbins\n{}".format(phyerrs, bin_width, bins))
+			print("phyerrs\n{}\nbin_width = {}\nbins\n{}".format(phyerrs, bin_width, bins))
 
 			for b in range(yaxes_binned.shape[1]):
 				for d in range(ndb):
 					yaxes_binned[d, b] = np.median(yaxes[d, bins[b]])
+					budgets_left_binned[d, b] = np.median(budget_left[d, bins[b]])
 				average_phymet = np.median(phyerrs[bins[b]])
+				print("Curve {}\nX\n{}\nY\n{}".format(b, budget_left, yaxes_binned[:, b]))
 				# Plotting
 				plotobj = ax.plot(
-					budget_left,
+					budgets,
 					yaxes_binned[:, b],
 					color=gv.Colors[b % gv.n_Colors],
 					alpha=0.75,
-					marker="o",  # settings["marker"]
+					marker="o",
 					markersize=gv.marker_size,
 					linestyle="--",
 					linewidth=gv.line_width,
@@ -414,14 +420,11 @@ def RelativeDecoderInstanceCompare(
 				)
 				texts = []
 				for d in range(ndb):
-					texts.append(ax.text(budget_left[d], yaxes_binned[d, b], "%d" % (budgets[d]), fontsize=gv.ticks_fontsize * 0.75))
-
-			# Set xticks and labels
-			ax.invert_xaxis()
+					texts.append(ax.text(budgets[d], yaxes_binned[d, b], "$%s$" % latex_float(budgets_left_binned[d, b]), fontsize=gv.ticks_fontsize * 0.75))
 
 			# Axes labels
 			ax.set_xlabel(
-				"Remaining fraction of total probability",
+				"Number of Pauli decay rates",
 				fontsize=gv.axes_labels_fontsize * 0.8,
 				labelpad=gv.axes_labelpad,
 			)
@@ -440,14 +443,14 @@ def RelativeDecoderInstanceCompare(
 				labelsize=gv.ticks_fontsize,
 			)
 			# temporarily muting the legend
-			ax.legend(
-				numpoints=1,
-				loc="upper center",
-				ncol=4,
-				shadow=True,
-				fontsize=gv.legend_fontsize,
-				markerscale=gv.legend_marker_scale,
-			)
+			# ax.legend(
+			# 	numpoints=1,
+			# 	loc="upper center",
+			# 	ncol=4,
+			# 	shadow=True,
+			# 	fontsize=gv.legend_fontsize,
+			# 	markerscale=gv.legend_marker_scale,
+			# )
 			ax.set_xscale("log")
 			ax.set_yscale("log")
 

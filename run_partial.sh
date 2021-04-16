@@ -83,7 +83,8 @@ if [[ -n ${cluster} ]]; then
     aditya_cptp_level2=("beluga_cptp_l2_00" "beluga_cptp_l2_06" "beluga_cptp_l2_07" "beluga_cptp_l2_08" "beluga_cptp_l2_09" "beluga_cptp_l2_10")
 	alphas_pavi=(0 0.0003 0.0009 0.0026 0.0072 0.02)
 	alphas_aditya=(0 0.0002 0.0006 0.0015 0.0043 0.012 1)
-	
+	cptp_level2=("beluga_cptp_l2_00" "beluga_cptp_l2_01" "beluga_cptp_l2_02" "beluga_cptp_l2_03" "beluga_cptp_l2_04" "beluga_cptp_l2_05" "beluga_cptp_l2_06" "beluga_cptp_l2_07" "beluga_cptp_l2_08" "beluga_cptp_l2_09" "beluga_cptp_l2_10")
+	alphas=(0 0.0003 0.0009 0.0026 0.0072 0.02 0.0002 0.0006 0.0015 0.0043 0.012)
 	# Impact RC Timestamps
 	aditya_impactRC_level2=("rtz" "rtasu" "rand_cptp" "twirl_rtz" "twirl_rtasu" "twirl_rand_cptp")
 	# aditya_cptp_level2=("cptp_l2_24_12_2020_00" "cptp_l2_24_12_2020_01" "cptp_l2_24_12_2020_02" "cptp_l2_24_12_2020_03" "cptp_l2_24_12_2020_04" "cptp_l2_24_12_2020_06" "cptp_l2_24_12_2020_07" "cptp_l2_24_12_2020_08" "cptp_l2_24_12_2020_10" "cptp_l2_24_12_2020_11" "cptp_l2_24_12_2020_12" "cptp_l2_24_12_2020_13" "cptp_l2_24_12_2020_14" "cptp_l2_24_12_2020_15" "cptp_l2_24_12_2020_16" "cptp_l2_24_12_2020_17" "cptp_l2_24_12_2020_18" "cptp_l2_24_12_2020_19" "cptp_l2_24_12_2020_20" "cptp_l2_24_12_2020_21" "cptp_l2_24_12_2020_22" "cptp_l2_24_12_2020_23" "cptp_l2_24_12_2020_24" "cptp_l2_24_12_2020_25" "cptp_l2_24_12_2020_26" "cptp_l2_24_12_2020_27" "cptp_l2_24_12_2020_28" "cptp_l2_24_12_2020_29" "cptp_l2_24_12_2020_30" "cptp_l2_24_12_2020_31" "cptp_l2_24_12_2020_32" "cptp_l2_24_12_2020_33" "cptp_l2_24_12_2020_34" "cptp_l2_24_12_2020_35" "cptp_l2_24_12_2020_36" "cptp_l2_24_12_2020_37")
@@ -96,9 +97,9 @@ if [[ -n ${cluster} ]]; then
 	jobarray=1
 	## Alphas
     # pavi
-    alphas_pavi=(0 0.0001 0.00012 0.00015 0.00018 0.00022 0.00027 0.00033 0.0004 0.00048 0.00059 0.00072 0.00088 0.00107 0.0013 0.00158 0.00193 0.00235 0.00287 0.00349 0.00425 0.00518 0.00631 0.00769 0.00936 0.01141 0.01389 0.01693 0.02062 0.02512 0.0306 0.03728 0.04541 0.05532 0.06739 0.08209 0.1 1)
+    # alphas_pavi=(0 0.0001 0.00012 0.00015 0.00018 0.00022 0.00027 0.00033 0.0004 0.00048 0.00059 0.00072 0.00088 0.00107 0.0013 0.00158 0.00193 0.00235 0.00287 0.00349 0.00425 0.00518 0.00631 0.00769 0.00936 0.01141 0.01389 0.01693 0.02062 0.02512 0.0306 0.03728 0.04541 0.05532 0.06739 0.08209 0.1 1)
     # aditya
-    alphas_aditya=(0 0.0001 0.00012 0.00015 0.00018 0.00022 0.00027 0.00033 0.0004 0.00048 0.00059 0.00072 0.00088 0.00107 0.0013 0.00158 0.00193 0.00235 0.00287 0.00349 0.00425 0.00518 0.00631 0.00769 0.00936 0.01141 0.01389 0.01693 0.02062 0.02512 0.0306 0.03728 0.04541 0.05532 0.06739 0.08209 0.1 1)
+    # alphas_aditya=(0 0.0001 0.00012 0.00015 0.00018 0.00022 0.00027 0.00033 0.0004 0.00048 0.00059 0.00072 0.00088 0.00107 0.0013 0.00158 0.00193 0.00235 0.00287 0.00349 0.00425 0.00518 0.00631 0.00769 0.00936 0.01141 0.01389 0.01693 0.02062 0.02512 0.0306 0.03728 0.04541 0.05532 0.06739 0.08209 0.1 1)
 fi
 
 
@@ -142,8 +143,8 @@ usage() {
 	printf "\033[0m"
 }
 
-timestamps=("${pavi_ws_cptp_level2[@]}")
-alphas=("${alphas_pavi[@]}")
+timestamps=("${cptp_level2[@]}")
+alphas=("${alphas[@]}")
 log=pavi_cptp_level2
 refts=${timestamps[0]}
 
@@ -427,7 +428,7 @@ elif [[ "$1" == "plot" ]]; then
 	echo "sbload ${refts}" > input/temp.txt
 	printf -v joined_timestamps '%s,' "${timestamps[@]:1}"
 	# echo "nrplot 0 0 ${joined_timestamps%?}" >> input/temp.txt
-	echo "dciplot infid infid ${joined_timestamps%?} 0;48;1" >> input/temp.txt
+	echo "dciplot infid infid ${joined_timestamps%?} 0;240;1" >> input/temp.txt
 	# echo "mcplot infid infid 0,1 0 ${joined_timestamps%?}" >> input/temp.txt
 	echo "quit" >> input/temp.txt
 	./chflow.sh -- temp.txt
