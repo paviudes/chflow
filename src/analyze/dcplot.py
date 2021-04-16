@@ -397,6 +397,7 @@ def RelativeDecoderInstanceCompare(
 			yaxes_binned = np.zeros((ndb - 1, nbins), dtype = np.double)
 			budgets_left_binned = np.zeros((ndb, nbins), dtype = np.double)
 			print("bin_width = {}\nbin_sizes\n{}".format(bin_width, [len(bins[b]) for b in bins]))
+			max_y = np.max(yaxes_binned[:, 0])
 			for b in range(yaxes_binned.shape[1]):
 				for d in range(ndb - 1):
 					yaxes_binned[d, b] = np.median(yaxes[d, bins[b]])
@@ -416,10 +417,16 @@ def RelativeDecoderInstanceCompare(
 					linewidth=gv.line_width,
 					label="$\\langle %s\\rangle = %s$" % (ml.Metrics[phymet]["latex"].replace("$", ""), latex_float(average_phymet))
 				)
+				# Compute the max y value for designing the axes limits
+				if (max_y < np.max(yaxes_binned[:, b])):
+					max_y = np.max(yaxes_binned[:, b])
+
 				texts = []
 				for d in range(ndb - 1):
-					texts.append(ax.text(xaxes[d], yaxes_binned[d, b], "$%s$" % latex_float(budgets_left_binned[d, b]), fontsize=gv.ticks_fontsize * 0.75, rotation=50))
+					texts.append(ax.text(xaxes[d], yaxes_binned[d, b] * 0.4, "$%s$" % latex_float(budgets_left_binned[d, b]), fontsize=gv.ticks_fontsize * 0.75, rotation=-20))
 
+			# Axes limits
+			ax.set_ylim([1, max_y * 5])
 			# Axes labels
 			ax.set_xlabel(
 				"Number of Pauli decay rates",
