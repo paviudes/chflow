@@ -1,5 +1,0 @@
-!!Case 1!!
-sbload beluga_cptp_l2_00
-dciplot infid infid beluga_cptp_l2_01,beluga_cptp_l2_02,beluga_cptp_l2_03,beluga_cptp_l2_04,beluga_cptp_l2_05,beluga_cptp_l2_06,beluga_cptp_l2_07,beluga_cptp_l2_08,beluga_cptp_l2_09,beluga_cptp_l2_10,beluga_cptp_l2_11 0;240;1
-notes infid infid cptp dciplot /Users/pavi/Documents/rclearn/notes/updates/April16 2
-quit
