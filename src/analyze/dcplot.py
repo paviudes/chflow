@@ -445,7 +445,7 @@ def RelativeDecoderInstanceCompare(
 				numpoints=1,
 				loc="upper center",
 				ncol=4,
-				bbox_to_anchor=(0.5, 1.15),
+				bbox_to_anchor=(0.5, 1.16),
 				shadow=True,
 				fontsize=gv.legend_fontsize,
 				markerscale=gv.legend_marker_scale,
