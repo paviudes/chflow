@@ -83,8 +83,8 @@ if [[ -n ${cluster} ]]; then
     aditya_cptp_level2=("beluga_cptp_l2_00" "beluga_cptp_l2_06" "beluga_cptp_l2_07" "beluga_cptp_l2_08" "beluga_cptp_l2_09" "beluga_cptp_l2_10")
 	alphas_pavi=(0 0.0003 0.0009 0.0026 0.0072 0.02)
 	alphas_aditya=(0 0.0002 0.0006 0.0015 0.0043 0.012 1)
-	cptp_level2=("beluga_cptp_l2_00" "beluga_cptp_l2_01" "beluga_cptp_l2_02" "beluga_cptp_l2_03" "beluga_cptp_l2_04" "beluga_cptp_l2_05" "beluga_cptp_l2_06" "beluga_cptp_l2_07" "beluga_cptp_l2_08" "beluga_cptp_l2_09" "beluga_cptp_l2_10")
-	alphas=(0 0.0003 0.0009 0.0026 0.0072 0.02 0.0002 0.0006 0.0015 0.0043 0.012)
+	cptp_level2=("beluga_cptp_l2_00" "beluga_cptp_l2_01" "beluga_cptp_l2_02" "beluga_cptp_l2_03" "beluga_cptp_l2_04" "beluga_cptp_l2_05" "beluga_cptp_l2_06" "beluga_cptp_l2_07" "beluga_cptp_l2_08" "beluga_cptp_l2_09" "beluga_cptp_l2_10" "beluga_cptp_l2_11")
+	alphas=(0 0.0003 0.0009 0.0026 0.0072 0.02 0.0002 0.0006 0.0015 0.0043 0.012 1)
 	# Impact RC Timestamps
 	aditya_impactRC_level2=("rtz" "rtasu" "rand_cptp" "twirl_rtz" "twirl_rtasu" "twirl_rand_cptp")
 	# aditya_cptp_level2=("cptp_l2_24_12_2020_00" "cptp_l2_24_12_2020_01" "cptp_l2_24_12_2020_02" "cptp_l2_24_12_2020_03" "cptp_l2_24_12_2020_04" "cptp_l2_24_12_2020_06" "cptp_l2_24_12_2020_07" "cptp_l2_24_12_2020_08" "cptp_l2_24_12_2020_10" "cptp_l2_24_12_2020_11" "cptp_l2_24_12_2020_12" "cptp_l2_24_12_2020_13" "cptp_l2_24_12_2020_14" "cptp_l2_24_12_2020_15" "cptp_l2_24_12_2020_16" "cptp_l2_24_12_2020_17" "cptp_l2_24_12_2020_18" "cptp_l2_24_12_2020_19" "cptp_l2_24_12_2020_20" "cptp_l2_24_12_2020_21" "cptp_l2_24_12_2020_22" "cptp_l2_24_12_2020_23" "cptp_l2_24_12_2020_24" "cptp_l2_24_12_2020_25" "cptp_l2_24_12_2020_26" "cptp_l2_24_12_2020_27" "cptp_l2_24_12_2020_28" "cptp_l2_24_12_2020_29" "cptp_l2_24_12_2020_30" "cptp_l2_24_12_2020_31" "cptp_l2_24_12_2020_32" "cptp_l2_24_12_2020_33" "cptp_l2_24_12_2020_34" "cptp_l2_24_12_2020_35" "cptp_l2_24_12_2020_36" "cptp_l2_24_12_2020_37")

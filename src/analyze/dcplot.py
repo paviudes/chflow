@@ -344,71 +344,69 @@ def AllocateBins(values, threshold_width=10):
 
 
 def RelativeDecoderInstanceCompare(
-	phymet, logmet, dbses_input, chids = [0], thresholds={"y": 10e-16, "x": 10e-16}
+	phymet, logmet, dbses, chids = [0], thresholds={"y": 10e-16, "x": 10e-16}
 ):
 	# Compare performance of various decoders.
 	# Only show alpha values that correspond to distinct number of Pauli error rates.
-	qcode = dbses_input[0].eccs[0]
+	qcode = dbses[0].eccs[0]
 	max_weight = 1 + qcode.N//2
-	noise = dbses_input[0].available[chids[0], :-1]
-	sample = int(dbses_input[0].available[chids[0], -1])
-	(budgets, uniques) = np.unique(np.array([GetTotalErrorBudget(dbs, noise, sample) for dbs in dbses_input[1:]], dtype=np.int), return_index=True)
-	# Add the entries for the minimum weight decoder.
-	# if (np.prod(dbses_input[0].decoders) == 1):
-	# 	budgets = np.concatenate(([0], budgets))
-	# 	uniques = np.concatenate(([0], 1 + uniques))
-
-	# print("budgets = {}".format(budgets))
-
-	dbses = [dbses_input[d] for d in uniques]
 	ndb = len(dbses)
-	plotfname = DecodersInstancePlot(dbses_input[0], phymet, logmet)
+	plotfname = DecodersInstancePlot(dbses[0], phymet, logmet)
 	nlevels = max([db.levels for db in dbses])
-
-	# max_budget = np.sum([comb(dbses[0].eccs[0].N, i) * 3**i for i in range(max_weight + 1)])/4**dbses[0].eccs[0].N
-
-	# The top xticklabels show the Pauli error budget left out in the NR data set.
 	alphas = np.array([dbs.decoder_fraction for dbs in dbses], dtype = np.float)
-	nr_weights = np.load(NRWeightsFile(dbses[0], noise))[sample, :]
-	phyerrs = np.load(PhysicalErrorRates(dbses_input[0], phymet))[chids]
+
+	# Sort the alphas.
+	sort_order = np.argsort(alphas)
+	alphas = alphas[sort_order]
+	dbses = [dbses[i] for i in sort_order]
+
+	print("alphas: {}".format(alphas))
+
+	phyerrs = np.load(PhysicalErrorRates(dbses[0], phymet))[chids]
 	# print("phyerrs: {}".format(phyerrs))
-	bin_width = 1
+	bin_width = 5
 	with PdfPages(plotfname) as pdf:
 		for l in range(1, nlevels + 1):
 			fig = plt.figure(figsize=gv.canvas_size)
 			ax = plt.gca()
-			yaxes = np.zeros((ndb, len(chids)), dtype = np.double)
+			
+			# Load the logical error rates
+			yaxes = np.zeros((ndb - 1, len(chids)), dtype = np.double)
 			for (c, ch) in enumerate(chids):
 				# Load the minimum weight performance
-				minwt_perf = np.load(LogicalErrorRates(dbses_input[0], logmet))[ch, l]
-				for d in range(ndb):
-					yaxes[d, c] = minwt_perf/np.load(LogicalErrorRates(dbses[d], logmet))[ch, l]
+				minwt_perf = np.load(LogicalErrorRates(dbses[0], logmet))[ch, l]
+				for d in range(1, ndb):
+					yaxes[d - 1, c] = minwt_perf/np.load(LogicalErrorRates(dbses[d], logmet))[ch, l]
 
-			budget_left = np.zeros((ndb, len(chids)), dtype = np.double)
+			# Compute the budgets (X-axis) and the budget-left-out (for annotations)
+			budgets = np.zeros((ndb - 1, len(chids)), dtype = np.double)
+			budget_left = np.zeros((ndb - 1, len(chids)), dtype = np.double)
 			for (c, ch) in enumerate(chids):
 				noise = dbses[0].available[chids[ch], :-1]
 				sample = int(dbses[0].available[chids[ch], -1])
-				chan_probs = np.load(RawPhysicalChannel(dbses_input[0], noise))[sample, :]
-				for (d, alpha) in enumerate(alphas):
-					(__, __, knownPaulis) = GetLeadingPaulis(alpha, qcode, chan_probs, "weight", nr_weights)
-					budget_left[d, c] = 1 - np.sum(knownPaulis)
+				nr_weights = np.load(NRWeightsFile(dbses[0], noise))[sample, :]
+				budgets[:, c] = np.array([GetTotalErrorBudget(dbs, noise, sample) for dbs in dbses[1:]], dtype=np.int)
+				chan_probs = np.load(RawPhysicalChannel(dbses[0], noise))[sample, :]
+				for d in range(1, alphas.size):
+					(__, __, knownPaulis) = GetLeadingPaulis(alphas[d], qcode, chan_probs, "weight", nr_weights)
+					budget_left[d - 1, c] = 1 - np.sum(knownPaulis)
 
+			# Bin the physical error rates and average logical error rates in a bin.
 			bins = AllocateBins(phyerrs, bin_width)
 			nbins = len(bins)
-			yaxes_binned = np.zeros((ndb, nbins), dtype = np.double)
+			yaxes_binned = np.zeros((ndb - 1, nbins), dtype = np.double)
 			budgets_left_binned = np.zeros((ndb, nbins), dtype = np.double)
-
-			print("phyerrs\n{}\nbin_width = {}\nbins\n{}".format(phyerrs, bin_width, bins))
-
+			print("bin_width = {}\nbin_sizes\n{}".format(bin_width, [len(bins[b]) for b in bins]))
 			for b in range(yaxes_binned.shape[1]):
-				for d in range(ndb):
+				for d in range(ndb - 1):
 					yaxes_binned[d, b] = np.median(yaxes[d, bins[b]])
 					budgets_left_binned[d, b] = np.median(budget_left[d, bins[b]])
 				average_phymet = np.median(phyerrs[bins[b]])
-				print("Curve {}\nX\n{}\nY\n{}".format(b, budget_left, yaxes_binned[:, b]))
+				# print("Curve {}\nX\n{}\nY\n{}".format(b, np.mean(budgets, axis=1), yaxes_binned[:, b]))
 				# Plotting
+				xaxes = np.mean(budgets, axis=1)
 				plotobj = ax.plot(
-					budgets,
+					xaxes,
 					yaxes_binned[:, b],
 					color=gv.Colors[b % gv.n_Colors],
 					alpha=0.75,
@@ -416,11 +414,11 @@ def RelativeDecoderInstanceCompare(
 					markersize=gv.marker_size,
 					linestyle="--",
 					linewidth=gv.line_width,
-					label="$%s = %s$" % (ml.Metrics[phymet]["latex"].replace("$", ""), latex_float(average_phymet))
+					label="$\\langle %s\\rangle = %s$" % (ml.Metrics[phymet]["latex"].replace("$", ""), latex_float(average_phymet))
 				)
 				texts = []
-				for d in range(ndb):
-					texts.append(ax.text(budgets[d], yaxes_binned[d, b], "$%s$" % latex_float(budgets_left_binned[d, b]), fontsize=gv.ticks_fontsize * 0.75))
+				for d in range(ndb - 1):
+					texts.append(ax.text(xaxes[d], yaxes_binned[d, b], "$%s$" % latex_float(budgets_left_binned[d, b]), fontsize=gv.ticks_fontsize * 0.75, rotation=50))
 
 			# Axes labels
 			ax.set_xlabel(
@@ -429,7 +427,7 @@ def RelativeDecoderInstanceCompare(
 				labelpad=gv.axes_labelpad,
 			)
 			ax.set_ylabel(
-				"$\\overline{%s_{%d}}$" % (ml.Metrics[logmet]["latex"].replace("$", ""), l),
+				"Gain over MWD ($\\Delta_{%d}$)" % (l),
 				fontsize=gv.axes_labels_fontsize,
 				labelpad=gv.axes_labelpad,
 			)
@@ -443,14 +441,15 @@ def RelativeDecoderInstanceCompare(
 				labelsize=gv.ticks_fontsize,
 			)
 			# temporarily muting the legend
-			# ax.legend(
-			# 	numpoints=1,
-			# 	loc="upper center",
-			# 	ncol=4,
-			# 	shadow=True,
-			# 	fontsize=gv.legend_fontsize,
-			# 	markerscale=gv.legend_marker_scale,
-			# )
+			ax.legend(
+				numpoints=1,
+				loc="upper center",
+				ncol=4,
+				bbox_to_anchor=(0.5, 1.15),
+				shadow=True,
+				fontsize=gv.legend_fontsize,
+				markerscale=gv.legend_marker_scale,
+			)
 			ax.set_xscale("log")
 			ax.set_yscale("log")
 
