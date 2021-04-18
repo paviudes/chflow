@@ -361,11 +361,11 @@ def RelativeDecoderInstanceCompare(
 	alphas = alphas[sort_order]
 	dbses = [dbses[i] for i in sort_order]
 
-	print("alphas: {}".format(alphas))
+	# print("alphas: {}".format(alphas))
 
 	phyerrs = np.load(PhysicalErrorRates(dbses[0], phymet))[chids]
 	# print("phyerrs: {}".format(phyerrs))
-	bin_width = 3
+	bin_width = 5
 	with PdfPages(plotfname) as pdf:
 		for l in range(nlevels, nlevels + 1):
 			fig = plt.figure(figsize=gv.canvas_size)
@@ -393,6 +393,8 @@ def RelativeDecoderInstanceCompare(
 				for d in range(1, ndb):
 					if (is_converged[d, rate_index, sample_index] == 1):
 						yaxes[d - 1][c] = minwt_perf/np.load(LogicalErrorRates(dbses[d], logmet))[ch, l]
+
+			# print("Yaxes\n{}".format(yaxes))
 
 			# Compute the budgets (X-axis) and the budget-left-out (for annotations)
 			budgets = np.zeros((ndb - 1, len(chids)), dtype = np.double)
@@ -422,15 +424,32 @@ def RelativeDecoderInstanceCompare(
 					filtered[d].extend(filtered_dataset)
 					yaxes_binned[d, b] = np.median(yaxes[d][filtered_dataset])
 					budgets_left_binned[d, b] = np.median(budget_left[d, filtered_dataset])
+					# print("curve = {}, alpha = {}\nfiltered dataset has {} points.".format(b, d, len(filtered_dataset)))
 
 				average_phymet = np.median(phyerrs[bins[b]])
-				print("Curve {}\nX\n{}\nY\n{}".format(b, np.mean(budgets, axis=1), yaxes_binned[:, b]))
+				# print("Curve {}\nBins\n{}\nX\n{}\nY\n{}".format(b, bins, np.mean(budgets, axis=1), yaxes_binned[:, b]))
 				
+				# If the number of points in a bin in less than 5, do not plot.
+				if (len(bins[b]) < 5):
+					continue
+				
+				# If the number of points excluded is more than 50%, do not plot the curve.
+				selected = np.zeros(ndb - 1, dtype = np.int)
+				count_selected = 0
+				for d in range(ndb - 1):
+					filtered_dataset = [x for x in bins[b] if (yaxes[d][x] != -1)]
+					if (len(filtered_dataset)/len(bins[b]) >= 0.5):
+						selected[d] = 1
+						count_selected += len(filtered_dataset)
+				print("Average number of channels selected in bin %d = %.2f." % (b, count_selected/(ndb - 1)))
+				selected_indices, = np.nonzero(selected)
+				# print("selected_indices = {}".format(selected_indices))
 				# Plotting
-				xaxes = [np.mean(budgets[:, filtered[d]]) for d in range(ndb - 1)]
+				xaxes = np.array([np.mean(budgets[d, filtered[d]]) for d in range(ndb - 1)])
+				# xaxes = np.mean(budgets, axis=1)
 				plotobj = ax.plot(
-					xaxes,
-					yaxes_binned[:, b],
+					xaxes[selected_indices],
+					yaxes_binned[selected_indices, b],
 					color=gv.Colors[b % gv.n_Colors],
 					alpha=0.75,
 					marker="o",
@@ -447,10 +466,20 @@ def RelativeDecoderInstanceCompare(
 
 				texts = []
 				for d in range(ndb - 1):
-					texts.append(ax.text(xaxes[d], yaxes_binned[d, b] * 0.4, "$%s$" % latex_float(budgets_left_binned[d, b]), fontsize=gv.ticks_fontsize * 0.75, rotation=-20))
+					if (selected[d] == 1):
+						texts.append(ax.text(xaxes[d], yaxes_binned[d, b] * 0.4, "$%s$" % latex_float(budgets_left_binned[d, b]), fontsize=gv.ticks_fontsize * 0.75, rotation=-20))
+						# Only for level 3
+						# if (d % 2 == 0):
+						# 	texts.append(ax.text(0.8 * xaxes[d], yaxes_binned[d, b] * 0.4, "$%s$" % latex_float(budgets_left_binned[d, b]), fontsize=gv.ticks_fontsize * 0.75, rotation=0))
+						# else:
+						# 	texts.append(ax.text(0.8 * xaxes[d], yaxes_binned[d, b] * 1.4, "$%s$" % latex_float(budgets_left_binned[d, b]), fontsize=gv.ticks_fontsize * 0.75, rotation=20))
 
 			# Axes limits
 			ax.set_ylim([1, max_y * 5])
+
+			# Gridlines
+			ax.grid(which="both", axis="y")
+
 			# Axes labels
 			ax.set_xlabel(
 				"Number of Pauli decay rates",
