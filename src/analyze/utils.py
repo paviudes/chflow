@@ -25,7 +25,7 @@ from define import qchans as qc
 def OrderOfMagnitude(number):
     # Compute the order of magnitude
     if (number < 0):
-        return np.int(np.floor(np.log10(number)))
+        return np.int(np.floor(np.log10(-1 * number)))
     return np.int(np.ceil(np.log10(number)))
 
 

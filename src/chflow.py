@@ -981,13 +981,16 @@ if __name__ == "__main__":
 					):
 						GatherLogErrData(dbses[i + 1])
 			if len(user) > 4:
-				samples = np.array(list(map(int, user[4].split(","))), dtype = np.int)
+				if ";" in user[4]:
+					samples = np.arange(*list(map(int, user[4].split(";"))), dtype = np.int)
+				else:
+					samples = np.array(list(map(int, user[4].split(","))), dtype = np.int)
 			if len(user) > 3:
-				rate_range = list(map(int, user[3].split(",")))
-			# rates = submit.noiserates[
-			#     np.sort(np.random.choice(submit.noiserates.shape[0], nrates))[::-1], :
-			# ]
-			rates = submit.available[np.arange(*rate_range), :-1]
+				if ";" in user[3]:
+					rates = np.arange(*list(map(int, user[3].split(";"))), dtype = np.int)
+				else:
+					rates = np.array(list(map(int, user[3].split(","))), dtype = np.int)
+			
 			print("Doing MC Stat plot for rates {} and samples {}".format(rates, samples))
 			MCStatsPlot(dbses, lmet, pmet, rates, samples=samples)
 

@@ -81,9 +81,14 @@ if [[ -n ${cluster} ]]; then
 	
     pavi_cptp_level2=("beluga_cptp_l2_00" "beluga_cptp_l2_01" "beluga_cptp_l2_02" "beluga_cptp_l2_03" "beluga_cptp_l2_04" "beluga_cptp_l2_05")
     aditya_cptp_level2=("beluga_cptp_l2_00" "beluga_cptp_l2_06" "beluga_cptp_l2_07" "beluga_cptp_l2_08" "beluga_cptp_l2_09" "beluga_cptp_l2_10")
+	pavi_cptp_level3=("beluga_cptp_l3_00" "beluga_cptp_l3_01" "beluga_cptp_l3_02" "beluga_cptp_l3_03" "beluga_cptp_l3_04" "beluga_cptp_l3_05")
+    aditya_cptp_level3=("beluga_cptp_l3_00" "beluga_cptp_l3_06" "beluga_cptp_l3_07" "beluga_cptp_l3_08" "beluga_cptp_l3_09" "beluga_cptp_l3_10" "beluga_cptp_l3_11")
 	alphas_pavi=(0 0.0003 0.0009 0.0026 0.0072 0.02)
 	alphas_aditya=(0 0.0002 0.0006 0.0015 0.0043 0.012 1)
+	
+	# Aggregate
 	cptp_level2=("beluga_cptp_l2_00" "beluga_cptp_l2_01" "beluga_cptp_l2_02" "beluga_cptp_l2_03" "beluga_cptp_l2_04" "beluga_cptp_l2_05" "beluga_cptp_l2_06" "beluga_cptp_l2_07" "beluga_cptp_l2_08" "beluga_cptp_l2_09" "beluga_cptp_l2_10" "beluga_cptp_l2_11")
+	cptp_level3=("beluga_cptp_l3_00" "beluga_cptp_l3_01" "beluga_cptp_l3_02" "beluga_cptp_l3_03" "beluga_cptp_l3_04" "beluga_cptp_l3_05" "beluga_cptp_l3_06" "beluga_cptp_l3_07" "beluga_cptp_l3_08" "beluga_cptp_l3_09" "beluga_cptp_l3_10" "beluga_cptp_l3_11")
 	alphas=(0 0.0003 0.0009 0.0026 0.0072 0.02 0.0002 0.0006 0.0015 0.0043 0.012 1)
 	# Impact RC Timestamps
 	aditya_impactRC_level2=("rtz" "rtasu" "rand_cptp" "twirl_rtz" "twirl_rtasu" "twirl_rand_cptp")
@@ -143,9 +148,9 @@ usage() {
 	printf "\033[0m"
 }
 
-timestamps=("${cptp_level2[@]}")
+timestamps=("${cptp_level3[@]}")
 alphas=("${alphas[@]}")
-log=pavi_cptp_level2
+log=pavi_cptp_level3
 refts=${timestamps[0]}
 
 if [[ "$1" == "overwrite" ]]; then
@@ -428,8 +433,8 @@ elif [[ "$1" == "plot" ]]; then
 	echo "sbload ${refts}" > input/temp.txt
 	printf -v joined_timestamps '%s,' "${timestamps[@]:1}"
 	# echo "nrplot 0 0 ${joined_timestamps%?}" >> input/temp.txt
-	echo "dciplot infid infid ${joined_timestamps%?} 0;240;1" >> input/temp.txt
-	# echo "mcplot infid infid 0,1 0 ${joined_timestamps%?}" >> input/temp.txt
+	echo "dciplot infid infid ${joined_timestamps%?} 0;40;1" >> input/temp.txt
+	# echo "mcplot infid infid 2 2 ${joined_timestamps%?}" >> input/temp.txt
 	echo "quit" >> input/temp.txt
 	./chflow.sh -- temp.txt
 	rm input/temp.txt
