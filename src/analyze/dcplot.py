@@ -25,8 +25,9 @@ except ImportError:
 from define import metrics as ml
 from define import globalvars as gv
 from define.decoder import GetTotalErrorBudget, GetLeadingPaulis
-from analyze.utils import latex_float, scientific_float
+from analyze.utils import latex_float, scientific_float, OrderOfMagnitude
 from analyze.bins import ComputeBinVariance
+from analyze.statplot import IsConverged
 from analyze.load import LoadPhysicalErrorRates
 from define.fnames import DecodersPlot, DecodersInstancePlot, LogicalErrorRates, PhysicalErrorRates, NRWeightsFile, RawPhysicalChannel
 
@@ -326,21 +327,21 @@ def DecoderInstanceCompare(
 
 
 def AllocateBins(values, threshold_width=10):
-    # Arrange the values into bins, each of which have a threshold (max) width.
-    # Output is a dictionary with bin index "g" refering to the indices in the array that belong to the bin g.
-    sort_index = np.argsort(values)
-    bins = {}
-    bin_count = 0
-    current_bin_min = values[sort_index[0]]
-    for i in sort_index:
-        if(values[i] > threshold_width * current_bin_min):
-            bin_count += 1
-        if bin_count in bins:
-            bins[bin_count].append(i)
-        else:
-            bins[bin_count] = [i]
-            current_bin_min = values[i]
-    return bins
+	# Arrange the values into bins, each of which have a threshold (max) width.
+	# Output is a dictionary with bin index "g" refering to the indices in the array that belong to the bin g.
+	sort_index = np.argsort(values)
+	bins = {}
+	bin_count = 0
+	current_bin_min = values[sort_index[0]]
+	for i in sort_index:
+		if(values[i] > threshold_width * current_bin_min):
+			bin_count += 1
+		if bin_count in bins:
+			bins[bin_count].append(i)
+		else:
+			bins[bin_count] = [i]
+			current_bin_min = values[i]
+	return bins
 
 
 def RelativeDecoderInstanceCompare(
@@ -360,23 +361,40 @@ def RelativeDecoderInstanceCompare(
 	alphas = alphas[sort_order]
 	dbses = [dbses[i] for i in sort_order]
 
-	print("alphas: {}".format(alphas))
+	# print("alphas: {}".format(alphas))
 
 	phyerrs = np.load(PhysicalErrorRates(dbses[0], phymet))[chids]
 	# print("phyerrs: {}".format(phyerrs))
 	bin_width = 5
 	with PdfPages(plotfname) as pdf:
-		for l in range(1, nlevels + 1):
+		for l in range(nlevels, nlevels + 1):
 			fig = plt.figure(figsize=gv.canvas_size)
 			ax = plt.gca()
 			
-			# Load the logical error rates
-			yaxes = np.zeros((ndb - 1, len(chids)), dtype = np.double)
+			# Compute which of the logical error rate estimates have converged.
+			rates = []
+			samples = []
 			for (c, ch) in enumerate(chids):
+				noise = dbses[0].available[chids[ch], :-1]
+				rates.append(np.argmin(np.sum(np.abs(dbses[0].noiserates - noise), axis=1)))
+				samples.append(int(dbses[0].available[chids[ch], -1]))
+			is_converged = np.zeros((ndb, len(rates), len(samples)), dtype = np.int)
+			for d in range(ndb):
+				is_converged[d, :, :] = IsConverged(dbses[d], logmet, rates, samples, threshold = 10)
+
+			# Load the logical error rates
+			yaxes = {d: -1 * np.ones(len(chids), dtype = np.double) for d in range(ndb - 1)}
+			for (c, ch) in enumerate(chids):
+				noise = dbses[0].available[chids[ch], :-1]
+				rate_index = np.argmin(np.sum(np.abs(dbses[0].noiserates - noise), axis=1))
+				sample_index = int(dbses[0].available[chids[ch], -1])
 				# Load the minimum weight performance
 				minwt_perf = np.load(LogicalErrorRates(dbses[0], logmet))[ch, l]
 				for d in range(1, ndb):
-					yaxes[d - 1, c] = minwt_perf/np.load(LogicalErrorRates(dbses[d], logmet))[ch, l]
+					if (is_converged[d, rate_index, sample_index] == 1):
+						yaxes[d - 1][c] = minwt_perf/np.load(LogicalErrorRates(dbses[d], logmet))[ch, l]
+
+			# print("Yaxes\n{}".format(yaxes))
 
 			# Compute the budgets (X-axis) and the budget-left-out (for annotations)
 			budgets = np.zeros((ndb - 1, len(chids)), dtype = np.double)
@@ -397,18 +415,41 @@ def RelativeDecoderInstanceCompare(
 			yaxes_binned = np.zeros((ndb - 1, nbins), dtype = np.double)
 			budgets_left_binned = np.zeros((ndb, nbins), dtype = np.double)
 			print("bin_width = {}\nbin_sizes\n{}".format(bin_width, [len(bins[b]) for b in bins]))
-			max_y = np.max(yaxes_binned[:, 0])
+			max_y = 0
+			min_y = np.max(np.array(list(yaxes.values())))
+			filtered = {d: [] for d in range(ndb - 1)}
 			for b in range(yaxes_binned.shape[1]):
 				for d in range(ndb - 1):
-					yaxes_binned[d, b] = np.median(yaxes[d, bins[b]])
-					budgets_left_binned[d, b] = np.median(budget_left[d, bins[b]])
+					filtered_dataset = [x for x in bins[b] if (yaxes[d][x] != -1)]
+					filtered[d].extend(filtered_dataset)
+					yaxes_binned[d, b] = np.median(yaxes[d][filtered_dataset])
+					budgets_left_binned[d, b] = np.median(budget_left[d, filtered_dataset])
+					# print("curve = {}, alpha = {}\nfiltered dataset has {} points.".format(b, d, len(filtered_dataset)))
+
 				average_phymet = np.median(phyerrs[bins[b]])
-				# print("Curve {}\nX\n{}\nY\n{}".format(b, np.mean(budgets, axis=1), yaxes_binned[:, b]))
+				# print("Curve {}\nBins\n{}\nX\n{}\nY\n{}".format(b, bins, np.mean(budgets, axis=1), yaxes_binned[:, b]))
+				
+				# If the number of points in a bin in less than 5, do not plot.
+				if (len(bins[b]) < 5):
+					continue
+				
+				# If the number of points excluded is more than 50%, do not plot the curve.
+				selected = np.zeros(ndb - 1, dtype = np.int)
+				count_selected = 0
+				for d in range(ndb - 1):
+					filtered_dataset = [x for x in bins[b] if (yaxes[d][x] != -1)]
+					if (len(filtered_dataset)/len(bins[b]) >= 0.5):
+						selected[d] = 1
+						count_selected += len(filtered_dataset)
+				print("Average number of channels selected in bin %d = %.2f." % (b, count_selected/(ndb - 1)))
+				selected_indices, = np.nonzero(selected)
+				# print("selected_indices = {}".format(selected_indices))
 				# Plotting
-				xaxes = np.mean(budgets, axis=1)
+				xaxes = np.array([np.mean(budgets[d, filtered[d]]) for d in range(ndb - 1)])
+				# xaxes = np.mean(budgets, axis=1)
 				plotobj = ax.plot(
-					xaxes,
-					yaxes_binned[:, b],
+					xaxes[selected_indices],
+					yaxes_binned[selected_indices, b],
 					color=gv.Colors[b % gv.n_Colors],
 					alpha=0.75,
 					marker="o",
@@ -420,13 +461,25 @@ def RelativeDecoderInstanceCompare(
 				# Compute the max y value for designing the axes limits
 				if (max_y < np.max(yaxes_binned[:, b])):
 					max_y = np.max(yaxes_binned[:, b])
+				if (min_y > np.min(yaxes_binned[:, b])):
+					min_y = np.min(yaxes_binned[:, b])
 
 				texts = []
 				for d in range(ndb - 1):
-					texts.append(ax.text(xaxes[d], yaxes_binned[d, b] * 0.4, "$%s$" % latex_float(budgets_left_binned[d, b]), fontsize=gv.ticks_fontsize * 0.75, rotation=-20))
+					if (selected[d] == 1):
+						texts.append(ax.text(xaxes[d], yaxes_binned[d, b] * 0.4, "$%s$" % latex_float(budgets_left_binned[d, b]), fontsize=gv.ticks_fontsize * 0.75, rotation=-20))
+						# Only for level 3
+						# if (d % 2 == 0):
+						# 	texts.append(ax.text(0.8 * xaxes[d], yaxes_binned[d, b] * 0.4, "$%s$" % latex_float(budgets_left_binned[d, b]), fontsize=gv.ticks_fontsize * 0.75, rotation=0))
+						# else:
+						# 	texts.append(ax.text(0.8 * xaxes[d], yaxes_binned[d, b] * 1.4, "$%s$" % latex_float(budgets_left_binned[d, b]), fontsize=gv.ticks_fontsize * 0.75, rotation=20))
 
 			# Axes limits
 			ax.set_ylim([1, max_y * 5])
+
+			# Gridlines
+			ax.grid(which="both", axis="y")
+
 			# Axes labels
 			ax.set_xlabel(
 				"Number of Pauli decay rates",
@@ -459,6 +512,12 @@ def RelativeDecoderInstanceCompare(
 			)
 			ax.set_xscale("log")
 			ax.set_yscale("log")
+
+			# Axes ticks
+			# print("max_y = {} and min_y = {}".format(max_y, min_y))
+			yticks = np.arange(OrderOfMagnitude(min_y/5), OrderOfMagnitude(max_y * 5))
+			ax.set_yticks(np.power(10.0, yticks), minor=True)
+			# print("Y ticks\n{}".format(yticks))
 
 			# Make non overlapping annotations
 			# https://stackoverflow.com/questions/19073683/matplotlib-overlapping-annotations-text

@@ -21,18 +21,18 @@ from analyze.utils import DisplayForm, RealNoise, scientific_float, latex_float,
 from define.fnames import MCStatsPlotFile, PhysicalErrorRates, RunningAverageCh
 
 
-def GetChannelPosition(rates, samples, available):
+def GetChannelPosition(noise_rates, samples, available):
     """
     Compute the channel index corresponding to a rate and sample.
     """
-    pos = np.zeros((rates.shape[0], samples.shape[0]), dtype=np.int)
-    for r in range(rates.shape[0]):
+    pos = np.zeros((noise_rates.shape[0], samples.shape[0]), dtype=np.int)
+    for r in range(noise_rates.shape[0]):
         for s in range(samples.shape[0]):
             pos[r, s] = np.nonzero(
                 list(
                     map(
                         lambda element: np.allclose(
-                            np.concatenate((rates[r, :], [samples[s]])), element
+                            np.concatenate((noise_rates[r, :], [samples[s]])), element
                         ),
                         available,
                     )
@@ -109,15 +109,16 @@ def LoadRunningAverages(dbs, lmet, rates, samples):
     """
     Load the running averages array.
     """
-    running_averages = np.zeros(
-        (rates.shape[0], samples.size, dbs.stats.size), dtype=np.double
-    )
-    for r in range(rates.shape[0]):
-        for s in range(samples.size):
+    running_averages = np.zeros((len(rates), len(samples), dbs.stats.size), dtype=np.double)
+    # print("Running averages for rates {} and samples {}".format(rates, samples))
+    for r in range(len(rates)):
+        for s in range(len(samples)):
             running_averages[r, s, :] = np.load(
-                RunningAverageCh(dbs, rates[r, :], samples[s], lmet)
+                RunningAverageCh(dbs, dbs.available[rates[r] * dbs.samps, :-1], samples[s], lmet)
             )
-    print("loaded running averages for rates : {} sample : {} = {}".format(rates,samples,running_averages))
+        # print("Running averages for rate {}\n{}".format(dbs.available[rates[r] * dbs.samps, :-1], running_averages[r, :, :]))
+        # print("=====")
+    # print("loaded running averages for rates : {} sample : {} = {}".format(rates, samples, running_averages))
     return running_averages
 
 
@@ -132,6 +133,8 @@ def MCStatsPlot(dbses, lmet, pmet, rates, samples=None, cutoff=1e3):
     # Plot the running average of the metric with respect the the number of samples used to compute that average.
     # See https://faculty.washington.edu/stuve/log_error.pdf on how to compute error bars for log plot.
     # To estimate d(z = log y), we have: dz = d(log y) = 1/ln(10) * d(ln y) = 1/ln(10) * (dy)/y
+    # print("Input rates: {} and samples: {}".format(rates, samples))
+
     if samples is None:
         samples = np.arange(dbs.samps)
 
@@ -147,117 +150,88 @@ def MCStatsPlot(dbses, lmet, pmet, rates, samples=None, cutoff=1e3):
     plotfname = MCStatsPlotFile(dbs, lmet, pmet)
     running_averages = LoadRunningAverages(dbs, lmet, rates, samples)
 
-    # Compute the position of rate, sample in the availaibe list of channels.
-    pos = GetChannelPosition(rates, samples, dbs.available)
-
-    filter = np.ones((rates.shape[0], samples.shape[0]), dtype=np.int)
     with PdfPages(plotfname) as pdf:
-        for case in range(1):
-            # case 0 is the regular stat plot.
-            # case 1 corresponds to a focused region plot: only the region in the green zone to the right of the stats line. Green zone is greater than 1/Stats.
-            if case == 0:
-                xindices = np.nonzero(dbs.stats >= min_stats)[0]
-            else:
-                xindices = np.nonzero(dbs.stats >= cutoff)[0]
-                filter = MaxFluctuationFilter(
-                    filter, rates, samples, running_averages, cutoff, xindices
+        xindices = np.nonzero(dbs.stats >= min_stats)[0]
+        fig = plt.figure(figsize=gv.canvas_size)
+        ax = plt.gca()
+        ylimits = {"min": 1, "max": 0}
+        for r in range(rates.size):
+            for s in range(samples.size):
+                xaxis = dbs.stats[xindices]
+                yaxis = running_averages[r, s, xindices]
+                if (ylimits["min"] >= np.min(yaxis)):
+                    ylimits["min"] = np.min(yaxis)
+                if (ylimits["max"] <= np.max(yaxis)):
+                    ylimits["max"] = np.max(yaxis)
+                # print("Rate: {} and sample: {}\nxaxis\n{}\nyaxis\n{}".format(dbs.noiserates[rates[r], :-1], samples[s], xaxis, yaxis))
+                # label = scientific_float(phyerrs[pos[r, s]])
+                label = None
+                linestyle = gv.line_styles[s % len(gv.line_styles)]
+                if s == 0:
+                    # label = "$1 - F = %s$" % (
+                    #     scientific_float(phyerrs[pos[r, s]]).replace("$", "")
+                    # )
+                    label = "$e = %s$" % (",".join(list(map(lambda x: "%g" % x, dbs.noiserates[rates[r], :-1]))))
+                plt.plot(
+                    xaxis,
+                    yaxis,
+                    linewidth=gv.line_width,
+                    label=label,
+                    color=gv.Colors[r % len(gv.Colors)],
+                    linestyle=linestyle,
+                    # marker="o",
+                    # markersize=gv.marker_size * 0.75,
                 )
-            fig = plt.figure(figsize=gv.canvas_size)
-            ax = plt.gca()
-            ylimits = {"min": 1, "max": 0}
-            for r in range(rates.shape[0]):
-                for s in range(samples.shape[0]):
-                    if filter[r, s] == 0:
-                        continue
-                    # label = scientific_float(phyerrs[pos[r, s]])
-                    xaxis = dbs.stats[xindices]
-                    yaxis = running_averages[r, s, xindices]
-                    if (ylimits["min"] >= np.min(yaxis)):
-                        ylimits["min"] = np.min(yaxis)
-                    if (ylimits["max"] <= np.max(yaxis)):
-                        ylimits["max"] = np.max(yaxis)
-                    # print("xaxis\n{}\nyaxis\n{}".format(xaxis, yaxis))
-                    label = None
-                    if case == 0:
-                        linestyle = gv.line_styles[s % len(gv.line_styles)]
-                        if s == 0:
-                            # label = "$1 - F = %s$" % (
-                            #     scientific_float(phyerrs[pos[r, s]]).replace("$", "")
-                            # )
-                            label = "$e = %s$" % (",".join(list(map(lambda x: "%g" % x, rates[r]))))
-                    else:
-                        label = "$1 - F = %s, \\lambda=%.1f$" % (
-                            latex_float(phyerrs[pos[r, s]]).replace("$", ""),
-                            np.max(yaxis) / np.min(yaxis),
-                        )
-                        linestyle = "-"
-                    plt.plot(
-                        xaxis,
-                        yaxis,
-                        linewidth=gv.line_width,
-                        label=label,
-                        color=gv.Colors[r % len(gv.Colors)],
-                        linestyle=linestyle,
-                        # marker="o",
-                        # markersize=gv.marker_size * 0.75,
-                    )
-            plt.grid(which="both", axis="both")
-            # if case == 0:
-            #     SetZones(plt, dbs.stats, running_averages, cutoff)
+        plt.grid(which="both", axis="both")
+        # if case == 0:
+        #     SetZones(plt, dbs.stats, running_averages, cutoff)
 
-            # Axes limits and scaling
-            ax.set_xlim(np.min(xaxis), np.max(xaxis))
-            if case == 0:
-                # ax.set_ylim(None, 10 * np.max(running_averages))
-                ax.set_yscale("log")
-                ax.set_xscale("log")
-            else:
-                ax.set_xscale("log")
-                # ax.set_yscale("log")
-                # ax.set_ylim(50 / cutoff, 55 / cutoff)
-                # ax.set_ylim(1 / cutoff, 50 / cutoff)
+        # Axes limits and scaling
+        ax.set_xlim(np.min(xaxis), np.max(xaxis))
+        # ax.set_ylim(None, 10 * np.max(running_averages))
+        ax.set_yscale("log")
+        ax.set_xscale("log")
+        
+        # Axes labels
+        ax.set_xlabel(
+            "$N$", fontsize=gv.axes_labels_fontsize, labelpad=gv.axes_labelpad
+        )
+        ax.set_ylabel(
+            "$\\overline{%s_{%d}}$"
+            % (Metrics[lmet]["latex"].replace("$", ""), dbs.levels),
+            fontsize=gv.axes_labels_fontsize,
+            labelpad=gv.axes_labelpad,
+        )
+        ax.tick_params(
+            axis="both",
+            which="both",
+            pad=gv.ticks_pad,
+            direction="inout",
+            length=gv.ticks_length,
+            width=gv.ticks_width,
+            labelsize=gv.ticks_fontsize,
+        )
 
-            # Axes labels
-            ax.set_xlabel(
-                "$N$", fontsize=gv.axes_labels_fontsize, labelpad=gv.axes_labelpad
-            )
-            ax.set_ylabel(
-                "$\\overline{%s_{%d}}$"
-                % (Metrics[lmet]["latex"].replace("$", ""), dbs.levels),
-                fontsize=gv.axes_labels_fontsize,
-                labelpad=gv.axes_labelpad,
-            )
-            ax.tick_params(
-                axis="both",
-                which="both",
-                pad=gv.ticks_pad,
-                direction="inout",
-                length=gv.ticks_length,
-                width=gv.ticks_width,
-                labelsize=gv.ticks_fontsize,
-            )
+        # Axes limits
+        # print("ylimits: {}, {}".format(ylimits["min"], ylimits["max"]))
+        # Axes ticks
+        # yticks = np.arange(OrderOfMagnitude(ylimits["min"]/5), OrderOfMagnitude(ylimits["max"] * 5))
+        # ax.set_yticks(np.power(10.0, yticks), minor=True)
+        # print("Y ticks\n{}".format(yticks))
 
-            if case == 0:
-                # Axes limits
-                print("ylimits: {}, {}".format(ylimits["min"], ylimits["max"]))
-                # Axes ticks
-                yticks = np.arange(OrderOfMagnitude(ylimits["min"]/5), OrderOfMagnitude(ylimits["max"] * 5))
-                ax.set_yticks(np.power(10.0, yticks), minor=True)
-                print("Y ticks\n{}".format(yticks))
-
-            # Legend
-            plt.legend(
-                numpoints=1,
-                loc="upper center",
-                ncol=4 if case == 0 else 3,
-                bbox_to_anchor=(0.5, 1.17),
-                shadow=True,
-                fontsize=gv.legend_fontsize,
-                markerscale=gv.legend_marker_scale,
-            )
-            # Save the plot
-            pdf.savefig(fig)
-            plt.close()
+        # Legend
+        plt.legend(
+            numpoints=1,
+            loc="upper center",
+            ncol=4,
+            bbox_to_anchor=(0.5, 1.17),
+            shadow=True,
+            fontsize=gv.legend_fontsize,
+            markerscale=gv.legend_marker_scale,
+        )
+        # Save the plot
+        pdf.savefig(fig)
+        plt.close()
 
         # Set PDF attributes
         pdfInfo = pdf.infodict()
@@ -270,10 +244,27 @@ def MCStatsPlot(dbses, lmet, pmet, rates, samples=None, cutoff=1e3):
     return None
 
 
+def IsConverged(dbs, lmet, rates, samples, threshold = 10):
+    # Determine if the estimates of logical error rates have converged.
+    running_averages = LoadRunningAverages(dbs, lmet, rates, samples)
+    is_converged = np.zeros((len(rates), len(samples)), dtype = np.int)
+    left = np.argmin(np.abs(dbs.stats - dbs.stats[-1]/10))
+    # print("Left = {} and stats[left] = {}\nstats = {}".format(left, dbs.stats[left], dbs.stats))
+    for r in range(len(rates)):
+        for s in range(len(samples)):
+            max_y = max(running_averages[r, s, left], running_averages[r, s, -1])
+            min_y = min(running_averages[r, s, left], running_averages[r, s, -1])
+            if (max_y/min_y <= threshold):
+                is_converged[r, s] = 1
+    return is_converged
+
+
 def MCompare(dbses_input, pmet, lmet, rates, samples=None, cutoff=1e6):
     """
     Compare the running averages from many datasets.
     """
+    alphas = [dbs.decoder_fraction for dbs in dbses_input]
+    # print("alphas = {}".format(alphas))
     # __, uniques = np.unique([int(dbs.decoder_fraction * 4 ** (dbs.eccs[0].N)) for dbs in dbses_input], return_index=True)
     uniques = np.arange(len(dbses_input)) # temporary to include all databases
     # print("uniques = {}".format(uniques))
@@ -288,13 +279,15 @@ def MCompare(dbses_input, pmet, lmet, rates, samples=None, cutoff=1e6):
         ax = plt.gca()
         dset_lines = []
         dset_labels = []
+        max_y = 0
+        min_y = 1
         for (d, dbs) in enumerate(dbses):
             settings = {}
             LoadPhysicalErrorRates(dbs, pmet, settings, dbs.levels)
             phyerrs = settings["xaxis"]
             running_averages = LoadRunningAverages(dbs, lmet, rates, samples)
             # Compute the position of rate, sample in the availaibe list of channels.
-            pos = GetChannelPosition(rates, samples, dbs.available)
+            pos = GetChannelPosition(dbs.noiserates[rates, :], samples, dbs.available)
             xindices = np.nonzero(dbs.stats >= min_stats)[0]
             xaxis = dbs.stats[xindices]
 
@@ -309,32 +302,42 @@ def MCompare(dbses_input, pmet, lmet, rates, samples=None, cutoff=1e6):
                 )
             )
             # dset_labels.append(dbs.plotsettings["name"]) ORIGINAL
+            is_converged = IsConverged(dbs, lmet, rates, samples, threshold = 10)
             for r in range(rates.shape[0]):
                 for s in range(samples.shape[0]):
                     yaxis = running_averages[r, s, xindices]
                     # print("xaxis\n{}\nyaxis\n{}".format(xaxis, yaxis))
-                    linestyle = gv.line_styles[d % len(gv.line_styles)]
-                    label = "$%s = %s$" % (
-                        Metrics[pmet]["latex"].replace("$", ""),
-                        latex_float(phyerrs[pos[r, s]]),
-                    )
+                    if (is_converged[r, s] == 1):
+                        linestyle = "solid"
+                    else:
+                        linestyle = "dotted"
                     plt.plot(
                         xaxis,
                         yaxis,
                         linewidth=gv.line_width,
-                        # label=label if d == 0 else None, ORIGINAL
-                        # label="%d" % int(dbs.decoder_fraction * 4 ** (dbs.eccs[0].N)),
-                        label="%d,%s_%s" % (int(dbs.decoder_fraction * 4 ** (dbs.eccs[0].N)), dbs.timestamp[:2], dbs.timestamp[-2:]),
-                        # color=gv.Colors[(r * samples.size + s) % len(gv.Colors)], ORIGINAL
+                        label="%g" % (dbs.decoder_fraction),
                         color=gv.Colors[d % len(gv.Colors)],
-                        # linestyle=linestyle, ORIGINAL
-                        linestyle="-"
-                        # marker="o",
-                        # markersize=gv.marker_size * 0.75,
+                        linestyle=linestyle
                     )
+                    # Compute the max and min y values
+                    if (max_y < np.max(yaxis)):
+                        max_y = np.max(yaxis)
+                    if (min_y > np.min(yaxis)):
+                        min_y = np.min(yaxis)
+        
         # Axes limits and scaling
         ax.set_yscale("log")
         ax.set_xscale("log")
+        
+        # Set y ticks
+        # print("min = {} and max = {}".format(min_y, max_y))
+        yticks = np.arange(OrderOfMagnitude(min_y/5), OrderOfMagnitude(max_y * 5))
+        # print("yticks = {}".format(yticks))
+        ax.set_yticks(np.power(10.0, yticks))
+
+        # Add a grid
+        ax.grid(which='both', axis='both', linewidth=2)
+
         # Axes labels
         ax.set_xlabel(
             "$N$", fontsize=gv.axes_labels_fontsize, labelpad=gv.axes_labelpad
@@ -369,6 +372,7 @@ def MCompare(dbses_input, pmet, lmet, rates, samples=None, cutoff=1e6):
             fontsize=gv.legend_fontsize,
             markerscale=gv.legend_marker_scale,
         )
+
         # Save the plot
         pdf.savefig(fig)
         plt.close()
