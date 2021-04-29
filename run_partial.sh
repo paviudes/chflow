@@ -25,8 +25,14 @@ if [[ $host == *"paviws"* ]]; then
 	# CPTP
 	pavi_ws_cptp_level2=("pavi_ws_cptp_l2_00" "pavi_ws_cptp_l2_01" "pavi_ws_cptp_l2_02" "pavi_ws_cptp_l2_03" "pavi_ws_cptp_l2_04" "pavi_ws_cptp_l2_05" "pavi_ws_cptp_l2_06" "pavi_ws_cptp_l2_07" "pavi_ws_cptp_l2_08" "pavi_ws_cptp_l2_09" "pavi_ws_cptp_l2_10" "pavi_ws_cptp_l2_11")
 	pavi_ws_cptp_level3=("pavi_ws_cptp_l3_00" "pavi_ws_cptp_l3_01" "pavi_ws_cptp_l3_02" "pavi_ws_cptp_l3_03" "pavi_ws_cptp_l3_04" "pavi_ws_cptp_l3_05" "pavi_ws_cptp_l3_06" "pavi_ws_cptp_l3_07" "pavi_ws_cptp_l3_08" "pavi_ws_cptp_l3_09" "pavi_ws_cptp_l3_10" "pavi_ws_cptp_l3_11")
+	# Correlated Pauli
+
+	# Convex sum of unitaries
+	usum_l2=("usum_l2_00" "usum_l2_01" "usum_l2_02" "usum_l2_03" "usum_l2_04" "usum_l2_05")
+	# ("usum_l2_06" "usum_l2_07" "usum_l2_08" "usum_l2_09" "usum_l2_10" "usum_l2_11")
 	alphas_pavi=(0 0.0003 0.0009 0.0026 0.0072 0.02)
 	alphas_aditya=(0.0002 0.0006 0.0015 0.0043 0.012 1)
+	alphas=(0 0.0002 0.0003 0.0006 0.0009 0.0015 0.0026 0.0043 0.0072 0.012 0.02 1)
 	# Biased Pauli with different codes
 	#bpauli_bias=("vary_bias_ststst" "vary_bias_ststcy" "vary_bias_stcyst" "vary_bias_stcycy" "vary_bias_cystst" "vary_bias_cystcy" "vary_bias_cycyst" "vary_bias_cycycy")
 	bpauli_infid=("vary_infid_ststst" "vary_infid_ststcy" "vary_infid_stcyst" "vary_infid_stcycy" "vary_infid_cystst" "vary_infid_cystcy" "vary_infid_cycyst" "vary_infid_cycycy")
@@ -148,9 +154,9 @@ usage() {
 	printf "\033[0m"
 }
 
-timestamps=("${cptp_level3[@]}")
-alphas=("${alphas[@]}")
-log=pavi_cptp_level3
+timestamps=("${usum_l2[@]}")
+alphas=("${alphas_pavi[@]}")
+log=usum_l2
 refts=${timestamps[0]}
 
 if [[ "$1" == "overwrite" ]]; then
@@ -433,8 +439,8 @@ elif [[ "$1" == "plot" ]]; then
 	echo "sbload ${refts}" > input/temp.txt
 	printf -v joined_timestamps '%s,' "${timestamps[@]:1}"
 	# echo "nrplot 0 0 ${joined_timestamps%?}" >> input/temp.txt
-	echo "dciplot infid infid ${joined_timestamps%?} 0;40;1" >> input/temp.txt
-	# echo "mcplot infid infid 2 2 ${joined_timestamps%?}" >> input/temp.txt
+	echo "dciplot infid infid ${joined_timestamps%?} 0;36;1" >> input/temp.txt
+	# echo "mcplot infid infid 0 0 ${joined_timestamps%?}" >> input/temp.txt
 	echo "quit" >> input/temp.txt
 	./chflow.sh -- temp.txt
 	rm input/temp.txt
