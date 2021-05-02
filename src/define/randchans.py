@@ -112,6 +112,33 @@ def CreateIIDPauli(infid, qcode):
     return iid_error_dist
 
 
+def ReconstructPauliChannel(pauli_probs, qcode):
+    # Reconstruct the n-qubit Pauli channel if we had only weight-1 errors.
+    if qcode.group_by_weight is None:
+        PrepareSyndromeLookUp(qcode)
+    
+    single_qubit_errors = qcode.PauliOperatorsLST[qcode.group_by_weight[1], :]
+    single_qubit_probs = pauli_probs[qcode.group_by_weight[1]]
+
+    # Extract the marginal distribution of pI, pX, pY and pZ on each qubit.
+    qubit_pauli_probs = np.zeros((qcode.N, 4), dtype = np.double)
+    # Fill the identity probs
+    qubit_pauli_probs[:, 0] = np.power(pauli_probs[0], 1/qcode.N)
+    # Retrieve the single qubit error probabilities
+    for i in range(qcode.group_by_weight[1].size):
+        supp, = np.nonzero(single_qubit_errors[i, :])
+        err_type = single_qubit_errors[i, supp]
+        qubit_pauli_probs[supp, err_type] = single_qubit_probs[i]
+
+    # Normalize so that the marginal distributions add up to 1.
+    for q in range(qcode.N):
+        qubit_pauli_probs[q, 1:] = (1 - qubit_pauli_probs[q, 0]) * qubit_pauli_probs[q, 1:]/np.sum(qubit_pauli_probs[q, 1:])
+
+    # Create an n-qubit Pauli channel where the probabilities of n-qubit errors are constructed using the i.i.d ansatz from the single qubit error probabilities.
+    pauli_dist = np.prod(qubit_pauli_probs[range(qcode.N), qcode.PauliOperatorsLST[:, range(qcode.N)]], axis=1)
+    return pauli_dist
+
+
 def IIDWtihCrossTalk(infid, qcode, iid_fraction, subset_fraction):
     # Generate a Pauli correlated channel as a weighted sum of IID and two-qubit error distributions.
     atol = 10e-14

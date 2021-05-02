@@ -123,18 +123,18 @@ def BinsPlot(dbs, lmet, pvals):
 	return None
 
 
-def PlotBinVarianceMetrics(ax1, dbs, level, lmet, pmets, nbins, include_info):
+def PlotBinVarianceMetrics(ax_principal, dbs, level, lmet, pmets, nbins, include_info):
 	# Compare scatter for different physical metrics
 	min_bin_fraction = 0.1
 
-	ax2 = plt.axes([0, 0, 1, 1])
-	# Manually set the position and relative size of the inset axes within ax1
+	ax_inset = plt.axes([0, 0, 1, 1])
+	# Manually set the position and relative size of the inset axes within ax_principal
 	# 0.1, 0.65, 0.33, 0.3
 	# 0.6, 0.25, 0.33, 0.3
-	ip = InsetPosition(ax1, [0.1, 0.6, 0.33, 0.3])
-	ax2.set_axes_locator(ip)
-	# Mark the region corresponding to the inset axes on ax1 and draw lines in grey linking the two axes.
-	mark_inset(ax1, ax2, loc1=2, loc2=4, fc="none")
+	ip = InsetPosition(ax_principal, [0.1, 0.6, 0.33, 0.3])
+	ax_inset.set_axes_locator(ip)
+	# Mark the region corresponding to the inset axes on ax_principal and draw lines in grey linking the two axes.
+	mark_inset(ax_principal, ax_inset, loc1=2, loc2=4, fc="none")
 	phyerrs = np.zeros((len(pmets), dbs.channels), dtype=np.double)
 	logerrs = np.load(LogicalErrorRates(dbs, lmet))[:, level]
 	plotfname = CompareScatters(dbs, lmet, pmets, mode="metrics")
@@ -170,7 +170,7 @@ def PlotBinVarianceMetrics(ax1, dbs, level, lmet, pmets, nbins, include_info):
 		# xaxis = (bins[pmets[p]][:, 0] + bins[pmets[p]][:, 1]) / 2
 		yaxis = collapsed_bins[pmets[p]][:, 3]
 		# print("yaxis = {}".format(yaxis))
-		ax2.plot(
+		ax_inset.plot(
 			xaxis,
 			yaxis,
 			marker=ml.Metrics[pmets[p]]["marker"],
@@ -182,18 +182,18 @@ def PlotBinVarianceMetrics(ax1, dbs, level, lmet, pmets, nbins, include_info):
 			label=ml.Metrics[pmets[p]]["latex"],
 		)
 	# Axes
-	# ax2.set_xlabel(ml.Metrics[pmets[0]]["phys"], fontsize=gv.axes_labels_fontsize * 0.6)
-	# ax2.set_xlabel("Bins", fontsize=gv.axes_labels_fontsize * 0.6)
+	# ax_inset.set_xlabel(ml.Metrics[pmets[0]]["phys"], fontsize=gv.axes_labels_fontsize * 0.6)
+	# ax_inset.set_xlabel("Bins", fontsize=gv.axes_labels_fontsize * 0.6)
 	# ax.set_xscale("log")
-	ax2.set_ylabel("$\\Delta$", fontsize=gv.axes_labels_fontsize)
+	ax_inset.set_ylabel("$\\Delta$", fontsize=gv.axes_labels_fontsize)
 	# ax.set_ylim([10e-9, None])
-	# ax2.set_yscale("log")
+	# ax_inset.set_yscale("log")
 	# Axes ticks
 	# loc = LogLocator(base=10, numticks=10) # this locator puts ticks at regular intervals
-	# ax2.yaxis.set_major_locator(loc)
+	# ax_inset.yaxis.set_major_locator(loc)
 	# print("nonzero_bins.size = {}".format(nonzero_bins.size))
-	ax2.set_xticks(np.arange(collapsed_bins[pmets[0]].shape[0], dtype=np.int))
-	ax2.set_xticklabels(
+	ax_inset.set_xticks(np.arange(collapsed_bins[pmets[0]].shape[0], dtype=np.int))
+	ax_inset.set_xticklabels(
 		list(
 			map(
 				lambda num: "%s" % scientific_float(num),
@@ -203,7 +203,7 @@ def PlotBinVarianceMetrics(ax1, dbs, level, lmet, pmets, nbins, include_info):
 		rotation=45,
 		color=ml.Metrics[pmets[0]]["color"],
 	)
-	ax2.tick_params(
+	ax_inset.tick_params(
 		axis="both",
 		which="both",
 		pad=gv.ticks_pad,
@@ -213,9 +213,9 @@ def PlotBinVarianceMetrics(ax1, dbs, level, lmet, pmets, nbins, include_info):
 		labelsize=gv.ticks_fontsize * 0.75,
 	)
 	if len(pmets) > 1:
-		ax2T = ax2.twiny()
-		ax2T.set_axes_locator(ip)
-		ax2T.tick_params(
+		ax_inset_top = ax_inset.twiny()
+		ax_inset_top.set_axes_locator(ip)
+		ax_inset_top.tick_params(
 			axis="both",
 			which="both",
 			# pad=gv.ticks_pad,
@@ -224,8 +224,8 @@ def PlotBinVarianceMetrics(ax1, dbs, level, lmet, pmets, nbins, include_info):
 			width=gv.ticks_width,
 			labelsize=gv.ticks_fontsize * 0.75,
 		)
-		ax2T.set_xticks(np.arange(collapsed_bins[pmets[1]].shape[0], dtype=np.int))
-		ax2T.set_xticklabels(
+		ax_inset_top.set_xticks(np.arange(collapsed_bins[pmets[1]].shape[0], dtype=np.int))
+		ax_inset_top.set_xticklabels(
 			list(
 				map(
 					lambda num: "%s" % scientific_float(num),
@@ -239,72 +239,66 @@ def PlotBinVarianceMetrics(ax1, dbs, level, lmet, pmets, nbins, include_info):
 	return None
 
 
-def PlotBinVarianceDataSets(ax1, dbses, level, lmet, phymets, nbins, include_info):
+def PlotBinVarianceDataSets(ax_principal, dbses, level, lmet, phymets, nbins, include_info, is_inset = 1):
 	# Compare scatter for different physical metrics
-	min_bin_fraction = 0.1
-	ax2 = plt.axes([0, 0, 1, 1])
-	# Manually set the position and relative size of the inset axes within ax1
-	ip = InsetPosition(ax1, [0.1, 0.6, 0.33, 0.3])
-	# if len(phymets) > 1:
-	#     ip = InsetPosition(ax1, [0.1, 0.6, 0.33, 0.3])
-	# else:
-	#     ip = InsetPosition(ax1, [0.1, 0.65, 0.33, 0.3])
-	ax2.set_axes_locator(ip)
-	# Mark the region corresponding to the inset axes on ax1 and draw lines in grey linking the two axes.
-	mark_inset(ax1, ax2, loc1=2, loc2=4, fc="none")
+	atol = 1E-16
+	min_bin_fraction = 0.3
+	
+	if (is_inset == 1):
+		ax_inset = plt.axes([0, 0, 1, 1])
+		# Manually set the position and relative size of the inset axes within ax_principal
+		# ip = InsetPosition(ax_principal, [0.1, 0.6, 0.33, 0.3]) # Positon: top left
+		ip = InsetPosition(ax_principal, [0.68, 0.1, 0.3, 0.25]) # Positon: bottom right
+		# if len(phymets) > 1:
+		#     ip = InsetPosition(ax_principal, [0.1, 0.6, 0.33, 0.3])
+		# else:
+		#     ip = InsetPosition(ax_principal, [0.1, 0.65, 0.33, 0.3])
+		ax_inset.set_axes_locator(ip)
+		# Mark the region corresponding to the inset axes on ax_principal and draw lines in grey linking the two axes.
+		mark_inset(ax_principal, ax_inset, loc1=2, loc2=4, fc="none")
+	else:
+		ax_inset = ax_principal
+
 	# Broadcast the physical error metric if only one is given.
 	if len(phymets) == 1:
 		pmets = [phymets[0] for __ in range(len(dbses))]
 	else:
 		pmets = phymets
+
 	ndb = len(dbses)
 	phyerrs = np.zeros((ndb, dbses[0].channels), dtype=np.double)
 	logerrs = np.zeros((ndb, dbses[0].channels), dtype=np.double)
+	
 	collapsed_bins = [None for d in range(ndb)]
 	for d in range(ndb):
 		if pmets[d] == "uncorr":
 			phyerrs[d, :] = np.load(PhysicalErrorRates(dbses[d], pmets[d]))[:, level]
+			# , partial_data="%g" % dbses[d].decoder_fraction)
 		else:
 			phyerrs[d, :] = np.load(PhysicalErrorRates(dbses[d], pmets[d]))
+
+		# Error rates less than atol will be set to atol
+		negligible = (phyerrs[d, :] <= atol)
+		phyerrs[d, negligible] = atol
+
 		logerrs[d, :] = np.load(LogicalErrorRates(dbses[d], lmet))[:, level]
 
 		include = include_info[pmets[d]]
 
-		bins = ComputeBinVariance(
-			phyerrs[d, include], logerrs[d, include], space="log", nbins=nbins
-		)
-		collapsed_bins[d] = CollapseBins(
-			bins, min_bin_fraction * dbses[d].channels / nbins
-		)
+		print("xdata for alpha = {}\n{}".format(dbses[d].decoder_fraction, phyerrs[d, include]))
 
-		# print(
-		#     "\033[2mnbins for level {} = {}\nPoints in bins = {}\nAverage points in a bin = {}\nthreshold: {}\n----\033[0m".format(
-		#         level,
-		#         collapsed_bins[d].shape[0],
-		#         collapsed_bins[d][:, 2],
-		#         np.mean(bins[:, 2]),
-		#         min_bin_fraction * dbses[d].channels / nbins,
-		#     )
-		# )
-
+		bins = ComputeBinVariance(phyerrs[d, include], logerrs[d, include], space="log", nbins=nbins)
+		collapsed_bins[d] = CollapseBins(bins, min_bin_fraction * dbses[d].channels / nbins)
+		# collapsed_bins[d] = bins # temporary fix to avoid the CollapseBins function.
+		print("Number of bins for alpha = {} is {}.".format(dbses[d].decoder_fraction, collapsed_bins[d].shape[0]))
+		
 		xaxis = np.arange(collapsed_bins[d].shape[0])
-		# xaxis = (bins[pmets[p]][:, 0] + bins[pmets[p]][:, 1]) / 2
 		yaxis = collapsed_bins[d][:, 3]
-		# print("Bin plot for (d={}) {}: {}".format(d, names[d], gv.Colors[d]))
 		if (d == 0):
-			ax2T = ax2.twiny()
-			ax2T.set_axes_locator(ip)
-			ax2T.plot(
-			xaxis,
-			yaxis,
-			marker=gv.Markers[d % gv.n_Markers],
-			color=gv.Colors[d],
-			linestyle="-",
-			linewidth=gv.line_width,
-			markersize=gv.marker_size,
-			alpha=0.75)
-		else:
-			ax2.plot(
+			ax_inset_top = ax_inset.twiny()
+			if (is_inset == 1):
+				ax_inset_top.set_axes_locator(ip)
+			ax_inset_top.plot(
 				xaxis,
 				yaxis,
 				marker=gv.Markers[d % gv.n_Markers],
@@ -312,25 +306,55 @@ def PlotBinVarianceDataSets(ax1, dbses, level, lmet, phymets, nbins, include_inf
 				linestyle="-",
 				linewidth=gv.line_width,
 				markersize=gv.marker_size,
-				alpha=0.75,
+				alpha=0.75
 			)
-		# print("dbs name: {}".format(dbses[d].name))
+			# Create an empty plot for legend entry.
+			ax_inset.plot([], [], marker=gv.Markers[d % gv.n_Markers], color=gv.Colors[d % gv.n_Colors], linestyle="-", linewidth=gv.line_width, markersize=gv.marker_size, alpha=0.75, label=ml.Metrics[pmets[0]]["latex"])
+		else:
+			if (abs(dbses[d].decoder_fraction - 0.0014) < atol):
+				dcfraction_label = "NR data for $|P| \\leq 1$"
+			elif (abs(dbses[d].decoder_fraction - 1) < atol):
+				dcfraction_label = "NR data for $|P| \\leq 7$"
+			else:
+				dcfraction_label = "%g" % (dbses[d].decoder_fraction)
+			ax_inset.plot(
+				xaxis,
+				yaxis,
+				marker=gv.Markers[d % gv.n_Markers],
+				color=gv.Colors[d % gv.n_Colors],
+				linestyle="-",
+				linewidth=gv.line_width,
+				markersize=gv.marker_size,
+				alpha=0.75,
+				label = dcfraction_label
+			)
+		print("Plot done for alpha = {}".format(dbses[d].decoder_fraction))
 	# Axes
-	# ax2.set_xlabel("Bins", fontsize=gv.axes_labels_fontsize * 0.6)
-	ax2.set_ylabel("$\\Delta$", fontsize=gv.axes_labels_fontsize)
+	if (is_inset == 0):
+		ax_inset.set_xlabel("Critical parameter computed from NR data", fontsize=gv.axes_labels_fontsize, labelpad=0.4, color=gv.QB_GREEN)
+		ax_inset_top.set_xlabel(ml.Metrics[pmets[0]]["latex"], fontsize=gv.axes_labels_fontsize, labelpad=0.6, color=gv.QB_BLUE)
+	
+	ax_inset.set_ylabel("$\\Delta$", fontsize=gv.axes_labels_fontsize)
 	# ax.set_ylim([10e-9, None])
-	# ax2.set_yscale("log")
-	ax2.tick_params(
+	# ax_inset.set_yscale("log")
+
+	# Ticks
+	if (is_inset == 0):
+		ticks_fontsize = gv.ticks_fontsize
+	else:
+		ticks_fontsize = gv.ticks_fontsize * 0.75
+
+	ax_inset.tick_params(
 		axis="both",
 		which="both",
 		# pad=gv.ticks_pad,
 		direction="inout",
 		length=gv.ticks_length,
 		width=gv.ticks_width,
-		labelsize=gv.ticks_fontsize * 0.75,
+		labelsize=ticks_fontsize,
 	)
-	ax2.set_xticks(np.arange(0, collapsed_bins[1].shape[0], dtype=np.int))
-	ax2.set_xticklabels(
+	ax_inset.set_xticks(np.arange(0, collapsed_bins[1].shape[0], dtype=np.int))
+	ax_inset.set_xticklabels(
 		list(
 			map(
 				lambda num: "%s" % scientific_float(num),
@@ -338,20 +362,20 @@ def PlotBinVarianceDataSets(ax1, dbses, level, lmet, phymets, nbins, include_inf
 			)
 		),
 		rotation=45,
-		color=gv.Colors[1],
+		color=gv.QB_GREEN,
 	)
 	# if len(phymets) > 1:
-	ax2T.tick_params(
+	ax_inset_top.tick_params(
 		axis="both",
 		which="both",
 		# pad=gv.ticks_pad,
 		direction="inout",
 		length=gv.ticks_length,
 		width=gv.ticks_width,
-		labelsize=gv.ticks_fontsize * 0.75,
+		labelsize=ticks_fontsize,
 	)
-	ax2T.set_xticks(np.arange(0, collapsed_bins[0].shape[0], dtype=np.int))
-	ax2T.set_xticklabels(
+	ax_inset_top.set_xticks(np.arange(0, collapsed_bins[0].shape[0], dtype=np.int))
+	ax_inset_top.set_xticklabels(
 		list(
 			map(
 				lambda num: "%s" % scientific_float(num),
@@ -359,8 +383,18 @@ def PlotBinVarianceDataSets(ax1, dbses, level, lmet, phymets, nbins, include_inf
 			)
 		),
 		rotation=45,
-		color=gv.Colors[0],
+		color=gv.QB_BLUE,
 	)
+
+	if (is_inset == 0):
+		# Legend
+		ax_inset.legend(
+			numpoints=1,
+			loc="upper right",
+			shadow=True,
+			fontsize=gv.legend_fontsize,
+			markerscale=gv.legend_marker_scale,
+		)
 	return None
 
 

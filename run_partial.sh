@@ -22,13 +22,28 @@ if [[ $host == *"paviws"* ]]; then
 	outdir="/Users/pavi/Documents/chbank"
 	chflowdir="/Users/pavi/Documents/rclearn/chflow"
 	report_dir="/Users/pavi/OneDrive\ -\ University\ of\ Waterloo/chbank/Nov4"
+	
+	pred_pcorr_level2=("pred_pcorr_l2_00" "pred_pcorr_l2_01" "pred_pcorr_l2_02" "pred_pcorr_l2_03" "pred_pcorr_l2_04" "pred_pcorr_l2_05" "pred_pcorr_l2_06" "pred_pcorr_l2_07" "pred_pcorr_l2_08" "pred_pcorr_l2_09" "pred_pcorr_l2_10" "pred_pcorr_l2_11")
+	selected_pred_pcorr_level2=("pred_pcorr_l2_03" "pred_pcorr_l2_00")
+	pred_pcorr_alphas=(0 0.0011 0.0013 0.0014 0.0018 0.0021 0.0024 0.003 0.0035 0.004 0.0061 0.01) # For pcorr
+	selected_pcorr_pred_alphas=(0.0014 0)
+	
+	pred_cptp_level2=("pred_cptp_l2_00" "pred_cptp_l2_01" "pred_cptp_l2_02" "pred_cptp_l2_03" "pred_cptp_l2_04" "pred_cptp_l2_05" "pred_cptp_l2_06" "pred_cptp_l2_07" "pred_cptp_l2_08" "pred_cptp_l2_09" "pred_cptp_l2_10" "pred_cptp_l2_11")
+	selected_pred_cptp_level2=("pred_cptp_l2_03" "pred_cptp_l2_04" "pred_cptp_l2_00")
+	pred_cptp_alphas=(0 0.0011 0.0013 0.0014 0.0018 0.0021 0.0024 0.003 0.0035 0.004 0.0061 0.01)
+	selected_pred_cptp_alphas=(0.0014 0.0018 0)
+	
+	pred_ia_level2=("pred_ia_l2_00" "pred_ia_l2_01" "pred_ia_l2_02" "pred_ia_l2_03" "pred_ia_l2_04" "pred_ia_l2_05" "pred_ia_l2_06" "pred_ia_l2_07" "pred_ia_l2_08")
+	
+	####### Partial decoders
 	# CPTP
 	pavi_ws_cptp_level2=("pavi_ws_cptp_l2_00" "pavi_ws_cptp_l2_01" "pavi_ws_cptp_l2_02" "pavi_ws_cptp_l2_03" "pavi_ws_cptp_l2_04" "pavi_ws_cptp_l2_05" "pavi_ws_cptp_l2_06" "pavi_ws_cptp_l2_07" "pavi_ws_cptp_l2_08" "pavi_ws_cptp_l2_09" "pavi_ws_cptp_l2_10" "pavi_ws_cptp_l2_11")
 	pavi_ws_cptp_level3=("pavi_ws_cptp_l3_00" "pavi_ws_cptp_l3_01" "pavi_ws_cptp_l3_02" "pavi_ws_cptp_l3_03" "pavi_ws_cptp_l3_04" "pavi_ws_cptp_l3_05" "pavi_ws_cptp_l3_06" "pavi_ws_cptp_l3_07" "pavi_ws_cptp_l3_08" "pavi_ws_cptp_l3_09" "pavi_ws_cptp_l3_10" "pavi_ws_cptp_l3_11")
 	# Correlated Pauli
-
+	pcorr_l2=("pcorr_l2_00" "pcorr_l2_01" "pcorr_l2_02" "pcorr_l2_03" "pcorr_l2_04" "pcorr_l2_05")
 	# Convex sum of unitaries
 	usum_l2=("usum_l2_00" "usum_l2_01" "usum_l2_02" "usum_l2_03" "usum_l2_04" "usum_l2_05")
+
 	# ("usum_l2_06" "usum_l2_07" "usum_l2_08" "usum_l2_09" "usum_l2_10" "usum_l2_11")
 	alphas_pavi=(0 0.0003 0.0009 0.0026 0.0072 0.02)
 	alphas_aditya=(0.0002 0.0006 0.0015 0.0043 0.012 1)
@@ -91,10 +106,18 @@ if [[ -n ${cluster} ]]; then
     aditya_cptp_level3=("beluga_cptp_l3_00" "beluga_cptp_l3_06" "beluga_cptp_l3_07" "beluga_cptp_l3_08" "beluga_cptp_l3_09" "beluga_cptp_l3_10" "beluga_cptp_l3_11")
 	alphas_pavi=(0 0.0003 0.0009 0.0026 0.0072 0.02)
 	alphas_aditya=(0 0.0002 0.0006 0.0015 0.0043 0.012 1)
-	
+	# Correlated Pauli
+	pavi_pcorr_level2=("pcorr_l2_00" "pcorr_l2_01" "pcorr_l2_02" "pcorr_l2_03" "pcorr_l2_04" "pcorr_l2_05")
+	aditya_pcorr_level2=("pcorr_l2_06" "pcorr_l2_07" "pcorr_l2_08" "pcorr_l2_09" "pcorr_l2_10" "pcorr_l2_11")
+	# Convex sum of unitaries
+	pavi_usum_level2=("usum_l2_00" "usum_l2_01" "usum_l2_02" "usum_l2_03" "usum_l2_04" "usum_l2_05")
+	aditya_usum_level2=("usum_l2_06" "usum_l2_07" "usum_l2_08" "usum_l2_09" "usum_l2_10" "usum_l2_11")
+
 	# Aggregate
 	cptp_level2=("beluga_cptp_l2_00" "beluga_cptp_l2_01" "beluga_cptp_l2_02" "beluga_cptp_l2_03" "beluga_cptp_l2_04" "beluga_cptp_l2_05" "beluga_cptp_l2_06" "beluga_cptp_l2_07" "beluga_cptp_l2_08" "beluga_cptp_l2_09" "beluga_cptp_l2_10" "beluga_cptp_l2_11")
 	cptp_level3=("beluga_cptp_l3_00" "beluga_cptp_l3_01" "beluga_cptp_l3_02" "beluga_cptp_l3_03" "beluga_cptp_l3_04" "beluga_cptp_l3_05" "beluga_cptp_l3_06" "beluga_cptp_l3_07" "beluga_cptp_l3_08" "beluga_cptp_l3_09" "beluga_cptp_l3_10" "beluga_cptp_l3_11")
+	pcorr_level2=("beluga_pcorr_l2_00" "beluga_pcorr_l2_01" "beluga_pcorr_l2_02" "beluga_pcorr_l2_03" "beluga_pcorr_l2_04" "beluga_pcorr_l2_05" "beluga_pcorr_l2_06" "beluga_pcorr_l2_07" "beluga_pcorr_l2_08" "beluga_pcorr_l2_09" "beluga_pcorr_l2_10" "beluga_pcorr_l2_11")
+	usum_level2=("beluga_usum_l2_00" "beluga_usum_l2_01" "beluga_usum_l2_02" "beluga_usum_l2_03" "beluga_usum_l2_04" "beluga_usum_l2_05" "beluga_usum_l2_06" "beluga_usum_l2_07" "beluga_usum_l2_08" "beluga_usum_l2_09" "beluga_usum_l2_10" "beluga_usum_l2_11")
 	alphas=(0 0.0003 0.0009 0.0026 0.0072 0.02 0.0002 0.0006 0.0015 0.0043 0.012 1)
 	# Impact RC Timestamps
 	aditya_impactRC_level2=("rtz" "rtasu" "rand_cptp" "twirl_rtz" "twirl_rtasu" "twirl_rand_cptp")
@@ -106,11 +129,6 @@ if [[ -n ${cluster} ]]; then
 	#codes=("Steane,Steane,Steane" "Steane,Steane,7qc_cyclic" "Steane,7qc_cyclic,Steane" "Steane,7qc_cyclic,7qc_cyclic" "7qc_cyclic,Steane,Steane" "7qc_cyclic,Steane,7qc_cyclic" "7qc_cyclic,7qc_cyclic,Steane" "7qc_cyclic,7qc_cyclic,7qc_cyclic")
 	codes=("Steane,Steane,Steane" "7qc_cyclic,7qc_cyclic,7qc_cyclic")
 	jobarray=1
-	## Alphas
-    # pavi
-    # alphas_pavi=(0 0.0001 0.00012 0.00015 0.00018 0.00022 0.00027 0.00033 0.0004 0.00048 0.00059 0.00072 0.00088 0.00107 0.0013 0.00158 0.00193 0.00235 0.00287 0.00349 0.00425 0.00518 0.00631 0.00769 0.00936 0.01141 0.01389 0.01693 0.02062 0.02512 0.0306 0.03728 0.04541 0.05532 0.06739 0.08209 0.1 1)
-    # aditya
-    # alphas_aditya=(0 0.0001 0.00012 0.00015 0.00018 0.00022 0.00027 0.00033 0.0004 0.00048 0.00059 0.00072 0.00088 0.00107 0.0013 0.00158 0.00193 0.00235 0.00287 0.00349 0.00425 0.00518 0.00631 0.00769 0.00936 0.01141 0.01389 0.01693 0.02062 0.02512 0.0306 0.03728 0.04541 0.05532 0.06739 0.08209 0.1 1)
 fi
 
 
@@ -154,9 +172,9 @@ usage() {
 	printf "\033[0m"
 }
 
-timestamps=("${usum_l2[@]}")
-alphas=("${alphas_pavi[@]}")
-log=usum_l2
+timestamps=("${selected_pred_pcorr_level2[@]}")
+alphas=("${selected_pred_pcorr_alphas[@]}")
+log=pred_pcorr
 refts=${timestamps[0]}
 
 if [[ "$1" == "overwrite" ]]; then
@@ -422,25 +440,40 @@ elif [[ "$1" == "pmetrics" ]]; then
 elif [[ "$1" == "lpmetrics" ]]; then
 	# Compute physical infidelity for all channels.
 	printf "\033[2m"
-	touch input/temp.txt
+	touch input/${log}_lpmetrics_timestamps.txt
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
+		touch input/temp_${t}.txt
 		ts=${timestamps[t]}
-		echo "sbload ${ts}" >> input/temp.txt
-		echo "lpmetrics uncorr" >> input/temp.txt
-		echo "collect" >> input/temp.txt
+		echo "sbload ${ts}" >> input/temp_${t}.txt
+		echo "lpmetrics uncorr" >> input/temp_${t}.txt
+		echo "quit" >> input/temp_${t}.txt
+		echo "./chflow.sh -- temp_${t}.txt" >> input/${log}_lpmetrics_timestamps.txt
 	done
-	echo "quit" >> input/temp.txt
-	./chflow.sh -- temp.txt
-	rm input/temp.txt
+
+	echo -e "\033[4mparallel --joblog $lpmetrics_${log}.log --jobs ${cores} {1} :::: input/${log}_lpmetrics_timestamps.txt\033[0m"
+	parallel --joblog $lpmetrics_{log}.log --jobs ${cores} {1} :::: input/${log}_lpmetrics_timestamps.txt
+
+	for (( t=0; t<${#timestamps[@]}; ++t )); do
+		rm input/temp_${t}.txt
+	done
+	rm input/${log}_lpmetrics_timestamps.txt
 	printf "\033[0m"
 
 elif [[ "$1" == "plot" ]]; then
 	printf "\033[2m"
-	echo "sbload ${refts}" > input/temp.txt
-	printf -v joined_timestamps '%s,' "${timestamps[@]:1}"
+	# echo "sbload ${refts}" > input/temp.txt
+	# printf -v joined_timestamps '%s,' "${timestamps[@]:1}"
+	##### temporary patch
+	echo "sbload 23_06_2020_17_44_30" > input/temp.txt
+	printf -v joined_timestamps '%s,' "${timestamps[@]:0}"
+	joined_uncorr=$(seq -s "uncorr" ${#timestamps[@]} | sed 's/[0-9]/,/g' | sed 's/,,/,/g' | sed 's/\%//g')
+	# echo "${joined_uncorr}"
+	#####
 	# echo "nrplot 0 0 ${joined_timestamps%?}" >> input/temp.txt
-	echo "dciplot infid infid ${joined_timestamps%?} 0;36;1" >> input/temp.txt
+	# echo "dciplot infid infid ${joined_timestamps%?} 0;36;1" >> input/temp.txt
 	# echo "mcplot infid infid 0 0 ${joined_timestamps%?}" >> input/temp.txt
+	echo "hamplot infid${joined_uncorr} infid ${joined_timestamps%?} 7,9 0.01,0.01 15" >> input/temp.txt
+	echo "notes infid${joined_uncorr} infid pcorr partialham /Users/pavi/Documents/rclearn/notes/paper/figures/scatter_styles 1" >> input/temp.txt
 	echo "quit" >> input/temp.txt
 	./chflow.sh -- temp.txt
 	rm input/temp.txt

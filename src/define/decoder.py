@@ -1,6 +1,6 @@
 import numpy as np
 from define.QECCLfid import utils as ut
-from define.randchans import CreateIIDPauli
+from define.randchans import CreateIIDPauli, ReconstructPauliChannel
 from define.chanreps import PauliConvertToTransfer
 from define import fnames as fn
 from scipy.special import comb
@@ -84,17 +84,13 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, nr_weights_all = None
 	# To get the indices of the k-largest elements: https://stackoverflow.com/questions/6910641/how-do-i-get-indices-of-n-maximum-values-in-a-numpy-array
 	# If the option is "full", it supplies top alpha fraction of entire chi diagonal
 	# If the option is "weight", it supplies errors with weights sampled from Poisson distribution having mean 1 and excess budget redistributed
-	if chan_probs.ndim == 1:
-		iid_chan_probs = chan_probs
-	else:
-		iid_chan_probs = ut.GetErrorProbabilities(
-			qcode.PauliOperatorsLST, chan_probs, 0
-		)
+	if chan_probs.ndim > 1:
+		chan_probs = ut.GetErrorProbabilities(qcode.PauliOperatorsLST, chan_probs, 0)
 
-	if option == "full":
+	if ((option == "full") or (option == "sqprobs")):
 		nPaulis = max(1, int(lead_frac * (4 ** qcode.N)))
-		leading_paulis = np.argsort(iid_chan_probs)[-nPaulis:]
-
+		leading_paulis = np.argsort(chan_probs)[-nPaulis:]
+		
 
 	elif option == "weight":
 
@@ -112,17 +108,15 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, nr_weights_all = None
 			if (nerrors_weight[w] > 0):
 				stop = start + nerrors_weight[w]
 				errors_wtw = qcode.group_by_weight[w]
-				indices_picked = errors_wtw[np.argsort(iid_chan_probs[errors_wtw])[-nerrors_weight[w]:]]
+				indices_picked = errors_wtw[np.argsort(chan_probs[errors_wtw])[-nerrors_weight[w]:]]
 				leading_paulis[start:stop] = indices_picked[:]
 				start = stop
-	return (1 - iid_chan_probs[0], leading_paulis, iid_chan_probs[leading_paulis])
+	return (1 - chan_probs[0], leading_paulis, chan_probs[leading_paulis])
 
 
 def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full", nr_weights = None):
 	# Complete the probabilities given to a ML decoder.
-	(infid, known_paulis, known_probs) = GetLeadingPaulis(
-		leading_fraction, qcode, chan_probs, option, nr_weights
-	)
+	(infid, known_paulis, known_probs) = GetLeadingPaulis(leading_fraction, qcode, chan_probs, option, nr_weights)
 	"""
 	Create a function similar to GetLeadingPaulis.
 	This function will simply identify the Pauli indices (in LST) we need to keep from NR.
@@ -131,8 +125,21 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full
 	#     "Number of known paulis in decoder knowledge = {}".format(known_paulis.shape[0])
 	# )
 	# print("Total known probability = {}".format(np.sum(known_probs)))
-	infid_qubit = 1 - np.power(1 - infid, 1 / qcode.N)
-	decoder_probs = CreateIIDPauli(infid_qubit, qcode)
+	
+	if ((option == "full") or (option == "weight")):
+		infid_qubit = 1 - np.power(1 - infid, 1 / qcode.N)
+		decoder_probs = CreateIIDPauli(infid_qubit, qcode)
+	
+	elif (option == "sqprobs"):
+		if chan_probs.ndim > 1:
+			pauli_probs = ut.GetErrorProbabilities(qcode.PauliOperatorsLST, chan_probs, 0)
+		else:
+			pauli_probs = chan_probs
+		decoder_probs = ReconstructPauliChannel(pauli_probs, qcode)
+	
+	else:
+		pass
+
 	decoder_probs[known_paulis] = known_probs
 	total_unknown = 1 - np.sum(known_probs)
 	# print("Total unknown probability = {}".format(total_unknown))
@@ -140,9 +147,7 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full
 	# https://stackoverflow.com/questions/27824075/accessing-numpy-array-elements-not-in-a-given-index-list
 	mask = np.ones(decoder_probs.shape[0], dtype=bool)
 	mask[known_paulis] = False
-	decoder_probs[mask] = (
-		total_unknown * decoder_probs[mask] / np.sum(decoder_probs[mask])
-	)
+	decoder_probs[mask] = total_unknown * decoder_probs[mask] / np.sum(decoder_probs[mask])
 	# print("Sum of decoder probs = {}".format(np.sum(decoder_probs)))
 	# print("Sorted decoder probs = {}".format(np.sort(decoder_probs)))
 	return decoder_probs

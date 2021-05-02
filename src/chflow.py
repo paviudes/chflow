@@ -48,6 +48,7 @@ from define.fnames import (
 	CompressedParams,
 	PredictedPhyRates,
 	HammerPlot,
+	PartialHammerPlotFile,
 	LevelWise,
 	PauliDistribution,
 	ChannelWise,
@@ -94,7 +95,7 @@ from analyze.dcplot import DecoderCompare, DecoderInstanceCompare, RelativeDecod
 from analyze.dvplot import PlotDeviationYX
 from analyze.lplot import LevelWisePlot, LevelWisePlot2D
 from analyze.statplot import MCStatsPlot
-from analyze.hamplot import DoubleHammerPlot
+from analyze.hamplot import DoubleHammerPlot, PartialHammerPlot
 from analyze.pdplot import PauliDistributionPlot
 from analyze.nrplot import NRWeightsPlot
 from analyze.compare import CompareSubs
@@ -287,6 +288,7 @@ if __name__ == "__main__":
 	# Handle console inputs
 	fileinput = 0
 	infp = None
+	# print("Shell: {}".format(sys.argv))
 	if len(sys.argv) > 1:
 		if sys.argv[1] == "--":
 			# Input commands are supplied through a file.
@@ -597,6 +599,9 @@ if __name__ == "__main__":
 			else:
 				# Write the physical channels to folder
 				SavePhysicalChannels(submit)
+			# Copy the results folder if there is one
+			if os.path.exists("%s/results" % (old_outdir)):
+				os.system("cp -r %s/results %s" % (old_outdir, submit.outdir))
 			# Prepare decoder knowledge and save
 			# if the decoder needs partial information, then the decoder knowledge needs to be prepared.
 			if submit.host == "local":
@@ -849,18 +854,33 @@ if __name__ == "__main__":
 				)
 			if len(thresholds) == 0:
 				thresholds = [{"lower": 1e-9, "upper": 1e-2} for __ in submit.levels]
-			# Load the other database
-			dbs_other = Submission()
-			LoadSub(dbs_other, user[3], 0)
-			# Load the logical error rates
-			IsComplete(dbs_other)
-			if dbs_other.complete > 0:
-				if not os.path.isfile(LogicalErrorRates(dbs_other, logmet, fmt="npy")):
-					GatherLogErrData(dbs_other)
+			
+			# Load the other database(s)
+			dbses = [submit]
+			other_timestamps = user[3].split(",")
+			# print("timestamps: {}".format(other_timestamps))
+			check = 1
+			for ts in other_timestamps:
+				dbs_other = Submission()
+				LoadSub(dbs_other, ts, 0, 0)
+				# Load the logical error rates
+				IsComplete(dbs_other)
+				if dbs_other.complete > 0:
+					if not os.path.isfile(LogicalErrorRates(dbs_other, logmet, fmt="npy")):
+						GatherLogErrData(dbs_other)
+				else:
+					check = 0
+					break
+				dbses.append(dbs_other)
+
+			ndb = len(dbses)
+			if (check == 1):
+				if (ndb > 2):
+					PartialHammerPlot(logmet, pmets, dbses, 0, nbins, thresholds)
+				else:
+					DoubleHammerPlot(logmet, pmets, dbses, 1, nbins, thresholds)
 			else:
-				check = 0
-				break
-			DoubleHammerPlot(logmet, pmets, [submit, dbs_other], 1, nbins, thresholds)
+				print("\033[2mImcomplete logical error rates data for some datasets.\033[0m")
 
 		#####################################################################
 
@@ -1378,6 +1398,12 @@ if __name__ == "__main__":
 
 			elif plot_option == "hamplot":
 				plot_file = HammerPlot(submit, logmet, phymet.split(","))
+
+			elif plot_option == "hamplot":
+				plot_file = HammerPlot(submit, logmet, phymet.split(","))
+
+			elif plot_option == "partialham":
+				plot_file = PartialHammerPlotFile(submit, logmet, phymet.split(","))
 
 			elif plot_option == "dvplot":
 				plot_file = DeviationPlotFile(submit, phymet, logmet)

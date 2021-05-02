@@ -88,8 +88,8 @@ n_line_styles = len(line_styles)
 # https://matplotlib.org/2.0.2/api/markers_api.html
 Markers = [
     "o",  # With RC
-    "o",  # Without RC, # uncorr (predictability)
     "+",
+    "o",  # Without RC, # uncorr (predictability)
     "*",  # Diamond norm (predictability)
     "^",  # Infidelity (predictability)
     "v",
@@ -112,8 +112,8 @@ QB_GREEN = "#42b863"
 QB_BLUE = "#2697d0"
 Colors = [
     QB_BLUE,
+    "red",
     QB_GREEN,
-    "blue",
     "brown",
     "slategray",
     "#9467bd",

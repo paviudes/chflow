@@ -32,7 +32,7 @@ def CompareSubs(pmet, lmet, *dbses):
 	with PdfPages(plotfname) as pdf:
 		ylimits = {"left": {"min": 1, "max": 0}, "right": {"min": 1, "max": 0}}
 		for l in range(1, nlevels + 1):
-			fig = plt.figure(figsize=(gv.canvas_size[0]*1.3,gv.canvas_size[1]*1.25))
+			fig = plt.figure(figsize=(gv.canvas_size[0]*1.4, gv.canvas_size[1]*1.25))
 			ax = plt.gca()
 			ax_right = ax.twinx()
 			# ax_right = plt.gca()
@@ -43,34 +43,41 @@ def CompareSubs(pmet, lmet, *dbses):
 				LoadPhysicalErrorRates(dbses[0], pmet, settings, l)
 				settings.update({"color": gv.Colors[d % gv.n_Colors], "marker": ml.Metrics[lmet]["marker"], "linestyle": "dotted"})
 				# label = ",".join(code.name for code in dbses[d].eccs)
-				label = dbses[d].eccs[0].name
-
+				label_logerr = "%s(%s)" % (settings["ylabel"], dbses[d].eccs[0].name)
 				# Right axes plot -- with logical error rates.
 				ax_right.plot(settings["xaxis"], settings["yaxis"], color=settings["color"], alpha = 0.75, marker=settings["marker"], markersize=gv.marker_size, linestyle=settings["linestyle"], linewidth=1.5 * gv.line_width)
 				if (ylimits["right"]["min"] >= np.min(settings["yaxis"])):
 					ylimits["right"]["min"] = np.min(settings["yaxis"])
 				if (ylimits["right"]["max"] <= np.max(settings["yaxis"])):
 					ylimits["right"]["max"] = np.max(settings["yaxis"])
-				# Empty plot for the legend entry containing different codes.
-				ax_right.plot([], [], color=settings["color"], linestyle="dotted", linewidth=gv.line_width, label = label)
-
+				
 				# Let axes plots -- with uncorr.
 				# Left y-axis for uncorr
 				uncorr = np.load(PhysicalErrorRates(dbses[d], "uncorr"))
+				label_uncorr = "%s(%s)" % (ml.Metrics["uncorr"]["latex"], dbses[d].eccs[0].name)
 				ax.plot(settings["xaxis"], uncorr[:, l], color=gv.Colors[d % gv.n_Colors], marker=ml.Metrics["uncorr"]["marker"], markersize=gv.marker_size, linestyle="solid", linewidth=1.5 * gv.line_width)
 				if (ylimits["left"]["min"] >= np.min(uncorr[:, l])):
 					ylimits["left"]["min"] = np.min(uncorr[:, l])
 				if (ylimits["left"]["max"] <= np.max(uncorr[:, l])):
 					ylimits["left"]["max"] = np.max(uncorr[:, l])
+				
+				if (d == 0):
+					# Add legend entries to the left axes.
+					ax.plot([], [], color=settings["color"], alpha = 0.75, marker=ml.Metrics["uncorr"]["marker"], markersize=gv.marker_size, linestyle="solid", linewidth=1.5 * gv.line_width, label = label_uncorr)
+					ax.plot([], [], color=settings["color"], alpha = 0.75, marker=settings["marker"], markersize=gv.marker_size, linestyle=settings["linestyle"], linewidth=1.5 * gv.line_width, label = label_logerr)
+				else:
+					ax_right.plot([], [], color=settings["color"], alpha = 0.75, marker=ml.Metrics["uncorr"]["marker"], markersize=gv.marker_size, linestyle="solid", linewidth=1.5 * gv.line_width, label = label_uncorr)
+					ax_right.plot([], [], color=settings["color"], alpha = 0.75, marker=settings["marker"], markersize=gv.marker_size, linestyle=settings["linestyle"], linewidth=1.5 * gv.line_width, label = label_logerr)
+
 				# Empty plot for the legend entry containing different codes.
-				ax.plot([], [], color=settings["color"], linestyle="solid", linewidth=gv.line_width, label = label)
+				# ax.plot([], [], color=settings["color"], linestyle="solid", linewidth=gv.line_width, label = label)
 
 				# print("level {} and database {}".format(l, dbses[d].timestamp))
 				# print("X\n{}\nY left\n{}\nY right\n{}".format(settings["xaxis"], settings["yaxis"], uncorr[:, l]))
 
 			# Empty plots for the legend entries containing different colors/markers.
-			ax.plot([], [], "k", alpha=0.5, marker=ml.Metrics[lmet]["marker"], markersize=gv.marker_size, label = settings["ylabel"], linestyle="dotted", linewidth=gv.line_width)
-			ax.plot([], [], "k", marker=ml.Metrics["uncorr"]["marker"], markersize=gv.marker_size, label = ml.Metrics["uncorr"]["latex"], linestyle="solid", linewidth=gv.line_width)
+			# ax.plot([], [], "k", alpha=0.5, marker=ml.Metrics[lmet]["marker"], markersize=gv.marker_size, label = settings["ylabel"], linestyle="dotted", linewidth=gv.line_width)
+			# ax.plot([], [], "k", marker=ml.Metrics["uncorr"]["marker"], markersize=gv.marker_size, label = ml.Metrics["uncorr"]["latex"], linestyle="solid", linewidth=gv.line_width)
 
 			# Axes labels for the left (uncorr) plot
 			ax.set_xlabel(settings["xlabel"], fontsize=gv.axes_labels_fontsize*1.4)
@@ -95,8 +102,15 @@ def CompareSubs(pmet, lmet, *dbses):
 			ax_right.set_yticks(np.power(10.0, yticks_right), minor=True)
 			# print("Y ticks\nLeft\n{}\nRight\n{}".format(yticks_left, yticks_right))
 
-			# common legend for both plots
-			ax.legend(loc="lower left", shadow=True, fontsize=1.4 * gv.legend_fontsize, markerscale=gv.legend_marker_scale)
+			# legends for both plots
+			leg_left = ax.legend(loc="upper right", shadow=True, fontsize=1.4 * gv.legend_fontsize, markerscale=gv.legend_marker_scale)
+			leg_right = ax_right.legend(loc="lower left", shadow=True, fontsize=1.4 * gv.legend_fontsize, markerscale=gv.legend_marker_scale)
+
+			# Match legend text with the color of the markers
+			for text in leg_left.get_texts():
+			    text.set_color(gv.Colors[0])
+			for text in leg_right.get_texts():
+			    text.set_color(gv.Colors[1])
 
 			# Save the plot
 			pdf.savefig(fig)

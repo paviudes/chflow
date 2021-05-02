@@ -43,8 +43,8 @@ def DoubleHammerPlot(logmet, phylist, dsets, inset_flag, nbins, thresholds):
 					"marker": gv.Markers[c % gv.n_Markers],
 					"linestyle": "",
 				}
+				LoadPhysicalErrorRates(dsets[c], phylist[c], settings[c], l)
 				if c == 0:
-					LoadPhysicalErrorRates(dsets[c], phylist[c], settings[c], l)
 					# print("Getting X cutoff for l = {}".format(l))
 					xcutoff = GetXCutOff(
 						settings[c]["xaxis"],
@@ -63,9 +63,10 @@ def DoubleHammerPlot(logmet, phylist, dsets, inset_flag, nbins, thresholds):
 					current_axes = ax1
 				else:
 					include[phylist[c]] = include[phylist[0]]
-					LoadPhysicalErrorRates(dsets[c], phylist[c], settings[c], l)
 					# Plotting the logical error rates of the RC channel vs. uncorr
 					current_axes = ax_top
+
+				# LoadPhysicalErrorRates(dsets[c], phylist[c], settings[c], l)
 
 				current_axes.plot(
 					settings[c]["xaxis"][include[phylist[c]]],
@@ -76,53 +77,153 @@ def DoubleHammerPlot(logmet, phylist, dsets, inset_flag, nbins, thresholds):
 					markersize=gv.marker_size,
 					linestyle=settings[c]["linestyle"],
 					linewidth=gv.line_width,
+					# label="%s %s"
+					# % (ml.Metrics[phylist[c]]["latex"], dsets[c].plotsettings["name"]),
+				)
+				# Empty plot for legend entries
+				ax1.plot([], [],
+					color=settings[c]["color"],
+					alpha=0.75,
+					marker=settings[c]["marker"],
+					markersize=gv.marker_size,
+					linestyle=settings[c]["linestyle"],
+					linewidth=gv.line_width,
 					label="%s %s"
 					% (ml.Metrics[phylist[c]]["latex"], dsets[c].plotsettings["name"]),
 				)
-				
+			
+			# Inset plot
 			PlotBinVarianceDataSets(ax1, dsets, l, logmet, phylist, nbins, include)
 
 			# Axes labels for the bottom axes
 			bottom_xlabel = "%s %s" % (ml.Metrics[phylist[0]]["latex"], dsets[0].plotsettings["name"])
-			ax1.set_xlabel(bottom_xlabel, fontsize=gv.axes_labels_fontsize * 0.8, labelpad = gv.axes_labelpad)
+			ax1.set_xlabel(bottom_xlabel, fontsize=gv.axes_labels_fontsize * 0.8, labelpad = gv.axes_labelpad, color=settings[0]["color"])
 			ax1.set_ylabel(settings[0]["ylabel"], fontsize=gv.axes_labels_fontsize, labelpad = gv.axes_labelpad)
 			
 			# Axes labels for the top axes
 			top_xlabel = "%s %s" % (ml.Metrics[phylist[1]]["latex"], dsets[1].plotsettings["name"])
-			ax_top.set_xlabel(top_xlabel, fontsize=gv.axes_labels_fontsize * 0.8, labelpad = gv.axes_labelpad)
+			ax_top.set_xlabel(top_xlabel, fontsize=gv.axes_labels_fontsize * 0.8, labelpad = gv.axes_labelpad * 1.8, color=settings[1]["color"])
 			
 			# Scales for the axes
 			ax1.set_xscale("log")
 			ax_top.set_xscale("log")
 			ax1.set_yscale("log")
+
+			# Set a Y-axes limit
+			# ax1.set_ylim([None, 0.1]) # Display the inset plot.
 			
 			# Ticks and legend
-			legend_locations = ["upper_left", "lower_right"]
+			# Tick params for Y-axes
+			ax1.tick_params(
+				axis="y",
+				which="both",
+				pad=gv.ticks_pad,
+				direction="inout",
+				length=gv.ticks_length,
+				width=gv.ticks_width,
+				labelsize=gv.ticks_fontsize
+			)
+			legend_locations = ["center right", "lower right"]
+			tick_colors = [settings[0]["color"], settings[1]["color"]]
 			for (a, ax) in enumerate([ax1, ax_top]):
-				# Tick params for the top and bottom axes
+				# Tick params for the top and bottom X-axes
 				ax.tick_params(
-					axis="both",
+					axis="x",
 					which="both",
-					pad=gv.ticks_pad,
+					pad=0.5 * gv.ticks_pad,
 					direction="inout",
 					length=gv.ticks_length,
 					width=gv.ticks_width,
 					labelsize=gv.ticks_fontsize,
-				)
-				loc = LogLocator(base=10, numticks=10) # this locator puts ticks at regular intervals
-				ax.xaxis.set_major_locator(loc)
-				# Legend both axes
-				ax.legend(
-					numpoints=1,
-					loc=legend_locations[a],
-					shadow=True,
-					fontsize=gv.legend_fontsize,
-					markerscale=gv.legend_marker_scale,
+					color=tick_colors[a]
 				)
 			
+			# Location of the ticks
+			loc = LogLocator(base=10, numticks=10) # this locator puts ticks at regular intervals
+			ax1.xaxis.set_major_locator(loc)
+			ax_top.xaxis.set_major_locator(loc)
+			ax1.yaxis.set_major_locator(loc)
+			
+			# Color of the X-axis line				
+			ax_top.spines['bottom'].set_color(tick_colors[0])
+			ax_top.spines['top'].set_color(tick_colors[1])
+
+			# Color of the tick labels
+			for t in ax1.xaxis.get_ticklabels():
+				t.set_color(tick_colors[0])
+			for t in ax_top.xaxis.get_ticklabels():
+				t.set_color(tick_colors[1])
+			# Force the tick lines to be black
+			for t in ax1.xaxis.get_majorticklines():
+				t.set_color("k")
+			for t in ax1.xaxis.get_minorticklines():
+				t.set_color("k")
+			for t in ax_top.xaxis.get_majorticklines():
+				t.set_color("k")
+			for t in ax_top.xaxis.get_minorticklines():
+				t.set_color("k")
+			
+			# Legend for the bottom axes
+			leg = ax1.legend(
+				numpoints=1,
+				loc="upper left",
+				shadow=True,
+				fontsize=gv.legend_fontsize,
+				markerscale=gv.legend_marker_scale,
+			)
+			
+			# Match legend text with the color of the markers
+			colors = [settings[0]["color"], settings[1]["color"]]
+			for (color, text) in zip(colors, leg.get_texts()):
+				text.set_color(color)
+
 			# Save the plot
 			pdf.savefig(fig)
 			plt.close()
+		
+		# Set PDF attributes
+		pdfInfo = pdf.infodict()
+		pdfInfo["Title"] = "Hammer plot."
+		pdfInfo["Author"] = "Pavithran Iyer"
+		pdfInfo["ModDate"] = dt.datetime.today()
+	return None
+
+
+def PartialHammerPlot(logmet, phylist, dsets, inset_flag, nbins, thresholds):
+	# Compare the effect of p_u + RC on predictability.
+	# Plot no RC with infid and RC with p_u.
+	# phylist = list(map(lambda phy: phy.strip(" "), phymets.split(",")))
+	level = dsets[0].levels
+	ndb = len(dsets)
+	plotfname = fn.PartialHammerPlotFile(dsets[0], logmet, phylist)
+	with PdfPages(plotfname) as pdf:
+		fig = plt.figure(figsize=(gv.canvas_size[0], gv.canvas_size[1]*1.2))
+		ax = plt.gca()
+		settings = [[] for __ in range(ndb)]
+		include = {}
+		for d in range(ndb):
+			if d == 0:
+				# print("Getting X cutoff for alpha = {} level = {}".format(dsets[d].decoder_fraction, level))
+				if phylist[d] == "uncorr":
+					xaxis = np.load(fn.PhysicalErrorRates(dsets[d], phylist[d], partial_data="%g" % dsets[d].decoder_fraction))[:, level]
+				else:
+					xaxis = np.load(fn.PhysicalErrorRates(dsets[d], phylist[d]))
+					xcutoff = GetXCutOff(
+						xaxis,
+						np.load(fn.LogicalErrorRates(dsets[d], logmet))[:, level],
+						thresholds[level - 1],
+						nbins=50,
+						space="log"
+					)
+				include[phylist[d]] = np.nonzero(np.logical_and(xaxis >= xcutoff["left"], xaxis <= xcutoff["right"]))[0]
+			else:
+				include[phylist[d]] = include[phylist[0]]
+
+		PlotBinVarianceDataSets(ax, dsets, level, logmet, phylist, nbins, include, is_inset=inset_flag)
+
+		# Save the plot
+		pdf.savefig(fig)
+		plt.close()
 		
 		# Set PDF attributes
 		pdfInfo = pdf.infodict()

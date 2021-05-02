@@ -77,7 +77,8 @@ def LevelWisePlot(phylist, logmet, dsets, inset, flow, nbins, thresholds):
 							)
 						)[0]
 					# Plotting
-					print("Level {}\nMinimum X in plot: {}\nMinimum Y in plot: {}".format(l, np.min(settings["xaxis"][include[phylist[p]]]), np.min(settings["yaxis"][include[phylist[p]]])))
+					# print("Level {}\nMinimum X in plot: {}\nMinimum Y in plot: {}".format(l, np.min(settings["xaxis"][include[phylist[p]]]), np.min(settings["yaxis"][include[phylist[p]]])))
+					
 					plotobj = ax1.plot(
 						settings["xaxis"][include[phylist[p]]],
 						settings["yaxis"][include[phylist[p]]],

@@ -224,7 +224,7 @@ def LoadSub(submit, subid, isgen, lookup_load=1):
                     )
         return 1
     else:
-        print("\033[2mInput file not found.\033[0m")
+        print("\033[2mInput file %s not found.\033[0m" % (submit.inputfile))
     return 0
 
 

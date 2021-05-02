@@ -27,6 +27,10 @@ def HammerPlot(dbs, lmet, pmets):
     fname = "%s/results/hammer_%s_%s.pdf" % (dbs.outdir, "_".join(pmets), lmet)
     return fname
 
+def PartialHammerPlotFile(dbs, lmet, pmets):
+    # File name containing scatter bins.
+    fname = "%s/results/partial_hammer_%s_%s.pdf" % (dbs.outdir, "_".join(pmets), lmet)
+    return fname
 
 def CompareScatters(dbs, lmet, pmets, mode="metrics"):
     # File name containing scatter bins.
@@ -154,9 +158,12 @@ def LogicalErrorRates(dbs, metric, fmt="npy"):
     return fname
 
 
-def PhysicalErrorRates(dbs, metric):
+def PhysicalErrorRates(dbs, metric, partial_data=None):
     # File containing all the logical error rates for the physical channels in the database
-    fname = "%s/results/phy_%s.npy" % (dbs.outdir, metric)
+    if partial_data is None:
+        fname = "%s/results/phy_%s.npy" % (dbs.outdir, metric)
+    else:
+        fname = "%s/results/phy_%s_%s.npy" % (dbs.outdir, metric, partial_data)
     return fname
 
 
