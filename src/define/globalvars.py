@@ -87,9 +87,9 @@ n_line_styles = len(line_styles)
 # Markers
 # https://matplotlib.org/2.0.2/api/markers_api.html
 Markers = [
-    "o",  # With RC
+    "o",  # Without RC, choose o for predictability plots
+    "o",  # With RC, choose o for predictability plots
     "+",
-    "o",  # Without RC, # uncorr (predictability)
     "*",  # Diamond norm (predictability)
     "^",  # Infidelity (predictability)
     "v",
@@ -111,11 +111,11 @@ n_Markers = len(Markers)
 QB_GREEN = "#42b863"
 QB_BLUE = "#2697d0"
 Colors = [
-    QB_BLUE,
-    "red",
-    QB_GREEN,
+    "0.4",  # Without RC, choose 0.65 for predictability plots
+    "red", # With RC, choose red for predictability plots
+    "blue",
     "brown",
-    "slategray",
+    "QB_BLUE",
     "#9467bd",
     "#8c564b",
     "#e377c2",

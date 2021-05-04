@@ -70,9 +70,13 @@ def latex_float(f):
     float_str = "{0:.1e}".format(f)
     if "e" in float_str:
         base, exponent = float_str.split("e")
-        if abs(int(exponent)) <= 2:
-            return ("%.2f" % f)
-        return r"{0} \times 10^{{{1}}}".format(base, int(exponent))
+        # if abs(int(exponent)) <= 2:
+        #     return ("%.2f" % f)
+        if (abs(float(base) - 1) <= 1E-10):
+            return r"10^{{{0}}}".format(int(exponent))
+        if float(base).is_integer():
+            return r"{0} \times 10^{{{1}}}".format(int(float(base)), int(exponent))
+        return r"%g \times 10^{%d}" % (float(base), int(exponent))
     else:
         return float_str
 

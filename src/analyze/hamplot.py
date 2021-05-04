@@ -19,18 +19,48 @@ from define import metrics as ml
 from define import globalvars as gv
 from analyze.load import LoadPhysicalErrorRates
 from analyze.bins import PlotBinVarianceDataSets, GetXCutOff
+from analyze.utils import OrderOfMagnitude, scientific_float, latex_float
+
+def GetBaseExponent(number):
+	# Separate the base and exponent.
+	float_str = "{0:.1e}".format(number)
+	(base, exponent) = float_str.split("e")
+	return (float(base), float(exponent))
+
+def SetTickLabels(axis, scale="log", interval=1):
+	# Set the positions of the axis ticks and the corresponding axis labels.
+	lower = OrderOfMagnitude(np.min(axis))
+	upper = OrderOfMagnitude(np.max(axis))
+	print("X axis: upper = {}, lower = {}".format(upper, lower))
+	if (abs(upper - lower) > 3):
+		interval = max(1, interval)
+		orders = np.arange(lower, upper + interval, interval)
+		ticks = np.power(0.1, -1 * orders)
+	elif (abs(upper - lower) == 0):
+		interval = min(0.5, interval)
+		(left_base, left_exponent) = GetBaseExponent(np.min(axis))
+		(right_base, right_exponent) = GetBaseExponent(np.max(axis))
+		ticks = np.arange(left_base, right_base + interval, interval) * np.power(0.1, -1 * left_exponent)
+	else:
+		interval = min(0.5, interval)
+		orders = np.arange(lower, upper + 1)
+		ticks = np.sort(np.concatenate((np.power(0.1, -1 * orders), interval * 10 * np.power(0.1, -1 * orders[:-1]))))
+
+	tick_labels = list(map(lambda x: "$%s$" % latex_float(x), ticks))
+	return (ticks, tick_labels)
 
 
 def DoubleHammerPlot(logmet, phylist, dsets, inset_flag, nbins, thresholds):
 	# Compare the effect of p_u + RC on predictability.
 	# Plot no RC with infid and RC with p_u.
 	# phylist = list(map(lambda phy: phy.strip(" "), phymets.split(",")))
+	framesize = (1.3 * gv.canvas_size[0], 1.3 * gv.canvas_size[1])
 	plotfname = fn.HammerPlot(dsets[0], logmet, phylist)
 	with PdfPages(plotfname) as pdf:
 		for l in range(1, 1 + dsets[0].levels):
-			fig = plt.figure(figsize=gv.canvas_size)
-			ax1 = plt.gca()
-			ax_top = ax1.twiny()
+			fig = plt.figure(figsize=framesize)
+			ax_bottom = plt.gca()
+			ax_top = ax_bottom.twiny()
 			settings = [[], []]
 			include = {}
 			for c in range(2):
@@ -60,11 +90,14 @@ def DoubleHammerPlot(logmet, phylist, dsets, inset_flag, nbins, thresholds):
 						)
 					)[0]
 					# Plotting the logical error rates of the non RC channel vs. standard metrics
-					current_axes = ax1
+					current_axes = ax_bottom
+					(ticks_bottom, tick_labels_bottom) = SetTickLabels(settings[c]["xaxis"][include[phylist[c]]])
+					# print("Ticks bottom\n{}\nLabels Bottom\n{}".format(ticks_bottom, tick_labels_bottom))
 				else:
 					include[phylist[c]] = include[phylist[0]]
 					# Plotting the logical error rates of the RC channel vs. uncorr
 					current_axes = ax_top
+					(ticks_top, tick_labels_top) = SetTickLabels(settings[c]["xaxis"][include[phylist[c]]])
 
 				# LoadPhysicalErrorRates(dsets[c], phylist[c], settings[c], l)
 
@@ -80,8 +113,9 @@ def DoubleHammerPlot(logmet, phylist, dsets, inset_flag, nbins, thresholds):
 					# label="%s %s"
 					# % (ml.Metrics[phylist[c]]["latex"], dsets[c].plotsettings["name"]),
 				)
+
 				# Empty plot for legend entries
-				ax1.plot([], [],
+				ax_bottom.plot([], [],
 					color=settings[c]["color"],
 					alpha=0.75,
 					marker=settings[c]["marker"],
@@ -92,71 +126,93 @@ def DoubleHammerPlot(logmet, phylist, dsets, inset_flag, nbins, thresholds):
 					% (ml.Metrics[phylist[c]]["latex"], dsets[c].plotsettings["name"]),
 				)
 			
-			# Inset plot
-			PlotBinVarianceDataSets(ax1, dsets, l, logmet, phylist, nbins, include)
+			# X = Y line for the top axis with the uncorr data.
+			xaxis = settings[1]["xaxis"][include[phylist[1]]]
+			ax_top.plot(
+				xaxis,
+				xaxis,
+				color="k",
+				linestyle="solid",
+				linewidth=gv.line_width,
+			)
 
+			# Inset plot
+			(ticks_bottom, ticks_top) = PlotBinVarianceDataSets(ax_bottom, dsets, l, logmet, phylist, nbins, include, inset_flag, ticks_bottom, ticks_top)
+			# PlotBinVarianceDataSets(ax_bottom, dsets, l, logmet, phylist, nbins, include, inset_flag, ticks_bottom, ticks_top) # Use this only for the diamond distance plot.
+			# print("ticks_bottom = {}\nticks_top = {}".format(ticks_bottom, ticks_top))
+			
 			# Axes labels for the bottom axes
 			bottom_xlabel = "%s %s" % (ml.Metrics[phylist[0]]["latex"], dsets[0].plotsettings["name"])
-			ax1.set_xlabel(bottom_xlabel, fontsize=gv.axes_labels_fontsize * 0.8, labelpad = gv.axes_labelpad, color=settings[0]["color"])
-			ax1.set_ylabel(settings[0]["ylabel"], fontsize=gv.axes_labels_fontsize, labelpad = gv.axes_labelpad)
+			ax_bottom.set_xlabel(bottom_xlabel, fontsize=gv.axes_labels_fontsize * 1.7, labelpad = 0.5 * gv.axes_labelpad, color=settings[0]["color"])
+			ax_bottom.set_ylabel(settings[0]["ylabel"], fontsize=gv.axes_labels_fontsize * 1.7, labelpad = gv.axes_labelpad)
 			
 			# Axes labels for the top axes
 			top_xlabel = "%s %s" % (ml.Metrics[phylist[1]]["latex"], dsets[1].plotsettings["name"])
-			ax_top.set_xlabel(top_xlabel, fontsize=gv.axes_labels_fontsize * 0.8, labelpad = gv.axes_labelpad * 1.8, color=settings[1]["color"])
+			ax_top.set_xlabel(top_xlabel, fontsize=gv.axes_labels_fontsize * 1.7, labelpad = gv.axes_labelpad * 2.5, color=settings[1]["color"])
 			
 			# Scales for the axes
-			ax1.set_xscale("log")
+			ax_bottom.set_xscale("log")
 			ax_top.set_xscale("log")
-			ax1.set_yscale("log")
+			ax_bottom.set_yscale("log")
 
 			# Set a Y-axes limit
-			# ax1.set_ylim([None, 0.1]) # Display the inset plot.
+			# ax_bottom.set_ylim([None, 0.1]) # Display the inset plot.
 			
-			# Ticks and legend
+			# Locations and labels for the X-axis ticks
+			include_ticks, = np.nonzero(ticks_bottom > -1)
+			ax_bottom.set_xticks(ticks_bottom[include_ticks])
+			ax_bottom.set_xticklabels([tick_labels_bottom[tk] for tk in include_ticks], rotation = -30, rotation_mode="anchor", ha="left", va="baseline")
+			
+			include_ticks, = np.nonzero(ticks_top > -1)
+			ax_top.set_xticks(ticks_top[include_ticks])
+			ax_top.set_xticklabels([tick_labels_top[tk] for tk in include_ticks])
+			
+			# print("Bottom ticks for the main plot\n{}\nTop ticks for the main plot\n{}".format(list(ax_bottom.xaxis.get_ticklabels()), list(ax_top.xaxis.get_ticklabels())))
+			
+			# Locations and labels for the Y-axis ticks
+			loc = LogLocator(base=10, numticks=10) # this locator puts ticks at regular intervals
+			ax_bottom.yaxis.set_major_locator(loc)
+			# ax_bottom.xaxis.set_major_locator(loc)
+			# ax_top.xaxis.set_major_locator(loc)
+
 			# Tick params for Y-axes
-			ax1.tick_params(
+			ax_bottom.tick_params(
 				axis="y",
 				which="both",
 				pad=gv.ticks_pad,
 				direction="inout",
 				length=gv.ticks_length,
 				width=gv.ticks_width,
-				labelsize=gv.ticks_fontsize
+				labelsize=1.5 * gv.ticks_fontsize
 			)
-			legend_locations = ["center right", "lower right"]
 			tick_colors = [settings[0]["color"], settings[1]["color"]]
-			for (a, ax) in enumerate([ax1, ax_top]):
+			relative_pads = [1, 0.5]
+			for (a, ax) in enumerate([ax_bottom, ax_top]):
 				# Tick params for the top and bottom X-axes
 				ax.tick_params(
 					axis="x",
 					which="both",
-					pad=0.5 * gv.ticks_pad,
+					pad=relative_pads[a] * gv.ticks_pad,
 					direction="inout",
 					length=gv.ticks_length,
 					width=gv.ticks_width,
-					labelsize=gv.ticks_fontsize,
-					color=tick_colors[a]
+					labelsize=1.5 * gv.ticks_fontsize,
+					color=tick_colors[a],
 				)
-			
-			# Location of the ticks
-			loc = LogLocator(base=10, numticks=10) # this locator puts ticks at regular intervals
-			ax1.xaxis.set_major_locator(loc)
-			ax_top.xaxis.set_major_locator(loc)
-			ax1.yaxis.set_major_locator(loc)
 			
 			# Color of the X-axis line				
 			ax_top.spines['bottom'].set_color(tick_colors[0])
 			ax_top.spines['top'].set_color(tick_colors[1])
 
 			# Color of the tick labels
-			for t in ax1.xaxis.get_ticklabels():
+			for t in ax_bottom.xaxis.get_ticklabels():
 				t.set_color(tick_colors[0])
 			for t in ax_top.xaxis.get_ticklabels():
 				t.set_color(tick_colors[1])
 			# Force the tick lines to be black
-			for t in ax1.xaxis.get_majorticklines():
+			for t in ax_bottom.xaxis.get_majorticklines():
 				t.set_color("k")
-			for t in ax1.xaxis.get_minorticklines():
+			for t in ax_bottom.xaxis.get_minorticklines():
 				t.set_color("k")
 			for t in ax_top.xaxis.get_majorticklines():
 				t.set_color("k")
@@ -164,7 +220,7 @@ def DoubleHammerPlot(logmet, phylist, dsets, inset_flag, nbins, thresholds):
 				t.set_color("k")
 			
 			# Legend for the bottom axes
-			leg = ax1.legend(
+			leg = ax_bottom.legend(
 				numpoints=1,
 				loc="upper left",
 				shadow=True,
@@ -178,6 +234,7 @@ def DoubleHammerPlot(logmet, phylist, dsets, inset_flag, nbins, thresholds):
 				text.set_color(color)
 
 			# Save the plot
+			fig.tight_layout(pad=5)
 			pdf.savefig(fig)
 			plt.close()
 		
@@ -222,6 +279,7 @@ def PartialHammerPlot(logmet, phylist, dsets, inset_flag, nbins, thresholds):
 		PlotBinVarianceDataSets(ax, dsets, level, logmet, phylist, nbins, include, is_inset=inset_flag)
 
 		# Save the plot
+		fig.tight_layout(pad=5)
 		pdf.savefig(fig)
 		plt.close()
 		

@@ -23,7 +23,7 @@ except ImportError:
 # Functions from other modules
 from define import metrics as ml
 from define import globalvars as gv
-from analyze.utils import scientific_float
+from analyze.utils import scientific_float, latex_float
 from define.fnames import SyndromeBins, SyndromeBinsPlot, LogicalErrorRates, PhysicalErrorRates, CompareScatters
 
 
@@ -238,11 +238,47 @@ def PlotBinVarianceMetrics(ax_principal, dbs, level, lmet, pmets, nbins, include
 		)
 	return None
 
+def ComputePositionOnSegment(left, right, point):
+	# Compute the relative position of the point on the line segment between two points.
+	offset = (point - left)/(right - left)
+	return offset
 
-def PlotBinVarianceDataSets(ax_principal, dbses, level, lmet, phymets, nbins, include_info, is_inset = 1):
+
+def ComputeBinPositions(principal, inset):
+	# Given two arrays, compute the position of the elements in the second array in the first array.
+	# print("Function: ComputeBinPositions\nPrincipal: {}\ninset: {}".format(principal, inset))
+	sorted_inset = np.sort(inset)
+	sorted_principal = np.sort(principal)
+	positions = np.zeros(len(principal), dtype = np.double)
+	for l in range(len(sorted_principal)):
+		found_index = 0
+		while (sorted_principal[l] > sorted_inset[found_index]):
+			found_index += 1
+			if (found_index == len(sorted_inset)):
+				break
+		found_index = found_index - 1
+		# print("found_index = {}, len(sorted_inset) = {}".format(found_index, len(sorted_inset)))
+
+		if (found_index == (len(sorted_inset) - 1)):
+			positions[l] = -1
+			sorted_principal[l] = -1
+		else:
+			positions[l] = found_index + ComputePositionOnSegment(sorted_inset[found_index], sorted_inset[found_index + 1], sorted_principal[l])
+	# print("positions\n{}\nsorted_principal: {}".format(positions, sorted_principal))
+	# If two ticks are close by, assign the second one's position to -1.
+	for l in range(len(positions) - 1):
+		if abs(positions[l + 1] - positions[l]) <= 0.5:
+			positions[l + 1] = -1
+
+	return (positions, sorted_principal)
+
+
+def PlotBinVarianceDataSets(ax_principal, dbses, level, lmet, phymets, nbins, include_info, is_inset = 1, bottom_ticks=None, top_ticks=None):
 	# Compare scatter for different physical metrics
 	atol = 1E-16
-	min_bin_fraction = 0.3
+	min_bin_fraction = 0.1
+	modified_bottom_ticks = None
+	modified_top_ticks = None
 	
 	if (is_inset == 1):
 		ax_inset = plt.axes([0, 0, 1, 1])
@@ -285,7 +321,7 @@ def PlotBinVarianceDataSets(ax_principal, dbses, level, lmet, phymets, nbins, in
 
 		include = include_info[pmets[d]]
 
-		print("xdata for alpha = {}\n{}".format(dbses[d].decoder_fraction, phyerrs[d, include]))
+		# print("xdata for alpha = {}\n{}".format(dbses[d].decoder_fraction, phyerrs[d, include]))
 
 		bins = ComputeBinVariance(phyerrs[d, include], logerrs[d, include], space="log", nbins=nbins)
 		collapsed_bins[d] = CollapseBins(bins, min_bin_fraction * dbses[d].channels / nbins)
@@ -328,63 +364,63 @@ def PlotBinVarianceDataSets(ax_principal, dbses, level, lmet, phymets, nbins, in
 				alpha=0.75,
 				label = dcfraction_label
 			)
+
 		print("Plot done for alpha = {}".format(dbses[d].decoder_fraction))
 	# Axes
 	if (is_inset == 0):
-		ax_inset.set_xlabel("Critical parameter computed from NR data", fontsize=gv.axes_labels_fontsize, labelpad=0.4, color=gv.QB_GREEN)
-		ax_inset_top.set_xlabel(ml.Metrics[pmets[0]]["latex"], fontsize=gv.axes_labels_fontsize, labelpad=0.6, color=gv.QB_BLUE)
+		ax_inset.set_xlabel("Critical parameter computed from NR data", fontsize=gv.axes_labels_fontsize, labelpad=0.7, color="0.4")
+		ax_inset_top.set_xlabel(ml.Metrics[pmets[0]]["latex"], fontsize=gv.axes_labels_fontsize, labelpad=0.6, color="red")
 	
 	ax_inset.set_ylabel("$\\Delta$", fontsize=gv.axes_labels_fontsize)
 	# ax.set_ylim([10e-9, None])
-	# ax_inset.set_yscale("log")
+	ax_inset.set_yscale("log")
 
 	# Ticks
 	if (is_inset == 0):
 		ticks_fontsize = gv.ticks_fontsize
 	else:
-		ticks_fontsize = gv.ticks_fontsize * 0.75
+		# Compute the position of the bottom x-ticks
+		inset_ticks = (collapsed_bins[0][:, 0] + collapsed_bins[0][:, 1]) / 2
+		# print("Bottom ticks: {}\ninset_ticks\n{}".format(bottom_ticks, inset_ticks))
+		(positions_bottom, modified_bottom_ticks) = ComputeBinPositions(bottom_ticks, inset_ticks)
+		# Compute the position of the top x-ticks
+		inset_ticks = (collapsed_bins[1][:, 0] + collapsed_bins[1][:, 1]) / 2
+		# print("Top ticks: {}\ninset_ticks\n{}".format(top_ticks, inset_ticks))
+		(positions_top, modified_top_ticks) = ComputeBinPositions(top_ticks, inset_ticks)
+		
+		ticks_fontsize = gv.ticks_fontsize
 
 	ax_inset.tick_params(
 		axis="both",
 		which="both",
-		# pad=gv.ticks_pad,
+		pad=0.5 * gv.ticks_pad,
 		direction="inout",
 		length=gv.ticks_length,
 		width=gv.ticks_width,
 		labelsize=ticks_fontsize,
 	)
-	ax_inset.set_xticks(np.arange(0, collapsed_bins[1].shape[0], dtype=np.int))
-	ax_inset.set_xticklabels(
-		list(
-			map(
-				lambda num: "%s" % scientific_float(num),
-				(collapsed_bins[1][:, 0] + collapsed_bins[1][:, 1]) / 2,
-			)
-		),
-		rotation=45,
-		color=gv.QB_GREEN,
-	)
+
 	# if len(phymets) > 1:
 	ax_inset_top.tick_params(
 		axis="both",
 		which="both",
-		# pad=gv.ticks_pad,
+		pad=0.25 * gv.ticks_pad,
 		direction="inout",
 		length=gv.ticks_length,
 		width=gv.ticks_width,
 		labelsize=ticks_fontsize,
 	)
-	ax_inset_top.set_xticks(np.arange(0, collapsed_bins[0].shape[0], dtype=np.int))
-	ax_inset_top.set_xticklabels(
-		list(
-			map(
-				lambda num: "%s" % scientific_float(num),
-				(collapsed_bins[0][:, 0] + collapsed_bins[0][:, 1]) / 2,
-			)
-		),
-		rotation=45,
-		color=gv.QB_BLUE,
-	)
+	
+	if (is_inset == 1):
+		ax_inset.set_xticks(positions_top[positions_top > -1])
+		ax_inset.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), modified_top_ticks[positions_top > -1])), rotation=-45, color=gv.Colors[1], rotation_mode="anchor", ha="left", va="baseline")	
+		ax_inset_top.set_xticks(positions_bottom[positions_bottom > -1])
+		ax_inset_top.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), modified_bottom_ticks[positions_bottom > -1])), rotation=45, color=gv.Colors[0], rotation_mode="anchor", ha="left", va="baseline")
+	else:
+		ax_inset.set_xticks(np.arange(collapsed_bins[1].shape[0]))
+		ax_inset.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), (collapsed_bins[1][:, 0] + collapsed_bins[1][:, 1])/2)), rotation=-45, color="0.4", rotation_mode="anchor", ha="left", va="baseline")	
+		ax_inset_top.set_xticks(np.arange(collapsed_bins[0].shape[0]))
+		ax_inset_top.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), (collapsed_bins[0][:, 0] + collapsed_bins[0][:, 1])/2)), rotation=45, color="red", rotation_mode="anchor", ha="left", va="baseline")
 
 	if (is_inset == 0):
 		# Legend
@@ -395,7 +431,7 @@ def PlotBinVarianceDataSets(ax_principal, dbses, level, lmet, phymets, nbins, in
 			fontsize=gv.legend_fontsize,
 			markerscale=gv.legend_marker_scale,
 		)
-	return None
+	return (modified_bottom_ticks, modified_top_ticks)
 
 
 def CollapseBins(bins, min_bin_size):
