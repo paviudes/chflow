@@ -38,7 +38,12 @@ def CompareSubs(pmet, lmet, *dbses):
 			for d in range(ndb):
 				# Plot multiple logical error rates, with respect to the same physical error rates.
 				# We use linestyles to distinguish between codes, and colors/markers to distinguish between y-axis metrics.
-				settings = {"xaxis": None, "xlabel": None, "yaxis": np.load(LogicalErrorRates(dbses[d], lmet))[: , l], "ylabel": "$\\overline{%s_{%d}}$" % (ml.Metrics[lmet]["latex"].replace("$", ""), l)}
+				if os.path.isfile(LogicalErrorRates(dbses[d], lmet)):
+					logerrs = np.load(LogicalErrorRates(dbses[d], lmet))[: , l]
+				else:
+					nchannels = dbses[d].noiserates.shape[0] * dbses[d].samps
+					logerrs = np.zeros(nchannels, dtype = np.double)
+				settings = {"xaxis": None, "xlabel": None, "yaxis": logerrs, "ylabel": "$\\overline{%s_{%d}}$" % (ml.Metrics[lmet]["latex"].replace("$", ""), l)}
 				LoadPhysicalErrorRates(dbses[0], pmet, settings, l)
 				settings.update({"color": gv.Colors[0], "marker": ml.Metrics[lmet]["marker"], "linestyle": "dotted"})
 				label_logerr = "%s(%s)" % (settings["ylabel"], dbses[d].eccs[0].name)

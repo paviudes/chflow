@@ -423,7 +423,7 @@ def TwirlChannels(submit):
     r"""
     Twirl all the channels in a database, in place.
     """
-    print("iscorr = %d" % (submit.iscorr))
+    # print("iscorr = %d" % (submit.iscorr))
     if submit.iscorr == 0:
         nparams = 4 ** (2 * submit.eccs[0].K)
     elif submit.iscorr == 1:

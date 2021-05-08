@@ -563,7 +563,7 @@ def UncorrectableProb(channel, kwargs):
         )
         # print("Pauli probabilities\n{}\nSum = {}.".format(pauliProbs[0, :], np.sum(pauliProbs[0, :])))
         # If the channel is "bpauli", then we need to recompute the syndrome lookup take and the correctable indices.
-        if (kwargs["submit"].channel == "bpauli"):
+        if (kwargs["submit"].channel in ["bpauli", "crsum"]):
             if (kwargs["submit"].scales[1] == 1):
                 bias = kwargs["submit"].available[kwargs["channel_index"], 1]
             else:

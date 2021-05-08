@@ -72,6 +72,14 @@ Channels = {
 		"Pauli": 1,
 		"corr": 0,
 	},
+	"crsum": {
+		"name": "Convex sum of rotations",
+		"params": ["infid", "bias", "angle"],
+		"latex": ["$p$", "$\\eta = p_{Z}/p_{X}$", "\\theta"],
+		"color": "red",
+		"Pauli": 0,
+		"corr": 0,
+	},
 	"up": {
 		"name": "Uncorrelated Pauli channel",
 		"params": ["Infidelity"],

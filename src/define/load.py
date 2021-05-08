@@ -75,6 +75,7 @@ def Update(submit, pname, newvalue, lookup_load=1):
                     newvalue.split(";"),
                 )
             )
+            # print("Ranges\n{}".format(newRanges))
             submit.noiserange = []
             for i in range(len(newRanges)):
                 if len(newRanges[i]) == 3:

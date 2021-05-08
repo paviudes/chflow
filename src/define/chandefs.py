@@ -255,6 +255,33 @@ def FixedRotation(params):
 	return krauss
 
 
+def ConvexSumRotations(params):
+	"""
+	Convex sum of rotation channels:
+	E(R) = pI R + pX RZ(theta) R RZ(theta) + pY RY(theta) R RY(theta) + pZ RZ(theta) R RZ(theta),
+	where pI, pX, pY and pZ are derived from the biased Pauli channel.
+	"""
+	# print("params = {}".format(params))
+	(infid, bias, theta) = params
+	# See the BiasedPauliXZ function on how to retrieve pI, pX, pY and pZ from the bias and infid.
+	rX = ( - ( (1 + bias) + infid * (1 - bias) ) + np.sqrt( np.power((1 + bias) + infid * (1 - bias), 2) + 4 * infid ) ) / 2
+	rZ = bias * rX
+
+	pX = rX * (1 - rZ)
+	pZ = rZ * (1 - rX)
+	pY = rX * rZ
+	pI = 1 - pX - pY - pZ
+
+	print("pI = %.2e, pX = %.2e, pY = %.2e, pZ = %.2e." % (pI, pX, pY, pZ))
+
+	kraus = np.zeros((4, 2, 2), dtype = np.complex128)
+	kraus[0, :, :] = np.sqrt(pI) * np.eye(2)
+	kraus[1, :, :] = np.sqrt(pX) * linalg.expm(-1j * theta * np.pi * gv.Pauli[1, :, :])
+	kraus[2, :, :] = np.sqrt(pY) * linalg.expm(-1j * theta * np.pi * gv.Pauli[2, :, :])
+	kraus[3, :, :] = np.sqrt(pZ) * linalg.expm(-1j * theta * np.pi * gv.Pauli[3, :, :])
+	return kraus
+
+
 def ZRotation(params):
 	"""
 	Kraus operators for rotation about the Z-axis.
@@ -395,6 +422,10 @@ def GetKraussForChannel(chType, *params):
 	elif chType == "bpauli":
 		# Biased Pauli channel
 		kraus = BiasedPauliXZ(params)
+
+	elif chType == "crsum":
+		# Convex sum of rotation channels
+		kraus = ConvexSumRotations(params)
 
 	elif chType == "up":
 		# Generic Pauli channel

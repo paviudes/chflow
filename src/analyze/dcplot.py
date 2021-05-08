@@ -392,7 +392,8 @@ def RelativeDecoderInstanceCompare(
 				minwt_perf = np.load(LogicalErrorRates(dbses[0], logmet))[ch, l]
 				for d in range(1, ndb):
 					if (is_converged[d, rate_index, sample_index] == 1):
-						yaxes[d - 1][c] = minwt_perf/np.load(LogicalErrorRates(dbses[d], logmet))[ch, l]
+						# yaxes[d - 1][c] = minwt_perf/np.load(LogicalErrorRates(dbses[d], logmet))[ch, l]
+						yaxes[d - 1][c] = np.load(LogicalErrorRates(dbses[d], logmet))[ch, l]
 
 			# print("Yaxes\n{}".format(yaxes))
 

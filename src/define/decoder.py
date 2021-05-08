@@ -12,7 +12,7 @@ def TailorDecoder(qecc, channel, bias=None):
 	# At the moment, this only works differently from MWD for a biased Pauli error model "bpauli".
 	# We need to design the relative importance that should be given to I, X, Y and Z errors.
 	# print("TailorDecoder({}, {})".format(submit.channel, noise))
-	if channel == "bpauli":
+	if (channel in ["bpauli", "crsum"]):
 		cX = int(bias)
 		cZ = 1
 		cY = int(bias)

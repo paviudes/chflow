@@ -601,7 +601,8 @@ if __name__ == "__main__":
 				SavePhysicalChannels(submit)
 			# Copy the results folder if there is one
 			if os.path.exists("%s/results" % (old_outdir)):
-				os.system("cp -r %s/results %s" % (old_outdir, submit.outdir))
+				if (not (old_outdir == submit.outdir)):
+					os.system("cp -r %s/results %s" % (old_outdir, submit.outdir))
 			# Prepare decoder knowledge and save
 			# if the decoder needs partial information, then the decoder knowledge needs to be prepared.
 			if submit.host == "local":
@@ -1171,12 +1172,12 @@ if __name__ == "__main__":
 					dbses.append(Submission())
 					LoadSub(dbses[d + 1], ts, 0, 0)
 					IsComplete(dbses[d + 1])
-					if dbses[d + 1].complete > 0:
-						if not os.path.isfile(LogicalErrorRates(dbses[d + 1], user[2], fmt="npy")):
-							GatherLogErrData(dbses[d + 1])
-					else:
-						check = 0
-						break
+					# if dbses[d + 1].complete > 0:
+					# 	if not os.path.isfile(LogicalErrorRates(dbses[d + 1], user[2], fmt="npy")):
+					# 		GatherLogErrData(dbses[d + 1])
+					# else:
+					# 	check = 0
+					# 	break
 			if check == 1:
 				pmet = user[1].strip(" ")
 				CompareSubs(user[1].strip(" "), user[2].strip(" "), *dbses)
