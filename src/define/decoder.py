@@ -7,7 +7,7 @@ from scipy.special import comb
 from define.qcode import PrepareSyndromeLookUp
 from define.QECCLfid.utils import SamplePoisson
 
-def TailorDecoder(qecc, channel, bias=None):
+def TailorDecoder(qecc, channel, levels, bias=None):
 	# Tailor a decoder to an error model by exploiting simple structure.
 	# At the moment, this only works differently from MWD for a biased Pauli error model "bpauli".
 	# We need to design the relative importance that should be given to I, X, Y and Z errors.
@@ -20,7 +20,7 @@ def TailorDecoder(qecc, channel, bias=None):
 		PrepareSyndromeLookUp(qecc)
 		# print("Lookup table for {} code with bias {}.".format(qecc.name, bias))
 	else:
-		for l in range(submit.levels):
+		for l in range(levels):
 			qecc.weight_convention = {"method": "Hamming"}
 			PrepareSyndromeLookUp(qecc)
 	return None
@@ -90,7 +90,7 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, nr_weights_all = None
 	if ((option == "full") or (option == "sqprobs")):
 		nPaulis = max(1, int(lead_frac * (4 ** qcode.N)))
 		leading_paulis = np.argsort(chan_probs)[-nPaulis:]
-		
+
 
 	elif option == "weight":
 
@@ -125,18 +125,18 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full
 	#     "Number of known paulis in decoder knowledge = {}".format(known_paulis.shape[0])
 	# )
 	# print("Total known probability = {}".format(np.sum(known_probs)))
-	
+
 	if ((option == "full") or (option == "weight")):
 		infid_qubit = 1 - np.power(1 - infid, 1 / qcode.N)
 		decoder_probs = CreateIIDPauli(infid_qubit, qcode)
-	
+
 	elif (option == "sqprobs"):
 		if chan_probs.ndim > 1:
 			pauli_probs = ut.GetErrorProbabilities(qcode.PauliOperatorsLST, chan_probs, 0)
 		else:
 			pauli_probs = chan_probs
 		decoder_probs = ReconstructPauliChannel(pauli_probs, qcode)
-	
+
 	else:
 		pass
 

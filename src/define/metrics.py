@@ -568,7 +568,7 @@ def UncorrectableProb(channel, kwargs):
                 bias = kwargs["submit"].available[kwargs["channel_index"], 1]
             else:
                 bias = np.power(kwargs["submit"].scales[1], kwargs["submit"].available[kwargs["channel_index"], 1])
-            TailorDecoder(kwargs["qcode"][0], kwargs["submit"].channel, bias=bias)
+            TailorDecoder(kwargs["qcode"][0], kwargs["submit"].channel, kwargs["submit"].levels, bias=bias)
             recompute = True
 
     elif ((kwargs["corr"] == 1) or (kwargs["corr"] == 3)):

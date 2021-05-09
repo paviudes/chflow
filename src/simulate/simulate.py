@@ -46,7 +46,7 @@ def SimulateSampleIndex(submit, rate, sample, coreidx, results):
 
     if submit.decoders[0] == 1:
         # print("Bias = {}^{} = {}".format(submit.scales[1], rate[1], np.power(submit.scales[1], rate[1])))
-        TailorDecoder(submit.eccs[0], submit.channel, np.power(submit.scales[1], rate[1])) # Comment this for using the traditional min-weight.
+        TailorDecoder(submit.eccs[0], submit.channel, submit.levels, np.power(submit.scales[1], rate[1])) # Comment this for using the traditional min-weight.
         # print("Lookup table given to backend\n{}".format(submit.eccs[0].lookup))
 
     if submit.decoders[0] == 2:
