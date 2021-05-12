@@ -19,6 +19,7 @@ from define import globalvars as gv
 from define import metrics as ml
 from define.fnames import PhysicalErrorRates, LogicalErrorRates, CompareSubsPlot
 from analyze.load import LoadPhysicalErrorRates
+from analyze.statplot import IsConverged, GetChannelPosition
 from analyze.utils import OrderOfMagnitude
 
 def CompareSubs(pmet, lmet, *dbses):
@@ -38,6 +39,15 @@ def CompareSubs(pmet, lmet, *dbses):
 			for d in range(ndb):
 				# Plot multiple logical error rates, with respect to the same physical error rates.
 				# We use linestyles to distinguish between codes, and colors/markers to distinguish between y-axis metrics.
+				rates = np.arange(dbses[d].noiserates.shape[0], dtype = np.int)
+				(converged_rates, __) = np.nonzero(IsConverged(dbses[d], lmet, rates, [0], threshold = 10))
+				
+				# print("Dataset: {}\nConvereged rates\n{}".format(dbses[d].eccs[0].name, converged_rates))
+
+				convereged_channels = GetChannelPosition(dbses[d].noiserates[converged_rates], [0], dbses[d].available).flatten()
+
+				# print("convereged_channels\n{}".format(convereged_channels))
+
 				if os.path.isfile(LogicalErrorRates(dbses[d], lmet)):
 					logerrs = np.load(LogicalErrorRates(dbses[d], lmet))[: , l]
 				else:
@@ -45,6 +55,13 @@ def CompareSubs(pmet, lmet, *dbses):
 					logerrs = np.zeros(nchannels, dtype = np.double)
 				settings = {"xaxis": None, "xlabel": None, "yaxis": logerrs, "ylabel": "$\\overline{%s_{%d}}$" % (ml.Metrics[lmet]["latex"].replace("$", ""), l)}
 				LoadPhysicalErrorRates(dbses[0], pmet, settings, l)
+				
+				# Store only the convereged channels
+				settings["xaxis"] = settings["xaxis"][convereged_channels]
+				settings["yaxis"] = settings["yaxis"][convereged_channels]
+
+				# print("X size = {}: {}\nY size {}: {}".format(len(settings["xaxis"]), settings["xaxis"], len(settings["yaxis"]), settings["yaxis"]))
+
 				settings.update({"color": gv.Colors[0], "marker": ml.Metrics[lmet]["marker"], "linestyle": "dotted"})
 				label_logerr = "%s(%s)" % (settings["ylabel"], dbses[d].eccs[0].name)
 				# Right axes plot -- with logical error rates.
@@ -56,13 +73,13 @@ def CompareSubs(pmet, lmet, *dbses):
 				
 				# Let axes plots -- with uncorr.
 				# Left y-axis for uncorr
-				uncorr = np.load(PhysicalErrorRates(dbses[d], "uncorr"))
+				uncorr = np.load(PhysicalErrorRates(dbses[d], "uncorr"))[convereged_channels, l]
 				label_uncorr = "%s(%s)" % (ml.Metrics["uncorr"]["latex"], dbses[d].eccs[0].name)
-				ax.plot(settings["xaxis"], uncorr[:, l], color=gv.Colors[d], marker=ml.Metrics["uncorr"]["marker"], markersize=gv.marker_size, linestyle="solid", linewidth=1.5 * gv.line_width)
-				if (ylimits["left"]["min"] >= np.min(uncorr[:, l])):
-					ylimits["left"]["min"] = np.min(uncorr[:, l])
-				if (ylimits["left"]["max"] <= np.max(uncorr[:, l])):
-					ylimits["left"]["max"] = np.max(uncorr[:, l])
+				ax.plot(settings["xaxis"], uncorr, color=gv.Colors[d], marker=ml.Metrics["uncorr"]["marker"], markersize=gv.marker_size, linestyle="solid", linewidth=1.5 * gv.line_width)
+				if (ylimits["left"]["min"] >= np.min(uncorr)):
+					ylimits["left"]["min"] = np.min(uncorr)
+				if (ylimits["left"]["max"] <= np.max(uncorr)):
+					ylimits["left"]["max"] = np.max(uncorr)
 				
 				# Empty plots to add legend entries.
 				ax.plot([], [], color=gv.Colors[d], alpha = 0.75, marker=settings["marker"], markersize=gv.marker_size, linestyle=settings["linestyle"], linewidth=1.5 * gv.line_width, label = label_logerr)

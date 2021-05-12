@@ -26,7 +26,7 @@ if [[ $host == *"paviws"* ]]; then
 	pred_pcorr_level2=("pred_pcorr_l2_00" "pred_pcorr_l2_01" "pred_pcorr_l2_02" "pred_pcorr_l2_03" "pred_pcorr_l2_04" "pred_pcorr_l2_05" "pred_pcorr_l2_06" "pred_pcorr_l2_07" "pred_pcorr_l2_08" "pred_pcorr_l2_09" "pred_pcorr_l2_10" "pred_pcorr_l2_11")
 	selected_pred_pcorr_level2=("pred_pcorr_l2_03" "pred_pcorr_l2_00")
 	pred_pcorr_alphas=(0 0.0011 0.0013 0.0014 0.0018 0.0021 0.0024 0.003 0.0035 0.004 0.0061 0.01) # For pcorr
-	selected_pcorr_pred_alphas=(0.0014 0)
+	# selected_pcorr_pred_alphas=(0 0.0014)
 	
 	pred_cptp_level2=("pred_cptp_l2_00" "pred_cptp_l2_01" "pred_cptp_l2_02" "pred_cptp_l2_03" "pred_cptp_l2_04" "pred_cptp_l2_05" "pred_cptp_l2_06" "pred_cptp_l2_07" "pred_cptp_l2_08" "pred_cptp_l2_09" "pred_cptp_l2_10" "pred_cptp_l2_11")
 	selected_pred_cptp_level2=("pred_cptp_l2_03" "pred_cptp_l2_04" "pred_cptp_l2_00")
@@ -35,6 +35,9 @@ if [[ $host == *"paviws"* ]]; then
 	
 	pred_ia_level2=("pred_ia_l2_00" "pred_ia_l2_01" "pred_ia_l2_02" "pred_ia_l2_03" "pred_ia_l2_04" "pred_ia_l2_05" "pred_ia_l2_06" "pred_ia_l2_07" "pred_ia_l2_08")
 	
+	selected_pcorr_strong_level2=("pcorr_strong_l2_00" "pcorr_strong_l2_01" "pcorr_strong_l2_02")
+	selected_pcorr_pred_alphas=(0 0.0014 1)
+
 	####### Partial decoders
 	# CPTP
 	pavi_ws_cptp_level2=("pavi_ws_cptp_l2_00" "pavi_ws_cptp_l2_01" "pavi_ws_cptp_l2_02" "pavi_ws_cptp_l2_03" "pavi_ws_cptp_l2_04" "pavi_ws_cptp_l2_05" "pavi_ws_cptp_l2_06" "pavi_ws_cptp_l2_07" "pavi_ws_cptp_l2_08" "pavi_ws_cptp_l2_09" "pavi_ws_cptp_l2_10" "pavi_ws_cptp_l2_11")
@@ -126,9 +129,15 @@ if [[ -n ${cluster} ]]; then
 	# bpauli_bias=("vary_bias_ststst" "vary_bias_ststcy" "vary_bias_stcyst" "vary_bias_stcycy" "vary_bias_cystst" "vary_bias_cystcy" "vary_bias_cycyst" "vary_bias_cycycy")
 	bpauli_bias=("vary_bias_ststst" "vary_bias_cycycy")	
 	bpauli_infid=("vary_infid_ststst" "vary_infid_ststcy" "vary_infid_stcyst" "vary_infid_stcycy" "vary_infid_cystst" "vary_infid_cystcy" "vary_infid_cycyst" "vary_infid_cycycy")
+	crsum_bias=("crsum_Steane_twirl" "crsum_cyclic_twirl")
 	#codes=("Steane,Steane,Steane" "Steane,Steane,7qc_cyclic" "Steane,7qc_cyclic,Steane" "Steane,7qc_cyclic,7qc_cyclic" "7qc_cyclic,Steane,Steane" "7qc_cyclic,Steane,7qc_cyclic" "7qc_cyclic,7qc_cyclic,Steane" "7qc_cyclic,7qc_cyclic,7qc_cyclic")
 	codes=("Steane,Steane,Steane" "7qc_cyclic,7qc_cyclic,7qc_cyclic")
 	jobarray=1
+
+	# Predictability with limited data
+	pcorr_strong_Steane_level2=("pcorr_strong_Steane_l2_00" "pcorr_strong_Steane_l2_01" "pcorr_strong_Steane_l2_02")
+	pcorr_strong_cyclic_level2=("pcorr_strong_cyclic_l2_00" "pcorr_strong_cyclic_l2_01" "pcorr_strong_cyclic_l2_02")
+	alphas_pcorr_strong_Steane_level2=(0 0.0014 1)
 fi
 
 
@@ -172,9 +181,9 @@ usage() {
 	printf "\033[0m"
 }
 
-timestamps=("${selected_pred_pcorr_level2[@]}")
-alphas=("${selected_pred_pcorr_alphas[@]}")
-log=pred_pcorr
+timestamps=("${pcorr_strong_Steane_level2[@]}")
+alphas=("${alphas_pcorr_strong_Steane_level2[@]}")
+log=pcorr_strong
 refts=${timestamps[0]}
 
 if [[ "$1" == "overwrite" ]]; then
@@ -281,10 +290,10 @@ elif [[ "$1" == "generate" ]]; then
 	for (( t=1; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
 		code=${codes[t]}
-		# set the alpha for dcfraction.
+		# Set the code.
 		echo "REPLACE ecc ${coderef} WITH ecc ${code} IN input/${ts}.txt"
 		replace "ecc ${coderef}" "ecc ${code}" input/${ts}.txt
-
+		
 		echo "xxxxxxx"
 	done
 	printf "\033[0m"
@@ -313,24 +322,24 @@ elif [[ "$1" == "generate_decoder" ]]; then
 		ts=${timestamps[t]}
 		alpha=${alphas[t]}
 		# if the simulation is for level 3
-		if grep -Fxq "decoder 1,1,1" input/${ts}.txt;
-		then
-			# if the simulation is for level 3
-			echo "REPLACE decoder 1,1,1 WITH decoder 4,4,4 IN input/${ts}.txt"
-			replace "decoder 1,1,1" "decoder 4,4,4" input/${ts}.txt
-		elif grep -Fxq "decoder 1,1" input/${ts}.txt;
-		then
-			# if the simulation is for level 2
-			echo "REPLACE decoder 1,1 WITH decoder 4,4 IN input/${ts}.txt"
-			replace "decoder 1,1" "decoder 4,4" input/${ts}.txt
-		elif grep -Fxq "decoder 1" input/${ts}.txt;
-		then
-			# if the simulation is for level 1
-			echo "REPLACE decoder 1 WITH decoder 4 IN input/${ts}.txt"
-			replace "decoder 1" "decoder 4" input/${ts}.txt
-		else
-			:
-		fi
+		# if grep -Fxq "decoder 1,1,1" input/${ts}.txt;
+		# then
+		# 	# if the simulation is for level 3
+		# 	echo "REPLACE decoder 1,1,1 WITH decoder 4,4,4 IN input/${ts}.txt"
+		# 	replace "decoder 1,1,1" "decoder 4,4,4" input/${ts}.txt
+		# elif grep -Fxq "decoder 1,1" input/${ts}.txt;
+		# then
+		# 	# if the simulation is for level 2
+		# 	echo "REPLACE decoder 1,1 WITH decoder 4,4 IN input/${ts}.txt"
+		# 	replace "decoder 1,1" "decoder 4,4" input/${ts}.txt
+		# elif grep -Fxq "decoder 1" input/${ts}.txt;
+		# then
+		# 	# if the simulation is for level 1
+		# 	echo "REPLACE decoder 1 WITH decoder 4 IN input/${ts}.txt"
+		# 	replace "decoder 1" "decoder 4" input/${ts}.txt
+		# else
+		# 	:
+		# fi
 
 		# set the alpha for dcfraction.
 		echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
@@ -464,15 +473,15 @@ elif [[ "$1" == "plot" ]]; then
 	# echo "sbload ${refts}" > input/temp.txt
 	# printf -v joined_timestamps '%s,' "${timestamps[@]:1}"
 	##### temporary patch
-	echo "sbload 23_06_2020_17_44_30" > input/temp.txt
-	printf -v joined_timestamps '%s,' "${timestamps[@]:0}"
+	echo "sbload pcorr_strong_l2_00" > input/temp.txt
+	printf -v joined_timestamps '%s,' "${timestamps[@]:1}"
 	joined_uncorr=$(seq -s "uncorr" ${#timestamps[@]} | sed 's/[0-9]/,/g' | sed 's/,,/,/g' | sed 's/\%//g')
 	# echo "${joined_uncorr}"
 	#####
 	# echo "nrplot 0 0 ${joined_timestamps%?}" >> input/temp.txt
 	# echo "dciplot infid infid ${joined_timestamps%?} 0;36;1" >> input/temp.txt
 	# echo "mcplot infid infid 0 0 ${joined_timestamps%?}" >> input/temp.txt
-	echo "hamplot infid${joined_uncorr} infid ${joined_timestamps%?} 7,9 0.01,0.01 15" >> input/temp.txt
+	echo "hamplot infid${joined_uncorr} infid ${joined_timestamps%?} 7,9 0.01,0.01 4" >> input/temp.txt
 	echo "notes infid${joined_uncorr} infid pcorr partialham /Users/pavi/Documents/rclearn/notes/paper/figures/scatter_styles 1" >> input/temp.txt
 	echo "quit" >> input/temp.txt
 	./chflow.sh -- temp.txt

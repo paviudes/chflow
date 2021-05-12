@@ -23,7 +23,7 @@ except ImportError:
 # Functions from other modules
 from define import metrics as ml
 from define import globalvars as gv
-from analyze.utils import scientific_float, latex_float
+from analyze.utils import scientific_float, latex_float, SetTickLabels
 from define.fnames import SyndromeBins, SyndromeBinsPlot, LogicalErrorRates, PhysicalErrorRates, CompareScatters
 
 
@@ -273,7 +273,7 @@ def ComputeBinPositions(principal, inset):
 	return (positions, sorted_principal)
 
 
-def PlotBinVarianceDataSets(ax_principal, dbses, level, lmet, phymets, nbins, include_info, is_inset = 1, bottom_ticks=None, top_ticks=None):
+def PlotBinVarianceDataSets(ax_principal, dbses, level, lmet, pmets, nbins, include_info, is_inset = 1, bottom_ticks=None, top_ticks=None):
 	# Compare scatter for different physical metrics
 	atol = 1E-16
 	min_bin_fraction = 0.1
@@ -285,7 +285,7 @@ def PlotBinVarianceDataSets(ax_principal, dbses, level, lmet, phymets, nbins, in
 		# Manually set the position and relative size of the inset axes within ax_principal
 		# ip = InsetPosition(ax_principal, [0.1, 0.6, 0.33, 0.3]) # Positon: top left
 		ip = InsetPosition(ax_principal, [0.68, 0.1, 0.3, 0.25]) # Positon: bottom right
-		# if len(phymets) > 1:
+		# if len(pmets) > 1:
 		#     ip = InsetPosition(ax_principal, [0.1, 0.6, 0.33, 0.3])
 		# else:
 		#     ip = InsetPosition(ax_principal, [0.1, 0.65, 0.33, 0.3])
@@ -296,10 +296,10 @@ def PlotBinVarianceDataSets(ax_principal, dbses, level, lmet, phymets, nbins, in
 		ax_inset = ax_principal
 
 	# Broadcast the physical error metric if only one is given.
-	if len(phymets) == 1:
-		pmets = [phymets[0] for __ in range(len(dbses))]
+	if len(pmets) == 1:
+		pmets = [pmets[0] for __ in range(len(dbses))]
 	else:
-		pmets = phymets
+		pmets = pmets
 
 	ndb = len(dbses)
 	phyerrs = np.zeros((ndb, dbses[0].channels), dtype=np.double)
@@ -400,7 +400,7 @@ def PlotBinVarianceDataSets(ax_principal, dbses, level, lmet, phymets, nbins, in
 		labelsize=ticks_fontsize,
 	)
 
-	# if len(phymets) > 1:
+	# if len(pmets) > 1:
 	ax_inset_top.tick_params(
 		axis="both",
 		which="both",
@@ -539,11 +539,11 @@ def GetXCutOff(xdata, ydata, ythreshold, nbins=10, space="log", atol=10E-20):
 		#     )
 		# )
 		if len(points) > 10:
-			print(
-			    "bin {}: [{}, {}]\n{} points. Y_min = {} and Y_max = {}".format(
-			        i + 1, bins[i, 0], bins[i, 1], points.shape, np.min(ydata[points]), np.max(ydata[points])
-			    )
-			)
+			# print(
+			#     "bin {}: [{}, {}]\n{} points. Y_min = {} and Y_max = {}".format(
+			#         i + 1, bins[i, 0], bins[i, 1], points.shape, np.min(ydata[points]), np.max(ydata[points])
+			#     )
+			# )
 			if found_left == 0:
 				if np.min(ydata[points]) >= ythreshold["lower"]:
 					xcutoff["left"] = bins[i, 0]
@@ -569,7 +569,7 @@ def ComputeBinVariance(xdata, ydata, nbins=10, space="log", binfile=None, submit
 	# 			npoints is the number of physical error rates in the bin
 	# 			var is the variance of logical error rates in the bin.
 
-	atol = 10e-12
+	atol = 10e-16
 	bins = np.zeros((nbins - 1, 8), dtype=np.longdouble)
 	if space == "log":
 		window = np.logspace(

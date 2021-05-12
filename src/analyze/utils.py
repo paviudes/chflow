@@ -22,11 +22,53 @@ except ImportError:
 from define import qchans as qc
 
 
+def RoundOrder(number):
+    # Round a number to the nearest order: a * 10^-b where a is a multiple of 5 and b is an integer.
+    (base, exponent) = GetBaseExponent(number)
+    base = 5 * np.round(base/5)
+    rounded = base * np.power(0.1, -exponent)
+    return np.log10(rounded)
+
+
 def OrderOfMagnitude(number):
     # Compute the order of magnitude
     if (number < 0):
         return np.int(np.floor(np.log10(-1 * number)))
     return np.int(np.ceil(np.log10(number)))
+
+
+def GetBaseExponent(number):
+    # Separate the base and exponent.
+    float_str = "{0:.1e}".format(number)
+    (base, exponent) = float_str.split("e")
+    return (float(base), float(exponent))
+
+
+def SetTickLabels(axis, scale="log", interval=1):
+    # Set the positions of the axis ticks and the corresponding axis labels.
+    # lower = np.floor(np.log10(np.min(axis)))
+    # upper = np.ceil(np.log10(np.max(axis)))
+    lower = OrderOfMagnitude(np.min(axis))
+    upper = OrderOfMagnitude(np.max(axis))
+    print("X axis\nmin = {}, max = {}\nupper = {}, lower = {}".format(np.min(axis), np.max(axis), upper, lower))
+    if (abs(upper - lower) > 3):
+        interval = max(1, interval)
+        orders = np.arange(lower, upper + interval, interval)
+        ticks = np.power(0.1, -1 * orders)
+    elif (abs(upper - lower) == 0):
+        interval = min(0.5, interval)
+        (left_base, left_exponent) = GetBaseExponent(np.min(axis))
+        (right_base, right_exponent) = GetBaseExponent(np.max(axis))
+        ticks = np.arange(left_base, right_base + interval, interval) * np.power(0.1, -1 * left_exponent)
+    else:
+        interval = min(0.5, interval)
+        orders = np.arange(lower, upper + 1, -np.log10(interval))
+        print("orders\n{}".format(orders))
+        ticks = np.sort(np.concatenate((np.power(0.1, -1 * orders), interval * 10 * np.power(0.1, -1 * orders[:-1]))))
+        print("ticks\n{}".format(ticks))
+
+    tick_labels = list(map(lambda x: "$%s$" % latex_float(x), ticks))
+    return (ticks, tick_labels)
 
 
 def ExtractPDFPages(information, save_folder, save_fname):

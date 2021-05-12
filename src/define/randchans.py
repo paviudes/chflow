@@ -205,8 +205,8 @@ def IIDWtihCrossTalk(infid, qcode, iid_fraction, subset_fraction):
         ##########
         # Temporary patch for strong correlations
         corr_error_dist[errors_to_boost[selected_errors]] = np.random.normal(
-            (0.9 ** (w - 1)) * 4 ** n * full_process_infid,
-            (0.9 ** (w - 1)) * 4 ** n * full_process_infid,
+            full_process_infid,
+            selected_errors.size,
             size=(mq_errors,),
         )
         ##########
@@ -376,6 +376,9 @@ def RandomPauliChannel(kwargs):
     method = "uniform"
     if "method" in kwargs:
         method = available_methods[kwargs["method"]]
+
+    if kwargs["qcode"].PauliOperatorsLST is None:
+        qc.PrepareSyndromeLookUp(kwargs["qcode"])
 
     # print("Method = {}".format(method))
     if method == "uniform":

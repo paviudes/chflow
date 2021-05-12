@@ -95,7 +95,9 @@ from analyze.dcplot import DecoderCompare, DecoderInstanceCompare, RelativeDecod
 from analyze.dvplot import PlotDeviationYX
 from analyze.lplot import LevelWisePlot, LevelWisePlot2D
 from analyze.statplot import MCStatsPlot
-from analyze.hamplot import DoubleHammerPlot, PartialHammerPlot
+from analyze.hamplot import DoubleHammerPlot
+from analyze.partpred import PartialNRPlot
+from analyze.hamplot_backup import PartialHammerPlot
 from analyze.pdplot import PauliDistributionPlot
 from analyze.nrplot import NRWeightsPlot
 from analyze.compare import CompareSubs

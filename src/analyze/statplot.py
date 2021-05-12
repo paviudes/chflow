@@ -25,9 +25,9 @@ def GetChannelPosition(noise_rates, samples, available):
     """
     Compute the channel index corresponding to a rate and sample.
     """
-    pos = np.zeros((noise_rates.shape[0], samples.shape[0]), dtype=np.int)
-    for r in range(noise_rates.shape[0]):
-        for s in range(samples.shape[0]):
+    pos = np.zeros((len(noise_rates), len(samples)), dtype=np.int)
+    for r in range(len(noise_rates)):
+        for s in range(len(samples)):
             pos[r, s] = np.nonzero(
                 list(
                     map(
@@ -315,7 +315,7 @@ def MCompare(dbses_input, pmet, lmet, rates, samples=None, cutoff=1e6):
                         xaxis,
                         yaxis,
                         linewidth=gv.line_width,
-                        label="%g" % (dbs.decoder_fraction),
+                        label="%g" % (dbs.noiserates[rates[r], 1]),
                         color=gv.Colors[d % len(gv.Colors)],
                         linestyle=linestyle
                     )
