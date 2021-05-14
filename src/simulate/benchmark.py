@@ -363,30 +363,30 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity, rawchan=None
 	)
 
 	# Save the output to files.
-	np.save(fn.LogicalChannel(submit, noise, sample), logchans)
-	np.save(fn.LogChanVariance(submit, noise, sample), chanvar)
+	SaveAndChangeOwnership(fn.LogicalChannel(submit, noise, sample), logchans)
+	SaveAndChangeOwnership(fn.LogChanVariance(submit, noise, sample), chanvar)
 	for m in range(nmetrics):
-		np.save(
-			fn.LogicalErrorRate(submit, noise, sample, submit.metrics[m]), logerrs[m, :]
-		)
-		np.save(
-			fn.LogErrVariance(submit, noise, sample, submit.metrics[m]), logvars[m, :]
-		)
-		np.save(
-			fn.SyndromeBins(submit, noise, sample, submit.metrics[m]), bins[m, :, :, :]
-		)
-		np.save(
-			fn.RunningAverageCh(submit, noise, sample, submit.metrics[m]), running[m, :]
-		)
+		SaveAndChangeOwnership(fn.LogicalErrorRate(submit, noise, sample, submit.metrics[m]), logerrs[m, :])
+		SaveAndChangeOwnership(fn.LogErrVariance(submit, noise, sample, submit.metrics[m]), logvars[m, :])
+		SaveAndChangeOwnership(fn.SyndromeBins(submit, noise, sample, submit.metrics[m]), bins[m, :, :, :])
+		SaveAndChangeOwnership(fn.RunningAverageCh(submit, noise, sample, submit.metrics[m]), running[m, :])
 	# Decoder bins
 	if submit.hybrid > 0:
 		with open(fn.DecoderBins(submit, noise, sample), "w") as df:
 			for l in range(nlevels):
-				df.write(
-					"%s\n"
-					% ",".join(list(map(lambda num: "%d" % num, submit.decoderbins[l])))
-				)
+				df.write("%s\n" % ",".join(list(map(lambda num: "%d" % num, submit.decoderbins[l]))))
+	SaveAndChangeOwnership(fn.DecoderBins(submit, noise, sample), arr=None)
 	# Free the memory allocated to bout by callin FreeBenchOut() method.
+	return None
+
+
+def SaveAndChangeOwnership(fname, arr=None):
+	# Change ownership from user to group.
+	# chown -h -R $USER:def-jemerson -- /projects/def-jemerson/chbank
+	if arr is not None:
+		np.save(fname, arr)
+	if (submit.host not in ["local"]):
+		os.system("chown $USER:def-jemerson %s" % (fname))
 	return None
 
 

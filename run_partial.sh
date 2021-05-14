@@ -181,8 +181,8 @@ usage() {
 	printf "\033[0m"
 }
 
-timestamps=("${pcorr_strong_Steane_level2[@]}")
-alphas=("${alphas_pcorr_strong_Steane_level2[@]}")
+timestamps=("${pcorr_strong_cyclic_level2[@]}")
+alphas=("${alphas_pcorr_strong_cyclic_level2[@]}")
 log=pcorr_strong
 refts=${timestamps[0]}
 
@@ -473,15 +473,18 @@ elif [[ "$1" == "plot" ]]; then
 	# echo "sbload ${refts}" > input/temp.txt
 	# printf -v joined_timestamps '%s,' "${timestamps[@]:1}"
 	##### temporary patch
-	echo "sbload pcorr_strong_l2_00" > input/temp.txt
+	echo "sbload pcorr_strong_cyclic_l2_00" > input/temp.txt
 	printf -v joined_timestamps '%s,' "${timestamps[@]:1}"
-	joined_uncorr=$(seq -s "uncorr" ${#timestamps[@]} | sed 's/[0-9]/,/g' | sed 's/,,/,/g' | sed 's/\%//g')
-	# echo "${joined_uncorr}"
+	n_timestamps=${#timestamps[@]}
+	n_uncorr=$(($n_timestamps-1))
+	joined_uncorr=$(seq -s "uncorr" ${n_uncorr} | sed 's/[0-9]/,/g' | sed 's/,,/,/g' | sed 's/\%//g')
+	echo "joined_timestamps: ${joined_timestamps%?}"
+	echo "joined_uncorr: ${joined_uncorr}"
 	#####
 	# echo "nrplot 0 0 ${joined_timestamps%?}" >> input/temp.txt
 	# echo "dciplot infid infid ${joined_timestamps%?} 0;36;1" >> input/temp.txt
 	# echo "mcplot infid infid 0 0 ${joined_timestamps%?}" >> input/temp.txt
-	echo "hamplot infid${joined_uncorr} infid ${joined_timestamps%?} 7,9 0.01,0.01 4" >> input/temp.txt
+	echo "hamplot infid${joined_uncorr} infid ${joined_timestamps%?} 7,9 1,1 7" >> input/temp.txt
 	echo "notes infid${joined_uncorr} infid pcorr partialham /Users/pavi/Documents/rclearn/notes/paper/figures/scatter_styles 1" >> input/temp.txt
 	echo "quit" >> input/temp.txt
 	./chflow.sh -- temp.txt

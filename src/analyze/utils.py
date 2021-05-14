@@ -26,8 +26,7 @@ def RoundOrder(number):
     # Round a number to the nearest order: a * 10^-b where a is a multiple of 5 and b is an integer.
     (base, exponent) = GetBaseExponent(number)
     base = 5 * np.round(base/5)
-    rounded = base * np.power(0.1, -exponent)
-    return np.log10(rounded)
+    return (base, exponent)
 
 
 def OrderOfMagnitude(number):
@@ -61,11 +60,20 @@ def SetTickLabels(axis, scale="log", interval=1):
         (right_base, right_exponent) = GetBaseExponent(np.max(axis))
         ticks = np.arange(left_base, right_base + interval, interval) * np.power(0.1, -1 * left_exponent)
     else:
+        lower -= 1
+        (min_base, min_exponent) = RoundOrder(np.min(axis))
+        # upper += 1
+        (max_base, max_exponent) = RoundOrder(np.max(axis))
+
         interval = min(0.5, interval)
-        orders = np.arange(lower, upper + 1, -np.log10(interval))
+        orders = np.arange(lower, upper + 1)
         print("orders\n{}".format(orders))
         ticks = np.sort(np.concatenate((np.power(0.1, -1 * orders), interval * 10 * np.power(0.1, -1 * orders[:-1]))))
         print("ticks\n{}".format(ticks))
+        if (min_base >= 5):
+            ticks = ticks[1:]
+        if (max_base < 5):
+            ticks = ticks[:-2]
 
     tick_labels = list(map(lambda x: "$%s$" % latex_float(x), ticks))
     return (ticks, tick_labels)

@@ -99,8 +99,12 @@ def CompareSubs(pmet, lmet, *dbses):
 			ax.set_xlabel(settings["xlabel"], fontsize=gv.axes_labels_fontsize*1.4)
 			# ax.set_ylabel(ml.Metrics["uncorr"]["latex"], fontsize=gv.axes_labels_fontsize*1.4)
 			ax.set_xscale("log")
+			# ax.set_xlim([None, 30])
 			ax.set_yscale("log")
 			ax.tick_params(axis="both", which="both", pad=gv.ticks_pad, direction="inout", length=gv.ticks_length, width=gv.ticks_width, labelsize=gv.ticks_fontsize*1.4)
+
+			# Grid lines
+			ax.grid(color="0.5", which="both")
 
 			# Axes labels for the right (logical error rates) plot
 			# ax_right.set_ylabel(settings["ylabel"], fontsize=gv.axes_labels_fontsize*1.4)

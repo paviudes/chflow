@@ -32,7 +32,7 @@ def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 	# Inset axes
 	ax_inset = plt.axes([0, 0, 1, 1])
 	# Position and relative size of the inset axes within ax_principal
-	ip = InsetPosition(ax_principal, [0.68, 0.15, 0.3, 0.25]) # Positon: bottom right
+	ip = InsetPosition(ax_principal, [0.64, 0.13, 0.32, 0.27]) # Positon: bottom right
 	ax_inset.set_axes_locator(ip)
 	# Mark the region corresponding to the inset axes on ax_principal and draw lines in grey linking the two axes.
 	mark_inset(ax_principal, ax_inset, loc1=2, loc2=4, fc="none")
@@ -49,7 +49,7 @@ def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 		phyerrs[d, :] = LoadPhysicalErrorRates(dbses[d], pmets[d], None, level)
 		logerrs[d, :] = np.load(LogicalErrorRates(dbses[d], lmet))[:, level]
 		
-		bins = ComputeBinVariance(phyerrs[d, include], logerrs[d, include], space="log", nbins=nbins)
+		bins = ComputeBinVariance(phyerrs[d, include[d]], logerrs[d, include[d]], space="log", nbins=nbins)
 		collapsed_bins[d] = CollapseBins(bins, min_bin_fraction * dbses[d].channels / nbins)
 		
 		# print("Number of bins for alpha = {} is {}.".format(dbses[d].decoder_fraction, collapsed_bins[d].shape[0]))
@@ -69,8 +69,8 @@ def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 			current_axes.xaxis.tick_bottom()
 			current_axes.xaxis.set_label_position('bottom')
 		
-		# Plot the scatter metric
-		current_axes.plot(xaxis, yaxis, marker=gv.Markers[d % gv.n_Markers], color=gv.Colors[d % gv.n_Colors], linestyle="-", linewidth=gv.line_width, markersize=gv.marker_size, alpha=0.75)
+		# Plot the scatter metric. Drop the first and the last bins to avoid effects due to including more points for one type of scatter.
+		current_axes.plot(xaxis[1:-1], yaxis[1:-1], marker=gv.Markers[d % gv.n_Markers], color=gv.Colors[d % gv.n_Colors], linestyle="-", linewidth=gv.line_width, markersize=gv.marker_size, alpha=0.75)
 		# Tick parameters for both axes
 		current_axes.tick_params(
 			axis="both",
@@ -144,15 +144,18 @@ def DoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds):
 			ax_top = ax_bottom.twiny()
 			settings = [[], []]
 			logerrs = np.zeros((len(dsets), dsets[0].channels), dtype = np.double)
+			include = [[], []]
 			for c in range(2):
 				logerrs[c, :] = np.load(LogicalErrorRates(dsets[c], lmet))[:, l]
 				if c == 0:
 					phyerrs = LoadPhysicalErrorRates(dsets[c], pmets[c], None, l)
-					# Compute the X-cutoff to include a subset of channels in the plot.
-					xcutoff = GetXCutOff(phyerrs, logerrs[c, :], thresholds[l - 1], nbins=50, space="log")
-					include, = np.nonzero(np.logical_and(phyerrs >= xcutoff["left"], phyerrs <= xcutoff["right"]))
+					xaxis = phyerrs
 				else:
 					uncorr = LoadPhysicalErrorRates(dsets[c], pmets[c], None, l)
+					xaxis = uncorr
+				# Compute the X-cutoff to include a subset of channels in the plot.
+				xcutoff = GetXCutOff(xaxis, logerrs[c, :], thresholds[l - 1], nbins=50, space="log")
+				include[c], = np.nonzero(np.logical_and(xaxis >= xcutoff["left"], xaxis <= xcutoff["right"]))
 
 			for c in range(2):
 				if (c == 0):
@@ -170,8 +173,8 @@ def DoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds):
 
 				# Plot logical error rates vs. physical error metric
 				current_axes.plot(
-					xaxis[include],
-					logerrs[c, include],
+					xaxis[include[c]],
+					logerrs[c, include[c]],
 					color=gv.Colors[c % gv.n_Colors],
 					alpha=0.75,
 					marker=gv.Markers[c % gv.n_Markers],
@@ -193,14 +196,14 @@ def DoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds):
 				)
 
 			# X = Y line for the top axis with the uncorr data.
-			ax_top.plot(uncorr[include], uncorr[include], color="k", linestyle="solid", linewidth=gv.line_width)
+			ax_top.plot(uncorr[include[1]], uncorr[include[1]], color="k", linestyle="solid", linewidth=gv.line_width)
 			# Empty plot for the X = Y legend entry.
-			ax_bottom.plot([], [], color="k", linestyle="solid", linewidth=gv.line_width, label="X = Y")
+			ax_bottom.plot([], [], color="k", linestyle="solid", linewidth=gv.line_width, label="Ideal")
 			
 			# Flow lines only when the number of channels is less than 20
 			if (dsets[0].channels <= 50):
 				# The flow lines should connect the (infid, logical error under non-RC) to the (uncorr, logical error under RC) points.
-				for c in range(len(include)):
+				for i in range(len(include)):
 					# ax_bottom.plot(
 					# 	[phyerrs[include[c]], uncorr[include[c]]],
 					# 	[logerrs[0, include[c]], logerrs[1, include[c]]],
@@ -208,8 +211,8 @@ def DoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds):
 					# 	linestyle="dashed",
 					# 	linewidth=gv.line_width
 					# )
-					nonRC_infid = [phyerrs[include[c]], logerrs[0, include[c]]]
-					RC_uncorr = [uncorr[include[c]], logerrs[1, include[c]]]
+					nonRC_infid = [phyerrs[include[0][i]], logerrs[0, include[0][i]]]
+					RC_uncorr = [uncorr[include[1][i]], logerrs[1, include[1][i]]]
 					con = ConnectionPatch(xyA=nonRC_infid, xyB=RC_uncorr, coordsA="data", coordsB="data", axesA=ax_bottom, axesB=ax_top, color="0.7", linestyle="dashed", linewidth=gv.line_width)
 					ax_bottom.add_artist(con)
 
@@ -230,7 +233,7 @@ def DoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds):
 			ax_bottom.set_xlabel(bottom_xlabel, fontsize=gv.axes_labels_fontsize * 1.7, labelpad = 0.5 * gv.axes_labelpad, color=gv.Colors[0])
 			# Axes labels for the top axes
 			top_xlabel = "%s %s" % (ml.Metrics[pmets[1]]["latex"], dsets[1].plotsettings["name"])
-			ax_top.set_xlabel(top_xlabel, fontsize=gv.axes_labels_fontsize * 1.7, labelpad = 0.5 * gv.axes_labelpad * 2.5, color=gv.Colors[1])
+			ax_top.set_xlabel(top_xlabel, fontsize=gv.axes_labels_fontsize * 1.7, labelpad = 0.25 * gv.axes_labelpad * 2.5, color=gv.Colors[1])
 			
 			# Scales for the axes
 			ax_bottom.set_xscale("log")
