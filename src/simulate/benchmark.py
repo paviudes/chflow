@@ -385,8 +385,7 @@ def SaveAndChangeOwnership(fname, arr=None):
 	# chown -h -R $USER:def-jemerson -- /projects/def-jemerson/chbank
 	if arr is not None:
 		np.save(fname, arr)
-	if (submit.host not in ["local"]):
-		os.system("chown $USER:def-jemerson %s" % (fname))
+	os.system("chown $USER:def-jemerson %s" % (fname))
 	return None
 
 
