@@ -375,7 +375,7 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity, rawchan=None
 		with open(fn.DecoderBins(submit, noise, sample), "w") as df:
 			for l in range(nlevels):
 				df.write("%s\n" % ",".join(list(map(lambda num: "%d" % num, submit.decoderbins[l]))))
-	SaveAndChangeOwnership(fn.DecoderBins(submit, noise, sample), arr=None)
+		SaveAndChangeOwnership(fn.DecoderBins(submit, noise, sample), arr=None)
 	# Free the memory allocated to bout by callin FreeBenchOut() method.
 	return None
 
