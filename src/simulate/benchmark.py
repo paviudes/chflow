@@ -372,10 +372,10 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity, rawchan=None
 		SaveAndChangeOwnership(fn.RunningAverageCh(submit, noise, sample, submit.metrics[m]), running[m, :])
 	# Decoder bins
 	if submit.hybrid > 0:
+		SaveAndChangeOwnership(fn.DecoderBins(submit, noise, sample), arr=None)
 		with open(fn.DecoderBins(submit, noise, sample), "w") as df:
 			for l in range(nlevels):
 				df.write("%s\n" % ",".join(list(map(lambda num: "%d" % num, submit.decoderbins[l]))))
-		SaveAndChangeOwnership(fn.DecoderBins(submit, noise, sample), arr=None)
 	# Free the memory allocated to bout by callin FreeBenchOut() method.
 	return None
 
@@ -383,9 +383,10 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity, rawchan=None
 def SaveAndChangeOwnership(fname, arr=None):
 	# Change ownership from user to group.
 	# chown -h -R $USER:def-jemerson -- /projects/def-jemerson/chbank
+	os.system("touch %s" % (fname))
+	os.system("chown $USER:def-jemerson %s" % (fname))
 	if arr is not None:
 		np.save(fname, arr)
-	os.system("chown $USER:def-jemerson %s" % (fname))
 	return None
 
 
