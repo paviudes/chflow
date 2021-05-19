@@ -130,6 +130,7 @@ if [[ -n ${cluster} ]]; then
 	bpauli_bias=("vary_bias_ststst" "vary_bias_cycycy")	
 	bpauli_infid=("vary_infid_ststst" "vary_infid_ststcy" "vary_infid_stcyst" "vary_infid_stcycy" "vary_infid_cystst" "vary_infid_cystcy" "vary_infid_cycyst" "vary_infid_cycycy")
 	crsum_bias=("crsum_Steane_twirl" "crsum_cyclic_twirl")
+	crsum_bias_crossing=("crsum_Steane_twirl_crossing" "crsum_cyclic_twirl_crossing")
 	#codes=("Steane,Steane,Steane" "Steane,Steane,7qc_cyclic" "Steane,7qc_cyclic,Steane" "Steane,7qc_cyclic,7qc_cyclic" "7qc_cyclic,Steane,Steane" "7qc_cyclic,Steane,7qc_cyclic" "7qc_cyclic,7qc_cyclic,Steane" "7qc_cyclic,7qc_cyclic,7qc_cyclic")
 	codes=("Steane,Steane,Steane" "7qc_cyclic,7qc_cyclic,7qc_cyclic")
 	jobarray=1
@@ -140,20 +141,28 @@ if [[ -n ${cluster} ]]; then
 	alphas_pcorr_strong_Steane_level2=(0 0.0014 1)
 fi
 
+fastdelete() {
+	# Delete efficiently using perl
+	# https://unix.stackexchange.com/questions/37329/efficiently-delete-large-directory-containing-thousands-of-files
+	cd $1
+	perl -e "for(<*>){((stat)[9]<(unlink))}"
+}
 
 rerun() {
-	echo "removing ${outdir}/$1/channels/*"
 	if [ -d ${outdir}/$1/channels ]; then
-		rm ${outdir}/$1/channels/*
+		echo "removing ${outdir}/$1/channels/*"
+		fastdelete ${outdir}/$1/channels/
 	else
 		echo "No channels found."
 	fi
 	if [ -d ${outdir}/$1/metrics ]; then
-		rm ${outdir}/$1/metrics/*
+		echo "removing ${outdir}/$1/metrics/*"
+		fastdelete ${outdir}/$1/metrics/
 	else
 		echo "No metrics found."
 	fi
 	if [ -d "${outdir}/$1/results" ]; then
+		echo "removing ${outdir}/$1/results/*"
 		rm ${outdir}/$1/results/*.npy
 	else
 		echo "No results found."
@@ -181,8 +190,8 @@ usage() {
 	printf "\033[0m"
 }
 
-timestamps=("${pcorr_strong_cyclic_level2[@]}")
-alphas=("${alphas_pcorr_strong_cyclic_level2[@]}")
+timestamps=("${pcorr_strong_Steane_level2[@]}")
+alphas=("${alphas_pcorr_strong_Steane_level2[@]}")
 log=pcorr_strong
 refts=${timestamps[0]}
 
@@ -473,7 +482,7 @@ elif [[ "$1" == "plot" ]]; then
 	# echo "sbload ${refts}" > input/temp.txt
 	# printf -v joined_timestamps '%s,' "${timestamps[@]:1}"
 	##### temporary patch
-	echo "sbload pcorr_strong_cyclic_l2_00" > input/temp.txt
+	echo "sbload pcorr_strong_Steane_l2_00" > input/temp.txt
 	printf -v joined_timestamps '%s,' "${timestamps[@]:1}"
 	n_timestamps=${#timestamps[@]}
 	n_uncorr=$(($n_timestamps-1))
@@ -484,7 +493,7 @@ elif [[ "$1" == "plot" ]]; then
 	# echo "nrplot 0 0 ${joined_timestamps%?}" >> input/temp.txt
 	# echo "dciplot infid infid ${joined_timestamps%?} 0;36;1" >> input/temp.txt
 	# echo "mcplot infid infid 0 0 ${joined_timestamps%?}" >> input/temp.txt
-	echo "hamplot infid${joined_uncorr} infid ${joined_timestamps%?} 7,9 1,1 7" >> input/temp.txt
+	echo "hamplot infid${joined_uncorr} infid ${joined_timestamps%?} 7,12 1,1 10" >> input/temp.txt
 	echo "notes infid${joined_uncorr} infid pcorr partialham /Users/pavi/Documents/rclearn/notes/paper/figures/scatter_styles 1" >> input/temp.txt
 	echo "quit" >> input/temp.txt
 	./chflow.sh -- temp.txt
