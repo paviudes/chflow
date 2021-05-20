@@ -276,7 +276,7 @@ def ComputeBinPositions(principal, inset):
 def PlotBinVarianceDataSets(ax_principal, dbses, level, lmet, pmets, nbins, include_info, is_inset = 1, bottom_ticks=None, top_ticks=None):
 	# Compare scatter for different physical metrics
 	atol = 1E-16
-	min_bin_fraction = 0.1
+	min_bin_fraction = 0.01
 	modified_bottom_ticks = None
 	modified_top_ticks = None
 	
@@ -321,12 +321,16 @@ def PlotBinVarianceDataSets(ax_principal, dbses, level, lmet, pmets, nbins, incl
 
 		include = include_info[pmets[d]]
 
-		# print("xdata for alpha = {}\n{}".format(dbses[d].decoder_fraction, phyerrs[d, include]))
+		print("xdata for alpha = {}\n{}\nydata\nmin: {}, max: {}".format(dbses[d].decoder_fraction, phyerrs[d, include], np.min(logerrs[d, include]), np.max(logerrs[d, include])))
 
 		bins = ComputeBinVariance(phyerrs[d, include], logerrs[d, include], space="log", nbins=nbins)
+		# Leave out bins which don't have any points.
+		non_empty_bins, = np.nonzero(bins[:, 3])
+		bins = bins[non_empty_bins, :]
+		print("bins\n{}".format(bins))
 		collapsed_bins[d] = CollapseBins(bins, min_bin_fraction * dbses[d].channels / nbins)
 		# collapsed_bins[d] = bins # temporary fix to avoid the CollapseBins function.
-		print("Number of bins for alpha = {} is {}.".format(dbses[d].decoder_fraction, collapsed_bins[d].shape[0]))
+		print("Number of bins for alpha = {} is {}\n{}.".format(dbses[d].decoder_fraction, collapsed_bins[d].shape[0], np.array2string(collapsed_bins[d], formatter={'float_kind':lambda x: "%.2e" % x})))
 		
 		xaxis = np.arange(collapsed_bins[d].shape[0])
 		yaxis = collapsed_bins[d][:, 3]
@@ -481,6 +485,7 @@ def CollapseBins(bins, min_bin_size):
 			collapsed_bins[j, 0] = bins[i, 0]
 			collapsed_bins[j, 1] = bins[i + 1, 1]
 			collapsed_bins[j, 2] = bins[i, 2] + bins[i + 1, 2]
+			# print("bins[i, 4] = {}, bins[i + 1, 4] = {}, collapsed_bins[j, 2] = {}".format(bins[i, 4], bins[i + 1, 4], collapsed_bins[j, 2]))
 			collapsed_bins[j, 3] = max(bins[i, 5], bins[i + 1, 5]) / (
 				min(bins[i, 4], bins[i + 1, 4]) * collapsed_bins[j, 2]
 			)
@@ -568,8 +573,8 @@ def ComputeBinVariance(xdata, ydata, nbins=10, space="log", binfile=None, submit
 	# 			where low and high are the physical error rates that specify the bin.
 	# 			npoints is the number of physical error rates in the bin
 	# 			var is the variance of logical error rates in the bin.
-
-	atol = 10e-16
+	# print("xdata\n{} to {}".format(np.min(xdata), np.max(xdata)))
+	atol = 1E-16
 	bins = np.zeros((nbins - 1, 8), dtype=np.longdouble)
 	if space == "log":
 		window = np.logspace(
@@ -587,7 +592,6 @@ def ComputeBinVariance(xdata, ydata, nbins=10, space="log", binfile=None, submit
 		window = np.linspace(np.min(xdata), np.max(xdata), nbins)
 	bins[:, 0] = window[:-1]
 	bins[:, 1] = window[1:]
-	# print("xdata\n{} to {}".format(np.min(xdata), np.max(xdata)))
 	# print("bins\n{}".format(bins[:, :2]))
 
 	if binfile is not None:

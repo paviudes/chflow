@@ -146,6 +146,7 @@ fastdelete() {
 	# https://unix.stackexchange.com/questions/37329/efficiently-delete-large-directory-containing-thousands-of-files
 	cd $1
 	perl -e "for(<*>){((stat)[9]<(unlink))}"
+	cd $chflowdir
 }
 
 rerun() {
