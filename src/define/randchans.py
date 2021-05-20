@@ -335,7 +335,7 @@ def PoissonRandomPauli(infid, mean_correlation_length, subset_fraction, qcode):
 			boost = 1
 			n_selected = qcode.group_by_weight[w].size
 		else:
-			boost = 1/infid
+			boost = 1/np.sqrt(infid)
 			n_selected = max(1, int(subset_fraction * qcode.group_by_weight[w].size))
 		mask[: n_selected] = 1
 		# Choose a random subset of N errors of weights w.
