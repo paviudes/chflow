@@ -272,7 +272,7 @@ def ConvexSumRotations(params):
 	pY = rX * rZ
 	pI = 1 - pX - pY - pZ
 
-	print("pI = %.2e, pX = %.2e, pY = %.2e, pZ = %.2e." % (pI, pX, pY, pZ))
+	# print("pI = %.2e, pX = %.2e, pY = %.2e, pZ = %.2e." % (pI, pX, pY, pZ))
 
 	kraus = np.zeros((4, 2, 2), dtype = np.complex128)
 	kraus[0, :, :] = np.sqrt(pI) * np.eye(2)

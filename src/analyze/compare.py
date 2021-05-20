@@ -6,6 +6,7 @@ import datetime as dt
 import matplotlib
 matplotlib.use("Agg")
 from matplotlib.backends.backend_pdf import PdfPages
+# from matplotlib import Text
 import matplotlib.pyplot as plt
 
 # Non critical packages
@@ -19,6 +20,7 @@ from define import globalvars as gv
 from define import metrics as ml
 from define.fnames import PhysicalErrorRates, LogicalErrorRates, CompareSubsPlot
 from analyze.load import LoadPhysicalErrorRates
+from analyze.statplot import IsConverged, GetChannelPosition
 from analyze.utils import OrderOfMagnitude
 
 def CompareSubs(pmet, lmet, *dbses):
@@ -35,9 +37,21 @@ def CompareSubs(pmet, lmet, *dbses):
 			fig = plt.figure(figsize=(gv.canvas_size[0]*1.4, gv.canvas_size[1]*1.25))
 			ax = plt.gca()
 			# ax_right = ax.twinx()
+			# Compute the channels that have passed the convergence criterion
+			converged_channels_dset = [[], []]
 			for d in range(ndb):
 				# Plot multiple logical error rates, with respect to the same physical error rates.
 				# We use linestyles to distinguish between codes, and colors/markers to distinguish between y-axis metrics.
+				rates = np.arange(dbses[d].noiserates.shape[0], dtype = np.int)
+				(converged_rates, __) = np.nonzero(IsConverged(dbses[d], lmet, rates, [0], threshold = 100000))
+				# print("Dataset: {}\nConvereged rates\n{}".format(dbses[d].eccs[0].name, converged_rates))
+				converged_channels_dset[d] = GetChannelPosition(dbses[d].noiserates[converged_rates], [0], dbses[d].available).flatten()
+				# print("Dataset: {}, converged_channels\n{}".format(d, converged_channels_dset[d]))
+
+			# Common channels that passed the convergence test.
+			converged_channels = np.intersect1d(converged_channels_dset[0], converged_channels_dset[1])
+
+			for d in range(ndb):
 				if os.path.isfile(LogicalErrorRates(dbses[d], lmet)):
 					logerrs = np.load(LogicalErrorRates(dbses[d], lmet))[: , l]
 				else:
@@ -45,6 +59,13 @@ def CompareSubs(pmet, lmet, *dbses):
 					logerrs = np.zeros(nchannels, dtype = np.double)
 				settings = {"xaxis": None, "xlabel": None, "yaxis": logerrs, "ylabel": "$\\overline{%s_{%d}}$" % (ml.Metrics[lmet]["latex"].replace("$", ""), l)}
 				LoadPhysicalErrorRates(dbses[0], pmet, settings, l)
+				
+				# Store only the convereged channels
+				settings["xaxis"] = settings["xaxis"][converged_channels]
+				settings["yaxis"] = settings["yaxis"][converged_channels]
+
+				# print("X size = {}: {}\nY size {}: {}".format(len(settings["xaxis"]), settings["xaxis"], len(settings["yaxis"]), settings["yaxis"]))
+
 				settings.update({"color": gv.Colors[0], "marker": ml.Metrics[lmet]["marker"], "linestyle": "dotted"})
 				label_logerr = "%s(%s)" % (settings["ylabel"], dbses[d].eccs[0].name)
 				# Right axes plot -- with logical error rates.
@@ -56,13 +77,13 @@ def CompareSubs(pmet, lmet, *dbses):
 				
 				# Let axes plots -- with uncorr.
 				# Left y-axis for uncorr
-				uncorr = np.load(PhysicalErrorRates(dbses[d], "uncorr"))
+				uncorr = np.load(PhysicalErrorRates(dbses[d], "uncorr"))[converged_channels, l]
 				label_uncorr = "%s(%s)" % (ml.Metrics["uncorr"]["latex"], dbses[d].eccs[0].name)
-				ax.plot(settings["xaxis"], uncorr[:, l], color=gv.Colors[d], marker=ml.Metrics["uncorr"]["marker"], markersize=gv.marker_size, linestyle="solid", linewidth=1.5 * gv.line_width)
-				if (ylimits["left"]["min"] >= np.min(uncorr[:, l])):
-					ylimits["left"]["min"] = np.min(uncorr[:, l])
-				if (ylimits["left"]["max"] <= np.max(uncorr[:, l])):
-					ylimits["left"]["max"] = np.max(uncorr[:, l])
+				ax.plot(settings["xaxis"], uncorr, color=gv.Colors[d], marker=ml.Metrics["uncorr"]["marker"], markersize=gv.marker_size, linestyle="solid", linewidth=1.5 * gv.line_width)
+				if (ylimits["left"]["min"] >= np.min(uncorr)):
+					ylimits["left"]["min"] = np.min(uncorr)
+				if (ylimits["left"]["max"] <= np.max(uncorr)):
+					ylimits["left"]["max"] = np.max(uncorr)
 				
 				# Empty plots to add legend entries.
 				ax.plot([], [], color=gv.Colors[d], alpha = 0.75, marker=settings["marker"], markersize=gv.marker_size, linestyle=settings["linestyle"], linewidth=1.5 * gv.line_width, label = label_logerr)
@@ -82,24 +103,27 @@ def CompareSubs(pmet, lmet, *dbses):
 			ax.set_xlabel(settings["xlabel"], fontsize=gv.axes_labels_fontsize*1.4)
 			# ax.set_ylabel(ml.Metrics["uncorr"]["latex"], fontsize=gv.axes_labels_fontsize*1.4)
 			ax.set_xscale("log")
+			# ax.set_xlim([None, 30])
 			ax.set_yscale("log")
 			ax.tick_params(axis="both", which="both", pad=gv.ticks_pad, direction="inout", length=gv.ticks_length, width=gv.ticks_width, labelsize=gv.ticks_fontsize*1.4)
 
-			# Axes labels for the right (logical error rates) plot
-			# ax_right.set_ylabel(settings["ylabel"], fontsize=gv.axes_labels_fontsize*1.4)
-			# ax_right.set_yscale("log")
-			# ax_right.set_xlabel(settings["xlabel"], fontsize=gv.axes_labels_fontsize*1.4)
-			# ax_right.set_xscale("log")
-			# ax_right.tick_params(axis="both", which="both", pad=gv.ticks_pad, direction="inout", length=gv.ticks_length, width=gv.ticks_width, labelsize=gv.ticks_fontsize*1.4)
+			# Grid lines
+			ax.grid(color="0.5", which="both")
 
 			# Axes ticks for the uncorr plot
-			# print("ylimits\n{}".format(ylimits))
 			yticks_left = np.arange(OrderOfMagnitude(max(MIN, ylimits["left"]["min"]/5)), OrderOfMagnitude(ylimits["left"]["max"] * 5))
 			ax.set_yticks(np.power(10.0, yticks_left), minor=True)
-			# Axes ticks for the logical error rates plot
-			# yticks_right = np.arange(OrderOfMagnitude(max(MIN, ylimits["right"]["min"]/5)), OrderOfMagnitude(ylimits["right"]["max"] * 5))
-			# ax_right.set_yticks(np.power(10.0, yticks_right), minor=True)
-			# print("Y ticks\nLeft\n{}\nRight\n{}".format(yticks_left, yticks_right))
+			
+			# X-axis ticks
+			xlimits = ax.get_xlim()
+			fine_steps = np.concatenate((np.arange(6, 10, 1), np.arange(12, 19, 2), np.arange(20, 70, 10)))
+			xticks = np.concatenate((ax.get_xticks(), fine_steps))
+			ax.set_xticks(xticks)
+			# xticklabels = list(ax.get_xticklabels()) + list(map(lambda x: Text(0, 0, "") % x, fine_steps))
+			xticklabels = [("%d" % x) for x in xticks]
+			ax.set_xticklabels(xticklabels)
+			print("xticks: {}\n labels: {}".format(xticks, xticklabels))
+			ax.set_xlim(xlimits)
 
 			# legends for both plots
 			# leg_left = ax.legend(loc="upper right", shadow=True, fontsize=1.4 * gv.legend_fontsize, markerscale=gv.legend_marker_scale)

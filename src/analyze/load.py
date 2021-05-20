@@ -12,27 +12,36 @@ def LoadPhysicalErrorRates(dbs, pmet, settings, level):
     """
     Load the physical error rates.
     """
+    atol = 1E-16
     if pmet in ml.Metrics:
-        settings["xlabel"] = ml.Metrics[pmet]["latex"]
         if pmet == "uncorr":
-            settings["xaxis"] = np.load(fn.PhysicalErrorRates(dbs, pmet))[:, level]
+            phyerrs = np.load(fn.PhysicalErrorRates(dbs, pmet))[:, level]
         else:
-            settings["xaxis"] = np.load(fn.PhysicalErrorRates(dbs, pmet))
-        if "marker" in settings:
-            if settings["marker"] == "":
-                settings["marker"] = ml.Metrics[pmet]["marker"]
-        if "color" in settings:
-            if settings["color"] == "":
-                settings["color"] = ml.Metrics[pmet]["color"]
+            phyerrs = np.load(fn.PhysicalErrorRates(dbs, pmet))
+        if settings is not None:
+            settings["xlabel"] = ml.Metrics[pmet]["latex"]
+            if "marker" in settings:
+                if settings["marker"] == "":
+                    settings["marker"] = ml.Metrics[pmet]["marker"]
+            if "color" in settings:
+                if settings["color"] == "":
+                    settings["color"] = ml.Metrics[pmet]["color"]
     else:
-        settings["marker"] = gv.Markers[int(pmet)]
-        settings["color"] = gv.Colors[int(pmet)]
-        settings["xlabel"] = qc.Channels[dbs.channel]["latex"][int(pmet)]
-        settings["xaxis"] = dbs.available[:, int(pmet)]
+        phyerrs = dbs.available[:, int(pmet)]
+        if settings is not None:
+            settings["marker"] = gv.Markers[int(pmet)]
+            settings["color"] = gv.Colors[int(pmet)]
+            settings["xlabel"] = qc.Channels[dbs.channel]["latex"][int(pmet)]
+            
+            if not (dbs.scales[int(pmet)] == 1):
+                phyerrs = np.power(dbs.scales[int(pmet)], phyerrs)
     
-        if not (dbs.scales[int(pmet)] == 1):
-            settings["xaxis"] = np.power(dbs.scales[int(pmet)], settings["xaxis"])
+    # Set negligible values to atol
+    negligible = (phyerrs <= atol)
+    phyerrs[negligible] = atol
+
+    if settings is not None:
+        settings["linestyle"] = ["None", "--"][dbs.samps == 1]
+        settings["xaxis"] = phyerrs
     
-    settings["linestyle"] = ["None", "--"][dbs.samps == 1]
-    
-    return None
+    return phyerrs
