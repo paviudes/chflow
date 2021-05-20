@@ -916,7 +916,7 @@ def PrepareSyndromeLookUp(qecc):
 	# print("Lookup table\n{}".format(qecc.lookup))
 	# Group errors by weight
 	qecc.group_by_weight = {}
-	for w in range(qecc.N):
+	for w in range(1 + qecc.N):
 		(qecc.group_by_weight[w],) = np.nonzero(qecc.weightdist == w)
 	return None
 

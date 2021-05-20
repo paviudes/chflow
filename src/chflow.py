@@ -525,7 +525,7 @@ if __name__ == "__main__":
 					# print("Physical channels not found")
 					# If the simulation is to be run on a cluster, generate input using cluster nodes.
 					if submit.chgen_cluster == 0:
-						PreparePhysicalChannels(submit, nproc=1)
+						PreparePhysicalChannels(submit, nproc=None)
 						# eta = np.power(submit.scales[1], submit.noiserates[:, 1]) / np.power(submit.scales[0], submit.noiserates[:, 0])
 						# pX = np.power(submit.scales[0], submit.noiserates[:, 0]) * (1 - np.power(submit.scales[1], submit.noiserates[:, 1]))
 						# pY = np.power(submit.scales[0], submit.noiserates[:, 0]) * np.power(submit.scales[1], submit.noiserates[:, 1])

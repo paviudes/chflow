@@ -320,7 +320,7 @@ def PoissonRandomPauli(infid, mean_correlation_length, subset_fraction, qcode):
 	# n_selected = np.array(comb(qcode.N, np.arange(qcode.N + 1)), dtype=np.int) * np.power(np.arange(qcode.N + 1), 2)
 	
 	# Generate a Poisson distribution for probability of an error having a weight w.
-	weight_dist = poisson.pmf(np.arange(qcode.N, dtype=np.int), mean_correlation_length)
+	weight_dist = poisson.pmf(np.arange(1 + qcode.N, dtype=np.int), mean_correlation_length)
 	weight_dist = weight_dist / np.sum(weight_dist)
 	# Set the probability of the identity error to be 1 - infid.
 	weight_dist[0] = 1 - infid
@@ -328,7 +328,7 @@ def PoissonRandomPauli(infid, mean_correlation_length, subset_fraction, qcode):
 	weight_dist[1:] = infid * weight_dist[1:] / np.sum(weight_dist[1:])
 	# print("Weight distribution: {}\nsum = {}".format(weight_dist, np.sum(weight_dist)))
 	
-	for w in range(qcode.N):
+	for w in range(1 + qcode.N):
 		# Limit the number of errors of a given weight.
 		mask = np.zeros(qcode.group_by_weight[w].size, dtype=np.int)
 		if (w < 2):
