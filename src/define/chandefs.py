@@ -68,7 +68,7 @@ def BiasedPauliXZ(params):
 	pY = rX rZ
 	pI = 1 - pX - pY - pZ
 	Furthermore, the bias between rX and rZ is quantified by eta = rZ / rX.
-	
+
 	Here we want to parameterize the channel using its infidelity:
 	p = pX + pY + pZ   --- (1)
 	and the bias:
@@ -480,6 +480,9 @@ def GetKraussForChannel(chType, *params):
 
 	elif chType == "cptp":
 		kraus = CorrelatedNonPauli(params, "sum_cptps")
+
+	elif chType == "ckraus":
+		kraus = CorrelatedNonPauli(params, "correctable_kraus")
 
 	elif chType == "wpc":
 		# Worst Pauli channel for a infidelity

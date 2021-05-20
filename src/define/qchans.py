@@ -196,6 +196,14 @@ Channels = {
 		"Pauli": 0,
 		"corr": 3,
 	},
+	"ckraus": {
+		"name": "Contrived simple RC example with correctable Kraus ops only",
+		"params": ["beta"],
+		"latex": ["$\\beta$"],
+		"color": "limegreen",
+		"Pauli": 0,
+		"corr": 3,
+	},
 	"ising": {
 		"name": "Non Pauli channel implementing Ising type interactions",
 		"params": ["J", "mu", "time"],
