@@ -476,7 +476,6 @@ elif [[ "$1" == "delete" ]]; then
 		else
 			echo "No results found."
 		fi
-		done
 	done
 
 elif [[ "$1" == "lpmetrics" ]]; then
