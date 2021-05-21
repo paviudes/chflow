@@ -272,12 +272,11 @@ def AnIsotropicRandomPauli(infid, max_weight, qcode):
 	# print("iid_error_dist = {}".format(np.sort(iid_error_dist)))
 
 	mean_probs_by_weight = np.zeros(1 + max_weight, dtype=np.double)
-	boost = np.abs(np.random.normal(0.25, 0.1))
 	for w in range(1 + max_weight):
 		mean_probs_by_weight[w] = np.mean(iid_error_dist[qcode.group_by_weight[w]])
 		bias = 1
 		if (w > 1):
-			bias = boost * mean_probs_by_weight[1] / mean_probs_by_weight[w]
+			bias = mean_probs_by_weight[1] / mean_probs_by_weight[w]
 		# Boost the probability of multi-qubit errors.
 		# anisotropic_errors = np.array(
 		# 	list(
