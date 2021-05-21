@@ -252,7 +252,7 @@ def IIDWtihCrossTalk(infid, qcode, iid_fraction, subset_fraction):
 	return pauli_error_dist
 
 
-def IsotropicRandomPauli(infid, qcode):
+def AnIsotropicRandomPauli(infid, max_weight, qcode):
 	# Generate a random Pauli channel with a specified fidelity to the identity channel.
 	# We will generate uniformly random numbers to denote the probability of a non-identity Pauli error.
 	# Furthermore, we will ensure that the probability of the non-identity Pauli error add up to a given infidelity value.
@@ -271,26 +271,27 @@ def IsotropicRandomPauli(infid, qcode):
 	iid_error_dist = ut.GetErrorProbabilities(qcode.PauliOperatorsLST, single_qubit_errors, 0)
 	# print("iid_error_dist = {}".format(np.sort(iid_error_dist)))
 
-	max_bias_weight = 3
-	mean_probs_by_weight = np.zeros(1 + max_bias_weight, dtype=np.double)
+	mean_probs_by_weight = np.zeros(1 + max_weight, dtype=np.double)
 	boost = np.abs(np.random.normal(0.25, 0.1))
-	for w in range(1 + max_bias_weight):
+	for w in range(1 + max_weight):
 		mean_probs_by_weight[w] = np.mean(iid_error_dist[qcode.group_by_weight[w]])
 		bias = 1
 		if (w > 1):
 			bias = boost * mean_probs_by_weight[1] / mean_probs_by_weight[w]
 		# Boost the probability of multi-qubit errors.
-		multi_qubit_errors = np.array(
-			list(
-				map(
-					lambda erridx: IsAnisotropicOperator(qcode.PauliOperatorsLST[erridx]),
-					qcode.group_by_weight[w],
-				)
-			),
-			dtype=np.int,
-		)
-		# print("Errors whose probabilities are boosted: {}".format(np.nonzero(multi_qubit_errors)))
-		iid_error_dist[np.nonzero(multi_qubit_errors)] *= bias
+		# anisotropic_errors = np.array(
+		# 	list(
+		# 		map(
+		# 			lambda erridx: IsAnisotropicOperator(qcode.PauliOperatorsLST[erridx]),
+		# 			qcode.group_by_weight[w],
+		# 		)
+		# 	),
+		# 	dtype=np.int,
+		# )
+		anisotropic_errors = np.array(list(map(IsAnisotropicOperator, qcode.PauliOperatorsLST[qcode.group_by_weight[w]])), dtype = np.int)
+		selected_errors, = np.nonzero(anisotropic_errors)
+		# print("Errors whose probabilities are boosted: {}".format(np.nonzero(anisotropic_errors)))
+		iid_error_dist[qcode.group_by_weight[w][selected_errors]] *= bias
 
 	# Normalize to ensure that the probability of non-identity errors add up to the n-qubit infid.
 	iid_error_dist[1:] = (1 - iid_error_dist[0]) * iid_error_dist[1:] / np.sum(iid_error_dist[1:])
@@ -321,7 +322,6 @@ def PoissonRandomPauli(infid, mean_correlation_length, subset_fraction, qcode):
 	
 	# Generate a Poisson distribution for probability of an error having a weight w.
 	weight_dist = poisson.pmf(np.arange(1 + qcode.N, dtype=np.int), mean_correlation_length)
-	weight_dist = weight_dist / np.sum(weight_dist)
 	# Set the probability of the identity error to be 1 - infid.
 	weight_dist[0] = 1 - infid
 	# Force the total probabilities of errors of weights w > 0 to be equal to infid.
@@ -364,7 +364,7 @@ def RandomPauliChannel(kwargs):
 
 	# print("Method = {}".format(method))
 	if method == "uniform":
-		return IsotropicRandomPauli(kwargs["infid"], kwargs["qcode"])
+		return AnIsotropicRandomPauli(kwargs["infid"], int(kwargs["iid_fraction"]), kwargs["qcode"])
 	elif method == "crosstalk":
 		return IIDWtihCrossTalk(kwargs["infid"], kwargs["qcode"], kwargs["iid_fraction"], kwargs["subset_fraction"])
 	elif method == "poisson":

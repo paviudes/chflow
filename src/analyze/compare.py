@@ -116,7 +116,7 @@ def CompareSubs(pmet, lmet, *dbses):
 			
 			# X-axis ticks
 			xlimits = ax.get_xlim()
-			fine_steps = np.concatenate((np.arange(6, 10, 1), np.arange(12, 19, 2), np.arange(20, 70, 10)))
+			fine_steps = np.concatenate((np.arange(6, 10, 1), np.arange(12, 19, 2), np.arange(20, 30, 5), np.arange(30, 100, 10)))
 			xticks = np.concatenate((ax.get_xticks(), fine_steps))
 			ax.set_xticks(xticks)
 			# xticklabels = list(ax.get_xticklabels()) + list(map(lambda x: Text(0, 0, "") % x, fine_steps))
