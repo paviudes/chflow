@@ -271,22 +271,13 @@ def AnIsotropicRandomPauli(infid, max_weight, qcode):
 	iid_error_dist = ut.GetErrorProbabilities(qcode.PauliOperatorsLST, single_qubit_errors, 0)
 	# print("iid_error_dist = {}".format(np.sort(iid_error_dist)))
 
-	mean_probs_by_weight = np.zeros(1 + max_weight, dtype=np.double)
-	for w in range(1 + max_weight):
-		mean_probs_by_weight[w] = np.mean(iid_error_dist[qcode.group_by_weight[w]])
-		bias = 1
-		if (w > 1):
-			bias = mean_probs_by_weight[w - 1] / mean_probs_by_weight[w]
+	sum_probs_by_weight = np.zeros(1 + max_weight, dtype=np.double)
+	sum_probs_by_weight[0] = 1 - iid_error_dist[0]
+	sum_probs_by_weight[1] = np.sum(iid_error_dist[qcode.group_by_weight[1]])
+	for w in range(2, 1 + max_weight):
+		sum_probs_by_weight[w] = np.sum(iid_error_dist[qcode.group_by_weight[w]])
+		bias = sum_probs_by_weight[w - 1] / sum_probs_by_weight[w]
 		# Boost the probability of multi-qubit errors.
-		# anisotropic_errors = np.array(
-		# 	list(
-		# 		map(
-		# 			lambda erridx: IsAnisotropicOperator(qcode.PauliOperatorsLST[erridx]),
-		# 			qcode.group_by_weight[w],
-		# 		)
-		# 	),
-		# 	dtype=np.int,
-		# )
 		anisotropic_errors = np.array(list(map(IsAnisotropicOperator, qcode.PauliOperatorsLST[qcode.group_by_weight[w]])), dtype = np.int)
 		selected_errors, = np.nonzero(anisotropic_errors)
 		# print("Errors whose probabilities are boosted: {}".format(np.nonzero(anisotropic_errors)))

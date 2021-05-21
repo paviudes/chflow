@@ -149,6 +149,11 @@ fastdelete() {
 	cd $chflowdir
 }
 
+fastcopy() {
+	# Copy from source to destination using rsync
+	rsync -avh --progress $1 $2
+}
+
 rerun() {
 	if [ -d ${outdir}/$1/channels ]; then
 		echo "removing ${outdir}/$1/channels/*"
@@ -188,6 +193,78 @@ usage() {
 	printf "\033[2m"
 	echo -e "where, command can be one of"
 	echo -e "generate, overwrite, zip, from_cluster, pmetrics, plot, schedule_copy, filter, gdrive, archive, chmod"
+	printf "\033[0m"
+}
+
+generate_decoder() {
+	# Generate input files
+	refalpha=${alphas[0]}
+	printf "\033[2m"
+	echo "sbload ${refts}" > input/temp.txt
+	for (( t=1; t<${#timestamps[@]}; ++t )); do
+		ts=${timestamps[t]}
+		alpha=${alphas[t]}
+		echo "alpha = ${alpha}"
+		echo "removing ${outdir}/${ts}/physical/*"
+		rm ${outdir}/${ts}/physical/*
+		# echo "sbtwirl" >> input/temp.txt
+		echo "submit ${ts}" >> input/temp.txt
+	done
+	printf "\033[0m"
+
+	echo "quit" >> input/temp.txt
+	./chflow.sh -- temp.txt
+	rm input/temp.txt
+
+	printf "\033[2m"
+	for (( t=1; t<${#timestamps[@]}; ++t )); do
+		ts=${timestamps[t]}
+		alpha=${alphas[t]}
+		# if the simulation is for level 3
+		# if grep -Fxq "decoder 1,1,1" input/${ts}.txt;
+		# then
+		# 	# if the simulation is for level 3
+		# 	echo "REPLACE decoder 1,1,1 WITH decoder 4,4,4 IN input/${ts}.txt"
+		# 	replace "decoder 1,1,1" "decoder 4,4,4" input/${ts}.txt
+		# elif grep -Fxq "decoder 1,1" input/${ts}.txt;
+		# then
+		# 	# if the simulation is for level 2
+		# 	echo "REPLACE decoder 1,1 WITH decoder 4,4 IN input/${ts}.txt"
+		# 	replace "decoder 1,1" "decoder 4,4" input/${ts}.txt
+		# elif grep -Fxq "decoder 1" input/${ts}.txt;
+		# then
+		# 	# if the simulation is for level 1
+		# 	echo "REPLACE decoder 1 WITH decoder 4 IN input/${ts}.txt"
+		# 	replace "decoder 1" "decoder 4" input/${ts}.txt
+		# else
+		# 	:
+		# fi
+
+		# set the alpha for dcfraction.
+		echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
+		replace "dcfraction ${refalpha}" "dcfraction ${alpha}" input/${ts}.txt
+
+		echo "xxxxxxx"
+	done
+	printf "\033[0m"
+}
+
+copy_output() {
+	# Copy output files
+	printf "\033[2m"
+	refalpha=${alphas[0]}
+	for (( t=1; t<${#timestamps[@]}; ++t )); do
+		ts=${timestamps[t]}
+		subdirs=("physical" "channels" "metrics" "results")
+		for (( s=0; s<${#subdirs[@]}; ++s )); do
+			if [ -d ${outdir}/${refts}/${subd} ]; then
+				echo "copying ${outdir}/${refts}/${subd}/*"
+				fastcopy ${outdir}/${refts}/physical/ ${outdir}/${ts}/${subd}/
+			else
+				echo "No ${subd} found in ${outdir}/${ts}."
+		done
+		echo "-----"
+	done
 	printf "\033[0m"
 }
 
@@ -309,55 +386,11 @@ elif [[ "$1" == "generate" ]]; then
 	printf "\033[0m"
 
 elif [[ "$1" == "generate_decoder" ]]; then
-	refalpha=${alphas[0]}
-	printf "\033[2m"
-	echo "sbload ${refts}" > input/temp.txt
-	for (( t=1; t<${#timestamps[@]}; ++t )); do
-		ts=${timestamps[t]}
-		alpha=${alphas[t]}
-		echo "alpha = ${alpha}"
-		echo "removing ${outdir}/${ts}/physical/*"
-		rm ${outdir}/${ts}/physical/*
-		# echo "sbtwirl" >> input/temp.txt
-		echo "submit ${ts}" >> input/temp.txt
-	done
-	printf "\033[0m"
+	generate_decoder
 
-	echo "quit" >> input/temp.txt
-	./chflow.sh -- temp.txt
-	rm input/temp.txt
-
-	printf "\033[2m"
-	for (( t=1; t<${#timestamps[@]}; ++t )); do
-		ts=${timestamps[t]}
-		alpha=${alphas[t]}
-		# if the simulation is for level 3
-		# if grep -Fxq "decoder 1,1,1" input/${ts}.txt;
-		# then
-		# 	# if the simulation is for level 3
-		# 	echo "REPLACE decoder 1,1,1 WITH decoder 4,4,4 IN input/${ts}.txt"
-		# 	replace "decoder 1,1,1" "decoder 4,4,4" input/${ts}.txt
-		# elif grep -Fxq "decoder 1,1" input/${ts}.txt;
-		# then
-		# 	# if the simulation is for level 2
-		# 	echo "REPLACE decoder 1,1 WITH decoder 4,4 IN input/${ts}.txt"
-		# 	replace "decoder 1,1" "decoder 4,4" input/${ts}.txt
-		# elif grep -Fxq "decoder 1" input/${ts}.txt;
-		# then
-		# 	# if the simulation is for level 1
-		# 	echo "REPLACE decoder 1 WITH decoder 4 IN input/${ts}.txt"
-		# 	replace "decoder 1" "decoder 4" input/${ts}.txt
-		# else
-		# 	:
-		# fi
-
-		# set the alpha for dcfraction.
-		echo "REPLACE dcfraction ${refalpha} WITH dcfraction ${alpha} IN input/${ts}.txt"
-		replace "dcfraction ${refalpha}" "dcfraction ${alpha}" input/${ts}.txt
-
-		echo "xxxxxxx"
-	done
-	printf "\033[0m"
+elif [[ "$1" == "clone" ]]; then
+	generate_decoder
+	copy_output	
 
 elif [[ "$1" == "archive" ]]; then
 	printf "\033[2m"
@@ -455,6 +488,11 @@ elif [[ "$1" == "pmetrics" ]]; then
 	./chflow.sh -- temp.txt
 	rm input/temp.txt
 	printf "\033[0m"
+
+
+elif [[ "$1" == "copy" ]]; then
+	copy_output
+
 
 elif [[ "$1" == "delete" ]]; then
 	printf "\033[2m"
@@ -586,17 +624,17 @@ elif [[ "$1" == "from_cluster" ]]; then
 	# Add a new timestamp for the data record.
 	datetime=$(date +%d_%m_%Y_%H_%M_%S)
 	echo "Add the time stamp ${datetime} to the data folders so that it can be kept as a record."
-	mv data "data_${datetime}"
+	mv ${local_user}_${log} "{local_user}_${log}_${datetime}"
 
 	# Adding an information file for the folder.
-	echo "Data folder: $(date)" > data_${datetime}/info.txt
+	echo "Data folder: $(date)" > ${local_user}_${log}_${datetime}/info.txt
 	printf -v joined_timestamps '%s,' "${timestamps[@]:0}"
-	echo "Timestamps: ${joined_timestamps%?}" >> data_${datetime}/info.txt
+	echo "Timestamps: ${joined_timestamps%?}" >> ${local_user}_${log}_${datetime}/info.txt
 	printf -v joined_alphas '%s,' "${alphas[@]:0}"
-	echo "Alphas: ${joined_alphas%?}" >> data_${datetime}/info.txt
+	echo "Alphas: ${joined_alphas%?}" >> ${local_user}_${log}_${datetime}/info.txt
 
 	# Zipping data folder for records
-	tar -zcvf "data_${datetime}.tar.gz" "data_${datetime}"
+	tar -zcvf "${local_user}_${log}_${datetime}.tar.gz" "${local_user}_${log}_${datetime}"
 
 	printf "\033[0m"
 
