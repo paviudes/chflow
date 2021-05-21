@@ -402,21 +402,21 @@ elif [[ "$1" == "chmod" ]]; then
 
 elif [[ "$1" == "zip" ]]; then
 	cd ${outdir}
-	rm -rf data/
-	mkdir data/
+	rm -rf ${local_user}_${log}/
+	mkdir ${local_user}_${log}/
 	printf "\033[2m"
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
 		echo "zipping ${ts}"
 		tar -zcvf ${ts}.tar.gz ${ts}
-		# move the folder and the input files into data
-		mv ${ts}.tar.gz data/
-		cp ${chflowdir}/input/${ts}.txt data/
-		cp ${chflowdir}/input/schedule_${ts}.txt data/
+		# move the folder and the input files into ${local_user}_${log}
+		mv ${ts}.tar.gz ${local_user}_${log}/
+		cp ${chflowdir}/input/${ts}.txt ${local_user}_${log}/
+		cp ${chflowdir}/input/schedule_${ts}.txt ${local_user}_${log}/
 	done
 	# Put all the zipped folders in a zip folder.
-	echo "Compressing data"
-	tar -zcvf data.tar.gz data/
+	echo "Compressing ${local_user}_${log}"
+	tar -zcvf ${local_user}_${log}.tar.gz ${local_user}_${log}/
 	cd ${chflowdir}
 	printf "\033[0m"
 
@@ -555,24 +555,24 @@ elif [[ "$1" == "from_cluster" ]]; then
 	# bring the data folder and unzip
 	printf "\033[2m"
 	echo "Bringing simulation from ${cluster}"
-	scp -r ${local_user}@${cluster}.computecanada.ca:/project/def-jemerson/chbank/data.tar.gz ${outdir}
+	scp -r ${local_user}@${cluster}.computecanada.ca:/project/def-jemerson/chbank/${local_user}_${log}.tar.gz ${outdir}
 	cd ${outdir}
-	tar -xvf data.tar.gz
+	tar -xvf ${local_user}_${log}.tar.gz
 
 	# unzip the individual datasets.
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
 		echo "Trashing ${ts}"
 		trash ${ts}
-		cp data/${ts}.tar.gz .
+		cp ${local_user}_${log}/${ts}.tar.gz .
 		tar -xvf ${ts}.tar.gz
 		trash ${ts}.tar.gz
 
 		#### Copying input files to chflow
-		echo "Copying input file ${ts}.txt from data"
-		cp data/${ts}.txt ${chflowdir}/input/
-		echo "Copying schedule_${ts}.txt from data"
-		cp data/schedule_${ts}.txt ${chflowdir}/input/
+		echo "Copying input file ${ts}.txt from ${local_user}_${log}"
+		cp ${local_user}_${log}/${ts}.txt ${chflowdir}/input/
+		echo "Copying schedule_${ts}.txt from ${local_user}_${log}"
+		cp ${local_user}_${log}/schedule_${ts}.txt ${chflowdir}/input/
 
 		#### Prepare output directory after moving from cluster.
 		echo "/project/def-jemerson/chbank WITH ${outdir} IN input/${ts}.txt"
