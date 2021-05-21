@@ -321,13 +321,13 @@ def PlotBinVarianceDataSets(ax_principal, dbses, level, lmet, pmets, nbins, incl
 
 		include = include_info[pmets[d]]
 
-		print("xdata for alpha = {}\n{}\nydata\nmin: {}, max: {}".format(dbses[d].decoder_fraction, phyerrs[d, include], np.min(logerrs[d, include]), np.max(logerrs[d, include])))
+		# print("xdata for alpha = {}\n{}\nydata\nmin: {}, max: {}".format(dbses[d].decoder_fraction, phyerrs[d, include], np.min(logerrs[d, include]), np.max(logerrs[d, include])))
 
 		bins = ComputeBinVariance(phyerrs[d, include], logerrs[d, include], space="log", nbins=nbins)
 		# Leave out bins which don't have any points.
 		non_empty_bins, = np.nonzero(bins[:, 3])
 		bins = bins[non_empty_bins, :]
-		print("bins\n{}".format(bins))
+		# print("bins\n{}".format(bins))
 		collapsed_bins[d] = CollapseBins(bins, min_bin_fraction * dbses[d].channels / nbins)
 		# collapsed_bins[d] = bins # temporary fix to avoid the CollapseBins function.
 		print("Number of bins for alpha = {} is {}\n{}.".format(dbses[d].decoder_fraction, collapsed_bins[d].shape[0], np.array2string(collapsed_bins[d], formatter={'float_kind':lambda x: "%.2e" % x})))
