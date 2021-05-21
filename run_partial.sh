@@ -456,6 +456,29 @@ elif [[ "$1" == "pmetrics" ]]; then
 	rm input/temp.txt
 	printf "\033[0m"
 
+elif [[ "$1" == "delete" ]]; then
+	for (( t=0; t<${#timestamps[@]}; ++t )); do
+		if [ -d ${outdir}/${ts}/channels ]; then
+			echo "removing ${outdir}/${ts}/channels/*"
+			fastdelete ${outdir}/${ts}/channels/
+		else
+			echo "No channels found."
+		fi
+		if [ -d ${outdir}/${ts}/metrics ]; then
+			echo "removing ${outdir}/${ts}/metrics/*"
+			fastdelete ${outdir}/${ts}/metrics/
+		else
+			echo "No metrics found."
+		fi
+		if [ -d "${outdir}/${ts}/results" ]; then
+			echo "removing ${outdir}/${ts}/results/*"
+			rm ${outdir}/${ts}/results/*.npy
+		else
+			echo "No results found."
+		fi
+		done
+	done
+
 elif [[ "$1" == "lpmetrics" ]]; then
 	# Compute physical infidelity for all channels.
 	printf "\033[2m"
