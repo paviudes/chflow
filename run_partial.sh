@@ -136,9 +136,9 @@ if [[ -n ${cluster} ]]; then
 	jobarray=1
 
 	# Predictability with limited data
-	pcorr_strong_Steane_level2=("pcorr_strong_Steane_l2_00" "pcorr_strong_Steane_l2_01" "pcorr_strong_Steane_l2_02")
+	pcorr_strong_Steane_level2=("pcorr_strong_Steane_l2_00" "pcorr_strong_Steane_l2_01" "pcorr_strong_Steane_l2_02" "pcorr_strong_Steane_l2_03" "pcorr_strong_Steane_l2_04")
 	pcorr_strong_cyclic_level2=("pcorr_strong_cyclic_l2_00" "pcorr_strong_cyclic_l2_01" "pcorr_strong_cyclic_l2_02")
-	alphas_pcorr_strong_Steane_level2=(0 0.0014 1)
+	alphas_pcorr_strong_Steane_level2=(0 0.0014 0.002 0.005 1)
 fi
 
 fastdelete() {
@@ -560,7 +560,7 @@ elif [[ "$1" == "plot" ]]; then
 	# echo "nrplot 0 0 ${joined_timestamps%?}" >> input/temp.txt
 	# echo "dciplot infid infid ${joined_timestamps%?} 0;36;1" >> input/temp.txt
 	# echo "mcplot infid infid 0 0 ${joined_timestamps%?}" >> input/temp.txt
-	echo "hamplot infid${joined_uncorr} infid ${joined_timestamps%?} 7,12 1,1 6" >> input/temp.txt
+	echo "hamplot infid${joined_uncorr} infid ${joined_timestamps%?} 7,12 1,1 10" >> input/temp.txt
 	echo "notes infid${joined_uncorr} infid pcorr partialham /Users/pavi/Documents/rclearn/notes/paper/figures/scatter_styles 1" >> input/temp.txt
 	echo "quit" >> input/temp.txt
 	./chflow.sh -- temp.txt

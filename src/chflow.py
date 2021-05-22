@@ -65,6 +65,7 @@ from define.qcode import (
 	ConstructSyndromeProjectors,
 	PrepareSyndromeLookUp,
 	PrintQEC,
+	Load
 )
 
 # Non critical packages

@@ -100,15 +100,14 @@ def RandomUnitary(prox, dim, method="qr", randH=None):
 
 def CreateIIDPauli(infid, qcode):
 	# Create an IID Pauli distribution for a given infidelity.
-	single_qubit_errors = np.array(
-		[1 - infid, infid / 3, infid / 3, infid / 3], dtype=np.double
-	)
+	single_qubit_errors = np.array([1 - infid, infid / 3, infid / 3, infid / 3], dtype=np.double)
+	qubit_errors = np.tile(single_qubit_errors, [qcode.N, 1])
 	# print("Single qubit errors: {}".format(single_qubit_errors))
 	if qcode.PauliOperatorsLST is None:
 		qc.PrepareSyndromeLookUp(qcode)
-	iid_error_dist = ut.GetErrorProbabilities(
-		qcode.PauliOperatorsLST, single_qubit_errors, 0
-	)
+	# iid_error_dist_old = ut.GetErrorProbabilities(qcode.PauliOperatorsLST, single_qubit_errors, 0)
+	iid_error_dist = np.prod(qubit_errors[range(qcode.N), qcode.PauliOperatorsLST[:, range(qcode.N)]], axis=1)
+	# print("Matching:\nOld: {}\nNew: {}".format(iid_error_dist_old, iid_error_dist_new))
 	return iid_error_dist
 
 
@@ -274,7 +273,7 @@ def AnIsotropicRandomPauli(infid, max_weight, qcode):
 	sum_probs_by_weight = np.zeros(1 + max_weight, dtype=np.double)
 	sum_probs_by_weight[0] = 1 - iid_error_dist[0]
 	sum_probs_by_weight[1] = np.sum(iid_error_dist[qcode.group_by_weight[1]])
-	boost = 0.5
+	boost = 0.1
 	for w in range(2, 1 + max_weight):
 		sum_probs_by_weight[w] = np.sum(iid_error_dist[qcode.group_by_weight[w]])
 		bias = boost * sum_probs_by_weight[w - 1] / sum_probs_by_weight[w]
