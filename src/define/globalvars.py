@@ -115,7 +115,7 @@ Colors = [
     "red", # With RC, choose red for predictability plots
     "blue",
     "brown",
-    "QB_BLUE",
+    "green",
     "#9467bd",
     "#8c564b",
     "#e377c2",

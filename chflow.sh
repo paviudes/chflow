@@ -1,6 +1,6 @@
 #!/bin/bash
 
-timestamps=("vary_infid_Steane" "vary_infid_cyclic")
+timestamps=("pcorr_strong_Steane_l2_00")
 
 cluster="$2"
 

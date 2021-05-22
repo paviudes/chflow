@@ -151,7 +151,7 @@ fastdelete() {
 
 fastcopy() {
 	# Copy from source to destination using rsync
-	rsync -avh --progress $1 $2
+	rsync -ahv $1 $2
 }
 
 rerun() {
@@ -257,11 +257,13 @@ copy_output() {
 		ts=${timestamps[t]}
 		subdirs=("physical" "channels" "metrics" "results")
 		for (( s=0; s<${#subdirs[@]}; ++s )); do
+			subd=${subdirs[s]}
 			if [ -d ${outdir}/${refts}/${subd} ]; then
-				echo "copying ${outdir}/${refts}/${subd}/*"
-				fastcopy ${outdir}/${refts}/physical/ ${outdir}/${ts}/${subd}/
+				echo "copying ${outdir}/${refts}/${subd}"
+				fastcopy ${outdir}/${refts}/${subd} ${outdir}/${ts}
 			else
 				echo "No ${subd} found in ${outdir}/${ts}."
+			fi
 		done
 		echo "-----"
 	done
@@ -558,7 +560,7 @@ elif [[ "$1" == "plot" ]]; then
 	# echo "nrplot 0 0 ${joined_timestamps%?}" >> input/temp.txt
 	# echo "dciplot infid infid ${joined_timestamps%?} 0;36;1" >> input/temp.txt
 	# echo "mcplot infid infid 0 0 ${joined_timestamps%?}" >> input/temp.txt
-	echo "hamplot infid${joined_uncorr} infid ${joined_timestamps%?} 7,12 1,1 8" >> input/temp.txt
+	echo "hamplot infid${joined_uncorr} infid ${joined_timestamps%?} 7,12 1,1 6" >> input/temp.txt
 	echo "notes infid${joined_uncorr} infid pcorr partialham /Users/pavi/Documents/rclearn/notes/paper/figures/scatter_styles 1" >> input/temp.txt
 	echo "quit" >> input/temp.txt
 	./chflow.sh -- temp.txt
