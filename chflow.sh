@@ -41,6 +41,14 @@ replace() {
 	fi
 }
 
+fastdelete() {
+	# Delete efficiently using perl
+	# https://unix.stackexchange.com/questions/37329/efficiently-delete-large-directory-containing-thousands-of-files
+	cd $1
+	perl -e "for(<*>){((stat)[9]<(unlink))}"
+	cd $chflowdir
+}
+
 if [[ "$1" == "zip" ]]; then
 	cd ${outdir}
 	printf "\033[2m"
@@ -85,7 +93,33 @@ elif [[ "$1" == "from_cluster" ]]; then
 	done
 	printf "\033[0m"
 	cd ${chflowdir}
-	
+
+elif [[ "$1" == "delete" ]]; then
+	printf "\033[2m"
+	for (( t=0; t<${#timestamps[@]}; ++t )); do
+		ts=${timestamps[t]}
+		if [ -d ${outdir}/${ts}/channels ]; then
+			echo "removing ${outdir}/${ts}/channels/*"
+			fastdelete ${outdir}/${ts}/channels/
+		else
+			echo "No channels found in ${outdir}/${ts}."
+		fi
+		if [ -d ${outdir}/${ts}/metrics ]; then
+			echo "removing ${outdir}/${ts}/metrics/*"
+			fastdelete ${outdir}/${ts}/metrics/
+		else
+			echo "No metrics found in ${outdir}/${ts}."
+		fi
+		if [ -d "${outdir}/${ts}/results" ]; then
+			echo "removing ${outdir}/${ts}/results/*"
+			rm ${outdir}/${ts}/results/*.npy
+		else
+			echo "No results found in ${outdir}/${ts}."
+		fi
+		echo "-----"
+	done
+	printf "\033[0m"
+
 
 elif [[ "$1" == "chmod" ]]; then
 	cd ${outdir}
