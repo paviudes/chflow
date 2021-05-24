@@ -272,23 +272,25 @@ def AnIsotropicRandomPauli(infid, max_weight, qcode):
 	corr_error_dist = iid_error_dist[:]
 	# print("iid_error_dist = {}".format(np.sort(iid_error_dist)))
 
-	sum_probs_by_weight = np.zeros(1 + max_weight, dtype=np.double)
-	sum_probs_by_weight[0] = 1 - iid_error_dist[0]
-	# mean_probs_by_weight = np.zeros(1 + max_weight, dtype=np.double)
-	# mean_probs_by_weight[0] = 1 - iid_error_dist[0]
+	# sum_probs_by_weight = np.zeros(1 + max_weight, dtype=np.double)
+	# sum_probs_by_weight[0] = 1 - iid_error_dist[0]
+	mean_probs_by_weight = np.zeros(1 + max_weight, dtype=np.double)
+	mean_probs_by_weight[0] = 1 - iid_error_dist[0]
 	# min_probs_by_weight = np.zeros(1 + max_weight, dtype=np.double)
 	# min_probs_by_weight[0] = 1 - iid_error_dist[0]
 	# max_probs_by_weight = np.zeros(1 + max_weight, dtype=np.double)
 	# max_probs_by_weight[0] = 1 - iid_error_dist[0]
 	# sum_probs_by_weight[1] = np.sum(iid_error_dist[qcode.group_by_weight[1]])
-	boost = 1
+	boost = 0.3
 	for w in range(1, 1 + max_weight):
-		sum_probs_by_weight[w] = np.sum(iid_error_dist[qcode.group_by_weight[w]])
+		if w > 2:
+			boost = np.power(10, w/2)
+		# sum_probs_by_weight[w] = np.sum(iid_error_dist[qcode.group_by_weight[w]])
 		# min_probs_by_weight[w] = np.min(iid_error_dist[qcode.group_by_weight[w]])
-		# max_probs_by_weight[w] = np.mean(iid_error_dist[qcode.group_by_weight[w]])
-		bias = boost * sum_probs_by_weight[w - 1] / sum_probs_by_weight[w]
+		mean_probs_by_weight[w] = np.mean(iid_error_dist[qcode.group_by_weight[w]])
+		# bias = boost * sum_probs_by_weight[w - 1] / sum_probs_by_weight[w]
 		# bias = boost * min_probs_by_weight[w - 1] / max_probs_by_weight[w]
-		# bias = boost * mean_probs_by_weight[w - 1] / mean_probs_by_weight[w]
+		bias = boost * mean_probs_by_weight[w - 1] / mean_probs_by_weight[w]
 		# Boost the probability of multi-qubit errors.
 		anisotropic_errors = np.array(list(map(IsAnisotropicOperator, qcode.PauliOperatorsLST[qcode.group_by_weight[w]])), dtype = np.int)
 		selected_errors, = np.nonzero(anisotropic_errors)
