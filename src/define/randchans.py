@@ -268,30 +268,35 @@ def AnIsotropicRandomPauli(infid, max_weight, qcode):
 	single_qubit_errors[1:] = infid * single_qubit_errors[1:] / np.sum(single_qubit_errors[1:])
 	# print("Single qubit error rates: {}".format(single_qubit_errors))
 	iid_error_dist = ut.GetErrorProbabilities(qcode.PauliOperatorsLST, single_qubit_errors, 0)
+	corr_error_dist = np.zeros_like(iid_error_dist)
+	corr_error_dist = iid_error_dist[:]
 	# print("iid_error_dist = {}".format(np.sort(iid_error_dist)))
 
-	# sum_probs_by_weight = np.zeros(1 + max_weight, dtype=np.double)
-	# sum_probs_by_weight[0] = 1 - iid_error_dist[0]
-	min_probs_by_weight = np.zeros(1 + max_weight, dtype=np.double)
-	min_probs_by_weight[0] = 1 - iid_error_dist[0]
-	max_probs_by_weight = np.zeros(1 + max_weight, dtype=np.double)
-	max_probs_by_weight[0] = 1 - iid_error_dist[0]
+	sum_probs_by_weight = np.zeros(1 + max_weight, dtype=np.double)
+	sum_probs_by_weight[0] = 1 - iid_error_dist[0]
+	# mean_probs_by_weight = np.zeros(1 + max_weight, dtype=np.double)
+	# mean_probs_by_weight[0] = 1 - iid_error_dist[0]
+	# min_probs_by_weight = np.zeros(1 + max_weight, dtype=np.double)
+	# min_probs_by_weight[0] = 1 - iid_error_dist[0]
+	# max_probs_by_weight = np.zeros(1 + max_weight, dtype=np.double)
+	# max_probs_by_weight[0] = 1 - iid_error_dist[0]
 	# sum_probs_by_weight[1] = np.sum(iid_error_dist[qcode.group_by_weight[1]])
-	boost = 10
+	boost = 1
 	for w in range(1, 1 + max_weight):
-		# sum_probs_by_weight[w] = np.sum(iid_error_dist[qcode.group_by_weight[w]])
-		min_probs_by_weight[w] = np.min(iid_error_dist[qcode.group_by_weight[w]])
-		max_probs_by_weight[w] = np.max(iid_error_dist[qcode.group_by_weight[w]])
-		# bias = boost * sum_probs_by_weight[w - 1] / sum_probs_by_weight[w]
-		bias = boost * min_probs_by_weight[w - 1] / max_probs_by_weight[w]
+		sum_probs_by_weight[w] = np.sum(iid_error_dist[qcode.group_by_weight[w]])
+		# min_probs_by_weight[w] = np.min(iid_error_dist[qcode.group_by_weight[w]])
+		# max_probs_by_weight[w] = np.mean(iid_error_dist[qcode.group_by_weight[w]])
+		bias = boost * sum_probs_by_weight[w - 1] / sum_probs_by_weight[w]
+		# bias = boost * min_probs_by_weight[w - 1] / max_probs_by_weight[w]
+		# bias = boost * mean_probs_by_weight[w - 1] / mean_probs_by_weight[w]
 		# Boost the probability of multi-qubit errors.
 		anisotropic_errors = np.array(list(map(IsAnisotropicOperator, qcode.PauliOperatorsLST[qcode.group_by_weight[w]])), dtype = np.int)
 		selected_errors, = np.nonzero(anisotropic_errors)
 		# print("Errors whose probabilities are boosted: {}".format(np.nonzero(anisotropic_errors)))
-		iid_error_dist[qcode.group_by_weight[w][selected_errors]] *= bias
+		corr_error_dist[qcode.group_by_weight[w][selected_errors]] *= bias
 
 	# Normalize to ensure that the probability of non-identity errors add up to the n-qubit infid.
-	iid_error_dist[1:] = (1 - iid_error_dist[0]) * iid_error_dist[1:] / np.sum(iid_error_dist[1:])
+	corr_error_dist[1:] = (1 - corr_error_dist[0]) * corr_error_dist[1:] / np.sum(corr_error_dist[1:])
 	return iid_error_dist
 
 

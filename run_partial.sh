@@ -136,9 +136,9 @@ if [[ -n ${cluster} ]]; then
 	jobarray=1
 
 	# Predictability with limited data
-	pcorr_strong_Steane_level2=("pcorr_strong_Steane_l2_00" "pcorr_strong_Steane_l2_01" "pcorr_strong_Steane_l2_02" "pcorr_strong_Steane_l2_03")
+	pcorr_strong_Steane_level2=("pcorr_strong_Steane_l2_00" "pcorr_strong_Steane_l2_01" "pcorr_strong_Steane_l2_02" "pcorr_strong_Steane_l2_03" "pcorr_strong_Steane_l2_04")
 	pcorr_strong_cyclic_level2=("pcorr_strong_cyclic_l2_00" "pcorr_strong_cyclic_l2_01" "pcorr_strong_cyclic_l2_02")
-	alphas_pcorr_strong_Steane_level2=(0 0.0005 0.013 1)
+	alphas_pcorr_strong_Steane_level2=(0 0.0005 0.0014 0.013 1)
 fi
 
 fastdelete() {
