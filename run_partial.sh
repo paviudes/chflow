@@ -144,7 +144,7 @@ if [[ -n ${cluster} ]]; then
 	pcorr_strong_cyclic_level2=("pcorr_strong_cyclic_l2_00" "pcorr_strong_cyclic_l2_01" "pcorr_strong_cyclic_l2_02")
 	
 	pcorr_test_Steane_level2=("pcorr_test_Steane_l2_00" "pcorr_test_Steane_l2_01" "pcorr_test_Steane_l2_02" "pcorr_test_Steane_l2_03" "pcorr_test_Steane_l2_04")
-	alphas_pcorr_strong_Steane_level2=(0 0.0005 0.0014 0.013 1)
+	alphas_pcorr_strong_Steane_level2=(0 0.0014 0.005 0.013 1)
 fi
 
 fastdelete() {
@@ -276,7 +276,7 @@ copy_output() {
 	printf "\033[0m"
 }
 
-timestamps=("${pcorr_test_Steane_level2[@]}")
+timestamps=("${pcorr_strong_Steane_level2[@]}")
 alphas=("${alphas_pcorr_strong_Steane_level2[@]}")
 log=pcorr_strong
 refts=${timestamps[0]}
@@ -566,8 +566,8 @@ elif [[ "$1" == "plot" ]]; then
 	# echo "nrplot 0 0 ${joined_timestamps%?}" >> input/temp.txt
 	# echo "dciplot infid infid ${joined_timestamps%?} 0;36;1" >> input/temp.txt
 	# echo "mcplot infid infid 0 0 ${joined_timestamps%?}" >> input/temp.txt
-	# echo "hamplot infid${joined_uncorr} infid ${joined_timestamps%?} 7,12 1,1 8" >> input/temp.txt
-	# echo "notes infid${joined_uncorr} infid pcorr partialham /Users/pavi/Documents/rclearn/notes/paper/figures/scatter_styles 1" >> input/temp.txt
+	echo "hamplot infid${joined_uncorr} infid ${joined_timestamps%?} 7,12 1,1 8" >> input/temp.txt
+	echo "notes infid${joined_uncorr} infid pcorr partialham /Users/pavi/Documents/rclearn/notes/paper/figures/scatter_styles 1" >> input/temp.txt
 	# Scatter plot of infid and first alpha.
 	echo "hamplot infid,uncorr infid ${timestamps[2]} 7,12 1,1 12" >> input/temp.txt
 	echo "notes infid,uncorr infid pcorr hamplot /Users/pavi/Documents/rclearn/notes/paper/figures/scatter_styles 2" >> input/temp.txt

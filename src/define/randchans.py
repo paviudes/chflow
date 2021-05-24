@@ -177,18 +177,11 @@ def IIDWtihCrossTalk(infid, qcode, iid_fraction, subset_fraction):
 	### Constructed the purely corelated channel.
 	# Add a random sumset of 10% of all two qubit errors
 	weights_to_boost = [2, 3, 4]
+	# weights_to_boost = [2, 3, 4, 5, 6, 7]
 	subset_fraction_weights = {2: subset_fraction}
 	for w in weights_to_boost:
 		if w not in subset_fraction_weights:
-			subset_fraction_weights.update(
-				{
-					w: 1
-					/ 3
-					* comb(qcode.N, w - 1)
-					/ comb(qcode.N, w)
-					* subset_fraction_weights[w - 1]
-				}
-			)
+			subset_fraction_weights.update({w: 1 / 3 * comb(qcode.N, w - 1) / comb(qcode.N, w) * subset_fraction_weights[w - 1]})
 	# print("subset_fraction_weights = {}".format(subset_fraction_weights))
 	n_errors = np.cumsum(
 		[
@@ -234,9 +227,7 @@ def IIDWtihCrossTalk(infid, qcode, iid_fraction, subset_fraction):
 	# corr_error_dist[errors_to_boost] = np.random.normal(0.1 * 4 ** n * full_process_infid,0.1 * 4 ** n * full_process_infid,size=(n_errors[-1],),)
 
 	# Setting negative numbers to 0.
-	corr_error_dist[errors_to_boost] = np.where(
-		corr_error_dist[errors_to_boost] >= atol, corr_error_dist[errors_to_boost], 0
-	)
+	corr_error_dist[errors_to_boost] = np.where(corr_error_dist[errors_to_boost] >= atol, corr_error_dist[errors_to_boost], 0)
 	# print(
 	#     "corr_error_dist[errors_to_boost] = {}".format(corr_error_dist[errors_to_boost])
 	# )
