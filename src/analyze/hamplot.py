@@ -203,6 +203,10 @@ def DoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds):
 			# Flow lines only when the number of channels is less than 20
 			if (dsets[0].channels <= 50):
 				# The flow lines should connect the (infid, logical error under non-RC) to the (uncorr, logical error under RC) points.
+				for i in range(dsets[0].channels):
+					# Add a label with the noise rate and sample
+					ax_top.annotate("%g, %d" % (dsets[1].available[i, 0], dsets[1].available[i, -1]), (uncorr[i], logerrs[1, i]), fontsize=gv.legend_fontsize)
+					
 				for i in range(len(include)):
 					# ax_bottom.plot(
 					# 	[phyerrs[include[c]], uncorr[include[c]]],

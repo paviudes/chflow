@@ -87,10 +87,23 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, nr_weights_all = None
 	if chan_probs.ndim > 1:
 		chan_probs = ut.GetErrorProbabilities(qcode.PauliOperatorsLST, chan_probs, 0)
 
-	if ((option == "full") or (option == "sqprobs")):
+	if (option == "full"):
 		nPaulis = max(1, int(lead_frac * (4 ** qcode.N)))
-		leading_paulis = np.argsort(chan_probs)[-nPaulis:]
+		leading_paulis = np.argsort(chan_probs)[-nPaulis:][::-1]
 
+	elif (option == "sqprobs"):
+		single_qubit_errors = np.concatenate((np.array([0], dtype = np.int), qcode.group_by_weight[1]))
+		nPaulis = max(1, int(lead_frac * (4 ** qcode.N)))
+		top_paulis = np.argsort(chan_probs)[-nPaulis:][::-1]
+		remaining_budget = 0
+		if (nPaulis > (3 * qcode.N + 1)):
+			remaining_budget = nPaulis - (3 * qcode.N + 1)
+
+		# Append single qubit errors to leading_probs
+		leading_paulis = np.concatenate((single_qubit_errors, top_paulis))
+		(__, inds) = np.unique(leading_paulis, return_index=True)
+		leading_paulis = leading_paulis[np.sort(inds)][ : ((3 * qcode.N + 1) + remaining_budget)]
+		
 
 	elif option == "weight":
 
@@ -140,6 +153,7 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full
 	else:
 		pass
 
+	# print("RAW Decoder ansatz before normalization\n{}".format(np.sort(decoder_probs)[::-1][:30]))
 	decoder_probs[known_paulis] = known_probs
 	total_unknown = 1 - np.sum(known_probs)
 	# print("Total unknown probability = {}".format(total_unknown))
@@ -148,8 +162,12 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full
 	mask = np.ones(decoder_probs.shape[0], dtype=bool)
 	mask[known_paulis] = False
 	decoder_probs[mask] = total_unknown * decoder_probs[mask] / np.sum(decoder_probs[mask])
+	# print("RAW Decoder ansatz after normalization\n{}".format(np.sort(decoder_probs)[::-1][:30]))
 	# print("Sum of decoder probs = {}".format(np.sum(decoder_probs)))
-	# print("Sorted decoder probs = {}".format(np.sort(decoder_probs)))
+	# print("True NR data\n{}".format(np.sort(chan_probs)[::-1][:30]))
+	# print("Known paulis weights\n{}\nNR data Known probs\n{}".format(qcode.weightdist[known_paulis], known_probs))
+	# print("Decoder ansatz\n{}".format(np.sort(decoder_probs)[::-1][:30]))
+	# print("xxxxxxxxxxxxxxxxx")
 	return decoder_probs
 
 

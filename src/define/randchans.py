@@ -118,7 +118,11 @@ def ReconstructPauliChannel(pauli_probs, qcode):
 	
 	single_qubit_errors = qcode.PauliOperatorsLST[qcode.group_by_weight[1], :]
 	single_qubit_probs = pauli_probs[qcode.group_by_weight[1]]
-
+	# print("Reconstructing Pauli channel")
+	# print("===========")
+	# print("single_qubit_probs\n{}".format(single_qubit_probs))
+	# print("===========")
+	
 	# Extract the marginal distribution of pI, pX, pY and pZ on each qubit.
 	qubit_pauli_probs = np.zeros((qcode.N, 4), dtype = np.double)
 	# Fill the identity probs
@@ -133,14 +137,22 @@ def ReconstructPauliChannel(pauli_probs, qcode):
 	for q in range(qcode.N):
 		for err_type in range(1, 4):
 			if (qubit_pauli_probs[q, err_type] == 0):
+				# print("Single qubit error rate of {} for qubit {} is missing." % (err_type, q))
 				qubit_pauli_probs[q, err_type] = (1 - qubit_pauli_probs[q, 0])/3
+
+	# print("Qubit Pauli probs before normalization\n{}".format(qubit_pauli_probs))
 
 	# Normalize so that the marginal distributions add up to 1.
 	for q in range(qcode.N):
-		qubit_pauli_probs[q, 1:] = (1 - qubit_pauli_probs[q, 0]) * qubit_pauli_probs[q, 1:]/np.sum(qubit_pauli_probs[q, 1:])
+		# qubit_pauli_probs[q, 1:] = (1 - qubit_pauli_probs[q, 0]) * qubit_pauli_probs[q, 1:]/np.sum(qubit_pauli_probs[q, 1:])
+		qubit_pauli_probs[q, 0] = 1 - np.sum(qubit_pauli_probs[q, 1:])
+
+	# print("Qubit Pauli probs after normalization\n{}".format(qubit_pauli_probs))
+	# print("===========")
 
 	# Create an n-qubit Pauli channel where the probabilities of n-qubit errors are constructed using the i.i.d ansatz from the single qubit error probabilities.
 	pauli_dist = np.prod(qubit_pauli_probs[range(qcode.N), qcode.PauliOperatorsLST[:, range(qcode.N)]], axis=1)
+	
 	return pauli_dist
 
 
