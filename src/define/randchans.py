@@ -254,7 +254,7 @@ def IIDWtihCrossTalk(infid, qcode, iid_fraction, subset_fraction):
 	return pauli_error_dist
 
 
-def AnIsotropicRandomPauli(infid, max_weight, qcode):
+def AnIsotropicRandomPauli(infid, max_weight, subset_fraction, qcode):
 	# Generate a random Pauli channel with a specified fidelity to the identity channel.
 	# We will generate uniformly random numbers to denote the probability of a non-identity Pauli error.
 	# Furthermore, we will ensure that the probability of the non-identity Pauli error add up to a given infidelity value.
@@ -284,19 +284,28 @@ def AnIsotropicRandomPauli(infid, max_weight, qcode):
 	# max_probs_by_weight = np.zeros(1 + max_weight, dtype=np.double)
 	# max_probs_by_weight[0] = 1 - iid_error_dist[0]
 	# sum_probs_by_weight[1] = np.sum(iid_error_dist[qcode.group_by_weight[1]])
-	boost = 0.3
+	boost = 0.01
 	for w in range(1, 1 + max_weight):
 		if w > 2:
-			boost = np.power(10, w/2)
+			boost = 0.01 * np.power(10, w)
 		# sum_probs_by_weight[w] = np.sum(iid_error_dist[qcode.group_by_weight[w]])
 		# min_probs_by_weight[w] = np.min(iid_error_dist[qcode.group_by_weight[w]])
 		mean_probs_by_weight[w] = np.mean(iid_error_dist[qcode.group_by_weight[w]])
 		# bias = boost * sum_probs_by_weight[w - 1] / sum_probs_by_weight[w]
 		# bias = boost * min_probs_by_weight[w - 1] / max_probs_by_weight[w]
 		bias = boost * mean_probs_by_weight[w - 1] / mean_probs_by_weight[w]
+		
 		# Boost the probability of multi-qubit errors.
-		anisotropic_errors = np.array(list(map(IsAnisotropicOperator, qcode.PauliOperatorsLST[qcode.group_by_weight[w]])), dtype = np.int)
-		selected_errors, = np.nonzero(anisotropic_errors)
+		# Choose some Anisotropic errors and isotropic errors.
+		is_anisotropic_errors = np.array(list(map(IsAnisotropicOperator, qcode.PauliOperatorsLST[qcode.group_by_weight[w]])), dtype = np.int)
+		anisotropic_errors, = np.nonzero(is_anisotropic_errors)
+		selected_anisotropic_errors = np.random.choice(anisotropic_errors, int((1 - subset_fraction) * anisotropic_errors.size))
+		# The number of isotropic errors are a fraction of the anisotropic ones.
+		isotropic_errors, = np.nonzero(1 - is_anisotropic_errors)
+		selected_isotropic_errors = np.random.choice(isotropic_errors, int(subset_fraction * anisotropic_errors.size))
+		
+		selected_errors = np.concatenate((selected_anisotropic_errors, selected_isotropic_errors))
+		
 		# print("Errors whose probabilities are boosted: {}".format(np.nonzero(anisotropic_errors)))
 		corr_error_dist[qcode.group_by_weight[w][selected_errors]] *= bias
 
@@ -371,7 +380,7 @@ def RandomPauliChannel(kwargs):
 
 	# print("Method = {}".format(method))
 	if method == "uniform":
-		return AnIsotropicRandomPauli(kwargs["infid"], int(kwargs["iid_fraction"]), kwargs["qcode"])
+		return AnIsotropicRandomPauli(kwargs["infid"], int(kwargs["iid_fraction"]), kwargs["subset_fraction"], kwargs["qcode"])
 	elif method == "crosstalk":
 		return IIDWtihCrossTalk(kwargs["infid"], kwargs["qcode"], kwargs["iid_fraction"], kwargs["subset_fraction"])
 	elif method == "poisson":
