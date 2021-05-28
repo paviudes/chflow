@@ -296,14 +296,29 @@ def AnIsotropicRandomPauli(infid, max_weight, subset_fraction_mean, qcode):
 		bias = boost * mean_probs_by_weight[w - 1] / mean_probs_by_weight[w]
 		
 		# Boost the probability of multi-qubit errors.
-		subset_fraction = min(max(np.random.normal(subset_fraction_mean, subset_fraction_mean), 0), 1)
-		# Choose some Anisotropic errors and isotropic errors.
+		# subset_fraction = min(max(np.random.normal(subset_fraction_mean, subset_fraction_mean), 0), 1)
+		subset_fraction = np.random.uniform(0, 1)
+
+		### temporary patch: boost a constant number of multiqubit errors
+		# subset_fraction = subset_fraction_mean
 		is_anisotropic_errors = np.array(list(map(IsAnisotropicOperator, qcode.PauliOperatorsLST[qcode.group_by_weight[w]])), dtype = np.int)
-		anisotropic_errors, = np.nonzero(is_anisotropic_errors)
-		selected_anisotropic_errors = np.random.choice(anisotropic_errors, int((1 - subset_fraction) * anisotropic_errors.size))
+		
+		# Choose some Anisotropic errors and isotropic errors.
+		selected_anisotropic_errors = np.array([], dtype = np.int)
+		if (np.count_nonzero(is_anisotropic_errors) > 0):
+			anisotropic_errors, = np.nonzero(is_anisotropic_errors)
+			selected_anisotropic_errors = np.random.choice(anisotropic_errors, int((1 - subset_fraction) * anisotropic_errors.size))
+			### temporary patch: boost a constant number of multiqubit errors
+			# selected_anisotropic_errors = np.random.choice(anisotropic_errors, int(subset_fraction))
+			###
 		# The number of isotropic errors are a fraction of the anisotropic ones.
-		isotropic_errors, = np.nonzero(1 - is_anisotropic_errors)
-		selected_isotropic_errors = np.random.choice(isotropic_errors, int(subset_fraction * anisotropic_errors.size))
+		selected_isotropic_errors = np.array([], dtype = np.int)
+		if (np.count_nonzero(1 - is_anisotropic_errors) > 0):
+			isotropic_errors, = np.nonzero(1 - is_anisotropic_errors)
+			selected_isotropic_errors = np.random.choice(isotropic_errors, int(subset_fraction * anisotropic_errors.size))
+			### temporary patch: boost a constant number of multiqubit errors
+			# selected_isotropic_errors = np.random.choice(isotropic_errors, int(subset_fraction))
+			###
 		
 		selected_errors = np.concatenate((selected_anisotropic_errors, selected_isotropic_errors))
 		
@@ -315,11 +330,22 @@ def AnIsotropicRandomPauli(infid, max_weight, subset_fraction_mean, qcode):
 	return iid_error_dist
 
 
+def BimodalPDF(left, right, modes):
+	# Generate the PDF of a bimodal distribution.
+	# Generate two Gaussians whose mean is given by modes and the variance is equal to the 0.25 * mean.
+
+	return pdf
+
+
 def IsAnisotropicOperator(pauli_op):
 	"""
 	Determine if a multi-qubit Pauli operator is homogeoneous with single qubit terms or not.
 	"""
-	isanositropic = np.unique(pauli_op[np.nonzero(pauli_op)]).size > 1
+	if (np.count_nonzero(pauli_op) < 1):
+		return 0
+	nonidentity = pauli_op[np.nonzero(pauli_op)]
+	# isanositropic = np.unique(nonidentity).size > 1 # Case where there are at least two different non-identity operators.
+	isanositropic = int(np.unique(nonidentity).size == nonidentity.size) # Case where all the non-identity operators are different.
 	# print("Error: {}, isanositropic = {}".format(pauli_op, isanositropic))
 	return isanositropic
 

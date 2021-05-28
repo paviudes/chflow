@@ -71,24 +71,18 @@ def CreatePostBatch(submit):
     The prebatch script prepares the input for a simulation.
     The channels will be generated in this script.
     """
-    if not (
-        os.path.isfile("./../input/%s/post_%s.txt" % (submit.host, submit.timestamp))
-    ):
-        with open(
-            "./../input/%s/post_%s.txt" % (submit.host, submit.timestamp), "w"
-        ) as pb:
+    if not (os.path.isfile("./../input/%s/post_%s.txt" % (submit.host, submit.timestamp))):
+        with open("./../input/%s/post_%s.txt" % (submit.host, submit.timestamp), "w") as pb:
             pb.write("sbload %s\n" % (submit.timestamp))
             pb.write("pmetrics infid\n")
             pb.write("lpmetrics uncorr\n")
             pb.write("quit\n")
 
-    if not (
-        os.path.isfile("./../input/%s/post_%s.sh" % (submit.host, submit.timestamp))
-    ):
-        with open(
-            "./../input/%s/post_%s.sh" % (submit.host, submit.timestamp), "w"
-        ) as pb:
-            pb.write("#!/bin/bash\n")
+    if not (os.path.isfile("./../input/%s/post_%s.sh" % (submit.host, submit.timestamp))):
+        with open("./../input/%s/post_%s.sh" % (submit.host, submit.timestamp), "w") as pb:
+            pb.write("#!/bin/bash\n#\n")
+            pb.write("# To run this script on the frontend/local machine, simply run: ./../input/%s/post_%s.sh\n" % (submit.host, submit.timestamp))
+            pb.write("# Or to run this script on the compute nodes, run: sbatch input/%s/post_%s.sh\n#\n" % (submit.host, submit.timestamp))
             pb.write("#SBATCH --account=%s\n" % (submit.account))
             pb.write("#SBATCH --begin=now\n")
             pb.write("#SBATCH --time=5:00:00\n#\n")
@@ -101,14 +95,14 @@ def CreatePostBatch(submit):
             pb.write("#SBATCH --mail-type=ALL\n")
             pb.write("#SBATCH --mail-user=%s\n#\n" % (submit.email))
             # Command to be executed for each job step
-            pb.write("module load intel/2016.4 python/3.7.0 scipy-stack/2019a\n")
-            pb.write("cd /project/def-jemerson/pavi/chflow\n")
-            pb.write("./chflow -- post_%s.txt\n" % (submit.timestamp))
+            # pb.write("module load intel/2016.4 python/3.7.0 scipy-stack/2019a\n")
+            # pb.write("cd /project/def-jemerson/pavi/chflow\n")
+            # pb.write("./chflow.sh zip beluga\n")
+            # pb.write("./chflow -- post_%s.txt\n" % (submit.timestamp))
+            pb.write("# Periodically check if the job is complete.\n")
+            pb.write("# \n")
             pb.write("cd %s\n" % (os.path.dirname(submit.outdir)))
-            pb.write(
-                "tar -zcvf %s.tar.gz %s\n"
-                % (os.path.basename(submit.outdir), os.path.basename(submit.outdir))
-            )
+            pb.write("tar -zcvf %s.tar.gz %s\n" % (os.path.basename(submit.outdir), os.path.basename(submit.outdir)))
         print("\033[2m-----\033[0m")
         print(
             "\033[2mRun the following command to compute metrics and zip results.\n\tsbatch input/%s/post_%s.sh\033[0m"
