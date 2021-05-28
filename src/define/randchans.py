@@ -176,12 +176,15 @@ def IIDWtihCrossTalk(infid, qcode, iid_fraction, subset_fraction):
 	# )
 	### Constructed the purely corelated channel.
 	# Add a random sumset of 10% of all two qubit errors
-	weights_to_boost = [2, 3, 4]
+	weights_to_boost = [2, 3]
 	# weights_to_boost = [2, 3, 4, 5, 6, 7]
+	
+	'''
 	subset_fraction_weights = {2: subset_fraction}
 	for w in weights_to_boost:
 		if w not in subset_fraction_weights:
 			subset_fraction_weights.update({w: 1 / 3 * comb(qcode.N, w - 1) / comb(qcode.N, w) * subset_fraction_weights[w - 1]})
+	
 	# print("subset_fraction_weights = {}".format(subset_fraction_weights))
 	n_errors = np.cumsum(
 		[
@@ -189,6 +192,11 @@ def IIDWtihCrossTalk(infid, qcode, iid_fraction, subset_fraction):
 			for w in weights_to_boost
 		]
 	)
+	'''
+	#### Temporary patch: boost the probability of a constant number of multi-qubit errors.
+	n_errors = np.cumsum([max(1, int(subset_fraction)) for w in weights_to_boost])
+	####
+
 	# print("n_errors: {}".format(n_errors))
 	errors_to_boost = np.zeros(n_errors[-1], dtype=np.int)
 	corr_error_dist = np.zeros(iid_error_dist.size, dtype=np.double)
@@ -208,15 +216,15 @@ def IIDWtihCrossTalk(infid, qcode, iid_fraction, subset_fraction):
 			mq_errors = size = n_errors[i] - n_errors[i - 1]
 			selected_errors = np.arange(n_errors[i - 1], n_errors[i])
 		# corr_error_dist[errors_to_boost[selected_errors]] = np.random.normal(
-		#     (0.1 ** (w - 1)) * 4 ** n * full_process_infid,
-		#     (0.1 ** (w - 1)) * 4 ** n * full_process_infid,
+		#     np.power(0.1, w - 1) * 4 ** n * full_process_infid,
+		#     np.power(0.1, w - 1) * 4 ** n * full_process_infid,
 		#     size=(mq_errors,),
 		# )
 		##########
 		# Temporary patch for strong correlations
 		corr_error_dist[errors_to_boost[selected_errors]] = np.random.normal(
-			full_process_infid,
-			selected_errors.size,
+			np.power(0.1, w - 1) * full_process_infid,
+			np.power(0.01, w - 1) * full_process_infid,
 			size=(mq_errors,),
 		)
 		##########
@@ -330,12 +338,6 @@ def AnIsotropicRandomPauli(infid, max_weight, subset_fraction_mean, qcode):
 	return iid_error_dist
 
 
-def BimodalPDF(left, right, modes):
-	# Generate the PDF of a bimodal distribution.
-	# Generate two Gaussians whose mean is given by modes and the variance is equal to the 0.25 * mean.
-
-	return pdf
-
 
 def IsAnisotropicOperator(pauli_op):
 	"""
@@ -379,7 +381,10 @@ def PoissonRandomPauli(infid, mean_correlation_length, subset_fraction, qcode):
 			n_selected = qcode.group_by_weight[w].size
 		else:
 			boost = 1/np.sqrt(infid)
-			n_selected = max(1, int(subset_fraction * qcode.group_by_weight[w].size))
+			# n_selected = max(1, int(subset_fraction * qcode.group_by_weight[w].size))
+			#### temporary patch: boost the probability of a fixed number of errors
+			n_selected = int(subset_fraction)
+			####
 		mask[: n_selected] = 1
 		# Choose a random subset of N errors of weights w.
 		np.random.shuffle(mask)

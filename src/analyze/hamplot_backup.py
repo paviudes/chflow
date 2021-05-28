@@ -402,7 +402,7 @@ def PartialHammerPlot(logmet, phylist, dsets, inset_flag, nbins, thresholds):
 	# Compare the effect of p_u + RC on predictability.
 	# Plot no RC with infid and RC with p_u.
 	# phylist = list(map(lambda phy: phy.strip(" "), phymets.split(",")))
-	level = dsets[0].levels - 1
+	level = dsets[0].levels
 	ndb = len(dsets)
 	plotfname = fn.PartialHammerPlotFile(dsets[0], logmet, phylist)
 	with PdfPages(plotfname) as pdf:
