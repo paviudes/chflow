@@ -880,7 +880,8 @@ if __name__ == "__main__":
 			ndb = len(dbses)
 			if (check == 1):
 				if (ndb > 2):
-					PartialHammerPlot(logmet, pmets, dbses, 0, nbins, thresholds)
+					# PartialHammerPlot(logmet, pmets, dbses, 0, nbins, thresholds) # old version
+					PartialNRPlot(logmet, pmets, dbses, 0, nbins, thresholds) # new version
 				else:
 					DoubleHammerPlot(logmet, pmets, dbses, 1, nbins, thresholds)
 			else:

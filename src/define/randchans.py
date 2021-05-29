@@ -262,6 +262,49 @@ def IIDWtihCrossTalk(infid, qcode, iid_fraction, subset_fraction):
 	return pauli_error_dist
 
 
+def CorrectableRandomPauli(infid, max_weight, qcode):
+	# Generate a random Pauli channel with a specified fidelity to the identity channel.
+	# The channel applies a fraction of correctable and uncorrectable errors of each weight.
+	single_qubit_errors = np.concatenate(([1 - infid], np.random.uniform(size=3)))
+	single_qubit_errors[1:] = infid * single_qubit_errors[1:] / np.sum(single_qubit_errors[1:])
+	# print("Single qubit error rates: {}".format(single_qubit_errors))
+	# Create the n-qubit error distribution
+	iid_error_dist = ut.GetErrorProbabilities(qcode.PauliOperatorsLST, single_qubit_errors, 0)
+	corr_error_dist = np.copy(iid_error_dist)
+	
+	mean_probs_by_weight = np.zeros(1 + max_weight, dtype=np.double)
+	mean_probs_by_weight[0] = 1 - iid_error_dist[0]
+	boost = np.power(infid, 0.25)
+	for w in range(1, 1 + max_weight):
+		mean_probs_by_weight[w] = np.mean(iid_error_dist[qcode.group_by_weight[w]])
+		# Boost the probability of multi-qubit errors.
+		if w > 2:
+			boost = np.power(1/infid, 0.50)
+		bias = boost * mean_probs_by_weight[w - 1] / mean_probs_by_weight[w]
+		
+		subset_fraction = np.random.uniform(0, 1)
+
+		is_correctable_errors = np.in1d(qcode.group_by_weight[w], qcode.PauliCorrectableIndices)
+		
+		# Choose some Anisotropic errors and isotropic errors.
+		selected_correctable_errors = np.array([], dtype = np.int)
+		if (np.count_nonzero(is_correctable_errors) > 0):
+			correctable_errors = qcode.group_by_weight[w][np.nonzero(is_correctable_errors)]
+			selected_correctable_errors = np.random.choice(correctable_errors, int(subset_fraction * correctable_errors.size))
+		# The number of isotropic errors are a fraction of the anisotropic ones.
+		selected_uncorrectable_errors = np.array([], dtype = np.int)
+		if (np.count_nonzero(1 - is_correctable_errors) > 0):
+			uncorrectable_errors = qcode.group_by_weight[w][np.nonzero(1 - is_correctable_errors)]
+			selected_uncorrectable_errors = np.random.choice(uncorrectable_errors, int((1 - subset_fraction) * uncorrectable_errors.size))
+				
+		selected_errors = np.concatenate((selected_correctable_errors, selected_uncorrectable_errors))
+		corr_error_dist[selected_errors] *= bias
+
+	# Normalize to ensure that the probability of non-identity errors add up to the n-qubit infid.
+	corr_error_dist[1:] = (1 - corr_error_dist[0]) * corr_error_dist[1:] / np.sum(corr_error_dist[1:])
+	return corr_error_dist
+
+
 def AnIsotropicRandomPauli(infid, max_weight, subset_fraction_mean, qcode):
 	# Generate a random Pauli channel with a specified fidelity to the identity channel.
 	# We will generate uniformly random numbers to denote the probability of a non-identity Pauli error.
@@ -279,8 +322,7 @@ def AnIsotropicRandomPauli(infid, max_weight, subset_fraction_mean, qcode):
 	single_qubit_errors[1:] = infid * single_qubit_errors[1:] / np.sum(single_qubit_errors[1:])
 	# print("Single qubit error rates: {}".format(single_qubit_errors))
 	iid_error_dist = ut.GetErrorProbabilities(qcode.PauliOperatorsLST, single_qubit_errors, 0)
-	corr_error_dist = np.zeros_like(iid_error_dist)
-	corr_error_dist = iid_error_dist[:]
+	corr_error_dist = np.copy(iid_error_dist)
 	# print("iid_error_dist = {}".format(np.sort(iid_error_dist)))
 
 	# sum_probs_by_weight = np.zeros(1 + max_weight, dtype=np.double)
@@ -336,7 +378,6 @@ def AnIsotropicRandomPauli(infid, max_weight, subset_fraction_mean, qcode):
 	# Normalize to ensure that the probability of non-identity errors add up to the n-qubit infid.
 	corr_error_dist[1:] = (1 - corr_error_dist[0]) * corr_error_dist[1:] / np.sum(corr_error_dist[1:])
 	return iid_error_dist
-
 
 
 def IsAnisotropicOperator(pauli_op):
@@ -402,7 +443,7 @@ def PoissonRandomPauli(infid, mean_correlation_length, subset_fraction, qcode):
 def RandomPauliChannel(kwargs):
 	# Generate a random Pauli channel on n qubits using one of the few methods available.
 	# print("args = {}".format(kwargs))
-	available_methods = ["uniform", "crosstalk", "poisson"]
+	available_methods = ["uniform", "crosstalk", "poisson", "adversarial"]
 	method = "uniform"
 	if "method" in kwargs:
 		method = available_methods[kwargs["method"]]
@@ -417,6 +458,8 @@ def RandomPauliChannel(kwargs):
 		return IIDWtihCrossTalk(kwargs["infid"], kwargs["qcode"], kwargs["iid_fraction"], kwargs["subset_fraction"])
 	elif method == "poisson":
 		return PoissonRandomPauli(kwargs["infid"], kwargs["iid_fraction"], kwargs["subset_fraction"], kwargs["qcode"])
+	elif method == "adversarial":
+		return CorrectableRandomPauli(kwargs["infid"], int(kwargs["iid_fraction"]), kwargs["qcode"])
 	else:
 		pass
 	return None
