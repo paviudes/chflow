@@ -62,6 +62,9 @@ if [[ $host == *"paviws"* ]]; then
 	pcorr_strong_Steane_level2=("pcorr_strong_Steane_l2_00" "pcorr_strong_Steane_l2_01" "pcorr_strong_Steane_l2_02" "pcorr_strong_Steane_l2_03" "pcorr_strong_Steane_l2_04")
 	alphas_pcorr_strong_Steane_level2=(0 0.0005 0.0014 0.013 1)
 
+	pcorr_limited_Steane_level2=("pcorr_limited_Steane_l2_00" "pcorr_limited_Steane_l2_01" "pcorr_limited_Steane_l2_02" "pcorr_limited_Steane_l2_03" "pcorr_limited_Steane_l2_04")
+	alphas_pcorr_limited_Steane_level2=(0 0.0005 0.0014 0.013 1)
+
 	pcorr_strong_Steane_level3=("pcorr_strong_Steane_l3_00" "pcorr_strong_Steane_l3_01" "pcorr_strong_Steane_l3_02" "pcorr_strong_Steane_l3_03" "pcorr_strong_Steane_l3_04")
 	alphas_pcorr_strong_Steane_level3=(0 0.0005 0.0014 0.013 1)
 
@@ -282,8 +285,8 @@ copy_output() {
 	printf "\033[0m"
 }
 
-timestamps=("${pcorr_strong_Steane_level2[@]}")
-alphas=("${alphas_pcorr_strong_Steane_level2[@]}")
+timestamps=("${pcorr_limited_Steane_level2[@]}")
+alphas=("${alphas_pcorr_limited_Steane_level2[@]}")
 log=pcorr_strong
 refts=${timestamps[0]}
 
@@ -575,8 +578,8 @@ elif [[ "$1" == "plot" ]]; then
 	echo "hamplot infid${joined_uncorr} infid ${joined_timestamps%?} 7,12 1,1 20" >> input/temp.txt
 	echo "notes infid${joined_uncorr} infid pcorr partialham /Users/pavi/Documents/rclearn/notes/paper/figures/scatter_styles 1" >> input/temp.txt
 	# Scatter plot of infid and first alpha.
-	# echo "hamplot infid,uncorr infid ${timestamps[3]} 7,12 1,1 20" >> input/temp.txt
-	# echo "notes infid,uncorr infid pcorr hamplot /Users/pavi/Documents/rclearn/notes/paper/figures/scatter_styles 2" >> input/temp.txt
+	echo "hamplot infid,uncorr infid ${timestamps[3]} 7,12 1,1 20" >> input/temp.txt
+	echo "notes infid,uncorr infid pcorr hamplot /Users/pavi/Documents/rclearn/notes/paper/figures/scatter_styles 2" >> input/temp.txt
 	echo "quit" >> input/temp.txt
 	./chflow.sh -- temp.txt
 	rm input/temp.txt

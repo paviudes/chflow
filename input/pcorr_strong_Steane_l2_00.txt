@@ -1,21 +1,21 @@
 # Time stamp
 timestamp pcorr_strong_Steane_l2_00
 # Type of quantum error correcting code
-ecc Steane
+ecc Steane,Steane
 # Type of quantum channel
 channel pcorr
 # Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
 repr process
 # Noise rate exponents. The actual noise rate is (2/3)^exponent.
-noiserange 15,26,2;4,4,1;4,4,1;0,0,1
+noiserange 15,26,23;4,4,1;5,5,1;0,0,1
 # Scales of noise range.
 scale 0.66,1.0,1.0,1.0
 # Number of samples
-samples 6
+samples 40
 # Parameters schedule
 scheduler ./../input/schedule_pcorr_strong_Steane_l2_00.txt
 # Decoding algorithm to be used -- 0 for the maximum likelihood decoder and 1 for minimum weight decoder.
-decoder 1
+decoder 1,1
 # Fraction of Pauli probabilities accessible to the ML decoder.
 dcfraction 0
 # Logical frame for error correction (Available options: "[P] Pauli", "[C] Clifford", "[PC] Pauli + Logical Clifford").
@@ -27,9 +27,9 @@ importance power
 # Metrics to be computed on the effective channels at every level.
 metrics infid
 # Load distribution on cores.
-cores 1380,1
+cores 460,1
 # Number of nodes
-nodes 1
+nodes 2
 # Name of the host computer.
 host beluga
 # Name of the account.
@@ -37,7 +37,7 @@ account def-jemerson
 # Batch name.
 job pcorr_strong
 # Wall time in hours.
-wall 3
+wall 1
 # Submission queue (Available options: see goo.gl/pTdqbV).
 queue X
 # Email notifications.

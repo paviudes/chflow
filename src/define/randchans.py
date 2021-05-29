@@ -282,10 +282,14 @@ def CorrectableRandomPauli(infid, max_weight, qcode):
 			boost = np.power(1/infid, 0.50)
 		bias = boost * mean_probs_by_weight[w - 1] / mean_probs_by_weight[w]
 		
-		subset_fraction = np.random.uniform(0, 1)
-
+		# Compute the correctable and uncorrectable errors of a given weight.
 		is_correctable_errors = np.in1d(qcode.group_by_weight[w], qcode.PauliCorrectableIndices)
 		
+		# Choose the fraction of correctable errors whose probability should be boosted
+		subset_fraction = 1 # boost all weight-1 error probabilities, since they are all correctable.
+		if (w > 1):
+			subset_fraction = np.random.uniform(0, 1)
+
 		# Choose some Anisotropic errors and isotropic errors.
 		selected_correctable_errors = np.array([], dtype = np.int)
 		if (np.count_nonzero(is_correctable_errors) > 0):

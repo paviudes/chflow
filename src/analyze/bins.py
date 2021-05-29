@@ -269,6 +269,7 @@ def ComputeBinPositions(principal, inset):
 	for l in range(len(positions) - 1):
 		if abs(positions[l + 1] - positions[l]) <= 0.5:
 			positions[l + 1] = -1
+			sorted_principal[l + 1] = -1
 
 	return (positions, sorted_principal)
 
@@ -375,6 +376,9 @@ def PlotBinVarianceDataSets(ax_principal, dbses, level, lmet, pmets, nbins, incl
 		ax_inset.set_xlabel("Critical parameter computed from NR data", fontsize=gv.axes_labels_fontsize, labelpad=0.7, color="0.4")
 		ax_inset_top.set_xlabel(ml.Metrics[pmets[0]]["latex"], fontsize=gv.axes_labels_fontsize, labelpad=0.6, color="red")
 	
+	# Grid
+	ax_inset.grid(which="both")
+
 	ax_inset.set_ylabel("$\\Delta$", fontsize=gv.axes_labels_fontsize)
 	# ax.set_ylim([10e-9, None])
 	ax_inset.set_yscale("log")

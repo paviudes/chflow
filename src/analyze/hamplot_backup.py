@@ -122,6 +122,9 @@ def DoubleHammerPlot(logmet, phylist, dsets, inset_flag, nbins, thresholds):
 			top_xlabel = "%s %s" % (ml.Metrics[phylist[1]]["latex"], dsets[1].plotsettings["name"])
 			ax_top.set_xlabel(top_xlabel, fontsize=gv.axes_labels_fontsize * 1.7, labelpad = gv.axes_labelpad * 2.5, color=settings[1]["color"])
 			
+			# Grid
+			ax_bottom.grid(which="both")
+
 			# Scales for the axes
 			ax_bottom.set_xscale("log")
 			ax_top.set_xscale("log")
@@ -411,22 +414,20 @@ def PartialHammerPlot(logmet, phylist, dsets, inset_flag, nbins, thresholds):
 		settings = [[] for __ in range(ndb)]
 		include = {}
 		for d in range(ndb):
-			if d == 0:
-				# print("Getting X cutoff for alpha = {} level = {}".format(dsets[d].decoder_fraction, level))
-				if phylist[d] == "uncorr":
-					xaxis = np.load(fn.PhysicalErrorRates(dsets[d], phylist[d], partial_data="%g" % dsets[d].decoder_fraction))[:, level]
-				else:
-					xaxis = np.load(fn.PhysicalErrorRates(dsets[d], phylist[d]))
-					xcutoff = GetXCutOff(
-						xaxis,
-						np.load(fn.LogicalErrorRates(dsets[d], logmet))[:, level],
-						thresholds[level - 1],
-						nbins=50,
-						space="log"
-					)
-				include[phylist[d]] = np.nonzero(np.logical_and(xaxis >= xcutoff["left"], xaxis <= xcutoff["right"]))[0]
+			# print("Getting X cutoff for alpha = {} level = {}".format(dsets[d].decoder_fraction, level))
+			if phylist[d] == "uncorr":
+				xaxis = np.load(fn.PhysicalErrorRates(dsets[d], phylist[d]))[:, level]
 			else:
-				include[phylist[d]] = include[phylist[0]]
+				xaxis = np.load(fn.PhysicalErrorRates(dsets[d], phylist[d]))
+				xcutoff = GetXCutOff(
+					xaxis,
+					np.load(fn.LogicalErrorRates(dsets[d], logmet))[:, level],
+					thresholds[level - 1],
+					nbins=50,
+					space="log"
+				)
+			include[phylist[d]] = np.nonzero(np.logical_and(xaxis >= xcutoff["left"], xaxis <= xcutoff["right"]))[0]
+			# include[phylist[d]] = include[phylist[0]]
 
 		PlotBinVarianceDataSets(ax, dsets, level, logmet, phylist, nbins, include, is_inset=inset_flag)
 
