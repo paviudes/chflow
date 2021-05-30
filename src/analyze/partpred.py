@@ -54,7 +54,7 @@ def PartialNRPlot(logmet, pmets, dsets, inset_flag, nbins, thresholds):
 			print("Number of bins for alpha = {} is {}.".format(dsets[d].decoder_fraction, collapsed_bins[d].shape[0]))
 		
 			# Plot the scatter metric with the bin averages
-			xaxis = collapsed_bins[d][:, 0]
+			xaxis = np.arange(collapsed_bins[d].shape[0])
 			yaxis = collapsed_bins[d][:, 3]
 			if (d == 0):
 				# Plot the scatter metric for the infid plot
@@ -93,13 +93,11 @@ def PartialNRPlot(logmet, pmets, dsets, inset_flag, nbins, thresholds):
 		ax_infid.set_ylabel("$\\Delta$", fontsize=gv.axes_labels_fontsize)
 		
 		# Axes scales
-		ax_infid.set_xscale("log")
-		ax_uncorr.set_xscale("log")
 		ax_infid.set_yscale("log")
 
 		## Ticks and ticklabels for the X-axes
 		# Bottom X-axes
-		raw_inset_ticks_bottom = collapsed_bins[0][:, 0]
+		raw_inset_ticks_bottom = (collapsed_bins[0][:, 0] + collapsed_bins[0][:, 1]) / 2
 		print("raw_inset_ticks_bottom: {}".format(raw_inset_ticks_bottom))
 		(intended_bottom_ticks, __) = SetTickLabels(raw_inset_ticks_bottom)
 		# print("intended_bottom_ticks: {}".format(intended_bottom_ticks))
@@ -110,7 +108,7 @@ def PartialNRPlot(logmet, pmets, dsets, inset_flag, nbins, thresholds):
 		print("Infid ticks\n{}".format(list(ax_infid.get_xticklabels())))
 		print("-----------")
 		# Top X-axes
-		raw_inset_ticks_top = collapsed_bins[-1][:, 0]
+		raw_inset_ticks_top = (collapsed_bins[-1][:, 0] + collapsed_bins[-1][:, 1]) / 2
 		print("raw_inset_ticks_top: {}".format(raw_inset_ticks_top))
 		(intended_top_ticks, __) = SetTickLabels(raw_inset_ticks_top)
 		# print("intended_top_ticks: {}".format(intended_top_ticks))

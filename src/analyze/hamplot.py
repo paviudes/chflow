@@ -54,8 +54,7 @@ def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 		
 		# print("Number of bins for alpha = {} is {}.".format(dbses[d].decoder_fraction, collapsed_bins[d].shape[0]))
 		
-		# xaxis = (collapsed_bins[d][:, 0] + collapsed_bins[d][:, 1]) / 2
-		xaxis = collapsed_bins[d][:, 0]
+		xaxis = xaxis = np.arange(collapsed_bins[d].shape[0])
 		yaxis = collapsed_bins[d][:, 3]
 		
 		if (d == 0):
@@ -91,14 +90,11 @@ def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 	ax_inset.set_ylabel("$\\Delta$", fontsize=gv.axes_labels_fontsize)
 	
 	# Axes scales
-	ax_inset.set_xscale("log")
-	ax_inset_top.set_xscale("log")
 	ax_inset.set_yscale("log")
 
 	## Ticks and ticklabels for the X-axes
 	# Bottom X-axes
-	# raw_inset_ticks_bottom = (collapsed_bins[0][:, 0] + collapsed_bins[0][:, 1]) / 2
-	raw_inset_ticks_bottom = collapsed_bins[0][:, 0]
+	raw_inset_ticks_bottom = (collapsed_bins[0][:, 0] + collapsed_bins[0][:, 1]) / 2
 	print("raw_inset_ticks_bottom: {}".format(raw_inset_ticks_bottom))
 	(intended_bottom_ticks, __) = SetTickLabels(raw_inset_ticks_bottom)
 	print("intended_bottom_ticks: {}".format(intended_bottom_ticks))
@@ -112,8 +108,7 @@ def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 	print("Inset infid ticks\n{}".format(ax_inset.get_xticks()))
 	print("-----------")
 	# Top X-axes
-	# raw_inset_ticks_top = (collapsed_bins[1][:, 0] + collapsed_bins[1][:, 1]) / 2
-	raw_inset_ticks_top = collapsed_bins[1][:, 0]
+	raw_inset_ticks_top = (collapsed_bins[1][:, 0] + collapsed_bins[1][:, 1]) / 2
 	# print("raw_inset_ticks_top: {}".format(raw_inset_ticks_top))
 	(intended_top_ticks, __) = SetTickLabels(raw_inset_ticks_top)
 	# print("intended_top_ticks: {}".format(intended_top_ticks))
