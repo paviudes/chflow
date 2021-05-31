@@ -262,9 +262,15 @@ def IIDWtihCrossTalk(infid, qcode, iid_fraction, subset_fraction):
 	return pauli_error_dist
 
 
-def CorrectableRandomPauli(infid, max_weight, qcode):
+def AdversarialRandomPauli(infid, max_weight, qcode):
 	# Generate a random Pauli channel with a specified fidelity to the identity channel.
 	# The channel applies a fraction of correctable and uncorrectable errors of each weight.
+	
+	# Compute the correctable errors for the qcode
+	if qcode.PauliCorrectableIndices is None:
+		qc.ComputeCorrectableIndices(qcode)
+
+	# Create an i.i.d noise process
 	single_qubit_errors = np.concatenate(([1 - infid], np.random.uniform(size=3)))
 	single_qubit_errors[1:] = infid * single_qubit_errors[1:] / np.sum(single_qubit_errors[1:])
 	# print("Single qubit error rates: {}".format(single_qubit_errors))
@@ -272,6 +278,7 @@ def CorrectableRandomPauli(infid, max_weight, qcode):
 	iid_error_dist = ut.GetErrorProbabilities(qcode.PauliOperatorsLST, single_qubit_errors, 0)
 	corr_error_dist = np.copy(iid_error_dist)
 	
+	# Boost rates of multiqubit errors, from those prescribed by the i.i.d model.
 	mean_probs_by_weight = np.zeros(1 + max_weight, dtype=np.double)
 	mean_probs_by_weight[0] = 1 - iid_error_dist[0]
 	boost = np.power(infid, 0.25)
@@ -285,6 +292,8 @@ def CorrectableRandomPauli(infid, max_weight, qcode):
 		# Compute the correctable and uncorrectable errors of a given weight.
 		is_correctable_errors = np.in1d(qcode.group_by_weight[w], qcode.PauliCorrectableIndices)
 		
+		# print("w = {}\nqcode.group_by_weight[w]\n{}\n{} correctable errors\nis_correctable_errors: {}".format(w, qcode.group_by_weight[w], qcode.PauliCorrectableIndices.size, is_correctable_errors))
+
 		# Choose the fraction of correctable errors whose probability should be boosted
 		subset_fraction = 1 # boost all weight-1 error probabilities, since they are all correctable.
 		if (w > 1):
@@ -299,7 +308,7 @@ def CorrectableRandomPauli(infid, max_weight, qcode):
 		selected_uncorrectable_errors = np.array([], dtype = np.int)
 		if (np.count_nonzero(1 - is_correctable_errors) > 0):
 			uncorrectable_errors = qcode.group_by_weight[w][np.nonzero(1 - is_correctable_errors)]
-			selected_uncorrectable_errors = np.random.choice(uncorrectable_errors, int((1 - subset_fraction) * uncorrectable_errors.size))
+			selected_uncorrectable_errors = np.random.choice(uncorrectable_errors, int((1 - subset_fraction) * correctable_errors.size))
 				
 		selected_errors = np.concatenate((selected_correctable_errors, selected_uncorrectable_errors))
 		corr_error_dist[selected_errors] *= bias
@@ -463,7 +472,7 @@ def RandomPauliChannel(kwargs):
 	elif method == "poisson":
 		return PoissonRandomPauli(kwargs["infid"], kwargs["iid_fraction"], kwargs["subset_fraction"], kwargs["qcode"])
 	elif method == "adversarial":
-		return CorrectableRandomPauli(kwargs["infid"], int(kwargs["iid_fraction"]), kwargs["qcode"])
+		return AdversarialRandomPauli(kwargs["infid"], int(kwargs["iid_fraction"]), kwargs["qcode"])
 	else:
 		pass
 	return None

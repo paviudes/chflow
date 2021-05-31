@@ -98,6 +98,12 @@ elif [[ "$1" == "delete" ]]; then
 	printf "\033[2m"
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
+		if [ -d ${outdir}/${ts}/physical ]; then
+			echo "removing ${outdir}/${ts}/physical/*"
+			fastdelete ${outdir}/${ts}/physical/
+		else
+			echo "No physical found in ${outdir}/${ts}."
+		fi
 		if [ -d ${outdir}/${ts}/channels ]; then
 			echo "removing ${outdir}/${ts}/channels/*"
 			fastdelete ${outdir}/${ts}/channels/

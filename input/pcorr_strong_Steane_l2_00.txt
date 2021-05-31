@@ -7,7 +7,7 @@ channel pcorr
 # Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
 repr process
 # Noise rate exponents. The actual noise rate is (2/3)^exponent.
-noiserange 15,26,23;4,4,1;5,5,1;0,0,1
+noiserange 15,26,23;4,4,1;4,4,1;0,0,1
 # Scales of noise range.
 scale 0.66,1.0,1.0,1.0
 # Number of samples
@@ -28,8 +28,6 @@ importance power
 metrics infid
 # Load distribution on cores.
 cores 460,1
-# Number of nodes
-nodes 2
 # Name of the host computer.
 host beluga
 # Name of the account.
