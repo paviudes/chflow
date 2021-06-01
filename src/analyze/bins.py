@@ -277,7 +277,7 @@ def ComputeBinPositions(principal, inset):
 def PlotBinVarianceDataSets(ax_principal, dbses, level, lmet, pmets, nbins, include_info, is_inset = 1, bottom_ticks=None, top_ticks=None):
 	# Compare scatter for different physical metrics
 	atol = 1E-16
-	min_bin_fraction = 0.01
+	min_bin_fraction = 0.1
 	modified_bottom_ticks = None
 	modified_top_ticks = None
 	
@@ -310,7 +310,6 @@ def PlotBinVarianceDataSets(ax_principal, dbses, level, lmet, pmets, nbins, incl
 	for d in range(ndb):
 		if pmets[d] == "uncorr":
 			phyerrs[d, :] = np.load(PhysicalErrorRates(dbses[d], pmets[d]))[:, level]
-			# , partial_data="%g" % dbses[d].decoder_fraction)
 		else:
 			phyerrs[d, :] = np.load(PhysicalErrorRates(dbses[d], pmets[d]))
 
@@ -322,7 +321,7 @@ def PlotBinVarianceDataSets(ax_principal, dbses, level, lmet, pmets, nbins, incl
 
 		include = include_info[pmets[d]]
 
-		# print("xdata for alpha = {}\n{}\nydata\nmin: {}, max: {}".format(dbses[d].decoder_fraction, phyerrs[d, include], np.min(logerrs[d, include]), np.max(logerrs[d, include])))
+		print("include for alpha = {}\n{}".format(dbses[d].decoder_fraction, include))
 
 		bins = ComputeBinVariance(phyerrs[d, include], logerrs[d, include], space="log", nbins=nbins)
 		# Leave out bins which don't have any points.

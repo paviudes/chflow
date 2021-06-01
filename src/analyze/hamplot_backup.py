@@ -427,6 +427,7 @@ def PartialHammerPlot(logmet, phylist, dsets, inset_flag, nbins, thresholds):
 					space="log"
 				)
 			include[phylist[d]] = np.nonzero(np.logical_and(xaxis >= xcutoff["left"], xaxis <= xcutoff["right"]))[0]
+			print("include for alpha = {}\n{}".format(dsets[d].decoder_fraction, include[phylist[d]]))
 			# include[phylist[d]] = include[phylist[0]]
 
 		PlotBinVarianceDataSets(ax, dsets, level, logmet, phylist, nbins, include, is_inset=inset_flag)

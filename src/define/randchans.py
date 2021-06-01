@@ -280,14 +280,19 @@ def AdversarialRandomPauli(infid, max_weight, qcode):
 	
 	# Boost rates of multiqubit errors, from those prescribed by the i.i.d model.
 	mean_probs_by_weight = np.zeros(1 + max_weight, dtype=np.double)
-	mean_probs_by_weight[0] = 1 - iid_error_dist[0]
-	boost = np.power(infid, 0.25)
+	mean_probs_by_weight[0] = iid_error_dist[0]
 	for w in range(1, 1 + max_weight):
 		mean_probs_by_weight[w] = np.mean(iid_error_dist[qcode.group_by_weight[w]])
 		# Boost the probability of multi-qubit errors.
-		if w > 2:
-			boost = np.power(1/infid, 0.50)
+		if w == 1:
+			boost = np.power(1/infid, 0.4)
+		elif w == 2:
+			boost = np.power(1/infid, 0.6 * w)
+		else:
+			boost = np.power(1/infid, 0.6 * w)
+		
 		bias = boost * mean_probs_by_weight[w - 1] / mean_probs_by_weight[w]
+		# bias = mean_probs_by_weight[w - 1] / mean_probs_by_weight[w]
 		
 		# Compute the correctable and uncorrectable errors of a given weight.
 		is_correctable_errors = np.in1d(qcode.group_by_weight[w], qcode.PauliCorrectableIndices)

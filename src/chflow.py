@@ -96,9 +96,9 @@ from analyze.dcplot import DecoderCompare, DecoderInstanceCompare, RelativeDecod
 from analyze.dvplot import PlotDeviationYX
 from analyze.lplot import LevelWisePlot, LevelWisePlot2D
 from analyze.statplot import MCStatsPlot
-# from analyze.hamplot import DoubleHammerPlot
+from analyze.hamplot import DoubleHammerPlot
 from analyze.partpred import PartialNRPlot
-from analyze.hamplot_backup import PartialHammerPlot, DoubleHammerPlot
+from analyze.hamplot_backup import PartialHammerPlot #, DoubleHammerPlot
 from analyze.pdplot import PauliDistributionPlot
 from analyze.nrplot import NRWeightsPlot
 from analyze.compare import CompareSubs
@@ -880,8 +880,8 @@ if __name__ == "__main__":
 			ndb = len(dbses)
 			if (check == 1):
 				if (ndb > 2):
-					PartialHammerPlot(logmet, pmets, dbses, 0, nbins, thresholds) # old version
-					# PartialNRPlot(logmet, pmets, dbses, 0, nbins, thresholds) # new version
+					# PartialHammerPlot(logmet, pmets, dbses, 0, nbins, thresholds) # old version
+					PartialNRPlot(logmet, pmets, dbses, 0, nbins, thresholds) # new version
 				else:
 					DoubleHammerPlot(logmet, pmets, dbses, 1, nbins, thresholds)
 			else:

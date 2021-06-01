@@ -38,7 +38,7 @@ def PartialNRPlot(logmet, pmets, dsets, inset_flag, nbins, thresholds):
 		phyerrs = np.zeros((ndb, dsets[0].channels), dtype=np.double)
 		logerrs = np.zeros((ndb, dsets[0].channels), dtype=np.double)
 		collapsed_bins = [None for d in range(ndb)]
-		relative_paddings = [0.25, 0.1]
+		relative_paddings = [0.25, 1]
 		for d in range(ndb):
 			phyerrs[d, :] = LoadPhysicalErrorRates(dsets[d], pmets[d], None, level)
 			logerrs[d, :] = np.load(LogicalErrorRates(dsets[d], logmet))[:, level]
@@ -89,7 +89,7 @@ def PartialNRPlot(logmet, pmets, dsets, inset_flag, nbins, thresholds):
 		
 		# Axes labels
 		ax_infid.set_xlabel(ml.Metrics[pmets[0]]["latex"], fontsize=gv.axes_labels_fontsize, labelpad=0.6, color="0.4")
-		ax_uncorr.set_xlabel("Critical parameter computed from NR data", fontsize=gv.axes_labels_fontsize, labelpad=0.7, color="red")
+		ax_uncorr.set_xlabel("Critical parameter computed from NR data", fontsize=gv.axes_labels_fontsize, labelpad=1, color="red")
 		ax_infid.set_ylabel("$\\Delta$", fontsize=gv.axes_labels_fontsize)
 		
 		# Axes scales
@@ -103,7 +103,7 @@ def PartialNRPlot(logmet, pmets, dsets, inset_flag, nbins, thresholds):
 		# print("intended_bottom_ticks: {}".format(intended_bottom_ticks))
 		(positions_bottom, bottom_ticks) = ComputeBinPositions(intended_bottom_ticks, raw_inset_ticks_bottom)
 		print("bottom_ticks = {}".format(bottom_ticks))
-		ax_infid.set_xticks(bottom_ticks[positions_bottom > -1])
+		ax_infid.set_xticks(positions_bottom[positions_bottom > -1])
 		ax_infid.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), bottom_ticks[positions_bottom > -1])), rotation=45, color=gv.Colors[0], rotation_mode="anchor", ha="left", va="baseline")
 		print("Infid ticks\n{}".format(list(ax_infid.get_xticklabels())))
 		print("-----------")
@@ -114,7 +114,7 @@ def PartialNRPlot(logmet, pmets, dsets, inset_flag, nbins, thresholds):
 		# print("intended_top_ticks: {}".format(intended_top_ticks))
 		(positions_top, top_ticks) = ComputeBinPositions(intended_top_ticks, raw_inset_ticks_top)
 		# print("top_ticks = {}".format(top_ticks))
-		ax_uncorr.set_xticks(top_ticks[positions_top > -1])
+		ax_uncorr.set_xticks(positions_top[positions_top > -1])
 		ax_uncorr.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), top_ticks[positions_top > -1])), rotation=-45, color=gv.Colors[1], rotation_mode="anchor", ha="left", va="baseline")	
 		print("Uncorr ticks\n{}".format(ax_uncorr.get_xticks()))
 		print("xxxxxxxxxxxx")
