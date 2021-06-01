@@ -289,7 +289,7 @@ def AdversarialRandomPauli(infid, max_weight, qcode):
 		elif w == 2:
 			boost = np.power(1/infid, 0.6 * w)
 		else:
-			boost = np.power(1/infid, 0.6 * w)
+			boost = np.power(1/infid, 0.7 * w)
 		
 		bias = boost * mean_probs_by_weight[w - 1] / mean_probs_by_weight[w]
 		# bias = mean_probs_by_weight[w - 1] / mean_probs_by_weight[w]
