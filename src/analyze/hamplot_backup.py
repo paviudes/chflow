@@ -97,7 +97,7 @@ def DoubleHammerPlot(logmet, phylist, dsets, inset_flag, nbins, thresholds):
 					label="%s %s"
 					% (ml.Metrics[phylist[c]]["latex"], dsets[c].plotsettings["name"]),
 				)
-			
+
 			# X = Y line for the top axis with the uncorr data.
 			xaxis = settings[1]["xaxis"][include[phylist[1]]]
 			ax_top.plot(
@@ -112,16 +112,16 @@ def DoubleHammerPlot(logmet, phylist, dsets, inset_flag, nbins, thresholds):
 			(ticks_bottom, ticks_top) = PlotBinVarianceDataSets(ax_bottom, dsets, l, logmet, phylist, nbins, include, inset_flag, ticks_bottom, ticks_top)
 			# PlotBinVarianceDataSets(ax_bottom, dsets, l, logmet, phylist, nbins, include, inset_flag, ticks_bottom, ticks_top) # Use this only for the diamond distance plot.
 			# print("ticks_bottom = {}\nticks_top = {}".format(ticks_bottom, ticks_top))
-			
+
 			# Axes labels for the bottom axes
 			bottom_xlabel = "%s %s" % (ml.Metrics[phylist[0]]["latex"], dsets[0].plotsettings["name"])
 			ax_bottom.set_xlabel(bottom_xlabel, fontsize=gv.axes_labels_fontsize * 1.7, labelpad = 0.5 * gv.axes_labelpad, color=settings[0]["color"])
 			ax_bottom.set_ylabel(settings[0]["ylabel"], fontsize=gv.axes_labels_fontsize * 1.7, labelpad = gv.axes_labelpad)
-			
+
 			# Axes labels for the top axes
 			top_xlabel = "%s %s" % (ml.Metrics[phylist[1]]["latex"], dsets[1].plotsettings["name"])
 			ax_top.set_xlabel(top_xlabel, fontsize=gv.axes_labels_fontsize * 1.7, labelpad = gv.axes_labelpad * 2.5, color=settings[1]["color"])
-			
+
 			# Grid
 			ax_bottom.grid(which="both")
 
@@ -132,18 +132,18 @@ def DoubleHammerPlot(logmet, phylist, dsets, inset_flag, nbins, thresholds):
 
 			# Set a Y-axes limit
 			# ax_bottom.set_ylim([None, 0.1]) # Display the inset plot.
-			
+
 			# Locations and labels for the X-axis ticks
 			include_ticks, = np.nonzero(ticks_bottom > -1)
 			ax_bottom.set_xticks(ticks_bottom[include_ticks])
 			ax_bottom.set_xticklabels([tick_labels_bottom[tk] for tk in include_ticks], rotation = -30, rotation_mode="anchor", ha="left", va="baseline")
-			
+
 			include_ticks, = np.nonzero(ticks_top > -1)
 			ax_top.set_xticks(ticks_top[include_ticks])
 			ax_top.set_xticklabels([tick_labels_top[tk] for tk in include_ticks])
-			
+
 			# print("Bottom ticks for the main plot\n{}\nTop ticks for the main plot\n{}".format(list(ax_bottom.xaxis.get_ticklabels()), list(ax_top.xaxis.get_ticklabels())))
-			
+
 			# Locations and labels for the Y-axis ticks
 			loc = LogLocator(base=10, numticks=10) # this locator puts ticks at regular intervals
 			ax_bottom.yaxis.set_major_locator(loc)
@@ -174,8 +174,8 @@ def DoubleHammerPlot(logmet, phylist, dsets, inset_flag, nbins, thresholds):
 					labelsize=1.5 * gv.ticks_fontsize,
 					color=tick_colors[a],
 				)
-			
-			# Color of the X-axis line				
+
+			# Color of the X-axis line
 			ax_top.spines['bottom'].set_color(tick_colors[0])
 			ax_top.spines['top'].set_color(tick_colors[1])
 
@@ -193,7 +193,7 @@ def DoubleHammerPlot(logmet, phylist, dsets, inset_flag, nbins, thresholds):
 				t.set_color("k")
 			for t in ax_top.xaxis.get_minorticklines():
 				t.set_color("k")
-			
+
 			# Legend for the bottom axes
 			leg = ax_bottom.legend(
 				numpoints=1,
@@ -202,7 +202,7 @@ def DoubleHammerPlot(logmet, phylist, dsets, inset_flag, nbins, thresholds):
 				fontsize=gv.legend_fontsize,
 				markerscale=gv.legend_marker_scale,
 			)
-			
+
 			# Match legend text with the color of the markers
 			colors = [settings[0]["color"], settings[1]["color"]]
 			for (color, text) in zip(colors, leg.get_texts()):
@@ -212,7 +212,7 @@ def DoubleHammerPlot(logmet, phylist, dsets, inset_flag, nbins, thresholds):
 			fig.tight_layout(pad=5)
 			pdf.savefig(fig)
 			plt.close()
-		
+
 		# Set PDF attributes
 		pdfInfo = pdf.infodict()
 		pdfInfo["Title"] = "Hammer plot."
@@ -280,7 +280,7 @@ def NewDoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds):
 					label="%s %s"
 					% (ml.Metrics[pmets[c]]["latex"], dsets[c].plotsettings["name"]),
 				)
-			
+
 			# X = Y line for the top axis with the uncorr data.
 			xaxis = settings[1]["xaxis"][include[pmets[1]]]
 			ax_top.plot(
@@ -301,7 +301,7 @@ def NewDoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds):
 
 			# Inset plot
 			(ticks_bottom, ticks_top) = NewPlotBinVarianceDataSets(ax_bottom, dsets, l, lmet, pmets, nbins, include, is_inset)
-			
+
 			## Axes labels
 			# Axes label for the Y-axes
 			ax_bottom.set_ylabel(settings[0]["ylabel"], fontsize=gv.axes_labels_fontsize * 1.7, labelpad = gv.axes_labelpad)
@@ -311,7 +311,7 @@ def NewDoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds):
 			# Axes labels for the top axes
 			top_xlabel = "%s %s" % (ml.Metrics[pmets[1]]["latex"], dsets[1].plotsettings["name"])
 			ax_top.set_xlabel(top_xlabel, fontsize=gv.axes_labels_fontsize * 1.7, labelpad = gv.axes_labelpad * 2.5, color=settings[1]["color"])
-			
+
 			# Scales for the axes
 			ax_bottom.set_xscale("log")
 			ax_top.set_xscale("log")
@@ -329,7 +329,7 @@ def NewDoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds):
 			# Locations and labels for the Y-axis ticks
 			loc = LogLocator(base=10, numticks=10) # this locator puts ticks at regular intervals
 			ax_bottom.yaxis.set_major_locator(loc)
-			
+
 			# Tick params for Y-axes
 			ax_bottom.tick_params(
 				axis="y",
@@ -354,8 +354,8 @@ def NewDoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds):
 					labelsize=1.5 * gv.ticks_fontsize,
 					color=tick_colors[a],
 				)
-			
-			# Color of the X-axis line				
+
+			# Color of the X-axis line
 			ax_top.spines['bottom'].set_color(tick_colors[0])
 			ax_top.spines['top'].set_color(tick_colors[1])
 
@@ -373,7 +373,7 @@ def NewDoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds):
 				t.set_color("k")
 			for t in ax_top.xaxis.get_minorticklines():
 				t.set_color("k")
-			
+
 			# Legend for the bottom axes
 			leg = ax_bottom.legend(
 				numpoints=1,
@@ -382,7 +382,7 @@ def NewDoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds):
 				fontsize=gv.legend_fontsize,
 				markerscale=gv.legend_marker_scale,
 			)
-			
+
 			# Match legend text with the color of the markers
 			colors = [settings[0]["color"], settings[1]["color"]]
 			for (color, text) in zip(colors, leg.get_texts()):
@@ -392,7 +392,7 @@ def NewDoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds):
 			fig.tight_layout(pad=5)
 			pdf.savefig(fig)
 			plt.close()
-		
+
 		# Set PDF attributes
 		pdfInfo = pdf.infodict()
 		pdfInfo["Title"] = "Hammer plot."
@@ -419,13 +419,13 @@ def PartialHammerPlot(logmet, phylist, dsets, inset_flag, nbins, thresholds):
 				xaxis = np.load(fn.PhysicalErrorRates(dsets[d], phylist[d]))[:, level]
 			else:
 				xaxis = np.load(fn.PhysicalErrorRates(dsets[d], phylist[d]))
-				xcutoff = GetXCutOff(
-					xaxis,
-					np.load(fn.LogicalErrorRates(dsets[d], logmet))[:, level],
-					thresholds[level - 1],
-					nbins=50,
-					space="log"
-				)
+			xcutoff = GetXCutOff(
+				xaxis,
+				np.load(fn.LogicalErrorRates(dsets[d], logmet))[:, level],
+				thresholds[level - 1],
+				nbins=50,
+				space="log"
+			)
 			include[phylist[d]] = np.nonzero(np.logical_and(xaxis >= xcutoff["left"], xaxis <= xcutoff["right"]))[0]
 			# include[phylist[d]] = include[phylist[0]]
 
@@ -435,7 +435,7 @@ def PartialHammerPlot(logmet, phylist, dsets, inset_flag, nbins, thresholds):
 		fig.tight_layout(pad=5)
 		pdf.savefig(fig)
 		plt.close()
-		
+
 		# Set PDF attributes
 		pdfInfo = pdf.infodict()
 		pdfInfo["Title"] = "Hammer plot."
