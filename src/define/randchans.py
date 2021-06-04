@@ -115,14 +115,14 @@ def ReconstructPauliChannel(pauli_probs, qcode):
 	# Reconstruct the n-qubit Pauli channel if we had only weight-1 errors.
 	if qcode.group_by_weight is None:
 		PrepareSyndromeLookUp(qcode)
-	
+
 	single_qubit_errors = qcode.PauliOperatorsLST[qcode.group_by_weight[1], :]
 	single_qubit_probs = pauli_probs[qcode.group_by_weight[1]]
 	# print("Reconstructing Pauli channel")
 	# print("===========")
 	# print("single_qubit_probs\n{}".format(single_qubit_probs))
 	# print("===========")
-	
+
 	# Extract the marginal distribution of pI, pX, pY and pZ on each qubit.
 	qubit_pauli_probs = np.zeros((qcode.N, 4), dtype = np.double)
 	# Fill the identity probs
@@ -152,7 +152,7 @@ def ReconstructPauliChannel(pauli_probs, qcode):
 
 	# Create an n-qubit Pauli channel where the probabilities of n-qubit errors are constructed using the i.i.d ansatz from the single qubit error probabilities.
 	pauli_dist = np.prod(qubit_pauli_probs[range(qcode.N), qcode.PauliOperatorsLST[:, range(qcode.N)]], axis=1)
-	
+
 	return pauli_dist
 
 
@@ -178,13 +178,13 @@ def IIDWtihCrossTalk(infid, qcode, iid_fraction, subset_fraction):
 	# Add a random sumset of 10% of all two qubit errors
 	weights_to_boost = [2, 3]
 	# weights_to_boost = [2, 3, 4, 5, 6, 7]
-	
+
 	'''
 	subset_fraction_weights = {2: subset_fraction}
 	for w in weights_to_boost:
 		if w not in subset_fraction_weights:
 			subset_fraction_weights.update({w: 1 / 3 * comb(qcode.N, w - 1) / comb(qcode.N, w) * subset_fraction_weights[w - 1]})
-	
+
 	# print("subset_fraction_weights = {}".format(subset_fraction_weights))
 	n_errors = np.cumsum(
 		[
@@ -265,7 +265,7 @@ def IIDWtihCrossTalk(infid, qcode, iid_fraction, subset_fraction):
 def AdversarialRandomPauli(infid, max_weight, qcode):
 	# Generate a random Pauli channel with a specified fidelity to the identity channel.
 	# The channel applies a fraction of correctable and uncorrectable errors of each weight.
-	
+
 	# Compute the correctable errors for the qcode
 	if qcode.PauliCorrectableIndices is None:
 		qc.ComputeCorrectableIndices(qcode)
@@ -277,26 +277,26 @@ def AdversarialRandomPauli(infid, max_weight, qcode):
 	# Create the n-qubit error distribution
 	iid_error_dist = ut.GetErrorProbabilities(qcode.PauliOperatorsLST, single_qubit_errors, 0)
 	corr_error_dist = np.copy(iid_error_dist)
-	
+
 	# Boost rates of multiqubit errors, from those prescribed by the i.i.d model.
 	mean_probs_by_weight = np.zeros(1 + max_weight, dtype=np.double)
 	mean_probs_by_weight[0] = iid_error_dist[0]
 	for w in range(1, 1 + max_weight):
-		mean_probs_by_weight[w] = np.mean(iid_error_dist[qcode.group_by_weight[w]])
+		mean_probs_by_weight[w] = np.sum(iid_error_dist[qcode.group_by_weight[w]])
 		# Boost the probability of multi-qubit errors.
 		if w == 1:
-			boost = np.power(1/infid, 0.4)
+			boost = np.power(1/infid, 0.1)
 		elif w == 2:
-			boost = np.power(1/infid, 0.6 * w)
+			boost = np.power(1/infid, 0.4 * w)
 		else:
-			boost = np.power(1/infid, 0.7 * w)
-		
+			boost = np.power(1/infid, 0.4 * w)
+
 		bias = boost * mean_probs_by_weight[w - 1] / mean_probs_by_weight[w]
 		# bias = mean_probs_by_weight[w - 1] / mean_probs_by_weight[w]
-		
+
 		# Compute the correctable and uncorrectable errors of a given weight.
 		is_correctable_errors = np.in1d(qcode.group_by_weight[w], qcode.PauliCorrectableIndices)
-		
+
 		# print("w = {}\nqcode.group_by_weight[w]\n{}\n{} correctable errors\nis_correctable_errors: {}".format(w, qcode.group_by_weight[w], qcode.PauliCorrectableIndices.size, is_correctable_errors))
 
 		# Choose the fraction of correctable errors whose probability should be boosted
@@ -314,7 +314,7 @@ def AdversarialRandomPauli(infid, max_weight, qcode):
 		if (np.count_nonzero(1 - is_correctable_errors) > 0):
 			uncorrectable_errors = qcode.group_by_weight[w][np.nonzero(1 - is_correctable_errors)]
 			selected_uncorrectable_errors = np.random.choice(uncorrectable_errors, int((1 - subset_fraction) * correctable_errors.size))
-				
+
 		selected_errors = np.concatenate((selected_correctable_errors, selected_uncorrectable_errors))
 		corr_error_dist[selected_errors] *= bias
 
@@ -362,7 +362,7 @@ def AnIsotropicRandomPauli(infid, max_weight, subset_fraction_mean, qcode):
 		# bias = boost * sum_probs_by_weight[w - 1] / sum_probs_by_weight[w]
 		# bias = boost * min_probs_by_weight[w - 1] / max_probs_by_weight[w]
 		bias = boost * mean_probs_by_weight[w - 1] / mean_probs_by_weight[w]
-		
+
 		# Boost the probability of multi-qubit errors.
 		# subset_fraction = min(max(np.random.normal(subset_fraction_mean, subset_fraction_mean), 0), 1)
 		subset_fraction = np.random.uniform(0, 1)
@@ -370,7 +370,7 @@ def AnIsotropicRandomPauli(infid, max_weight, subset_fraction_mean, qcode):
 		### temporary patch: boost a constant number of multiqubit errors
 		# subset_fraction = subset_fraction_mean
 		is_anisotropic_errors = np.array(list(map(IsAnisotropicOperator, qcode.PauliOperatorsLST[qcode.group_by_weight[w]])), dtype = np.int)
-		
+
 		# Choose some Anisotropic errors and isotropic errors.
 		selected_anisotropic_errors = np.array([], dtype = np.int)
 		if (np.count_nonzero(is_anisotropic_errors) > 0):
@@ -387,9 +387,9 @@ def AnIsotropicRandomPauli(infid, max_weight, subset_fraction_mean, qcode):
 			### temporary patch: boost a constant number of multiqubit errors
 			# selected_isotropic_errors = np.random.choice(isotropic_errors, int(subset_fraction))
 			###
-		
+
 		selected_errors = np.concatenate((selected_anisotropic_errors, selected_isotropic_errors))
-		
+
 		# print("Errors whose probabilities are boosted: {}".format(np.nonzero(anisotropic_errors)))
 		corr_error_dist[qcode.group_by_weight[w][selected_errors]] *= bias
 
@@ -423,7 +423,7 @@ def PoissonRandomPauli(infid, mean_correlation_length, subset_fraction, qcode):
 	error_dist = CreateIIDPauli(infid, qcode)
 	# Limit the number of errors of a given weight.
 	# n_selected = np.array(comb(qcode.N, np.arange(qcode.N + 1)), dtype=np.int) * np.power(np.arange(qcode.N + 1), 2)
-	
+
 	# Generate a Poisson distribution for probability of an error having a weight w.
 	weight_dist = poisson.pmf(np.arange(1 + qcode.N, dtype=np.int), mean_correlation_length)
 	# Set the probability of the identity error to be 1 - infid.
@@ -431,7 +431,7 @@ def PoissonRandomPauli(infid, mean_correlation_length, subset_fraction, qcode):
 	# Force the total probabilities of errors of weights w > 0 to be equal to infid.
 	weight_dist[1:] = infid * weight_dist[1:] / np.sum(weight_dist[1:])
 	# print("Weight distribution: {}\nsum = {}".format(weight_dist, np.sum(weight_dist)))
-	
+
 	for w in range(1 + qcode.N):
 		# Limit the number of errors of a given weight.
 		mask = np.zeros(qcode.group_by_weight[w].size, dtype=np.int)
