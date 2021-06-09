@@ -7,11 +7,11 @@ channel pcorr
 # Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
 repr process
 # Noise rate exponents. The actual noise rate is (2/3)^exponent.
-noiserange 15,26,2;4,4,1;4,4,1;0,0,1
+noiserange 15,26,23;4,4,1;4,4,1;0,0,1
 # Scales of noise range.
 scale 0.66,1.0,1.0,1.0
 # Number of samples
-samples 6
+samples 40
 # Parameters schedule
 scheduler ./../input/schedule_pcorr_strong_Steane_l2_00.txt
 # Decoding algorithm to be used -- 0 for the maximum likelihood decoder and 1 for minimum weight decoder.
@@ -29,9 +29,9 @@ metrics infid
 # Load distribution on cores.
 cores 460,1
 # Number of nodes
-nodes 1
+nodes 2
 # Name of the host computer.
-host local
+host beluga
 # Name of the account.
 account def-jemerson
 # Batch name.

@@ -24,45 +24,32 @@ def CreatePreBatch(submit):
     The prebatch script prepares the input for a simulation.
     The channels will be generated in this script.
     """
-    if not (
-        os.path.isfile("./../input/%s/pre_%s.txt" % (submit.host, submit.timestamp))
-    ):
-        with open(
-            "./../input/%s/pre_%s.txt" % (submit.host, submit.timestamp), "w"
-        ) as pb:
-            pb.write("sbload %s\n" % (submit.timestamp))
-            pb.write("chgen\n")
-            pb.write("submit %s\n" % (submit.timestamp))
-            pb.write("quit\n")
+    with open("./../input/%s/pre_%s.txt" % (submit.host, submit.timestamp), "w") as pb:
+        pb.write("sbload %s\n" % (submit.timestamp))
+        pb.write("chgen\n")
+        pb.write("submit %s\n" % (submit.timestamp))
+        pb.write("quit\n")
 
-    if not (
-        os.path.isfile("./../input/%s/pre_%s.sh" % (submit.host, submit.timestamp))
-    ):
-        with open(
-            "./../input/%s/pre_%s.sh" % (submit.host, submit.timestamp), "w"
-        ) as pb:
-            pb.write("#!/bin/bash\n")
-            pb.write("#SBATCH --account=%s\n" % (submit.account))
-            pb.write("#SBATCH --begin=now\n")
-            pb.write("#SBATCH --time=5:00:00\n#\n")
-            pb.write("#SBATCH --ntasks-per-node=%d\n" % (gv.cluster_info[submit.host]))
-            pb.write("#SBATCH --nodes=1\n")
-            # Redirecting STDOUT and STDERR files
-            pb.write("#SBATCH -o %s/results/pre_ouptut_%%j.o\n" % (submit.outdir))
-            pb.write("#SBATCH -e %s/results/pre_errors_%%j.o\n#\n" % (submit.outdir))
-            # Email notifications
-            pb.write("#SBATCH --mail-type=ALL\n")
-            pb.write("#SBATCH --mail-user=%s\n#\n" % (submit.email))
-            # Command to be executed for each job step
-            pb.write("module load intel python scipy-stack\n")
-            pb.write("cd /project/def-jemerson/${USER}/chflow\n")
-            pb.write("./chflow.sh -- %s/pre_%s.txt\n" % (submit.host, submit.timestamp))
-        print("\033[2m-----\033[0m")
-        print(
-            "\033[2mRun the following command to generate channels.\n\tsbatch input/%s/pre_%s.sh\033[0m"
-            % (submit.host, submit.timestamp)
-        )
-        print("\033[2m-----\033[0m")
+    with open("./../input/%s/pre_%s.sh" % (submit.host, submit.timestamp), "w") as pb:
+        pb.write("#!/bin/bash\n")
+        pb.write("#SBATCH --account=%s\n" % (submit.account))
+        pb.write("#SBATCH --begin=now\n")
+        pb.write("#SBATCH --time=5:00:00\n#\n")
+        pb.write("#SBATCH --ntasks-per-node=%d\n" % (gv.cluster_info[submit.host]))
+        pb.write("#SBATCH --nodes=1\n")
+        # Redirecting STDOUT and STDERR files
+        pb.write("#SBATCH -o %s/results/pre_ouptut_%%j.o\n" % (submit.outdir))
+        pb.write("#SBATCH -e %s/results/pre_errors_%%j.o\n#\n" % (submit.outdir))
+        # Email notifications
+        pb.write("#SBATCH --mail-type=ALL\n")
+        pb.write("#SBATCH --mail-user=%s\n#\n" % (submit.email))
+        # Command to be executed for each job step
+        pb.write("module load intel python scipy-stack\n")
+        pb.write("cd /project/def-jemerson/${USER}/chflow\n")
+        pb.write("./chflow.sh -- %s/pre_%s.txt\n" % (submit.host, submit.timestamp))
+    print("\033[2m-----\033[0m")
+    print("\033[2mRun the following command to generate channels.\n\tsbatch input/%s/pre_%s.sh\033[0m" % (submit.host, submit.timestamp))
+    print("\033[2m-----\033[0m")
     return None
 
 
@@ -71,44 +58,45 @@ def CreatePostBatch(submit):
     The prebatch script prepares the input for a simulation.
     The channels will be generated in this script.
     """
-    if not (os.path.isfile("./../input/%s/post_%s.txt" % (submit.host, submit.timestamp))):
-        with open("./../input/%s/post_%s.txt" % (submit.host, submit.timestamp), "w") as pb:
-            pb.write("sbload %s\n" % (submit.timestamp))
-            pb.write("pmetrics infid\n")
-            pb.write("lpmetrics uncorr\n")
-            pb.write("quit\n")
+    with open("./../input/%s/post_%s.txt" % (submit.host, submit.timestamp), "w") as pb:
+        pb.write("sbload %s\n" % (submit.timestamp))
+        pb.write("pmetrics infid\n")
+        pb.write("lpmetrics uncorr\n")
+        pb.write("quit\n")
 
-    if not (os.path.isfile("./../input/%s/post_%s.sh" % (submit.host, submit.timestamp))):
-        with open("./../input/%s/post_%s.sh" % (submit.host, submit.timestamp), "w") as pb:
-            pb.write("#!/bin/bash\n#\n")
-            pb.write("# To run this script on the frontend/local machine, simply run: ./../input/%s/post_%s.sh\n" % (submit.host, submit.timestamp))
-            pb.write("# Or to run this script on the compute nodes, run: sbatch input/%s/post_%s.sh\n#\n" % (submit.host, submit.timestamp))
-            pb.write("#SBATCH --account=%s\n" % (submit.account))
-            pb.write("#SBATCH --begin=now\n")
-            pb.write("#SBATCH --time=5:00:00\n#\n")
-            pb.write("#SBATCH --ntasks-per-node=%d\n" % (gv.cluster_info[submit.host]))
-            pb.write("#SBATCH --nodes=1\n")
-            # Redirecting STDOUT and STDERR files
-            pb.write("#SBATCH -o %s/results/post_%%j.o\n" % (submit.outdir))
-            pb.write("#SBATCH -e %s/results/post_%%j.o\n#\n" % (submit.outdir))
-            # Email notifications
-            pb.write("#SBATCH --mail-type=ALL\n")
-            pb.write("#SBATCH --mail-user=%s\n#\n" % (submit.email))
-            # Command to be executed for each job step
-            # pb.write("module load intel/2016.4 python/3.7.0 scipy-stack/2019a\n")
-            # pb.write("cd /project/def-jemerson/pavi/chflow\n")
-            # pb.write("./chflow.sh zip beluga\n")
-            # pb.write("./chflow -- post_%s.txt\n" % (submit.timestamp))
-            pb.write("# Periodically check if the job is complete.\n")
-            pb.write("# \n")
-            pb.write("cd %s\n" % (os.path.dirname(submit.outdir)))
-            pb.write("tar -zcvf %s.tar.gz %s\n" % (os.path.basename(submit.outdir), os.path.basename(submit.outdir)))
-        print("\033[2m-----\033[0m")
-        print(
-            "\033[2mRun the following command to compute metrics and zip results.\n\tsbatch input/%s/post_%s.sh\033[0m"
-            % (submit.host, submit.timestamp)
-        )
-        print("\033[2m-----\033[0m")
+    with open("./../input/%s/post_%s.sh" % (submit.host, submit.timestamp), "w") as pb:
+        pb.write("#!/bin/bash\n#\n")
+        pb.write("# To run this script on the frontend/local machine, simply run: ./../input/%s/post_%s.sh\n" % (submit.host, submit.timestamp))
+        pb.write("# Or to run this script on the compute nodes, run: sbatch input/%s/post_%s.sh\n#\n" % (submit.host, submit.timestamp))
+        pb.write("#SBATCH --account=%s\n" % (submit.account))
+        pb.write("#SBATCH --begin=now\n")
+        pb.write("#SBATCH --time=5:00:00\n#\n")
+        pb.write("#SBATCH --ntasks-per-node=%d\n" % (gv.cluster_info[submit.host]))
+        pb.write("#SBATCH --nodes=1\n")
+        # Redirecting STDOUT and STDERR files
+        pb.write("#SBATCH -o %s/results/post_%%j.o\n" % (submit.outdir))
+        pb.write("#SBATCH -e %s/results/post_%%j.o\n#\n" % (submit.outdir))
+        # Email notifications
+        pb.write("#SBATCH --mail-type=ALL\n")
+        pb.write("#SBATCH --mail-user=%s\n#\n" % (submit.email))
+        # Command to be executed for each job step
+        # pb.write("module load intel/2016.4 python/3.7.0 scipy-stack/2019a\n")
+        # pb.write("cd /project/def-jemerson/pavi/chflow\n")
+        # pb.write("./chflow.sh zip beluga\n")
+        # pb.write("./chflow -- post_%s.txt\n" % (submit.timestamp))
+        pb.write("# Periodically check if the job is complete.\n")
+        pb.write("# \n")
+        pb.write("echo \"")
+        pb.write("cd %s;" % (os.path.dirname(submit.outdir)))
+        pb.write("tar -zcvf %s.tar.gz %s" % (os.path.basename(submit.outdir), os.path.basename(submit.outdir)))
+        pb.write("\"\n")
+        current_datetime = dt.datetime.now()
+        hours_added = dt.timedelta(hours = submit.wall)
+        future_datetime = current_datetime + hours_added
+        pb.write(" | at %s -m\n" % (dt.strftime(future_datetime, "%H:%M")))
+    print("\033[2m-----\033[0m")
+    print("\033[2mRun the following command *when the job starts running* to zip results.\n\t\033[0m" % (submit.host, submit.timestamp))
+    print("\033[2m-----\033[0m")
     return None
 
 

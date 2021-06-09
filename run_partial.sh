@@ -285,8 +285,8 @@ copy_output() {
 	printf "\033[0m"
 }
 
-timestamps=("${pcorr_strong_Steane_level2[@]}")
-alphas=("${alphas_pcorr_strong_Steane_level2[@]}")
+timestamps=("${pcorr_limited_Steane_level2[@]}")
+alphas=("${alphas_pcorr_limited_Steane_level2[@]}")
 log=pcorr_strong
 refts=${timestamps[0]}
 
@@ -581,11 +581,11 @@ elif [[ "$1" == "plot" ]]; then
 	# echo "nrplot 0 0 ${joined_timestamps%?}" >> input/temp.txt
 	# echo "dciplot infid infid ${joined_timestamps%?} 0;36;1" >> input/temp.txt
 	# echo "mcplot infid infid 0 0 ${joined_timestamps%?}" >> input/temp.txt
-	# echo "hamplot infid${joined_uncorr} infid ${joined_timestamps%?} 7,16 1,1 10" >> input/temp.txt
-	# echo "notes infid${joined_uncorr} infid pcorr partialham /Users/pavi/Documents/rclearn/notes/paper/figures/scatter_styles 1" >> input/temp.txt
+	echo "hamplot infid${joined_uncorr} infid ${joined_timestamps%?} 7,16 1,1 15" >> input/temp.txt
+	echo "notes infid${joined_uncorr} infid pcorr partialham /Users/pavi/Documents/rclearn/notes/paper/figures/scatter_styles 1" >> input/temp.txt
 	# Scatter plot of infid and first alpha.
-	echo "sbload ${timestamps[0]}" > input/temp.txt
-	echo "hamplot infid,uncorr infid ${timestamps[1]} 7,8 1,1 10" >> input/temp.txt
+	# echo "sbload ${timestamps[0]}" > input/temp.txt
+	echo "hamplot infid,uncorr infid ${timestamps[1]} 7,8 1,1 15" >> input/temp.txt
 	echo "notes infid,uncorr infid pcorr hamplot /Users/pavi/Documents/rclearn/notes/paper/figures/scatter_styles 2" >> input/temp.txt
 	echo "quit" >> input/temp.txt
 	./chflow.sh -- temp.txt

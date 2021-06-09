@@ -281,15 +281,16 @@ def AdversarialRandomPauli(infid, max_weight, qcode):
 	# Boost rates of multiqubit errors, from those prescribed by the i.i.d model.
 	mean_probs_by_weight = np.zeros(1 + max_weight, dtype=np.double)
 	mean_probs_by_weight[0] = iid_error_dist[0]
+	subset_fraction = np.random.uniform(0, 1)
 	for w in range(1, 1 + max_weight):
-		mean_probs_by_weight[w] = np.mean(iid_error_dist[qcode.group_by_weight[w]])
+		mean_probs_by_weight[w] = np.sum(iid_error_dist[qcode.group_by_weight[w]])
 		# Boost the probability of multi-qubit errors.
 		if w == 1:
-			boost = np.power(1/infid, 0.4)
+			boost = np.power(1/infid, 0.1)
 		elif w == 2:
-			boost = np.power(1/infid, 0.6 * w)
+			boost = np.power(1/infid, 0.4 * w)
 		else:
-			boost = np.power(1/infid, 0.7 * w)
+			boost = np.power(1/infid, 0.4 * w)
 		
 		bias = boost * mean_probs_by_weight[w - 1] / mean_probs_by_weight[w]
 		# bias = mean_probs_by_weight[w - 1] / mean_probs_by_weight[w]
@@ -300,10 +301,9 @@ def AdversarialRandomPauli(infid, max_weight, qcode):
 		# print("w = {}\nqcode.group_by_weight[w]\n{}\n{} correctable errors\nis_correctable_errors: {}".format(w, qcode.group_by_weight[w], qcode.PauliCorrectableIndices.size, is_correctable_errors))
 
 		# Choose the fraction of correctable errors whose probability should be boosted
-		subset_fraction = 1 # boost all weight-1 error probabilities, since they are all correctable.
-		if (w > 1):
-			subset_fraction = np.random.uniform(0, 1)
-
+		if (w == 1):
+			subset_fraction = 1 # boost all weight-1 error probabilities, since they are all correctable.
+		
 		# Choose some Anisotropic errors and isotropic errors.
 		selected_correctable_errors = np.array([], dtype = np.int)
 		if (np.count_nonzero(is_correctable_errors) > 0):

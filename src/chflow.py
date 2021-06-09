@@ -625,7 +625,8 @@ if __name__ == "__main__":
 						if submit.chgen_cluster == 1:
 							cl.CreatePreBatch(submit)
 						cl.CreateLaunchScript(submit)
-						cl.CreatePostBatch(submit)
+						# cl.CreatePostBatch(submit) # There are some issues to be fixed in this script.
+						# print("Created post script")
 						cl.Usage(submit)
 					except:
 						print(
