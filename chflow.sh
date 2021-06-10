@@ -1,6 +1,6 @@
 #!/bin/bash
 
-timestamps=("pcorr_strong_Steane_l2_00")
+timestamps=("pcorr_limited_Steane_l2_00")
 
 cluster="$2"
 
