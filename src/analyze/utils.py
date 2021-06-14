@@ -49,7 +49,7 @@ def SetTickLabels(axis, scale="log", interval=1):
     # upper = np.ceil(np.log10(np.max(axis)))
     lower = OrderOfMagnitude(np.min(axis))
     upper = OrderOfMagnitude(np.max(axis))
-    print("X axis\nmin = {}, max = {}\nupper = {}, lower = {}".format(np.min(axis), np.max(axis), upper, lower))
+    # print("X axis\nmin = {}, max = {}\nupper = {}, lower = {}".format(np.min(axis), np.max(axis), upper, lower))
     if (abs(upper - lower) > 3):
         interval = max(1, interval)
         orders = np.arange(lower, upper + interval, interval)
@@ -67,9 +67,9 @@ def SetTickLabels(axis, scale="log", interval=1):
 
         interval = min(0.5, interval)
         orders = np.arange(lower, upper + 1)
-        print("orders\n{}".format(orders))
+        # print("orders\n{}".format(orders))
         ticks = np.sort(np.concatenate((np.power(0.1, -1 * orders), interval * 10 * np.power(0.1, -1 * orders[:-1]))))
-        print("ticks\n{}".format(ticks))
+        # print("ticks\n{}".format(ticks))
         if (min_base >= 5):
             ticks = ticks[1:]
         if (max_base < 5):

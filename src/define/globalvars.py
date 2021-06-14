@@ -89,14 +89,14 @@ n_line_styles = len(line_styles)
 Markers = [
     "o",  # Without RC, choose o for predictability plots
     "o",  # With RC, choose o for predictability plots
-    "+",
+    "s",
     "*",  # Diamond norm (predictability)
     "^",  # Infidelity (predictability)
     "v",
     "<",
     ">",
     "8",
-    "s",
+    "+",
     "p",
     "h",
     "H",

@@ -25,7 +25,6 @@ from analyze.utils import scientific_float, latex_float, SetTickLabels
 
 def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 	# Compare scatter for different physical metrics
-	atol = 1E-16
 	min_bin_fraction = 0.1
 	relative_paddings = [0.25, 0.5]
 
@@ -54,7 +53,8 @@ def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 		
 		# print("Number of bins for alpha = {} is {}.".format(dbses[d].decoder_fraction, collapsed_bins[d].shape[0]))
 		
-		xaxis = xaxis = np.arange(collapsed_bins[d].shape[0])
+		# xaxis = np.arange(collapsed_bins[d].shape[0])
+		xaxis = np.sqrt(collapsed_bins[d][:, 0] * collapsed_bins[d][:, 1])
 		yaxis = collapsed_bins[d][:, 3]
 		
 		if (d == 0):
@@ -90,39 +90,49 @@ def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 	ax_inset.set_ylabel("$\\Delta$", fontsize=gv.axes_labels_fontsize)
 	
 	# Axes scales
+	ax_inset.set_xscale("log")
+	ax_inset_top.set_xscale("log")
 	ax_inset.set_yscale("log")
 
 	## Ticks and ticklabels for the X-axes
 	# Bottom X-axes
-	raw_inset_ticks_bottom = (collapsed_bins[0][:, 0] + collapsed_bins[0][:, 1]) / 2
-	print("raw_inset_ticks_bottom: {}".format(raw_inset_ticks_bottom))
+	raw_inset_ticks_bottom = collapsed_bins[0][:, 0]
+	# print("raw_inset_ticks_bottom: {}".format(raw_inset_ticks_bottom))
 	(intended_bottom_ticks, __) = SetTickLabels(raw_inset_ticks_bottom)
-	print("intended_bottom_ticks: {}".format(intended_bottom_ticks))
+	# intended_bottom_ticks = raw_inset_ticks_bottom
+	# print("intended_bottom_ticks: {}".format(intended_bottom_ticks))
 	(positions_bottom, bottom_ticks) = ComputeBinPositions(intended_bottom_ticks, raw_inset_ticks_bottom)
-	print("bottom_ticks = {}".format(bottom_ticks))
-	ax_inset.set_xticks(positions_bottom[positions_bottom > -1])
-	ax_inset.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), bottom_ticks[positions_bottom > -1])), rotation=45, color=gv.Colors[0], rotation_mode="anchor", ha="left", va="baseline")
+	# print("bottom_ticks = {}".format(bottom_ticks))
+	# ax_inset.set_xticks(positions_bottom[positions_bottom > -1])
+	ax_inset.set_xticks(bottom_ticks[bottom_ticks > -1])
+	ax_inset.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), bottom_ticks[bottom_ticks > -1])), rotation=45, color=gv.Colors[0], rotation_mode="anchor", ha="left", va="baseline")
+	bottom_xlim = [np.min(raw_inset_ticks_bottom), np.max(raw_inset_ticks_bottom)]
+	ax_inset.set_xlim(*bottom_xlim)
 	# ax_inset.minorticks_off()
 	# ax_inset.set_xticks(raw_inset_ticks_bottom)
 	# ax_inset.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), raw_inset_ticks_bottom)), rotation=45, color=gv.Colors[0], rotation_mode="anchor", ha="left", va="baseline")
-	print("Inset infid ticks\n{}".format(ax_inset.get_xticks()))
-	print("-----------")
+	# print("Inset infid ticks\n{}".format(ax_inset.get_xticks()))
+	# print("-----------")
 	# Top X-axes
-	raw_inset_ticks_top = (collapsed_bins[1][:, 0] + collapsed_bins[1][:, 1]) / 2
+	raw_inset_ticks_top = collapsed_bins[1][:, 0]
 	# print("raw_inset_ticks_top: {}".format(raw_inset_ticks_top))
 	(intended_top_ticks, __) = SetTickLabels(raw_inset_ticks_top)
+	# intended_top_ticks = raw_inset_ticks_top
 	# print("intended_top_ticks: {}".format(intended_top_ticks))
 	(positions_top, top_ticks) = ComputeBinPositions(intended_top_ticks, raw_inset_ticks_top)
 	# print("top_ticks = {}".format(top_ticks))
-	ax_inset_top.set_xticks(positions_top[positions_top > -1])
-	ax_inset_top.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), top_ticks[positions_top > -1])), rotation=-45, color=gv.Colors[1], rotation_mode="anchor", ha="left", va="baseline")	
+	# ax_inset_top.set_xticks(positions_top[positions_top > -1])
+	ax_inset_top.set_xticks(top_ticks[top_ticks > -1])
+	ax_inset_top.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), top_ticks[top_ticks > -1])), rotation=-45, color=gv.Colors[1], rotation_mode="anchor", ha="left", va="baseline")	
 	# ax_inset_top.minorticks_off()
 	# ax_inset_top.set_xticks(raw_inset_ticks_top)
 	# ax_inset_top.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), raw_inset_ticks_top)), rotation=-45, color=gv.Colors[1], rotation_mode="anchor", ha="left", va="baseline")
-	print("Inset uncorr ticks\n{}".format(ax_inset_top.get_xticks()))
-	print("xxxxxxxxxxxx")
+	top_xlim = [np.min(raw_inset_ticks_top), np.max(raw_inset_ticks_top)]
+	ax_inset_top.set_xlim(*top_xlim)
+	# print("Inset uncorr ticks\n{}".format(ax_inset_top.get_xticks()))
+	# print("xxxxxxxxxxxx")
 	# return (raw_inset_ticks_bottom, raw_inset_ticks_top)
-	return (bottom_ticks, top_ticks)
+	return (bottom_ticks, top_ticks, bottom_xlim, top_xlim)
 
 
 def DoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds):
@@ -221,7 +231,7 @@ def DoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds):
 			# Inset plot
 			if (is_inset == 1):
 				if (dsets[0].channels > 50):
-					(ticks_bottom, ticks_top) = BinVariancePlot(ax_bottom, dsets, l, lmet, pmets, nbins, include)
+					(ticks_bottom, ticks_top, bottom_xlim, top_xlim) = BinVariancePlot(ax_bottom, dsets, l, lmet, pmets, nbins, include)
 				# BinVariancePlot(ax_bottom, dsets, l, lmet, pmets, nbins, include)
 			
 			## Axes labels
@@ -245,17 +255,21 @@ def DoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds):
 				include_ticks, = np.nonzero(ticks_bottom > -1)
 				ax_bottom.set_xticks(ticks_bottom[include_ticks])
 				ax_bottom.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), ticks_bottom[include_ticks])), rotation = 30, rotation_mode="anchor", ha="left", va="baseline")
+				ax_bottom.set_xlim(*bottom_xlim)
 				# ax_bottom.minorticks_off()
 	
 			print("Infid ticks\n{}".format(ax_bottom.get_xticks()))
+
 			if ticks_top is not None:
 				# Locations and labels for the top X-axis ticks
 				include_ticks, = np.nonzero(ticks_top > -1)
 				ax_top.set_xticks(ticks_top[include_ticks])
 				ax_top.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), ticks_top[include_ticks])), rotation = -30, rotation_mode="anchor", ha="left", va="baseline")
+				ax_top.set_xlim(*top_xlim)
 				# ax_top.minorticks_off()
 
 			print("Uncorr ticks\n{}".format(ax_top.get_xticks()))
+			
 			# Locations and labels for the Y-axis ticks
 			loc = LogLocator(base=10, numticks=10) # this locator puts ticks at regular intervals
 			ax_bottom.yaxis.set_major_locator(loc)

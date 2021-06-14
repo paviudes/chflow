@@ -62,8 +62,8 @@ if [[ $host == *"paviws"* ]]; then
 	pcorr_strong_Steane_level2=("pcorr_strong_Steane_l2_00" "pcorr_strong_Steane_l2_01" "pcorr_strong_Steane_l2_02" "pcorr_strong_Steane_l2_03" "pcorr_strong_Steane_l2_04")
 	alphas_pcorr_strong_Steane_level2=(0 0.0005 0.0014 0.013 1)
 
-	pcorr_limited_Steane_level2=("pcorr_limited_Steane_l2_00" "pcorr_limited_Steane_l2_01" "pcorr_limited_Steane_l2_02" "pcorr_limited_Steane_l2_03")
-	alphas_pcorr_limited_Steane_level2=(0 0.0014 0.013 1)
+	pcorr_limited_Steane_level2=("pcorr_limited_Steane_l2_00" "pcorr_limited_Steane_l2_01" "pcorr_limited_Steane_l2_02" "pcorr_limited_Steane_l2_03" "pcorr_limited_Steane_l2_04" "pcorr_limited_Steane_l2_05")
+	alphas_pcorr_limited_Steane_level2=(0 0.00065 0.00310 0.00615 0.01225 1)
 
 	pcorr_strong_Steane_level3=("pcorr_strong_Steane_l3_00" "pcorr_strong_Steane_l3_01" "pcorr_strong_Steane_l3_02" "pcorr_strong_Steane_l3_03" "pcorr_strong_Steane_l3_04")
 	alphas_pcorr_strong_Steane_level3=(0 0.0005 0.0014 0.013 1)
@@ -154,6 +154,9 @@ if [[ -n ${cluster} ]]; then
 
 	pcorr_strong_Steane_level3=("pcorr_strong_Steane_l3_00" "pcorr_strong_Steane_l3_01" "pcorr_strong_Steane_l3_02" "pcorr_strong_Steane_l3_03")
 	alphas_pcorr_strong_Steane_level3=(0 0.0014 0.013 1)
+
+	pcorr_limited_Steane_level2=("pcorr_limited_Steane_l2_00" "pcorr_limited_Steane_l2_01" "pcorr_limited_Steane_l2_02" "pcorr_limited_Steane_l2_03" "pcorr_limited_Steane_l2_04")
+	alphas_pcorr_limited_Steane_level2=(0 0.00153 0.00615 0.01225 1)
 fi
 
 fastdelete() {
@@ -208,6 +211,35 @@ usage() {
 	printf "\033[2m"
 	echo -e "where, command can be one of"
 	echo -e "generate, overwrite, zip, from_cluster, pmetrics, plot, schedule_copy, filter, gdrive, archive, chmod"
+	printf "\033[0m"
+}
+
+delete_timestamp() {
+	printf "\033[2m"
+	if [ -d ${outdir}/${ts}/physical ]; then
+		echo "removing ${outdir}/${1}/physical/*"
+		fastdelete ${outdir}/${1}/physical/
+	else
+		echo "No physical found in ${outdir}/${1}."
+	fi
+	if [ -d ${outdir}/${1}/channels ]; then
+		echo "removing ${outdir}/${1}/channels/*"
+		fastdelete ${outdir}/${1}/channels/
+	else
+		echo "No channels found in ${outdir}/${1}."
+	fi
+	if [ -d ${outdir}/${1}/metrics ]; then
+		echo "removing ${outdir}/${1}/metrics/*"
+		fastdelete ${outdir}/${1}/metrics/
+	else
+		echo "No metrics found in ${outdir}/${1}."
+	fi
+	if [ -d "${outdir}/${1}/results" ]; then
+		echo "removing ${outdir}/${1}/results/*"
+		rm ${outdir}/${1}/results/*.npy
+	else
+		echo "No results found in ${outdir}/${1}."
+	fi
 	printf "\033[0m"
 }
 
@@ -406,8 +438,15 @@ elif [[ "$1" == "generate_decoder" ]]; then
 	generate_decoder
 
 elif [[ "$1" == "clone" ]]; then
+	for (( t=1; t<${#timestamps[@]}; ++t )); do
+		ts=${timestamps[t]}
+		printf "\033[2m"
+		echo "Removing ${ts}"
+		printf "\033[0m"
+		delete_timestamp ${ts}
+	done
 	generate_decoder
-	copy_output	
+	copy_output
 
 elif [[ "$1" == "archive" ]]; then
 	printf "\033[2m"
@@ -495,7 +534,8 @@ elif [[ "$1" == "pmetrics" ]]; then
 	# Compute physical infidelity for all channels.
 	printf "\033[2m"
 	touch input/temp.txt
-	for (( t=0; t<${#timestamps[@]}; ++t )); do
+	# for (( t=0; t<${#timestamps[@]}; ++t )); do
+	for (( t=0; t<1; ++t )); do
 		ts=${timestamps[t]}
 		echo "sbload ${ts}" >> input/temp.txt
 		echo "pmetrics infid" >> input/temp.txt
@@ -515,30 +555,7 @@ elif [[ "$1" == "delete" ]]; then
 	printf "\033[2m"
 	for (( t=0; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
-		if [ -d ${outdir}/${ts}/physical ]; then
-			echo "removing ${outdir}/${ts}/physical/*"
-			fastdelete ${outdir}/${ts}/physical/
-		else
-			echo "No physical found in ${outdir}/${ts}."
-		fi
-		if [ -d ${outdir}/${ts}/channels ]; then
-			echo "removing ${outdir}/${ts}/channels/*"
-			fastdelete ${outdir}/${ts}/channels/
-		else
-			echo "No channels found in ${outdir}/${ts}."
-		fi
-		if [ -d ${outdir}/${ts}/metrics ]; then
-			echo "removing ${outdir}/${ts}/metrics/*"
-			fastdelete ${outdir}/${ts}/metrics/
-		else
-			echo "No metrics found in ${outdir}/${ts}."
-		fi
-		if [ -d "${outdir}/${ts}/results" ]; then
-			echo "removing ${outdir}/${ts}/results/*"
-			rm ${outdir}/${ts}/results/*.npy
-		else
-			echo "No results found in ${outdir}/${ts}."
-		fi
+		delete_timestamp ${ts}
 		echo "-----"
 	done
 	printf "\033[0m"
@@ -552,6 +569,7 @@ elif [[ "$1" == "lpmetrics" ]]; then
 		ts=${timestamps[t]}
 		echo "sbload ${ts}" >> input/temp_${t}.txt
 		echo "lpmetrics uncorr" >> input/temp_${t}.txt
+		echo "collect" >> input/temp_${t}.txt
 		echo "quit" >> input/temp_${t}.txt
 		echo "./chflow.sh -- temp_${t}.txt" >> input/${log}_lpmetrics_timestamps.txt
 	done
@@ -581,12 +599,12 @@ elif [[ "$1" == "plot" ]]; then
 	# echo "nrplot 0 0 ${joined_timestamps%?}" >> input/temp.txt
 	# echo "dciplot infid infid ${joined_timestamps%?} 0;36;1" >> input/temp.txt
 	# echo "mcplot infid infid 0 0 ${joined_timestamps%?}" >> input/temp.txt
-	# echo "hamplot infid${joined_uncorr} infid ${joined_timestamps%?} 7,16 1,1 15" >> input/temp.txt
-	# echo "notes infid${joined_uncorr} infid pcorr partialham /Users/pavi/Documents/rclearn/notes/paper/figures/scatter_styles 1" >> input/temp.txt
+	echo "hamplot infid${joined_uncorr} infid ${joined_timestamps%?} 7,11 1,1 10" >> input/temp.txt
+	echo "notes infid${joined_uncorr} infid pcorr partialham /Users/pavi/Documents/rclearn/notes/paper/figures/scatter_styles 1" >> input/temp.txt
 	# Scatter plot of infid and first alpha.
-	echo "sbload ${timestamps[0]}" > input/temp.txt
-	echo "hamplot infid,uncorr infid ${timestamps[1]} 7,16 1,1 15" >> input/temp.txt
-	echo "notes infid,uncorr infid pcorr hamplot /Users/pavi/Documents/rclearn/notes/paper/figures/scatter_styles 2" >> input/temp.txt
+	# echo "sbload ${timestamps[0]}" > input/temp.txt
+	# echo "hamplot infid,uncorr infid ${timestamps[1]} 7,11 1,1 10" >> input/temp.txt
+	# echo "notes infid,uncorr infid pcorr hamplot /Users/pavi/Documents/rclearn/notes/paper/figures/scatter_styles 2" >> input/temp.txt
 	echo "quit" >> input/temp.txt
 	./chflow.sh -- temp.txt
 	rm input/temp.txt

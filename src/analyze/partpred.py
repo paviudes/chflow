@@ -26,7 +26,7 @@ def PartialNRPlot(logmet, pmets, dsets, inset_flag, nbins, thresholds):
 	# Compare the effect of p_u + RC on predictability.
 	# Plot no RC with infid and RC with p_u.
 	# pmets = list(map(lambda phy: phy.strip(" "), phymets.split(",")))
-	min_bin_fraction = 0.1
+	min_bin_fraction = 1
 	level = dsets[0].levels
 	ndb = len(dsets)
 	plotfname = PartialHammerPlotFile(dsets[0], logmet, pmets)
@@ -38,7 +38,8 @@ def PartialNRPlot(logmet, pmets, dsets, inset_flag, nbins, thresholds):
 		phyerrs = np.zeros((ndb, dsets[0].channels), dtype=np.double)
 		logerrs = np.zeros((ndb, dsets[0].channels), dtype=np.double)
 		collapsed_bins = [None for d in range(ndb)]
-		relative_paddings = [0.25, 1]
+		relative_paddings = [1, 1]
+		
 		for d in range(ndb):
 			phyerrs[d, :] = LoadPhysicalErrorRates(dsets[d], pmets[d], None, level)
 			logerrs[d, :] = np.load(LogicalErrorRates(dsets[d], logmet))[:, level]
@@ -47,30 +48,62 @@ def PartialNRPlot(logmet, pmets, dsets, inset_flag, nbins, thresholds):
 			# print("Getting X cutoff for alpha = {} level = {}".format(dsets[d].decoder_fraction, level))
 			xcutoff = GetXCutOff(phyerrs[d, :], np.load(LogicalErrorRates(dsets[d], logmet))[:, level], thresholds[level - 1], nbins=50, space="log")
 			include = np.nonzero(np.logical_and(phyerrs[d, :] >= xcutoff["left"], phyerrs[d, :] <= xcutoff["right"]))[0]
-			
 			# Bin the X-axis and record the averages
 			bins = ComputeBinVariance(phyerrs[d, include], logerrs[d, include], space="log", nbins=nbins)
 			collapsed_bins[d] = CollapseBins(bins, min_bin_fraction * dsets[d].channels / nbins)
 			print("Number of bins for alpha = {} is {}.".format(dsets[d].decoder_fraction, collapsed_bins[d].shape[0]))
 		
+		# Compute the uncorr data with minimum width
+		# max_width_uncorr = 1 + np.argmin([np.min(collapsed_bins[d][:, 0])/np.max(collapsed_bins[d][:, 0]) for d in range(1, len(collapsed_bins))])
+		uncorr_widths = np.zeros(ndb - 1, dtype = np.double)
+		for d in range(1, ndb):
+			xaxis = np.sqrt(collapsed_bins[d][:, 0] * collapsed_bins[d][:, 1])
+			uncorr_widths[d - 1] = np.max(xaxis) - np.min(xaxis)
+		# max_width_uncorr = 1 + np.argmax(uncorr_widths)
+		max_width_uncorr = 1
+
+		print("max_width_uncorr = {}\n{}".format(max_width_uncorr, [np.min(collapsed_bins[d][:, 0])/np.max(collapsed_bins[d][:, 0]) for d in range(1, len(collapsed_bins))]))
+		##### Explicitly set the X-cutoff for uncorr
+		# xcutoff_uncorr = {"left": np.min(collapsed_bins[max_width_uncorr][:, 0]), "right": np.max(collapsed_bins[max_width_uncorr][:, 0])}
+		xcutoff_uncorr = {"left": 4E-7, "right": 5E-3}
+		##### Explicitly set the X-cutoff for infid
+		xcutoff_infid = {"left": 3E-3, "right": 8E-2}
+		#####
+		
+		reference_uncorr_width = uncorr_widths[max_width_uncorr - 1]
+		for d in range(ndb):
 			# Plot the scatter metric with the bin averages
-			xaxis = np.arange(collapsed_bins[d].shape[0])
+			xaxis = np.sqrt(collapsed_bins[d][:, 0] * collapsed_bins[d][:, 1])
+			if (d > 0):
+				# uncorr_width = np.max(collapsed_bins[d][:, 0]) - np.min(collapsed_bins[d][:, 0])
+				ratio = reference_uncorr_width / uncorr_widths[d - 1]
+				xaxis = np.min(np.sqrt(collapsed_bins[max_width_uncorr][:, 0] * collapsed_bins[max_width_uncorr][:, 1])) + (xaxis - np.min(xaxis)) * ratio
+
 			yaxis = collapsed_bins[d][:, 3]
 			if (d == 0):
 				# Plot the scatter metric for the infid plot
 				current_axes = ax_infid
 				current_axes.xaxis.tick_top()
 				current_axes.xaxis.set_label_position('top')
+				focus, = np.nonzero(np.logical_and(xaxis >= xcutoff_infid["left"], xaxis < xcutoff_infid["right"]))
 			else:
 				# Plot the scatter metric for the uncorr plot
 				current_axes = ax_uncorr
 				current_axes.xaxis.tick_bottom()
 				current_axes.xaxis.set_label_position('bottom')
-
-			current_axes.plot(xaxis[1:-1], yaxis[1:-1], marker=gv.Markers[d % gv.n_Markers], color=gv.Colors[d % gv.n_Colors], linestyle="-", linewidth=gv.line_width, markersize=gv.marker_size, alpha=0.75)
+				focus, = np.nonzero(np.logical_and(xaxis >= xcutoff_uncorr["left"], xaxis < xcutoff_uncorr["right"]))
+			
+			current_axes.plot(xaxis[focus], yaxis[focus], marker=gv.Markers[d % gv.n_Markers], color=gv.Colors[d % gv.n_Colors], linestyle="-", linewidth=gv.line_width, markersize=gv.marker_size, alpha=0.75)
 			
 			# Empty plot for the legend.
-			ax_infid.plot([], [], marker=gv.Markers[d % gv.n_Markers], color=gv.Colors[d % gv.n_Colors], linestyle="-", linewidth=gv.line_width, markersize=gv.marker_size, alpha=0.75, label = "$\\alpha = %g$" % (dsets[d].decoder_fraction))
+			n_errors = int(dsets[d].decoder_fraction * np.power(4, dsets[0].eccs[0].N))
+			if (n_errors == 0):
+				label = ml.Metrics["infid"]["latex"]
+			elif (n_errors == np.power(4, dsets[0].eccs[0].N)):
+				label = "All NR data"
+			else:
+				label = "$K = %d$" % (n_errors)
+			ax_infid.plot([], [], marker=gv.Markers[d % gv.n_Markers], color=gv.Colors[d % gv.n_Colors], linestyle="-", linewidth=gv.line_width, markersize=gv.marker_size, alpha=0.75, label = label)
 
 			# Tick parameters for both axes
 			current_axes.tick_params(
@@ -80,7 +113,7 @@ def PartialNRPlot(logmet, pmets, dsets, inset_flag, nbins, thresholds):
 				direction="inout",
 				length=gv.ticks_length,
 				width=gv.ticks_width,
-				labelsize=gv.ticks_fontsize,
+				labelsize=1.5 * gv.ticks_fontsize,
 			)
 			print("Plot done for alpha = {}".format(dsets[d].decoder_fraction))
 
@@ -88,39 +121,51 @@ def PartialNRPlot(logmet, pmets, dsets, inset_flag, nbins, thresholds):
 		ax_infid.grid(which="major")
 		
 		# Axes labels
-		ax_infid.set_xlabel(ml.Metrics[pmets[0]]["latex"], fontsize=gv.axes_labels_fontsize, labelpad=0.6, color="0.4")
-		ax_uncorr.set_xlabel("Critical parameter computed from NR data", fontsize=gv.axes_labels_fontsize, labelpad=1, color="red")
-		ax_infid.set_ylabel("$\\Delta$", fontsize=gv.axes_labels_fontsize)
+		ax_infid.set_xlabel(ml.Metrics[pmets[0]]["latex"], fontsize=1.5 * gv.axes_labels_fontsize, labelpad=0.6, color="0.4")
+		ax_uncorr.set_xlabel("Critical parameter computed from NR data", fontsize=1.5 * gv.axes_labels_fontsize, labelpad=1, color="red")
+		ax_infid.set_ylabel("$\\Delta$", fontsize=1.5 * gv.axes_labels_fontsize)
 		
 		# Axes scales
+		ax_infid.set_xscale("log")
+		ax_uncorr.set_xscale("log")
 		ax_infid.set_yscale("log")
 
 		## Ticks and ticklabels for the X-axes
-		# Bottom X-axes
-		raw_inset_ticks_bottom = (collapsed_bins[0][:, 0] + collapsed_bins[0][:, 1]) / 2
-		print("raw_inset_ticks_bottom: {}".format(raw_inset_ticks_bottom))
-		(intended_bottom_ticks, __) = SetTickLabels(raw_inset_ticks_bottom)
-		# print("intended_bottom_ticks: {}".format(intended_bottom_ticks))
-		(positions_bottom, bottom_ticks) = ComputeBinPositions(intended_bottom_ticks, raw_inset_ticks_bottom)
-		print("bottom_ticks = {}".format(bottom_ticks))
-		ax_infid.set_xticks(positions_bottom[positions_bottom > -1])
-		ax_infid.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), bottom_ticks[positions_bottom > -1])), rotation=45, color=gv.Colors[0], rotation_mode="anchor", ha="left", va="baseline")
-		print("Infid ticks\n{}".format(list(ax_infid.get_xticklabels())))
-		print("-----------")
-		# Top X-axes
-		raw_inset_ticks_top = (collapsed_bins[-1][:, 0] + collapsed_bins[-1][:, 1]) / 2
-		print("raw_inset_ticks_top: {}".format(raw_inset_ticks_top))
-		(intended_top_ticks, __) = SetTickLabels(raw_inset_ticks_top)
-		# print("intended_top_ticks: {}".format(intended_top_ticks))
-		(positions_top, top_ticks) = ComputeBinPositions(intended_top_ticks, raw_inset_ticks_top)
-		# print("top_ticks = {}".format(top_ticks))
-		ax_uncorr.set_xticks(positions_top[positions_top > -1])
-		ax_uncorr.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), top_ticks[positions_top > -1])), rotation=-45, color=gv.Colors[1], rotation_mode="anchor", ha="left", va="baseline")	
-		print("Uncorr ticks\n{}".format(ax_uncorr.get_xticks()))
-		print("xxxxxxxxxxxx")
+		# Infid X-axes
+		raw_inset_ticks_infid = collapsed_bins[0][:, 0]
+		print("raw_inset_ticks_infid: {}".format(raw_inset_ticks_infid))
+		(intended_infid_ticks, __) = SetTickLabels(raw_inset_ticks_infid)
+		print("intended_infid_ticks: {}".format(intended_infid_ticks))
+		(positions_infid, infid_ticks) = ComputeBinPositions(intended_infid_ticks, raw_inset_ticks_infid)
+		print("infid_ticks = {}".format(infid_ticks))
+		ax_infid.set_xticks(infid_ticks[infid_ticks > -1])
+		ax_infid.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), infid_ticks[infid_ticks > -1])), rotation=45, color=gv.Colors[0], rotation_mode="anchor", ha="left", va="baseline", fontsize = 1.5 * gv.ticks_fontsize)
+		# print("Infid ticks\n{}".format(list(ax_infid.get_xticklabels())))
+		# print("-----------")
+		# infid_xlim = [np.min(raw_inset_ticks_infid), np.max(raw_inset_ticks_infid)]
+		infid_xlim = [xcutoff_infid["left"], xcutoff_infid["right"]]
+		ax_infid.set_xlim(*infid_xlim)
 		
+		# uncorr_bins = [collapsed_bins[d][:, 0] for d in range(1, len(collapsed_bins))]
+		# max_width_uncorr = 1 + np.argmin([(np.max(collapsed_bins[d][:, 0]) - np.min(collapsed_bins[d][:, 0])) for d in range(1, len(collapsed_bins))])
+		# Uncorr X-axes
+		# raw_inset_ticks_uncorr = np.sort(np.concatenate(tuple(uncorr_bins)))
+		raw_inset_ticks_uncorr = collapsed_bins[max_width_uncorr][:, 0]
+		# print("raw_inset_ticks_uncorr: {}".format(raw_inset_ticks_uncorr))
+		(intended_uncorr_ticks, __) = SetTickLabels(raw_inset_ticks_uncorr)
+		# print("intended_uncorr_ticks: {}".format(intended_uncorr_ticks))
+		(positions_uncorr, uncorr_ticks) = ComputeBinPositions(intended_uncorr_ticks, raw_inset_ticks_uncorr)
+		# print("uncorr_ticks = {}".format(uncorr_ticks))
+		ax_uncorr.set_xticks(uncorr_ticks[uncorr_ticks > -1])
+		ax_uncorr.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), uncorr_ticks[uncorr_ticks > -1])), rotation=-45, color=gv.Colors[1], rotation_mode="anchor", ha="left", va="baseline", fontsize = 1.5 * gv.ticks_fontsize)
+		# print("Uncorr ticks\n{}".format(ax_uncorr.get_xticks()))
+		# print("xxxxxxxxxxxx")
+		# uncorr_xlim = [np.min(raw_inset_ticks_uncorr), np.max(raw_inset_ticks_uncorr)]
+		uncorr_xlim = [xcutoff_uncorr["left"], xcutoff_uncorr["right"]]
+		ax_uncorr.set_xlim(*uncorr_xlim)
+
 		# Legend
-		ax_infid.legend(numpoints=1, loc="upper right", shadow=True, fontsize=gv.legend_fontsize, markerscale=gv.legend_marker_scale)
+		ax_infid.legend(numpoints=1, loc="center right", shadow=True, fontsize=1.25 * gv.legend_fontsize, markerscale=gv.legend_marker_scale)
 
 		# Save the plot
 		fig.tight_layout(pad=5)

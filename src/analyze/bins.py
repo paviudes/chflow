@@ -238,18 +238,22 @@ def PlotBinVarianceMetrics(ax_principal, dbs, level, lmet, pmets, nbins, include
 		)
 	return None
 
-def ComputePositionOnSegment(left, right, point):
+def ComputePositionOnSegment(left, right, point, scale="log"):
 	# Compute the relative position of the point on the line segment between two points.
-	offset = (point - left)/(right - left)
+	if scale == "log":
+		offset = (np.log10(point) - np.log10(left))/(np.log10(right) - np.log10(left))
+	else:
+		offset = (point - left)/(right - left)
 	return offset
 
 
 def ComputeBinPositions(principal, inset):
 	# Given two arrays, compute the position of the elements in the second array in the first array.
-	# print("Function: ComputeBinPositions\nPrincipal: {}\ninset: {}".format(principal, inset))
+	print("Function: ComputeBinPositions\nIntended: {}\nRaw: {}".format(principal, inset))
 	sorted_inset = np.sort(inset)
 	sorted_principal = np.sort(principal)
 	positions = np.zeros(len(principal), dtype = np.double)
+	not_found = 0
 	for l in range(len(sorted_principal)):
 		found_index = 0
 		while (sorted_principal[l] > sorted_inset[found_index]):
@@ -260,11 +264,15 @@ def ComputeBinPositions(principal, inset):
 		# print("found_index = {}, len(sorted_inset) = {}".format(found_index, len(sorted_inset)))
 
 		if (found_index == (len(sorted_inset) - 1)):
-			positions[l] = -1
-			sorted_principal[l] = -1
+			if (not_found == 0):
+				not_found = 1
+				positions[l] = found_index
+			else:
+				positions[l] = -1
+				sorted_principal[l] = -1
 		else:
 			positions[l] = found_index + ComputePositionOnSegment(sorted_inset[found_index], sorted_inset[found_index + 1], sorted_principal[l])
-	# print("positions\n{}\nsorted_principal: {}".format(positions, sorted_principal))
+	print("positions\n{}\nsorted_principal: {}".format(positions, sorted_principal))
 	# If two ticks are close by, assign the second one's position to -1.
 	for l in range(len(positions) - 1):
 		if abs(positions[l + 1] - positions[l]) <= 0.5:
@@ -577,7 +585,7 @@ def ComputeBinVariance(xdata, ydata, nbins=10, space="log", binfile=None, submit
 	# 			npoints is the number of physical error rates in the bin
 	# 			var is the variance of logical error rates in the bin.
 	# print("xdata\n{} to {}".format(np.min(xdata), np.max(xdata)))
-	atol = 1E-16
+	atol = 1E-10
 	bins = np.zeros((nbins - 1, 8), dtype=np.longdouble)
 	if space == "log":
 		window = np.logspace(

@@ -124,6 +124,23 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, nr_weights_all = None
 				indices_picked = errors_wtw[np.argsort(chan_probs[errors_wtw])[-nerrors_weight[w]:]]
 				leading_paulis[start:stop] = indices_picked[:]
 				start = stop
+	else:
+		pass
+
+	"""
+	##### Print cases where weight 2 errors are found in the leading alpha.
+	if (lead_frac == 0.0014):
+		if not np.all(np.in1d(leading_paulis, np.concatenate((qcode.group_by_weight[0], qcode.group_by_weight[1])))):
+			print("Weight - 1 violation.\n")
+			print("leading_paulis\n{}\nweight 1 errors:\n{}".format(np.sort(leading_paulis), np.sort(np.concatenate((qcode.group_by_weight[0], qcode.group_by_weight[1])))))
+	elif (lead_frac == 0.013):
+		if not np.all(np.in1d(np.sort(leading_paulis), np.sort(np.concatenate((qcode.group_by_weight[0], qcode.group_by_weight[1], qcodes[0].group_by_weight[2]))))):
+			print("Weight - 2 violation.")
+	else:
+		pass
+	#####
+	"""
+
 	return (1 - chan_probs[0], leading_paulis, chan_probs[leading_paulis])
 
 
