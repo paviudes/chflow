@@ -79,7 +79,7 @@ except ImportError:
 # Functions from other modules.
 from define import globalvars as gv
 from define.verifychans import IsQuantumChannel
-from define.submission import Submission, PrintSub, MergeSubs, Select
+from define.submission import Submission, PrintSub, Select
 from define.utils import LoadTimeStamp, IsNumber
 from define.save import SavePhysicalChannels, Save, Schedule, PrepOutputDir
 from define.load import LoadSub
@@ -198,7 +198,7 @@ if __name__ == "__main__":
 			"Create a new submission of channels to be simulated.",
 			"load [s1(string)]\n\twhere s1 either a time stamp specifying a submission or a file containing parameters. If no inputs are given, the user will be prompted on the console.",
 		],
-		"sbmerge": [
+		"merge": [
 			"Merge the results from two or more simulations.",
 			"merge s(string) s1(string)[,s2(string),s3(string)...]\nwhere s is a name of the merged submission and s1, s2,... are names of the simulations to be merged.",
 		],
@@ -567,14 +567,19 @@ if __name__ == "__main__":
 		#####################################################################
 
 		elif user[0] == "merge":
+			newname = None
 			second_submit = Submission()
 			exists = LoadSub(second_submit, user[1], 1)
 			if exists == 1:
-				merged = MergeSubs(submit, second_submit)
+				if len(user) > 2:
+					newname = user[2].strip(" ").strip("\n")
+				start = time.time()
+				merged = MergeSubs(newname, submit, second_submit)
 				print(
 					"\033[2mMerged dataset is identified with the timestamp %s.\033[0m"
 					% (merged)
 				)
+				print("Total time: {} seconds.".format(time.time() - start))
 			else:
 				print(
 					"\033[2mData set with time stamp %s doesn't exist.\033[0m"

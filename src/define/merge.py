@@ -1,14 +1,15 @@
 import os
 import time
 import numpy as np
+from tqdm import tqdm
 from shutil import copyfile
 from define.submission import Submission
 from define.utils import LoadTimeStamp
 from define.save import Save, Schedule, PrepOutputDir
-from define.fnames import PhysicalChannel, LogicalChannel, LogicalErrorRate
+from define.fnames import PhysicalChannel, LogicalChannel, LogicalErrorRate, RawPhysicalChannel, NRWeightsFile
 
 
-def MergeSubs(*submits):
+def MergeSubs(newname, *submits):
     """
     Merge a bunch of submissions, to create a larger one with more channels.
     The submissions being merged should have the same:
@@ -17,20 +18,12 @@ def MergeSubs(*submits):
     """
     combined_submit = Submission()
     combined_submit.outdir = submits[0].outdir
-    LoadTimeStamp(
-        combined_submit,
-        time.strftime("%d/%m/%Y %H:%M:%S")
-        .replace("/", "_")
-        .replace(":", "_")
-        .replace(" ", "_"),
-    )
+    if newname is None:
+        newname = time.strftime("%d/%m/%Y %H:%M:%S").replace("/", "_").replace(":", "_").replace(" ", "_")
+    LoadTimeStamp(combined_submit, newname)
     PrepOutputDir(combined_submit)
 
-    # print(
-    #     "submits[0].outdir = {}\ncombined_submit.outdir = {}".format(
-    #         submits[0].outdir, combined_submit.outdir
-    #     )
-    # )
+    print("submits[0].outdir = {}\ncombined_submit.outdir = {}".format(submits[0].outdir, combined_submit.outdir))
 
     # folders associated with a submission: input, channels, metrics, results, physical.
     combined_submit.noiserange = None
@@ -40,33 +33,31 @@ def MergeSubs(*submits):
     merged_rates = []
     combined_submit.samps = max(submits[0].samps, submits[1].samps)
     visited = np.zeros(submits[1].noiserates.shape[0], dtype=np.int)
-    for i in range(submits[0].noiserates.shape[0]):
+    for i in tqdm(range(submits[0].noiserates.shape[0]), ascii=True, desc="Merging channels:"):
         # Is rate[i] in the second matrix?
         # If yes: combine the samples. and set visited[j] = 1
         # If no: then add rate[i] to merged.
         # Add all rate[j] to merged for which visited[j] = 0.
-        arg_found = -1
-        for j in range(submits[1].noiserates.shape[0]):
-            if np.allclose(submits[0].noiserates[i], submits[1].noiserates[j]) == 1:
-                arg_found = j
-                break
+        # for j in range(submits[1].noiserates.shape[0]):
+        #     if np.allclose(submits[0].noiserates[i], submits[1].noiserates[j]) == 1:
+        #         arg_found = j
+        #         break
+        args_found = np.argwhere([np.allclose(rate, submits[0].noiserates[i]) for rate in submits[1].noiserates])[0]
+        if len(args_found) == 0:
+            arg_found = -1
+        else:
+            arg_found = args_found[0]
         if arg_found > -1:
             # print("Overlapping noise rate: {}".format(submits[0].noiserates[i, :]))
             visited[arg_found] = 1
             # Add to merged rates.
             merged_rates.append(submits[0].noiserates[i])
             # Combine samples of rate[i] from db[0] and rate[arg_found] from db[1]
-            combined = CombinePhysicalChannels(submits, i, arg_found)
-            if combined_submit.samps < combined.shape[0]:
-                combined_submit.samps = combined.shape[0]
-            # Save combined into its new location.
-            fname = PhysicalChannel(combined_submit, submits[0].noiserates[i, :])
-            np.save(fname, combined)
+            start = time.time()
+            CombinePhysicalChannels(submits, i, arg_found, combined_submit)
             # Copy the logical channels and metrics in db[0] for rate[i].
             CopyElements(submits[0], combined_submit, [i], sample_offset=0)
-            CopyElements(
-                submits[1], combined_submit, [arg_found], sample_offset=submits[0].samps
-            )
+            CopyElements(submits[1], combined_submit, [arg_found], sample_offset=submits[0].samps)
         else:
             # Add to merged rates.
             merged_rates.append(submits[0].noiserates[i])
@@ -122,12 +113,12 @@ def CopyElements(source, destn, rates, sample_offset=0):
     Copy logical channels and metrics from one dataset to another.
     """
     for i in rates:
-        # Copy the physical channel
-        if sample_offset == 0:
-            copyfile(
-                PhysicalChannel(source, source.noiserates[i, :]),
-                PhysicalChannel(destn, source.noiserates[i, :]),
-            )
+        # # Copy the physical channel
+        # if sample_offset == 0:
+        #     copyfile(
+        #         PhysicalChannel(source, source.noiserates[i, :]),
+        #         PhysicalChannel(destn, source.noiserates[i, :]),
+        #     )
         # Copy the logical channels and metrics for rate[i], from source into destn.
         for s in range(source.samps):
             copyfile(
@@ -149,11 +140,26 @@ def CopyElements(source, destn, rates, sample_offset=0):
     return None
 
 
-def CombinePhysicalChannels(submits, rateidx1, rateidx2):
+def CombinePhysicalChannels(submits, rateidx1, rateidx2, combined_submit):
     """
     Merge the physical channels from the submissions of the corresponding noise rates.
     """
-    phychans1 = np.load(PhysicalChannel(submits[0], submits[0].noiserates[rateidx1, :]))
-    phychans2 = np.load(PhysicalChannel(submits[1], submits[1].noiserates[rateidx2, :]))
-    combined = np.vstack((phychans1, phychans2))
-    return combined
+    phy_part1 = np.load(PhysicalChannel(submits[0], submits[0].noiserates[rateidx1, :]))
+    phy_part2 = np.load(PhysicalChannel(submits[1], submits[1].noiserates[rateidx2, :]))
+    fname = PhysicalChannel(combined_submit, submits[0].noiserates[rateidx1, :])
+    combined = np.vstack((phy_part1, phy_part2))
+    np.save(fname, combined)
+    if combined_submit.samps < combined.shape[0]:
+        combined_submit.samps = combined.shape[0]
+    
+    raw_part1 = np.load(RawPhysicalChannel(submits[0], submits[0].noiserates[rateidx1, :]))
+    raw_part2 = np.load(RawPhysicalChannel(submits[1], submits[1].noiserates[rateidx2, :]))
+    fname = RawPhysicalChannel(combined_submit, submits[0].noiserates[rateidx1, :])
+    np.save(fname, np.vstack((raw_part1, raw_part2)))
+    
+    nrw_part1 = np.load(NRWeightsFile(submits[0], submits[0].noiserates[rateidx1, :]))
+    nrw_part2 = np.load(NRWeightsFile(submits[1], submits[1].noiserates[rateidx2, :]))
+    fname = NRWeightsFile(combined_submit, submits[0].noiserates[rateidx1, :])
+    np.save(fname, np.vstack((nrw_part1, nrw_part2)))
+
+    return None
