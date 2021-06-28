@@ -858,7 +858,7 @@ if __name__ == "__main__":
 					{"upper": upper_cutoffs[c], "lower": lower_cutoffs[c]}
 				)
 			if len(thresholds) == 0:
-				thresholds = [{"lower": 1e-9, "upper": 1e-2} for __ in submit.levels]
+				thresholds = [{"lower": 1e-9, "upper": 1e-2} for __ in range(submit.levels)]
 			
 			# Load the other database(s)
 			dbses = [submit]

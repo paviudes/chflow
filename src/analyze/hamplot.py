@@ -26,12 +26,12 @@ from analyze.utils import scientific_float, latex_float, SetTickLabels
 def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 	# Compare scatter for different physical metrics
 	min_bin_fraction = 0.1
-	relative_paddings = [0.25, 0.5]
+	relative_paddings = [0.25, 1]
 
 	# Inset axes
 	ax_inset = plt.axes([0, 0, 1, 1])
 	# Position and relative size of the inset axes within ax_principal
-	ip = InsetPosition(ax_principal, [0.64, 0.13, 0.32, 0.27]) # Positon: bottom right
+	ip = InsetPosition(ax_principal, [0.6, 0.1, 0.36, 0.33]) # Positon: bottom right
 	ax_inset.set_axes_locator(ip)
 	# Mark the region corresponding to the inset axes on ax_principal and draw lines in grey linking the two axes.
 	mark_inset(ax_principal, ax_inset, loc1=2, loc2=4, fc="none")
@@ -78,7 +78,7 @@ def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 			direction="inout",
 			length=gv.ticks_length,
 			width=gv.ticks_width,
-			labelsize=gv.ticks_fontsize,
+			labelsize=1.25 * gv.ticks_fontsize,
 		)
 
 		print("Plot done for d = {}".format(d))
@@ -87,7 +87,7 @@ def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 	ax_inset.grid(which="major")
 	
 	# Axes labels
-	ax_inset.set_ylabel("$\\Delta$", fontsize=gv.axes_labels_fontsize)
+	ax_inset.set_ylabel("$\\Delta$", fontsize=1.25 * gv.axes_labels_fontsize)
 	
 	# Axes scales
 	ax_inset.set_xscale("log")
@@ -108,6 +108,7 @@ def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 	ax_inset.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), bottom_ticks[bottom_ticks > -1])), rotation=45, color=gv.Colors[0], rotation_mode="anchor", ha="left", va="baseline")
 	bottom_xlim = [np.min(raw_inset_ticks_bottom), np.max(raw_inset_ticks_bottom)]
 	ax_inset.set_xlim(*bottom_xlim)
+	scaled_bottom_xlim = [0.9 * bottom_xlim[0], 1.85 * bottom_xlim[1]]
 	# ax_inset.minorticks_off()
 	# ax_inset.set_xticks(raw_inset_ticks_bottom)
 	# ax_inset.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), raw_inset_ticks_bottom)), rotation=45, color=gv.Colors[0], rotation_mode="anchor", ha="left", va="baseline")
@@ -129,10 +130,11 @@ def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 	# ax_inset_top.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), raw_inset_ticks_top)), rotation=-45, color=gv.Colors[1], rotation_mode="anchor", ha="left", va="baseline")
 	top_xlim = [np.min(raw_inset_ticks_top), np.max(raw_inset_ticks_top)]
 	ax_inset_top.set_xlim(*top_xlim)
+	scaled_top_xlim = [0.5 * top_xlim[0], 100 * top_xlim[1]]
 	# print("Inset uncorr ticks\n{}".format(ax_inset_top.get_xticks()))
 	# print("xxxxxxxxxxxx")
 	# return (raw_inset_ticks_bottom, raw_inset_ticks_top)
-	return (bottom_ticks, top_ticks, bottom_xlim, top_xlim)
+	return (bottom_ticks, top_ticks, scaled_bottom_xlim, scaled_top_xlim)
 
 
 def DoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds):

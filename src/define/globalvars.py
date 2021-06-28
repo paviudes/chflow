@@ -111,7 +111,7 @@ n_Markers = len(Markers)
 QB_GREEN = "#42b863"
 QB_BLUE = "#2697d0"
 Colors = [
-    "0.4",  # Without RC, choose 0.65 for predictability plots
+    "0.4",  # Without RC, choose 0.4 for predictability plots
     "red", # With RC, choose red for predictability plots
     "blue",
     "brown",

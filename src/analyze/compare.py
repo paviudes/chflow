@@ -100,7 +100,7 @@ def CompareSubs(pmet, lmet, *dbses):
 			# ax.plot([], [], "k", marker=ml.Metrics["uncorr"]["marker"], markersize=gv.marker_size, label = ml.Metrics["uncorr"]["latex"], linestyle="solid", linewidth=gv.line_width)
 
 			# Axes labels for the left (uncorr) plot
-			ax.set_xlabel(settings["xlabel"], fontsize=gv.axes_labels_fontsize*1.4)
+			ax.set_xlabel(settings["xlabel"], fontsize=gv.axes_labels_fontsize*1.4, labelpad=1.5 * gv.axes_labelpad)
 			# ax.set_ylabel(ml.Metrics["uncorr"]["latex"], fontsize=gv.axes_labels_fontsize*1.4)
 			ax.set_xscale("log")
 			# ax.set_xlim([None, 30])
@@ -108,11 +108,11 @@ def CompareSubs(pmet, lmet, *dbses):
 			ax.tick_params(axis="both", which="both", pad=gv.ticks_pad, direction="inout", length=gv.ticks_length, width=gv.ticks_width, labelsize=gv.ticks_fontsize*1.4)
 
 			# Grid lines
-			ax.grid(color="0.5", which="both")
+			ax.grid(color="0.8", which="major")
 
-			# Axes ticks for the uncorr plot
-			yticks_left = np.arange(OrderOfMagnitude(max(MIN, ylimits["left"]["min"]/5)), OrderOfMagnitude(ylimits["left"]["max"] * 5))
-			ax.set_yticks(np.power(10.0, yticks_left), minor=True)
+			# Axes ticks
+			# yticks_left = np.arange(OrderOfMagnitude(max(MIN, ylimits["left"]["min"]/5)), OrderOfMagnitude(ylimits["left"]["max"] * 5))
+			# ax.set_yticks(np.power(10.0, yticks_left), minor=True)
 			
 			# X-axis ticks
 			xlimits = ax.get_xlim()
@@ -127,7 +127,7 @@ def CompareSubs(pmet, lmet, *dbses):
 
 			# legends for both plots
 			# leg_left = ax.legend(loc="upper right", shadow=True, fontsize=1.4 * gv.legend_fontsize, markerscale=gv.legend_marker_scale)
-			leg = ax.legend(loc="lower left", shadow=True, fontsize=1.4 * gv.legend_fontsize, markerscale=gv.legend_marker_scale)
+			leg = ax.legend(loc="lower left", shadow=True, fontsize=2 * gv.legend_fontsize, markerscale=gv.legend_marker_scale)
 
 			# Match legend text with the color of the markers
 			for (t, text) in enumerate(leg.get_texts()):

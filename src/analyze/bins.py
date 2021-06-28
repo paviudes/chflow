@@ -253,25 +253,26 @@ def ComputeBinPositions(principal, inset):
 	sorted_inset = np.sort(inset)
 	sorted_principal = np.sort(principal)
 	positions = np.zeros(len(principal), dtype = np.double)
-	not_found = 0
+	not_found = 0 # Set to one whenever the rightmost tick is not required.
 	for l in range(len(sorted_principal)):
 		found_index = 0
-		while (sorted_principal[l] > sorted_inset[found_index]):
-			found_index += 1
-			if (found_index == len(sorted_inset)):
-				break
-		found_index = found_index - 1
-		# print("found_index = {}, len(sorted_inset) = {}".format(found_index, len(sorted_inset)))
+		if (sorted_principal[l] > sorted_inset[0]):
+			while (sorted_principal[l] > sorted_inset[found_index]):
+				found_index += 1
+				if (found_index == len(sorted_inset)):
+					break
+			found_index = found_index - 1
+			# print("found_index = {}, len(sorted_inset) = {}".format(found_index, len(sorted_inset)))
 
-		if (found_index == (len(sorted_inset) - 1)):
-			if (not_found == 0):
-				not_found = 1
-				positions[l] = found_index
+			if (found_index == (len(sorted_inset) - 1)):
+				if (not_found == 0):
+					not_found = 1
+					positions[l] = found_index
+				else:
+					positions[l] = -1
+					sorted_principal[l] = -1
 			else:
-				positions[l] = -1
-				sorted_principal[l] = -1
-		else:
-			positions[l] = found_index + ComputePositionOnSegment(sorted_inset[found_index], sorted_inset[found_index + 1], sorted_principal[l])
+				positions[l] = found_index + ComputePositionOnSegment(sorted_inset[found_index], sorted_inset[found_index + 1], sorted_principal[l])
 	print("positions\n{}\nsorted_principal: {}".format(positions, sorted_principal))
 	# If two ticks are close by, assign the second one's position to -1.
 	for l in range(len(positions) - 1):
@@ -284,7 +285,7 @@ def ComputeBinPositions(principal, inset):
 
 def PlotBinVarianceDataSets(ax_principal, dbses, level, lmet, pmets, nbins, include_info, is_inset = 1, bottom_ticks=None, top_ticks=None):
 	# Compare scatter for different physical metrics
-	atol = 1E-16
+	atol = 1E-9
 	min_bin_fraction = 0.1
 	modified_bottom_ticks = None
 	modified_top_ticks = None
@@ -585,7 +586,7 @@ def ComputeBinVariance(xdata, ydata, nbins=10, space="log", binfile=None, submit
 	# 			npoints is the number of physical error rates in the bin
 	# 			var is the variance of logical error rates in the bin.
 	# print("xdata\n{} to {}".format(np.min(xdata), np.max(xdata)))
-	atol = 1E-10
+	atol = 1E-15
 	bins = np.zeros((nbins - 1, 8), dtype=np.longdouble)
 	if space == "log":
 		window = np.logspace(
