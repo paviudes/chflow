@@ -35,7 +35,7 @@ from define.QECCLfid import utils as ut
 Metrics = {
     "dnorm": {
         "name": "Diamond norm",
-        "phys": "Diamond distance of the physical channel",
+        "phys": "Diamond distance of the" + "\n" + "physical channel",
         "log": "Diamond distance of the logical channel",
         "latex": "$|| \\mathcal{E} - \\mathsf{id} ||_{\\diamondsuit}$",
         "marker": u"+",
@@ -155,7 +155,7 @@ Metrics = {
     },
     "uncorr": {
         "name": "Uncorrectable error probability",
-        "phys": "Uncorrectable error probability",
+        "phys": "Logical estimator",
         "log": "Uncorrectable error probability of the logical channel",
         "latex": "$\\widetilde{p}_{u}$",
         "marker": u"s",

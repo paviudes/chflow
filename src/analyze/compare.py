@@ -29,7 +29,6 @@ def CompareSubs(pmet, lmet, *dbses):
 	MIN = 1E-30
 	ndb = len(dbses)
 	nlevels = min([dbs.levels for dbs in dbses])
-
 	plotfname = CompareSubsPlot(dbses[0], [dbs.timestamp for dbs in dbses[1:]])
 	with PdfPages(plotfname) as pdf:
 		ylimits = {"left": {"min": 1, "max": 0}, "right": {"min": 1, "max": 0}}
@@ -51,6 +50,10 @@ def CompareSubs(pmet, lmet, *dbses):
 			# Common channels that passed the convergence test.
 			converged_channels = np.intersect1d(converged_channels_dset[0], converged_channels_dset[1])
 
+			# Empty plots for legends
+			legend_plots = [[None, None] for __ in range(ndb)]
+			legend_labels = [[None, None] for __ in range(ndb)]
+			
 			for d in range(ndb):
 				if os.path.isfile(LogicalErrorRates(dbses[d], lmet)):
 					logerrs = np.load(LogicalErrorRates(dbses[d], lmet))[: , l]
@@ -67,7 +70,7 @@ def CompareSubs(pmet, lmet, *dbses):
 				# print("X size = {}: {}\nY size {}: {}".format(len(settings["xaxis"]), settings["xaxis"], len(settings["yaxis"]), settings["yaxis"]))
 
 				settings.update({"color": gv.Colors[0], "marker": ml.Metrics[lmet]["marker"], "linestyle": "dotted"})
-				label_logerr = "%s(%s)" % (settings["ylabel"], dbses[d].eccs[0].name)
+				label_logerr = "Logical infidelity (%s)" % (dbses[d].eccs[0].name)
 				# Right axes plot -- with logical error rates.
 				ax.plot(settings["xaxis"], settings["yaxis"], color=gv.Colors[d], alpha = 0.75, marker=settings["marker"], markersize=gv.marker_size, linestyle=settings["linestyle"], linewidth=1.5 * gv.line_width)
 				if (ylimits["right"]["min"] >= np.min(settings["yaxis"])):
@@ -78,7 +81,7 @@ def CompareSubs(pmet, lmet, *dbses):
 				# Let axes plots -- with uncorr.
 				# Left y-axis for uncorr
 				uncorr = np.load(PhysicalErrorRates(dbses[d], "uncorr"))[converged_channels, l]
-				label_uncorr = "%s(%s)" % (ml.Metrics["uncorr"]["latex"], dbses[d].eccs[0].name)
+				label_uncorr = "%s (%s)" % (ml.Metrics["uncorr"]["phys"], dbses[d].eccs[0].name)
 				ax.plot(settings["xaxis"], uncorr, color=gv.Colors[d], marker=ml.Metrics["uncorr"]["marker"], markersize=gv.marker_size, linestyle="solid", linewidth=1.5 * gv.line_width)
 				if (ylimits["left"]["min"] >= np.min(uncorr)):
 					ylimits["left"]["min"] = np.min(uncorr)
@@ -86,8 +89,10 @@ def CompareSubs(pmet, lmet, *dbses):
 					ylimits["left"]["max"] = np.max(uncorr)
 				
 				# Empty plots to add legend entries.
-				ax.plot([], [], color=gv.Colors[d], alpha = 0.75, marker=settings["marker"], markersize=gv.marker_size, linestyle=settings["linestyle"], linewidth=1.5 * gv.line_width, label = label_logerr)
-				ax.plot([], [], color=gv.Colors[d], alpha = 0.75, marker=ml.Metrics["uncorr"]["marker"], markersize=gv.marker_size, linestyle="solid", linewidth=1.5 * gv.line_width, label = label_uncorr)
+				legend_labels[d][0] = label_logerr
+				legend_plots[d][0], = ax.plot([], [], color=gv.Colors[d], alpha = 0.75, marker=settings["marker"], markersize=gv.marker_size, linestyle=settings["linestyle"], linewidth=1.5 * gv.line_width)
+				legend_labels[d][1] = label_uncorr
+				legend_plots[d][1], = ax.plot([], [], color=gv.Colors[d], alpha = 0.75, marker=ml.Metrics["uncorr"]["marker"], markersize=gv.marker_size, linestyle="solid", linewidth=1.5 * gv.line_width)
 				
 				# Empty plot for the legend entry containing different codes.
 				# ax.plot([], [], color=settings["color"], linestyle="solid", linewidth=gv.line_width, label = label)
@@ -100,12 +105,12 @@ def CompareSubs(pmet, lmet, *dbses):
 			# ax.plot([], [], "k", marker=ml.Metrics["uncorr"]["marker"], markersize=gv.marker_size, label = ml.Metrics["uncorr"]["latex"], linestyle="solid", linewidth=gv.line_width)
 
 			# Axes labels for the left (uncorr) plot
-			ax.set_xlabel(settings["xlabel"], fontsize=gv.axes_labels_fontsize*1.4, labelpad=1.5 * gv.axes_labelpad)
+			ax.set_xlabel(settings["xlabel"], fontsize=gv.axes_labels_fontsize*1.75, labelpad=1.5 * gv.axes_labelpad)
 			# ax.set_ylabel(ml.Metrics["uncorr"]["latex"], fontsize=gv.axes_labels_fontsize*1.4)
 			ax.set_xscale("log")
 			# ax.set_xlim([None, 30])
 			ax.set_yscale("log")
-			ax.tick_params(axis="both", which="both", pad=gv.ticks_pad, direction="inout", length=gv.ticks_length, width=gv.ticks_width, labelsize=gv.ticks_fontsize*1.4)
+			ax.tick_params(axis="both", which="both", pad=gv.ticks_pad, direction="inout", length=gv.ticks_length, width=gv.ticks_width, labelsize=gv.ticks_fontsize*1.9)
 
 			# Grid lines
 			ax.grid(color="0.8", which="major")
@@ -127,15 +132,24 @@ def CompareSubs(pmet, lmet, *dbses):
 
 			# legends for both plots
 			# leg_left = ax.legend(loc="upper right", shadow=True, fontsize=1.4 * gv.legend_fontsize, markerscale=gv.legend_marker_scale)
-			leg = ax.legend(loc="lower left", shadow=True, fontsize=2 * gv.legend_fontsize, markerscale=gv.legend_marker_scale)
-
-			# Match legend text with the color of the markers
-			for (t, text) in enumerate(leg.get_texts()):
-			    if (t < 2):
-			    	text.set_color(gv.Colors[0])
-			    else:
-			    	text.set_color(gv.Colors[1])
+			leg_cyclic = ax.legend(legend_plots[1], legend_labels[1], shadow=True, fontsize=2 * gv.legend_fontsize, markerscale=gv.legend_marker_scale)
+			ax.add_artist(leg_cyclic)
+			leg_steane = ax.legend(legend_plots[0], legend_labels[0], loc="lower left", shadow=True, fontsize=2 * gv.legend_fontsize, markerscale=gv.legend_marker_scale)
 			
+			# Match legend text with the color of the markers
+			for (d, leg) in enumerate([leg_steane, leg_cyclic]):
+				# leg_color = gv.Colors[d]
+				for (t, text) in enumerate(leg.get_texts()):
+				    text.set_color(gv.Colors[d])
+			
+			# Globally set the font family.
+			matplotlib.rcParams["font.family"] = "Times New Roman"
+			plt.rcParams["font.family"] = "Times New Roman"
+			matplotlib.rc('mathtext', fontset='stix')
+			# plt.xticks(fontname = "Times New Roman")
+			# plt.yticks(fontname = "Times New Roman")
+			###
+
 			# Save the plot
 			fig.tight_layout(pad=5)
 			pdf.savefig(fig)

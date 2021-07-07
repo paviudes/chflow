@@ -75,7 +75,7 @@ Channels = {
 	"crsum": {
 		"name": "Convex sum of rotations",
 		"params": ["infid", "bias", "angle"],
-		"latex": ["$p$", "$\\eta = p_{Z}/p_{X}$", "\\theta"],
+		"latex": ["$p$", "Bias ($\\eta = p_{Z}/p_{X}$)", "\\theta"],
 		"color": "red",
 		"Pauli": 0,
 		"corr": 0,

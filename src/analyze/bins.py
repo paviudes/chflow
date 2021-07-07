@@ -253,7 +253,7 @@ def ComputeBinPositions(principal, inset):
 	sorted_inset = np.sort(inset)
 	sorted_principal = np.sort(principal)
 	positions = np.zeros(len(principal), dtype = np.double)
-	not_found = 0 # Set to one whenever the rightmost tick is not required.
+	not_found = 1 # Set to one whenever the rightmost tick is not required.
 	for l in range(len(sorted_principal)):
 		found_index = 0
 		if (sorted_principal[l] > sorted_inset[0]):
@@ -586,7 +586,7 @@ def ComputeBinVariance(xdata, ydata, nbins=10, space="log", binfile=None, submit
 	# 			npoints is the number of physical error rates in the bin
 	# 			var is the variance of logical error rates in the bin.
 	# print("xdata\n{} to {}".format(np.min(xdata), np.max(xdata)))
-	atol = 1E-15
+	atol = 1E-9
 	bins = np.zeros((nbins - 1, 8), dtype=np.longdouble)
 	if space == "log":
 		window = np.logspace(

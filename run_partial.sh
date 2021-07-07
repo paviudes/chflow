@@ -157,6 +157,12 @@ if [[ -n ${cluster} ]]; then
 
 	pcorr_limited_Steane_level2=("pcorr_limited_Steane_l2_00" "pcorr_limited_Steane_l2_01" "pcorr_limited_Steane_l2_02" "pcorr_limited_Steane_l2_03" "pcorr_limited_Steane_l2_04")
 	alphas_pcorr_limited_Steane_level2=(0 0.00153 0.00615 0.01225 1)
+
+	pcorr_combined=("pcorr_combined_00" "pcorr_combined_01" "pcorr_combined_02" "pcorr_combined_03" "pcorr_combined_04")
+	alphas_pcorr_combined=(0 0.00153 0.00615 0.01225 1)
+
+	pcorr_limited=("pcorr_limited_00" "pcorr_limited_01" "pcorr_limited_02" "pcorr_limited_03" "pcorr_limited_04" "pcorr_limited_05")
+	alphas_pcorr_limited=(0 0.00153 0.00615 0.01225 1 0.00062)
 fi
 
 fastdelete() {
@@ -302,7 +308,8 @@ copy_output() {
 	refalpha=${alphas[0]}
 	for (( t=1; t<${#timestamps[@]}; ++t )); do
 		ts=${timestamps[t]}
-		subdirs=("physical" "channels" "metrics" "results")
+		# subdirs=("physical" "channels" "metrics" "results")
+		subdirs=("physical" "results")
 		for (( s=0; s<${#subdirs[@]}; ++s )); do
 			subd=${subdirs[s]}
 			if [ -d ${outdir}/${refts}/${subd} ]; then
@@ -317,9 +324,9 @@ copy_output() {
 	printf "\033[0m"
 }
 
-timestamps=("${pcorr_limited_Steane_level2[@]}")
-alphas=("${alphas_pcorr_limited_Steane_level2[@]}")
-log=pcorr_strong
+timestamps=("${pcorr_limited[@]}")
+alphas=("${alphas_pcorr_limited[@]}")
+log=pcorr_limited
 refts=${timestamps[0]}
 
 if [[ "$1" == "overwrite" ]]; then
@@ -539,7 +546,7 @@ elif [[ "$1" == "pmetrics" ]]; then
 		ts=${timestamps[t]}
 		echo "sbload ${ts}" >> input/temp.txt
 		echo "pmetrics infid" >> input/temp.txt
-		echo "collect" >> input/temp.txt
+		# echo "collect" >> input/temp.txt
 	done
 	echo "quit" >> input/temp.txt
 	./chflow.sh -- temp.txt
@@ -569,7 +576,7 @@ elif [[ "$1" == "lpmetrics" ]]; then
 		ts=${timestamps[t]}
 		echo "sbload ${ts}" >> input/temp_${t}.txt
 		echo "lpmetrics uncorr" >> input/temp_${t}.txt
-		echo "collect" >> input/temp_${t}.txt
+		# echo "collect" >> input/temp_${t}.txt
 		echo "quit" >> input/temp_${t}.txt
 		echo "./chflow.sh -- temp_${t}.txt" >> input/${log}_lpmetrics_timestamps.txt
 	done
@@ -599,7 +606,7 @@ elif [[ "$1" == "plot" ]]; then
 	# echo "nrplot 0 0 ${joined_timestamps%?}" >> input/temp.txt
 	# echo "dciplot infid infid ${joined_timestamps%?} 0;36;1" >> input/temp.txt
 	# echo "mcplot infid infid 0 0 ${joined_timestamps%?}" >> input/temp.txt
-	echo "hamplot infid${joined_uncorr} infid ${joined_timestamps%?} 7,11 1,1 10" >> input/temp.txt
+	echo "hamplot infid${joined_uncorr} infid ${joined_timestamps%?} 7,11 1,1 14" >> input/temp.txt
 	echo "notes infid${joined_uncorr} infid pcorr partialham /Users/pavi/Documents/rclearn/notes/paper/figures/scatter_styles 1" >> input/temp.txt
 	# Scatter plot of infid and first alpha.
 	# echo "sbload ${timestamps[0]}" > input/temp.txt

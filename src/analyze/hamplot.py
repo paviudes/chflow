@@ -31,7 +31,7 @@ def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 	# Inset axes
 	ax_inset = plt.axes([0, 0, 1, 1])
 	# Position and relative size of the inset axes within ax_principal
-	ip = InsetPosition(ax_principal, [0.6, 0.1, 0.36, 0.33]) # Positon: bottom right
+	ip = InsetPosition(ax_principal, [0.605, 0.1, 0.36, 0.33]) # Positon: bottom right
 	ax_inset.set_axes_locator(ip)
 	# Mark the region corresponding to the inset axes on ax_principal and draw lines in grey linking the two axes.
 	mark_inset(ax_principal, ax_inset, loc1=2, loc2=4, fc="none")
@@ -87,7 +87,7 @@ def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 	ax_inset.grid(which="major")
 	
 	# Axes labels
-	ax_inset.set_ylabel("$\\Delta$", fontsize=1.25 * gv.axes_labels_fontsize)
+	ax_inset.set_ylabel("Dispersion ($\\Delta$)", fontsize=1.25 * gv.axes_labels_fontsize, labelpad = 0.75 * gv.axes_labelpad)
 	
 	# Axes scales
 	ax_inset.set_xscale("log")
@@ -199,7 +199,7 @@ def DoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds):
 					linestyle="None",
 					linewidth=gv.line_width,
 					label="%s %s"
-					% (ml.Metrics[pmets[c]]["latex"], dsets[c].plotsettings["name"]),
+					% (ml.Metrics[pmets[c]]["phys"], dsets[c].plotsettings["name"]),
 				)
 
 			# X = Y line for the top axis with the uncorr data.
@@ -238,13 +238,16 @@ def DoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds):
 			
 			## Axes labels
 			# Axes label for the Y-axes
-			ax_bottom.set_ylabel("$\\overline{%s_{%d}}$" % (ml.Metrics[lmet]["latex"].replace("$",""), l), fontsize=gv.axes_labels_fontsize * 1.7, labelpad = gv.axes_labelpad)
+			# ax_bottom.set_ylabel("$\\overline{%s_{%d}}$" % (ml.Metrics[lmet]["latex"].replace("$",""), l), fontsize=gv.axes_labels_fontsize * 1.7, labelpad = gv.axes_labelpad)
+			ax_bottom.set_ylabel("%s" % (ml.Metrics[lmet]["log"]), fontsize=gv.axes_labels_fontsize * 1.7, labelpad = gv.axes_labelpad)
 			# Axes labels for the bottom X-axes
-			bottom_xlabel = "%s %s" % (ml.Metrics[pmets[0]]["latex"], dsets[0].plotsettings["name"])
-			ax_bottom.set_xlabel(bottom_xlabel, fontsize=gv.axes_labels_fontsize * 1.7, labelpad = 0.5 * gv.axes_labelpad, color=gv.Colors[0])
+			# bottom_xlabel = "%s %s" % (ml.Metrics[pmets[0]]["latex"], dsets[0].plotsettings["name"])
+			bottom_xlabel = "%s %s" % (ml.Metrics[pmets[0]]["phys"], dsets[0].plotsettings["name"])
+			ax_bottom.set_xlabel(bottom_xlabel, fontsize=gv.axes_labels_fontsize * 1.7, labelpad = 2 * gv.axes_labelpad)
 			# Axes labels for the top axes
-			top_xlabel = "%s %s" % (ml.Metrics[pmets[1]]["latex"], dsets[1].plotsettings["name"])
-			ax_top.set_xlabel(top_xlabel, fontsize=gv.axes_labels_fontsize * 1.7, labelpad = 0.25 * gv.axes_labelpad * 2.5, color=gv.Colors[1])
+			# top_xlabel = "%s %s" % (ml.Metrics[pmets[1]]["latex"], dsets[1].plotsettings["name"])
+			top_xlabel = "%s %s" % (ml.Metrics[pmets[1]]["phys"], dsets[1].plotsettings["name"])
+			ax_top.set_xlabel(top_xlabel, fontsize=1.75 * gv.axes_labels_fontsize, labelpad = 0.625 * gv.axes_labelpad)
 			
 			# Scales for the axes
 			ax_bottom.set_xscale("log")
@@ -300,6 +303,8 @@ def DoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds):
 					color=gv.Colors[a % gv.n_Colors],
 				)
 			
+			"""
+			# Comment the following lines for all black text.
 			# Color of the X-axis line				
 			ax_top.spines['bottom'].set_color(gv.Colors[1])
 			ax_top.spines['top'].set_color(gv.Colors[0])
@@ -309,6 +314,8 @@ def DoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds):
 				t.set_color(gv.Colors[0])
 			for t in ax_top.xaxis.get_ticklabels(which="both"):
 				t.set_color(gv.Colors[1])
+			"""
+			
 			# Force the tick lines to be black
 			for t in ax_bottom.xaxis.get_majorticklines():
 				t.set_color("k")
@@ -320,12 +327,20 @@ def DoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds):
 				t.set_color("k")
 			
 			# Legend for the bottom axes
-			leg = ax_bottom.legend(numpoints=1, loc="upper left", shadow=True, fontsize=1.5 * gv.legend_fontsize, markerscale=1.2 * gv.legend_marker_scale)
+			leg = ax_bottom.legend(numpoints=1, loc="upper left", shadow=True, fontsize=1.75 * gv.legend_fontsize, markerscale=1.2 * gv.legend_marker_scale)
 			
 			# Match legend text with the color of the markers
 			colors = [gv.Colors[0], gv.Colors[1]]
 			for (color, text) in zip(colors, leg.get_texts()):
 				text.set_color(color)
+
+			# Globally set the font family.
+			matplotlib.rcParams["font.family"] = "Times New Roman"
+			plt.rcParams["font.family"] = "Times New Roman"
+			matplotlib.rc('mathtext', fontset='stix')
+			# plt.xticks(fontname = "Times New Roman")
+			# plt.yticks(fontname = "Times New Roman")
+			###
 
 			# Save the plot
 			fig.tight_layout(pad=5)

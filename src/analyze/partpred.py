@@ -26,7 +26,8 @@ def PartialNRPlot(logmet, pmets, dsets, inset_flag, nbins, thresholds):
 	# Compare the effect of p_u + RC on predictability.
 	# Plot no RC with infid and RC with p_u.
 	# pmets = list(map(lambda phy: phy.strip(" "), phymets.split(",")))
-	min_bin_fraction = 1
+	###
+	min_bin_fraction = 0.9
 	level = dsets[0].levels
 	ndb = len(dsets)
 	plotfname = PartialHammerPlotFile(dsets[0], logmet, pmets)
@@ -51,7 +52,7 @@ def PartialNRPlot(logmet, pmets, dsets, inset_flag, nbins, thresholds):
 			# Bin the X-axis and record the averages
 			bins = ComputeBinVariance(phyerrs[d, include], logerrs[d, include], space="log", nbins=nbins)
 			collapsed_bins[d] = CollapseBins(bins, min_bin_fraction * dsets[d].channels / nbins)
-			print("Number of bins for alpha = {} is {}.".format(dsets[d].decoder_fraction, collapsed_bins[d].shape[0]))
+			# print("Number of bins for alpha = {} is {}.".format(dsets[d].decoder_fraction, collapsed_bins[d].shape[0]))
 		
 		# Compute the uncorr data with minimum width
 		# max_width_uncorr = 1 + np.argmin([np.min(collapsed_bins[d][:, 0])/np.max(collapsed_bins[d][:, 0]) for d in range(1, len(collapsed_bins))])
@@ -62,13 +63,15 @@ def PartialNRPlot(logmet, pmets, dsets, inset_flag, nbins, thresholds):
 		# max_width_uncorr = 1 + np.argmax(uncorr_widths)
 		max_width_uncorr = 1
 
-		print("max_width_uncorr = {}\n{}".format(max_width_uncorr, [np.min(collapsed_bins[d][:, 0])/np.max(collapsed_bins[d][:, 0]) for d in range(1, len(collapsed_bins))]))
+		# print("max_width_uncorr = {}\n{}".format(max_width_uncorr, [np.min(collapsed_bins[d][:, 0])/np.max(collapsed_bins[d][:, 0]) for d in range(1, len(collapsed_bins))]))
 		##### Explicitly set the X-cutoff for uncorr
 		# xcutoff_uncorr = {"left": np.min(collapsed_bins[max_width_uncorr][:, 0]), "right": np.max(collapsed_bins[max_width_uncorr][:, 0])}
-		xcutoff_uncorr = {"left": 4E-7, "right": 5E-3}
+		xcutoff_uncorr = {"left": 1E-8, "right": 5E-3}
 		##### Explicitly set the X-cutoff for infid
-		xcutoff_infid = {"left": 3E-3, "right": 8E-2}
+		xcutoff_infid = {"left": 4E-3, "right": 8E-2}
 		#####
+		# xcutoff_infid = {"left": 0, "right": 1}
+		# xcutoff_uncorr = {"left": 0, "right": 1}
 		
 		reference_uncorr_width = uncorr_widths[max_width_uncorr - 1]
 		for d in range(ndb):
@@ -95,12 +98,15 @@ def PartialNRPlot(logmet, pmets, dsets, inset_flag, nbins, thresholds):
 			
 			current_axes.plot(xaxis[focus], yaxis[focus], marker=gv.Markers[d % gv.n_Markers], color=gv.Colors[d % gv.n_Colors], linestyle="-", linewidth=gv.line_width, markersize=gv.marker_size, alpha=0.75)
 			
+			print("Focus: {}\nNumber of channels: {}".format(focus, np.sum([collapsed_bins[d][b, 2] for b in focus])))
+
+
 			# Empty plot for the legend.
 			n_errors = int(dsets[d].decoder_fraction * np.power(4, dsets[0].eccs[0].N))
 			if (n_errors == 0):
-				label = ml.Metrics["infid"]["latex"]
-			elif (n_errors == np.power(4, dsets[0].eccs[0].N)):
-				label = "All NR data"
+				label = ml.Metrics["infid"]["name"]
+			# elif (n_errors == np.power(4, dsets[0].eccs[0].N)):
+			# 	label = "All NR data"
 			else:
 				label = "$K = %d$" % (n_errors)
 			ax_infid.plot([], [], marker=gv.Markers[d % gv.n_Markers], color=gv.Colors[d % gv.n_Colors], linestyle="-", linewidth=gv.line_width, markersize=gv.marker_size, alpha=0.75, label = label)
@@ -121,9 +127,9 @@ def PartialNRPlot(logmet, pmets, dsets, inset_flag, nbins, thresholds):
 		ax_infid.grid(which="major")
 		
 		# Axes labels
-		ax_infid.set_xlabel(ml.Metrics[pmets[0]]["latex"], fontsize=1.5 * gv.axes_labels_fontsize, labelpad=0.6, color="0.4")
-		ax_uncorr.set_xlabel("Critical parameter computed from NR data", fontsize=1.5 * gv.axes_labels_fontsize, labelpad=1, color="red")
-		ax_infid.set_ylabel("$\\Delta$", fontsize=1.5 * gv.axes_labels_fontsize)
+		ax_infid.set_xlabel(ml.Metrics[pmets[0]]["phys"], fontsize=1.5 * gv.axes_labels_fontsize, labelpad=0.6)
+		ax_uncorr.set_xlabel("Logical estimator", fontsize=1.5 * gv.axes_labels_fontsize, labelpad=1)
+		ax_infid.set_ylabel("Amount of dispersion $(\\Delta)$", fontsize=1.5 * gv.axes_labels_fontsize)
 		
 		# Axes scales
 		ax_infid.set_xscale("log")
@@ -139,7 +145,7 @@ def PartialNRPlot(logmet, pmets, dsets, inset_flag, nbins, thresholds):
 		(positions_infid, infid_ticks) = ComputeBinPositions(intended_infid_ticks, raw_inset_ticks_infid)
 		print("infid_ticks = {}".format(infid_ticks))
 		ax_infid.set_xticks(infid_ticks[infid_ticks > -1])
-		ax_infid.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), infid_ticks[infid_ticks > -1])), rotation=45, color=gv.Colors[0], rotation_mode="anchor", ha="left", va="baseline", fontsize = 1.5 * gv.ticks_fontsize)
+		ax_infid.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), infid_ticks[infid_ticks > -1])), rotation=45, rotation_mode="anchor", ha="left", va="baseline", fontsize = 1.5 * gv.ticks_fontsize)
 		# print("Infid ticks\n{}".format(list(ax_infid.get_xticklabels())))
 		# print("-----------")
 		# infid_xlim = [np.min(raw_inset_ticks_infid), np.max(raw_inset_ticks_infid)]
@@ -157,7 +163,7 @@ def PartialNRPlot(logmet, pmets, dsets, inset_flag, nbins, thresholds):
 		(positions_uncorr, uncorr_ticks) = ComputeBinPositions(intended_uncorr_ticks, raw_inset_ticks_uncorr)
 		# print("uncorr_ticks = {}".format(uncorr_ticks))
 		ax_uncorr.set_xticks(uncorr_ticks[uncorr_ticks > -1])
-		ax_uncorr.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), uncorr_ticks[uncorr_ticks > -1])), rotation=-45, color=gv.Colors[1], rotation_mode="anchor", ha="left", va="baseline", fontsize = 1.5 * gv.ticks_fontsize)
+		ax_uncorr.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), uncorr_ticks[uncorr_ticks > -1])), rotation=-45, rotation_mode="anchor", ha="left", va="baseline", fontsize = 1.5 * gv.ticks_fontsize)
 		# print("Uncorr ticks\n{}".format(ax_uncorr.get_xticks()))
 		# print("xxxxxxxxxxxx")
 		# uncorr_xlim = [np.min(raw_inset_ticks_uncorr), np.max(raw_inset_ticks_uncorr)]
@@ -165,7 +171,15 @@ def PartialNRPlot(logmet, pmets, dsets, inset_flag, nbins, thresholds):
 		ax_uncorr.set_xlim(*uncorr_xlim)
 
 		# Legend
-		ax_infid.legend(numpoints=1, loc="center right", shadow=True, fontsize=1.25 * gv.legend_fontsize, markerscale=gv.legend_marker_scale)
+		ax_infid.legend(numpoints=1, loc=(0.77,0.485), shadow=True, fontsize=1.25 * gv.legend_fontsize, markerscale=gv.legend_marker_scale)
+
+		# Globally set the font family.
+		matplotlib.rcParams["font.family"] = "Times New Roman"
+		plt.rcParams["font.family"] = "Times New Roman"
+		matplotlib.rc('mathtext', fontset='stix')
+		# plt.xticks(fontname = "Times New Roman")
+		# plt.yticks(fontname = "Times New Roman")
+		###
 
 		# Save the plot
 		fig.tight_layout(pad=5)

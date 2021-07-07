@@ -579,7 +579,6 @@ if __name__ == "__main__":
 					"\033[2mMerged dataset is identified with the timestamp %s.\033[0m"
 					% (merged)
 				)
-				print("Total time: {} seconds.".format(time.time() - start))
 			else:
 				print(
 					"\033[2mData set with time stamp %s doesn't exist.\033[0m"
