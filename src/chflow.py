@@ -888,7 +888,9 @@ if __name__ == "__main__":
 					# PartialHammerPlot(logmet, pmets, dbses, 0, nbins, thresholds) # old version
 					PartialNRPlot(logmet, pmets, dbses, 0, nbins, thresholds) # new version
 				else:
-					DoubleHammerPlot(logmet, pmets, dbses, 1, nbins, thresholds)
+					# Set minimal to 1 if the axes labels are not necessary.
+					minimal = 1
+					DoubleHammerPlot(logmet, pmets, dbses, 1, nbins, thresholds, minimal)
 			else:
 				print("\033[2mImcomplete logical error rates data for some datasets.\033[0m")
 

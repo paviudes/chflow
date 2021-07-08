@@ -586,7 +586,7 @@ def ComputeBinVariance(xdata, ydata, nbins=10, space="log", binfile=None, submit
 	# 			npoints is the number of physical error rates in the bin
 	# 			var is the variance of logical error rates in the bin.
 	# print("xdata\n{} to {}".format(np.min(xdata), np.max(xdata)))
-	atol = 1E-9
+	atol = 1E-15
 	bins = np.zeros((nbins - 1, 8), dtype=np.longdouble)
 	if space == "log":
 		window = np.logspace(

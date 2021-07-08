@@ -137,7 +137,7 @@ def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 	return (bottom_ticks, top_ticks, scaled_bottom_xlim, scaled_top_xlim)
 
 
-def DoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds):
+def DoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds, minimal=0):
 	# Compare the effect of p_u + RC on predictability.
 	# Plot no RC with infid and RC with p_u.
 	# pmets = list(map(lambda phy: phy.strip(" "), phymets.split(",")))
@@ -239,15 +239,18 @@ def DoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds):
 			## Axes labels
 			# Axes label for the Y-axes
 			# ax_bottom.set_ylabel("$\\overline{%s_{%d}}$" % (ml.Metrics[lmet]["latex"].replace("$",""), l), fontsize=gv.axes_labels_fontsize * 1.7, labelpad = gv.axes_labelpad)
-			ax_bottom.set_ylabel("%s" % (ml.Metrics[lmet]["log"]), fontsize=gv.axes_labels_fontsize * 1.7, labelpad = gv.axes_labelpad)
+			if (minimal == 0):
+				ax_bottom.set_ylabel("%s" % (ml.Metrics[lmet]["log"]), fontsize=gv.axes_labels_fontsize * 1.7, labelpad = gv.axes_labelpad)
 			# Axes labels for the bottom X-axes
 			# bottom_xlabel = "%s %s" % (ml.Metrics[pmets[0]]["latex"], dsets[0].plotsettings["name"])
 			bottom_xlabel = "%s %s" % (ml.Metrics[pmets[0]]["phys"], dsets[0].plotsettings["name"])
-			ax_bottom.set_xlabel(bottom_xlabel, fontsize=gv.axes_labels_fontsize * 1.7, labelpad = 2 * gv.axes_labelpad)
+			if (minimal == 0):
+				ax_bottom.set_xlabel(bottom_xlabel, fontsize=gv.axes_labels_fontsize * 1.7, labelpad = 2 * gv.axes_labelpad)
 			# Axes labels for the top axes
 			# top_xlabel = "%s %s" % (ml.Metrics[pmets[1]]["latex"], dsets[1].plotsettings["name"])
 			top_xlabel = "%s %s" % (ml.Metrics[pmets[1]]["phys"], dsets[1].plotsettings["name"])
-			ax_top.set_xlabel(top_xlabel, fontsize=1.75 * gv.axes_labels_fontsize, labelpad = 0.625 * gv.axes_labelpad)
+			if (minimal == 0):
+				ax_top.set_xlabel(top_xlabel, fontsize=1.75 * gv.axes_labels_fontsize, labelpad = 0.625 * gv.axes_labelpad)
 			
 			# Scales for the axes
 			ax_bottom.set_xscale("log")
@@ -300,7 +303,8 @@ def DoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds):
 					length=gv.ticks_length,
 					width=gv.ticks_width,
 					labelsize=1.5 * gv.ticks_fontsize,
-					color=gv.Colors[a % gv.n_Colors],
+					# color=gv.Colors[a % gv.n_Colors],
+					color="k"
 				)
 			
 			"""

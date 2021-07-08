@@ -35,8 +35,8 @@ from define.QECCLfid import utils as ut
 Metrics = {
     "dnorm": {
         "name": "Diamond norm",
-        "phys": "Diamond distance of the" + "\n" + "physical channel",
-        "log": "Diamond distance of the logical channel",
+        "phys": "Phys. diamond distance",
+        "log": "Logical diamond distance",
         "latex": "$|| \\mathcal{E} - \\mathsf{id} ||_{\\diamondsuit}$",
         "marker": u"+",
         "color": gv.QB_BLUE,
@@ -65,8 +65,8 @@ Metrics = {
     },
     "infid": {
         "name": "Infidelity",
-        "phys": "Infidelity of the physical channel",
-        "log": "Infidelity of the logical channel",
+        "phys": "Phys. infidelity",
+        "log": "Logical infidelity",
         "latex": "$r$",
         "marker": u"o",
         "color": gv.QB_BLUE,
