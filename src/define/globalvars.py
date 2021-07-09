@@ -128,8 +128,8 @@ n_Colors = len(Colors)
 title_fontsize = 48
 canvas_size = (32, 22)
 # Axes
-axes_labels_fontsize = 58
-ticks_fontsize = 42
+axes_labels_fontsize = 64 # Use 76 for predictability plots and 54 for code selection and limited NR plots.
+ticks_fontsize = 64 # Use 76 for predictability plots and 54 for code selection and limited NR plots.
 ticks_length = 12
 ticks_width = 4
 ticks_pad = 40

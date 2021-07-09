@@ -78,7 +78,7 @@ def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 			direction="inout",
 			length=gv.ticks_length,
 			width=gv.ticks_width,
-			labelsize=1.25 * gv.ticks_fontsize,
+			labelsize=1.1 * gv.ticks_fontsize,
 		)
 
 		print("Plot done for d = {}".format(d))

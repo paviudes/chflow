@@ -884,12 +884,12 @@ if __name__ == "__main__":
 
 			ndb = len(dbses)
 			if (check == 1):
+				# Set minimal to 1 if the axes labels are not necessary.
+				minimal = 1
 				if (ndb > 2):
 					# PartialHammerPlot(logmet, pmets, dbses, 0, nbins, thresholds) # old version
-					PartialNRPlot(logmet, pmets, dbses, 0, nbins, thresholds) # new version
+					PartialNRPlot(logmet, pmets, dbses, 0, nbins, thresholds, minimal) # new version
 				else:
-					# Set minimal to 1 if the axes labels are not necessary.
-					minimal = 1
 					DoubleHammerPlot(logmet, pmets, dbses, 1, nbins, thresholds, minimal)
 			else:
 				print("\033[2mImcomplete logical error rates data for some datasets.\033[0m")
@@ -1190,8 +1190,10 @@ if __name__ == "__main__":
 					# 	check = 0
 					# 	break
 			if check == 1:
+				# Set minimal = 1 for ommiting axes labels.
+				minimal = 1
 				pmet = user[1].strip(" ")
-				CompareSubs(user[1].strip(" "), user[2].strip(" "), *dbses)
+				CompareSubs(user[1].strip(" "), user[2].strip(" "), minimal, *dbses)
 			else:
 				print(
 					"\033[2mOne of the databases does not have logical error data.\033[0m"

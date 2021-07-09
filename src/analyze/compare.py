@@ -23,7 +23,7 @@ from analyze.load import LoadPhysicalErrorRates
 from analyze.statplot import IsConverged, GetChannelPosition
 from analyze.utils import OrderOfMagnitude
 
-def CompareSubs(pmet, lmet, *dbses):
+def CompareSubs(pmet, lmet, minimal, *dbses):
 	# Compare the Logical error rates from two submissions.
 	# The comparision only makes sense when the logical error rates are measured for two submissions that have the same physical channels.
 	MIN = 1E-30
@@ -105,7 +105,8 @@ def CompareSubs(pmet, lmet, *dbses):
 			# ax.plot([], [], "k", marker=ml.Metrics["uncorr"]["marker"], markersize=gv.marker_size, label = ml.Metrics["uncorr"]["latex"], linestyle="solid", linewidth=gv.line_width)
 
 			# Axes labels for the left (uncorr) plot
-			ax.set_xlabel(settings["xlabel"], fontsize=gv.axes_labels_fontsize*1.75, labelpad=1.5 * gv.axes_labelpad)
+			if (minimal == 0):
+				ax.set_xlabel(settings["xlabel"], fontsize=gv.axes_labels_fontsize*1.75, labelpad=1.5 * gv.axes_labelpad)
 			# ax.set_ylabel(ml.Metrics["uncorr"]["latex"], fontsize=gv.axes_labels_fontsize*1.4)
 			ax.set_xscale("log")
 			# ax.set_xlim([None, 30])

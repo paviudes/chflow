@@ -614,6 +614,27 @@ def Anisotropy(channel, kwargs):
     return anisotropy
 
 
+def TVDErrorDist(channel, kwargs):
+    """
+    Inputs:
+    kwargs["K"] is the cut-off.
+    channel: raw_channel
+    True distribution = channel[all terms up to weight K]
+    1. True distribution corresponds to the decoder knowledge of up to weight = K errors.
+    2. Input distribution corresponds to some alpha: mpinfo[all terms up to weight K]
+
+    (The above are not probability distributions, they're truncated up to weight-K terms.)
+
+    Procedure:
+    1. tvd = Compute TVD(true, input)
+
+    Return:
+    tvd
+    """
+    tvd = 0
+    return tvd
+
+
 ########################################################################################
 
 

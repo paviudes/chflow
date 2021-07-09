@@ -7,6 +7,7 @@ from scipy.special import comb
 from define.qcode import PrepareSyndromeLookUp
 from define.QECCLfid.utils import SamplePoisson
 
+
 def TailorDecoder(qecc, channel, levels, bias=None):
 	# Tailor a decoder to an error model by exploiting simple structure.
 	# At the moment, this only works differently from MWD for a biased Pauli error model "bpauli".

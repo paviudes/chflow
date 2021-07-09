@@ -22,7 +22,7 @@ from analyze.bins import ComputeBinVariance, CollapseBins, ComputeBinPositions, 
 from analyze.utils import scientific_float, latex_float, SetTickLabels
 
 
-def PartialNRPlot(logmet, pmets, dsets, inset_flag, nbins, thresholds):
+def PartialNRPlot(logmet, pmets, dsets, inset_flag, nbins, thresholds, minimal=0):
 	# Compare the effect of p_u + RC on predictability.
 	# Plot no RC with infid and RC with p_u.
 	# pmets = list(map(lambda phy: phy.strip(" "), phymets.split(",")))
@@ -127,9 +127,10 @@ def PartialNRPlot(logmet, pmets, dsets, inset_flag, nbins, thresholds):
 		ax_infid.grid(which="major")
 		
 		# Axes labels
-		ax_infid.set_xlabel(ml.Metrics[pmets[0]]["phys"], fontsize=1.5 * gv.axes_labels_fontsize, labelpad=0.6)
-		ax_uncorr.set_xlabel("Logical estimator", fontsize=1.5 * gv.axes_labels_fontsize, labelpad=1)
-		ax_infid.set_ylabel("Amount of dispersion $(\\Delta)$", fontsize=1.5 * gv.axes_labels_fontsize)
+		if (minimal == 0):
+			ax_infid.set_xlabel(ml.Metrics[pmets[0]]["phys"], fontsize=1.5 * gv.axes_labels_fontsize, labelpad=0.6)
+			ax_uncorr.set_xlabel("Logical estimator", fontsize=1.5 * gv.axes_labels_fontsize, labelpad=1)
+			ax_infid.set_ylabel("Amount of dispersion $(\\Delta)$", fontsize=1.5 * gv.axes_labels_fontsize)
 		
 		# Axes scales
 		ax_infid.set_xscale("log")
