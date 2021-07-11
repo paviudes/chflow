@@ -364,8 +364,7 @@ def RelativeDecoderInstanceCompare(
 	# print("alphas: {}".format(alphas))
 
 	phyerrs = np.load(PhysicalErrorRates(dbses[0], phymet))[chids]
-	# print("phyerrs: {}".format(phyerrs))
-	bin_width = 5
+	bin_width = 2
 	with PdfPages(plotfname) as pdf:
 		for l in range(nlevels, nlevels + 1):
 			fig = plt.figure(figsize=gv.canvas_size)
@@ -389,13 +388,26 @@ def RelativeDecoderInstanceCompare(
 				rate_index = np.argmin(np.sum(np.abs(dbses[0].noiserates - noise), axis=1))
 				sample_index = int(dbses[0].available[chids[ch], -1])
 				# Load the minimum weight performance
-				minwt_perf = np.load(LogicalErrorRates(dbses[0], logmet))[ch, l]
-				for d in range(1, ndb):
+				# minwt_perf = np.load(LogicalErrorRates(dbses[0], logmet))[ch, l]
+				# Load the minimum alpha performance.
+				minalpha_perf = np.load(LogicalErrorRates(dbses[1], logmet))[ch, l]
+				for d in range(1, ndb): # Start from d = 2 when taking the ratio between the first alpha and the rest.
 					if (is_converged[d, rate_index, sample_index] == 1):
+						# Normalize with the performance of the minimum weight decoder.
 						# yaxes[d - 1][c] = minwt_perf/np.load(LogicalErrorRates(dbses[d], logmet))[ch, l]
-						yaxes[d - 1][c] = np.load(LogicalErrorRates(dbses[d], logmet))[ch, l]
+						# Use the raw logical error rates.
+						# yaxes[d - 1][c] = np.load(LogicalErrorRates(dbses[d], logmet))[ch, l]
+						# Normalize with the performance of the lowest alpha (ideally, RB).
+						yaxes[d - 1][c] = np.load(LogicalErrorRates(dbses[d], logmet))[ch, l]/minalpha_perf
 
 			# print("Yaxes\n{}".format(yaxes))
+
+			# Extract the TVDs for each alpha.
+			# Get the TVD for each decoder knowledge with the full Pauli error distribution. These will be in the annotations.
+			tvds = np.zeros((ndb - 1, len(chids)), dtype = np.double)
+			for d in range(1, alphas.size):
+				tvds[d - 1, :] = np.load(PhysicalErrorRates(dbses[d], "dctvd"))[chids]
+				print("TVDs for alpha = {}\n{}".format(alphas[d], tvds[d - 1, :]))
 
 			# Compute the budgets (X-axis) and the budget-left-out (for annotations)
 			budgets = np.zeros((ndb - 1, len(chids)), dtype = np.double)
@@ -415,6 +427,7 @@ def RelativeDecoderInstanceCompare(
 			nbins = len(bins)
 			yaxes_binned = np.zeros((ndb - 1, nbins), dtype = np.double)
 			budgets_left_binned = np.zeros((ndb, nbins), dtype = np.double)
+			tvds_filtered = np.zeros((ndb, nbins), dtype = np.double)
 			print("bin_width = {}\nbin_sizes\n{}".format(bin_width, [len(bins[b]) for b in bins]))
 			max_y = 0
 			min_y = np.max(np.array(list(yaxes.values())))
@@ -425,6 +438,7 @@ def RelativeDecoderInstanceCompare(
 					filtered[d].extend(filtered_dataset)
 					yaxes_binned[d, b] = np.median(yaxes[d][filtered_dataset])
 					budgets_left_binned[d, b] = np.median(budget_left[d, filtered_dataset])
+					tvds_filtered[d, b] = np.median(tvds[d, filtered_dataset])
 					# print("curve = {}, alpha = {}\nfiltered dataset has {} points.".format(b, d, len(filtered_dataset)))
 
 				average_phymet = np.median(phyerrs[bins[b]])
@@ -465,10 +479,12 @@ def RelativeDecoderInstanceCompare(
 				if (min_y > np.min(yaxes_binned[:, b])):
 					min_y = np.min(yaxes_binned[:, b])
 
+				# Annotate each point with the TVD
 				texts = []
 				for d in range(ndb - 1):
 					if (selected[d] == 1):
-						texts.append(ax.text(xaxes[d], yaxes_binned[d, b] * 0.4, "$%s$" % latex_float(budgets_left_binned[d, b]), fontsize=gv.ticks_fontsize * 0.75, rotation=-20))
+						# texts.append(ax.text(xaxes[d], yaxes_binned[d, b] * 0.4, "$%s$" % latex_float(budgets_left_binned[d, b]), fontsize=gv.ticks_fontsize * 0.75, rotation=-20))
+						texts.append(ax.text(xaxes[d], yaxes_binned[d, b] * 0.4, "$%g$" % np.round(tvds_filtered[d, b], 4), fontsize=gv.ticks_fontsize * 0.75, rotation=-20))
 						# Only for level 3
 						# if (d % 2 == 0):
 						# 	texts.append(ax.text(0.8 * xaxes[d], yaxes_binned[d, b] * 0.4, "$%s$" % latex_float(budgets_left_binned[d, b]), fontsize=gv.ticks_fontsize * 0.75, rotation=0))

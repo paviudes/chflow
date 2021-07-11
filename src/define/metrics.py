@@ -26,7 +26,8 @@ from define.dnorm import DiamondNormSimpler
 from define import globalvars as gv
 from define import chanreps as crep
 from define import qchans as qc
-from define.decoder import TailorDecoder
+from define.qcode import PrepareSyndromeLookUp
+from define.decoder import TailorDecoder, SetDecoderKnowledge
 from define import fnames as fn
 from define.QECCLfid import uncorrectable as uc
 from define.QECCLfid import utils as ut
@@ -162,6 +163,16 @@ Metrics = {
         "color": gv.QB_GREEN,
         "desc": "The total probability of uncorrectable (Pauli) errors.",
         "func": "lambda P, kwargs: UncorrectableProb(P, kwargs)",
+    },
+    "dctvd": {
+        "name": "Decoder knowledge TVD",
+        "phys": "Decoder knowledge TVD",
+        "log": "Decoder knowledge TVD",
+        "latex": "$D$",
+        "marker": u"s",
+        "color": "red",
+        "desc": "TVD between the decoder knowledge and the true Pauli error distribution",
+        "func": "lambda P, kwargs: DecoderKnowledgeDisparity(P, kwargs)",
     },
     "errbg": {
         "name": "Error budget for NR",
@@ -614,7 +625,7 @@ def Anisotropy(channel, kwargs):
     return anisotropy
 
 
-def TVDErrorDist(channel, kwargs):
+def DecoderKnowledgeDisparity(channel, kwargs):
     """
     Inputs:
     kwargs["K"] is the cut-off.
@@ -631,7 +642,10 @@ def TVDErrorDist(channel, kwargs):
     Return:
     tvd
     """
-    tvd = 0
+    max_weight = kwargs["qcode"].N//2 + 1
+    selected = np.concatenate([kwargs["qcode"].group_by_weight[w] for w in range(max_weight + 1)])
+    (mpinfo, __) = SetDecoderKnowledge(kwargs["submit"], channel, kwargs["noise"], kwargs["sample"])
+    tvd = 1/2 * np.sum(np.abs(channel[selected] - mpinfo[selected]))
     return tvd
 
 
@@ -690,20 +704,14 @@ def ChannelMetrics(submit, metrics, start, end, results, rep, chtype):
                 fn.PhysicalChannel(submit, submit.available[i, :-1])
             )
             if submit.iscorr == 0:
-                chan = np.load("%s/%s" % (folder, fname))[
-                    int(submit.available[i, -1]), :
-                ].reshape(4, 4)
+                chan = np.load("%s/%s" % (folder, fname))[int(submit.available[i, -1]), :].reshape(4, 4)
                 # print("Channel %d: Function ComputeNorms(\n%s,\n%s)" % (i, np.array_str(physical, max_line_width = 150, precision = 3), metrics))
                 if not (rep == "choi"):
                     chan = crep.ConvertRepresentations(chan, "process", "choi")
             elif (submit.iscorr == 1) or (submit.iscorr == 3):
-                chan = np.load("%s/raw_%s" % (folder, fname))[
-                    int(submit.available[i, -1]), :
-                ]
+                chan = np.load("%s/raw_%s" % (folder, fname))[int(submit.available[i, -1]), :]
             else:
-                chan = np.load("%s/%s" % (folder, fname))[
-                    int(submit.available[i, -1]), :
-                ]
+                chan = np.load("%s/%s" % (folder, fname))[int(submit.available[i, -1]), :]
         else:
             lchans = np.load(
                 fn.LogicalChannel(
@@ -730,7 +738,10 @@ def ChannelMetrics(submit, metrics, start, end, results, rep, chtype):
                         "channel": submit.channel,
                         "chtype": chtype,
                         "rep": "choi",
-                        "alpha": submit.decoder_fraction
+                        "alpha": submit.decoder_fraction,
+                        "submit": submit,
+                        "noise": submit.available[i, :-1],
+                        "sample": int(submit.available[i, -1])
                     },
                 )
             elif chtype == "phylog":
@@ -784,6 +795,12 @@ def ComputeMetrics(submit, metrics, chtype="physical"):
         results = mp.Array(
             ct.c_longdouble, submit.channels * len(metrics) * (submit.levels + 1)
         )
+    
+    # Prepare submission objects for some physical metrics
+    if ("dctvd" in metrics):
+        if submit.eccs[0].group_by_weight is None:
+            PrepareSyndromeLookUp(submit.eccs[0])
+
     for i in range(nproc):
         # processes.append(
         #     mp.Process(

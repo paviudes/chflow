@@ -324,9 +324,9 @@ copy_output() {
 	printf "\033[0m"
 }
 
-timestamps=("${pcorr_limited[@]}")
-alphas=("${alphas_pcorr_limited[@]}")
-log=pcorr_limited
+timestamps=("${cptp_level3[@]}")
+alphas=("${alphas_cptp_level3[@]}")
+log=cptp_level3
 refts=${timestamps[0]}
 
 if [[ "$1" == "overwrite" ]]; then
@@ -541,12 +541,13 @@ elif [[ "$1" == "pmetrics" ]]; then
 	# Compute physical infidelity for all channels.
 	printf "\033[2m"
 	touch input/temp.txt
-	# for (( t=0; t<${#timestamps[@]}; ++t )); do
-	for (( t=0; t<1; ++t )); do
+	for (( t=0; t<${#timestamps[@]}; ++t )); do
+	# for (( t=0; t<1; ++t )); do
 		ts=${timestamps[t]}
 		echo "sbload ${ts}" >> input/temp.txt
-		echo "pmetrics infid" >> input/temp.txt
-		# echo "collect" >> input/temp.txt
+		# echo "pmetrics infid" >> input/temp.txt
+		echo "pmetrics dctvd" >> input/temp.txt
+		echo "collect" >> input/temp.txt
 	done
 	echo "quit" >> input/temp.txt
 	./chflow.sh -- temp.txt
@@ -592,22 +593,22 @@ elif [[ "$1" == "lpmetrics" ]]; then
 
 elif [[ "$1" == "plot" ]]; then
 	printf "\033[2m"
-	# echo "sbload ${refts}" > input/temp.txt
-	# printf -v joined_timestamps '%s,' "${timestamps[@]:1}"
-	##### temporary patch
-	echo "sbload ${timestamps[0]}" > input/temp.txt
+	echo "sbload ${refts}" > input/temp.txt
 	printf -v joined_timestamps '%s,' "${timestamps[@]:1}"
-	n_timestamps=${#timestamps[@]}
-	n_uncorr=$(($n_timestamps-1))
-	joined_uncorr=$(seq -s "uncorr" ${n_uncorr} | sed 's/[0-9]/,/g' | sed 's/,,/,/g' | sed 's/\%//g')
-	echo "joined_timestamps: ${joined_timestamps%?}"
-	echo "joined_uncorr: ${joined_uncorr}"
+	##### temporary patch
+	# echo "sbload ${timestamps[0]}" > input/temp.txt
+	# printf -v joined_timestamps '%s,' "${timestamps[@]:1}"
+	# n_timestamps=${#timestamps[@]}
+	# n_uncorr=$(($n_timestamps-1))
+	# joined_uncorr=$(seq -s "uncorr" ${n_uncorr} | sed 's/[0-9]/,/g' | sed 's/,,/,/g' | sed 's/\%//g')
+	# echo "joined_timestamps: ${joined_timestamps%?}"
+	# echo "joined_uncorr: ${joined_uncorr}"
 	#####
 	# echo "nrplot 0 0 ${joined_timestamps%?}" >> input/temp.txt
-	# echo "dciplot infid infid ${joined_timestamps%?} 0;36;1" >> input/temp.txt
+	echo "dciplot infid infid ${joined_timestamps%?} 0;36;1" >> input/temp.txt
 	# echo "mcplot infid infid 0 0 ${joined_timestamps%?}" >> input/temp.txt
-	echo "hamplot infid${joined_uncorr} infid ${joined_timestamps%?} 7,11 1,1 14" >> input/temp.txt
-	echo "notes infid${joined_uncorr} infid pcorr partialham /Users/pavi/Documents/rclearn/notes/paper/figures/scatter_styles 1" >> input/temp.txt
+	# echo "hamplot infid${joined_uncorr} infid ${joined_timestamps%?} 7,11 1,1 14" >> input/temp.txt
+	# echo "notes infid${joined_uncorr} infid pcorr partialham /Users/pavi/Documents/rclearn/notes/paper/figures/scatter_styles 1" >> input/temp.txt
 	# Scatter plot of infid and first alpha.
 	# echo "sbload ${timestamps[0]}" > input/temp.txt
 	# echo "hamplot infid,uncorr infid ${timestamps[1]} 7,11 1,1 10" >> input/temp.txt

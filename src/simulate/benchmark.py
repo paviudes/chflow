@@ -3,8 +3,8 @@ import ctypes
 import numpy as np
 from numpy.ctypeslib import ndpointer
 from define import fnames as fn
+from define.decoder import SetDecoderKnowledge
 from define.chanreps import ConvertRepresentations, ChangeOrdering
-from define.decoder import CompleteDecoderKnowledge
 
 DEBUG = 0
 
@@ -121,31 +121,7 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity, rawchan=None
 		dtype=np.int32,
 	)
 
-	if ((submit.decoders)[0] == 3 or (submit.decoders)[0] == 4): # Introduced decoder 4 to capture top alpha grouped by weight
-		if submit.iscorr == 0:
-			chan_probs = np.tile(
-				np.real(np.diag(ConvertRepresentations(physical, "process", "chi"))),
-				[submit.eccs[0].N, 1],
-			)
-		elif submit.iscorr == 2:
-			chans_ptm = np.reshape(physical, [submit.eccs[0].N, 4, 4])
-			chan_probs = np.zeros((submit.eccs[0].N, 4), dtype=np.double)
-			for q in range(submit.eccs[0].N):
-				chan_probs[q, :] = np.real(
-					np.diag(
-						ConvertRepresentations(chans_ptm[q, :, :], "process", "chi")
-					)
-				)
-		else:
-			chan_probs = rawchan
-		if (submit.decoders)[0] == 3:
-			mpinfo = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, submit.eccs[0], option="full", nr_weights = None).astype(np.float64)
-		else:
-			# decoder is 4 i.e distribute by weight guided by Poisson
-			nr_weights = np.load(fn.NRWeightsFile(submit, noise))[sample, :]
-			mpinfo = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, submit.eccs[0], option="weight", nr_weights = nr_weights).astype(np.float64)
-	else:
-		mpinfo = np.zeros(4**submit.eccs[0].N, dtype=np.float64)
+	mpinfo = SetDecoderKnowledge(submit, rawchan, noise, sample)
 
 	s_count = 0
 	ss_count = 0
