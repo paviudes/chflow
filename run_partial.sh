@@ -324,9 +324,9 @@ copy_output() {
 	printf "\033[0m"
 }
 
-timestamps=("${cptp_level3[@]}")
-alphas=("${alphas_cptp_level3[@]}")
-log=cptp_level3
+timestamps=("${cptp_level2[@]}")
+alphas=("${alphas_cptp_level2[@]}")
+log=cptp_level2
 refts=${timestamps[0]}
 
 if [[ "$1" == "overwrite" ]]; then

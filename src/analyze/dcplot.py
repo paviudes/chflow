@@ -5,7 +5,6 @@ import datetime as dt
 import numpy as np
 from scipy.special import comb
 import matplotlib
-
 matplotlib.use("Agg")
 from matplotlib import colors, ticker, cm
 from matplotlib.colors import LogNorm
@@ -119,11 +118,11 @@ def DecoderCompare(
 	return None
 
 
-def DecoderInstanceCompare(
-	phymet, logmet, dbses_input, chids = [0], thresholds={"y": 10e-16, "x": 10e-16}
-):
+def DecoderInstanceCompare(phymet, logmet, dbses_input, chids = [0], thresholds=None):
 	# Compare performance of various decoders.
 	# Only show alpha values that correspond to distinct number of Pauli error rates.
+	if thresholds is None:
+		thresholds={"y": 10e-16, "x": 10e-16}
 	qcode = dbses_input[0].eccs[0]
 	max_weight = 1 + qcode.N//2
 	noise = dbses_input[0].available[chids[0], :-1]
@@ -344,11 +343,158 @@ def AllocateBins(values, threshold_width=10):
 	return bins
 
 
-def RelativeDecoderInstanceCompare(
-	phymet, logmet, dbses, chids = [0], thresholds={"y": 10e-16, "x": 10e-16}
-):
+def SelectAlphas(ndb, nbins, logerrs, bin_phyerr):
+	# If the number of points excluded is more than 50%, do not plot the curve.
+	selected_indices = [np.zeros(ndb - 1, dtype = np.double) for b in range(nbins)]
+	count_selected = 0
+	for b in range(nbins):
+		selected = np.zeros(ndb - 1, dtype = np.int)
+		for d in range(ndb - 1):
+			filtered_dataset = [x for x in bin_phyerr[b] if (logerrs[d][x] != -1)]
+			if (len(filtered_dataset)/len(bin_phyerr[b]) >= 0.5):
+				selected[d] = 1
+				count_selected += len(filtered_dataset)
+		selected_indices[b], = np.nonzero(selected)
+	return selected_indices
+				
+
+def FilterLogicalErrorRates(dbses, chids, logmet, level):
+	# Load the logical error rates for plotting.
+	# Include only those logical error rate estimates that have converged.
+	ndb = len(dbses)
+	rates = []
+	samples = []
+	for (c, ch) in enumerate(chids):
+		noise = dbses[0].available[chids[ch], :-1]
+		rates.append(np.argmin(np.sum(np.abs(dbses[0].noiserates - noise), axis=1)))
+		samples.append(int(dbses[0].available[chids[ch], -1]))
+	is_converged = np.zeros((ndb, len(rates), len(samples)), dtype = np.int)
+	for d in range(ndb):
+		is_converged[d, :, :] = IsConverged(dbses[d], logmet, rates, samples, threshold = 10)
+
+	# Load the logical error rates
+	logerrs = {d: -1 * np.ones(len(chids), dtype = np.double) for d in range(ndb - 1)}
+	minalpha_perfs = np.zeros(len(chids), dtype = np.double)
+	for (c, ch) in enumerate(chids):
+		noise = dbses[0].available[chids[ch], :-1]
+		rate_index = np.argmin(np.sum(np.abs(dbses[0].noiserates - noise), axis=1))
+		sample_index = int(dbses[0].available[chids[ch], -1])
+		# Load the minimum alpha performance.
+		minalpha_perfs[ch] = np.load(LogicalErrorRates(dbses[1], logmet))[ch, level]
+		for d in range(1, ndb): # Start from d = 2 when taking the ratio between the first alpha and the rest.
+			if (is_converged[d, rate_index, sample_index] == 1):
+				# Normalize with the performance of the lowest alpha (ideally, RB).
+				logerrs[d - 1][c] = np.load(LogicalErrorRates(dbses[d], logmet))[ch, level]/minalpha_perfs[ch]
+	return (logerrs, minalpha_perfs)
+
+
+def BinPhysErrs(phyerrs, logerrs, bin_width, ndb):
+	# Bin the physical error rates and average logical error rates in a bin.
+	bins = AllocateBins(phyerrs, bin_width)
+	# print("Bins\n{}\nlogerrs\n{}".format(bins, logerrs))
+	nbins = len(bins)
+	logerrs_binned = np.zeros((3, ndb - 1, nbins), dtype = np.double)
+	filtered = {d: [] for d in range(ndb - 1)}
+	for b in range(nbins):
+		for d in range(ndb - 1):
+			filtered_dataset = [x for x in bins[b] if (logerrs[d][x] != -1)]
+			filtered[d].extend(filtered_dataset)
+			median = np.median(logerrs[d][filtered_dataset])
+			logerrs_binned[0, d, b] = median
+			# Compute the lower and upper error bars.
+			logerrs_binned[1, d, b] = median - np.percentile(logerrs[d][filtered_dataset], 25)
+			logerrs_binned[2, d, b] = np.percentile(logerrs[d][filtered_dataset], 75) - median
+	return (bins, logerrs_binned, filtered)
+			
+
+def GetTVD(dbses, chids, bins, logerrs):
+	# Extract the TVDs for each alpha, and plot as an inset.
+	# Get the TVD for each decoder knowledge with the full Pauli error distribution. These will be in the annotations.
+	ndb = len(dbses)
+	nbins = len(bins)
+	alphas = [dbs.decoder_fraction for dbs in dbses]
+	tvds = np.zeros((ndb - 1, len(chids)), dtype = np.double)
+	for d in range(1, len(alphas)):
+		tvds[d - 1, :] = np.load(PhysicalErrorRates(dbses[d], "dctvd"))[chids]
+		# print("TVDs for alpha = {}\n{}".format(alphas[d], tvds[d - 1, :]))
+	# Bin the TVDs
+	tvds_filtered = np.zeros((3, ndb, nbins), dtype = np.double)
+	for b in range(nbins):
+		for d in range(ndb - 1):
+			filtered_dataset = [x for x in bins[b] if (logerrs[d][x] != -1)]
+			median = np.median(tvds[d, filtered_dataset])
+			tvds_filtered[0, d, b] = median
+			# Compute the upper and lower error bars.
+			tvds_filtered[1, d, b] = median - np.percentile(tvds[d, filtered_dataset], 25)
+			tvds_filtered[2, d, b] = np.percentile(tvds[d, filtered_dataset], 75) - median
+	return tvds_filtered
+
+
+def GetBudgets(dbses, chids):
+	# Compute the budgets (X-axis): number of Pauli error rates in NR.
+	ndb = len(dbses)
+	budgets = np.zeros((ndb - 1, len(chids)), dtype = np.double)
+	budget_left = np.zeros((ndb - 1, len(chids)), dtype = np.double)
+	for (c, ch) in enumerate(chids):
+		noise = dbses[0].available[chids[ch], :-1]
+		sample = int(dbses[0].available[chids[ch], -1])
+		nr_weights = np.load(NRWeightsFile(dbses[0], noise))[sample, :]
+		budgets[:, c] = np.array([GetTotalErrorBudget(dbs, noise, sample) for dbs in dbses[1:]], dtype=np.int)
+		chan_probs = np.load(RawPhysicalChannel(dbses[0], noise))[sample, :]
+		# for d in range(1, alphas.size):
+		# 	(__, __, knownPaulis) = GetLeadingPaulis(alphas[d], qcode, chan_probs, "weight", nr_weights)
+		# 	budget_left[d - 1, c] = 1 - np.sum(knownPaulis)
+	return budgets
+
+def SetInsetTVD(ax_principal, xaxes, yaxes, selected, bins):
+	# Plot the TVDs for the various alphas in the inset plot.
+	# Inset axes
+	nbins = len(bins)
+	ax_inset = plt.axes([0, 0, 1, 1])
+	# Position and relative size of the inset axes within ax_principal
+	ip = InsetPosition(ax_principal, [0.66, 0.65, 0.32, 0.3]) # Positon: bottom right
+	ax_inset.set_axes_locator(ip)
+	# Mark the region corresponding to the inset axes on ax_principal and draw lines in grey linking the two axes.
+	mark_inset(ax_principal, ax_inset, loc1=2, loc2=4, fc="none")
+	
+	for b in range(nbins):
+		# If the number of points in a bin in less than 5, do not plot.
+		if (len(bins[b]) < 5):
+			continue
+		# Plot
+		# print("TVD for bin {}\n{}".format(b, yaxes[0, selected[b], b]))
+		ax_inset.errorbar(
+			xaxes[b, selected[b]],
+			yaxes[0, selected[b], b],
+			yerr=yaxes[1:, selected[b], b],
+			color=gv.Colors[b % gv.n_Colors],
+			alpha=0.75,
+			marker="o",
+			markersize=gv.marker_size,
+			linestyle="--",
+			linewidth=gv.line_width
+			# label="$\\langle %s\\rangle = %s$" % (ml.Metrics[phymet]["latex"].replace("$", ""), latex_float(average_phymet))
+		)
+
+	# Scales
+	ax_inset.set_xscale("log")
+	ax_inset.set_yscale("log")
+	
+	# Axes labels
+	ax_inset.set_xlabel("$K$", fontsize=gv.axes_labels_fontsize * 0.8, labelpad=gv.axes_labelpad)
+	ax_inset.set_ylabel("TVD ($\\delta$)", fontsize=gv.axes_labels_fontsize * 0.75, labelpad=gv.axes_labelpad)
+	# Axes ticks
+	ax_inset.tick_params(axis="both", which="both", pad=gv.ticks_pad, direction="inout", length=gv.ticks_length, width=gv.ticks_width, labelsize=gv.ticks_fontsize * 0.75)
+	return None
+
+
+def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], thresholds=None):
 	# Compare performance of various decoders.
 	# Only show alpha values that correspond to distinct number of Pauli error rates.
+	
+	if thresholds is None:
+		thresholds={"y": 10e-16, "x": 10e-16}
+	
 	qcode = dbses[0].eccs[0]
 	max_weight = 1 + qcode.N//2
 	ndb = len(dbses)
@@ -364,107 +510,55 @@ def RelativeDecoderInstanceCompare(
 	# print("alphas: {}".format(alphas))
 
 	phyerrs = np.load(PhysicalErrorRates(dbses[0], phymet))[chids]
-	bin_width = 2
+	bin_width = 5
 	with PdfPages(plotfname) as pdf:
 		for l in range(nlevels, nlevels + 1):
 			fig = plt.figure(figsize=gv.canvas_size)
 			ax = plt.gca()
 			
-			# Compute which of the logical error rate estimates have converged.
-			rates = []
-			samples = []
-			for (c, ch) in enumerate(chids):
-				noise = dbses[0].available[chids[ch], :-1]
-				rates.append(np.argmin(np.sum(np.abs(dbses[0].noiserates - noise), axis=1)))
-				samples.append(int(dbses[0].available[chids[ch], -1]))
-			is_converged = np.zeros((ndb, len(rates), len(samples)), dtype = np.int)
-			for d in range(ndb):
-				is_converged[d, :, :] = IsConverged(dbses[d], logmet, rates, samples, threshold = 10)
-
-			# Load the logical error rates
-			yaxes = {d: -1 * np.ones(len(chids), dtype = np.double) for d in range(ndb - 1)}
-			for (c, ch) in enumerate(chids):
-				noise = dbses[0].available[chids[ch], :-1]
-				rate_index = np.argmin(np.sum(np.abs(dbses[0].noiserates - noise), axis=1))
-				sample_index = int(dbses[0].available[chids[ch], -1])
-				# Load the minimum weight performance
-				# minwt_perf = np.load(LogicalErrorRates(dbses[0], logmet))[ch, l]
-				# Load the minimum alpha performance.
-				minalpha_perf = np.load(LogicalErrorRates(dbses[1], logmet))[ch, l]
-				for d in range(1, ndb): # Start from d = 2 when taking the ratio between the first alpha and the rest.
-					if (is_converged[d, rate_index, sample_index] == 1):
-						# Normalize with the performance of the minimum weight decoder.
-						# yaxes[d - 1][c] = minwt_perf/np.load(LogicalErrorRates(dbses[d], logmet))[ch, l]
-						# Use the raw logical error rates.
-						# yaxes[d - 1][c] = np.load(LogicalErrorRates(dbses[d], logmet))[ch, l]
-						# Normalize with the performance of the lowest alpha (ideally, RB).
-						yaxes[d - 1][c] = np.load(LogicalErrorRates(dbses[d], logmet))[ch, l]/minalpha_perf
-
+			# Load the logical error rates that have converged well.
+			(yaxes, minalpha_perfs) = FilterLogicalErrorRates(dbses, chids, logmet, l)
 			# print("Yaxes\n{}".format(yaxes))
 
-			# Extract the TVDs for each alpha.
-			# Get the TVD for each decoder knowledge with the full Pauli error distribution. These will be in the annotations.
-			tvds = np.zeros((ndb - 1, len(chids)), dtype = np.double)
-			for d in range(1, alphas.size):
-				tvds[d - 1, :] = np.load(PhysicalErrorRates(dbses[d], "dctvd"))[chids]
-				print("TVDs for alpha = {}\n{}".format(alphas[d], tvds[d - 1, :]))
+			# Bin the physical and logical error rates.
+			(bins, yaxes_binned, filtered) = BinPhysErrs(phyerrs, yaxes, bin_width, ndb)
+			nbins = len(bins)
 
-			# Compute the budgets (X-axis) and the budget-left-out (for annotations)
-			budgets = np.zeros((ndb - 1, len(chids)), dtype = np.double)
-			budget_left = np.zeros((ndb - 1, len(chids)), dtype = np.double)
-			for (c, ch) in enumerate(chids):
-				noise = dbses[0].available[chids[ch], :-1]
-				sample = int(dbses[0].available[chids[ch], -1])
-				nr_weights = np.load(NRWeightsFile(dbses[0], noise))[sample, :]
-				budgets[:, c] = np.array([GetTotalErrorBudget(dbs, noise, sample) for dbs in dbses[1:]], dtype=np.int)
-				chan_probs = np.load(RawPhysicalChannel(dbses[0], noise))[sample, :]
-				for d in range(1, alphas.size):
-					(__, __, knownPaulis) = GetLeadingPaulis(alphas[d], qcode, chan_probs, "weight", nr_weights)
-					budget_left[d - 1, c] = 1 - np.sum(knownPaulis)
+			# Print the performance of the minimum alpha (RB) for each bin.
+			for b in range(nbins):
+				if (len(bins[b]) >= 5):
+					print("Bin {}, Logical performance with RB data: {}".format(b, np.mean(minalpha_perfs[bins[b]])))
+			
+			# Compute the TVDs for the decoders and bin them.
+			tvds_filtered = GetTVD(dbses, chids, bins, yaxes)
+
+			# Compute the number of Pauli error rates in NR.
+			budgets = GetBudgets(dbses, chids)
+			xaxes = np.zeros((nbins, ndb - 1), dtype = np.double)
+			for b in range(nbins):
+				xaxes[b, :] = np.array([np.mean(budgets[d, filtered[d]]) for d in range(ndb - 1)])
+			
+			# If the number of points excluded is more than 50% of the bin, ignore the bin in the plot.
+			selected = SelectAlphas(ndb, nbins, yaxes, bins)
 
 			# Bin the physical error rates and average logical error rates in a bin.
-			bins = AllocateBins(phyerrs, bin_width)
-			nbins = len(bins)
-			yaxes_binned = np.zeros((ndb - 1, nbins), dtype = np.double)
-			budgets_left_binned = np.zeros((ndb, nbins), dtype = np.double)
-			tvds_filtered = np.zeros((ndb, nbins), dtype = np.double)
 			print("bin_width = {}\nbin_sizes\n{}".format(bin_width, [len(bins[b]) for b in bins]))
 			max_y = 0
 			min_y = np.max(np.array(list(yaxes.values())))
-			filtered = {d: [] for d in range(ndb - 1)}
-			for b in range(yaxes_binned.shape[1]):
-				for d in range(ndb - 1):
-					filtered_dataset = [x for x in bins[b] if (yaxes[d][x] != -1)]
-					filtered[d].extend(filtered_dataset)
-					yaxes_binned[d, b] = np.median(yaxes[d][filtered_dataset])
-					budgets_left_binned[d, b] = np.median(budget_left[d, filtered_dataset])
-					tvds_filtered[d, b] = np.median(tvds[d, filtered_dataset])
-					# print("curve = {}, alpha = {}\nfiltered dataset has {} points.".format(b, d, len(filtered_dataset)))
-
+			for b in range(nbins):
 				average_phymet = np.median(phyerrs[bins[b]])
-				# print("Curve {}\nBins\n{}\nX\n{}\nY\n{}".format(b, bins, np.mean(budgets, axis=1), yaxes_binned[:, b]))
-				
+				#################
+				# Exclude bins
 				# If the number of points in a bin in less than 5, do not plot.
 				if (len(bins[b]) < 5):
 					continue
-				
-				# If the number of points excluded is more than 50%, do not plot the curve.
-				selected = np.zeros(ndb - 1, dtype = np.int)
-				count_selected = 0
-				for d in range(ndb - 1):
-					filtered_dataset = [x for x in bins[b] if (yaxes[d][x] != -1)]
-					if (len(filtered_dataset)/len(bins[b]) >= 0.5):
-						selected[d] = 1
-						count_selected += len(filtered_dataset)
-				print("Average number of channels selected in bin %d = %.2f." % (b, count_selected/(ndb - 1)))
-				selected_indices, = np.nonzero(selected)
-				# print("selected_indices = {}".format(selected_indices))
+				# print("Average number of channels selected in bin %d = %.2f." % (b, selected.size/(ndb - 1)))
+				#################
 				# Plotting
-				xaxes = np.array([np.mean(budgets[d, filtered[d]]) for d in range(ndb - 1)])
-				# xaxes = np.mean(budgets, axis=1)
-				plotobj = ax.plot(
-					xaxes[selected_indices],
-					yaxes_binned[selected_indices, b],
+				plotobj = ax.errorbar(
+					xaxes[b, selected[b]],
+					yaxes_binned[0, selected[b], b],
+					yerr=yaxes_binned[1:, selected[b], b],
 					color=gv.Colors[b % gv.n_Colors],
 					alpha=0.75,
 					marker="o",
@@ -474,40 +568,40 @@ def RelativeDecoderInstanceCompare(
 					label="$\\langle %s\\rangle = %s$" % (ml.Metrics[phymet]["latex"].replace("$", ""), latex_float(average_phymet))
 				)
 				# Compute the max y value for designing the axes limits
-				if (max_y < np.max(yaxes_binned[:, b])):
-					max_y = np.max(yaxes_binned[:, b])
-				if (min_y > np.min(yaxes_binned[:, b])):
-					min_y = np.min(yaxes_binned[:, b])
+				if (max_y < np.max(yaxes_binned[0, :, b])):
+					max_y = np.max(yaxes_binned[0, :, b])
+				if (min_y > np.min(yaxes_binned[0, :, b])):
+					min_y = np.min(yaxes_binned[0, :, b])
 
+				"""
 				# Annotate each point with the TVD
 				texts = []
 				for d in range(ndb - 1):
 					if (selected[d] == 1):
-						# texts.append(ax.text(xaxes[d], yaxes_binned[d, b] * 0.4, "$%s$" % latex_float(budgets_left_binned[d, b]), fontsize=gv.ticks_fontsize * 0.75, rotation=-20))
 						texts.append(ax.text(xaxes[d], yaxes_binned[d, b] * 0.4, "$%g$" % np.round(tvds_filtered[d, b], 4), fontsize=gv.ticks_fontsize * 0.75, rotation=-20))
-						# Only for level 3
-						# if (d % 2 == 0):
-						# 	texts.append(ax.text(0.8 * xaxes[d], yaxes_binned[d, b] * 0.4, "$%s$" % latex_float(budgets_left_binned[d, b]), fontsize=gv.ticks_fontsize * 0.75, rotation=0))
-						# else:
-						# 	texts.append(ax.text(0.8 * xaxes[d], yaxes_binned[d, b] * 1.4, "$%s$" % latex_float(budgets_left_binned[d, b]), fontsize=gv.ticks_fontsize * 0.75, rotation=20))
+				"""
+
+			# Set the inset plots to show TVD.
+			SetInsetTVD(ax, xaxes, tvds_filtered, selected, bins)
 
 			# Axes limits
-			ax.set_ylim([1, max_y * 5])
+			# ax.set_ylim([min_y / 5, max_y * 5])
 
 			# Gridlines
-			ax.grid(which="both", axis="y")
+			ax.grid(which="both", axis="both")
 
 			# Axes labels
 			ax.set_xlabel(
-				"Number of Pauli decay rates",
-				fontsize=gv.axes_labels_fontsize * 0.8,
-				labelpad=gv.axes_labelpad,
-			)
-			ax.set_ylabel(
-				"Gain over MWD ($\\Delta_{%d}$)" % (l),
+				"Number of Pauli decay rates $(K)$",
 				fontsize=gv.axes_labels_fontsize,
 				labelpad=gv.axes_labelpad,
 			)
+			ax.set_ylabel(
+				"Gain over RB ($\\Delta_{%d}$)" % (l),
+				fontsize=gv.axes_labels_fontsize,
+				labelpad=gv.axes_labelpad,
+			)
+			# Axes ticks
 			ax.tick_params(
 				axis="both",
 				which="both",
@@ -520,18 +614,19 @@ def RelativeDecoderInstanceCompare(
 			# temporarily muting the legend
 			ax.legend(
 				numpoints=1,
-				loc="upper center",
-				ncol=4,
-				bbox_to_anchor=(0.5, 1.16),
+				loc="lower left",
+				# loc="upper center",
+				# ncol=4,
+				# bbox_to_anchor=(0.5, 1.16),
 				shadow=True,
-				fontsize=gv.legend_fontsize,
+				fontsize=gv.legend_fontsize * 1.4,
 				markerscale=gv.legend_marker_scale,
 			)
 			ax.set_xscale("log")
 			ax.set_yscale("log")
 
 			# Axes ticks
-			# print("max_y = {} and min_y = {}".format(max_y, min_y))
+			print("max_y = {} and min_y = {}".format(max_y, min_y))
 			yticks = np.arange(OrderOfMagnitude(min_y/5), OrderOfMagnitude(max_y * 5))
 			ax.set_yticks(np.power(10.0, yticks), minor=True)
 			# print("Y ticks\n{}".format(yticks))
@@ -542,8 +637,10 @@ def RelativeDecoderInstanceCompare(
 			# 	adjust_text(texts, only_move={'points':'y', 'texts':'y'}, expand_points=(1, 2), precision=0.05, arrowprops=dict(arrowstyle="->", color='r', lw=0.5))
 
 			# Save the plot
+			fig.tight_layout(pad=5)
 			pdf.savefig(fig)
 			plt.close()
+
 		# Set PDF attributes
 		pdfInfo = pdf.infodict()
 		pdfInfo["Title"] = "Comparing different decoders"
