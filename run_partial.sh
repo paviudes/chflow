@@ -128,7 +128,7 @@ if [[ -n ${cluster} ]]; then
 
 	# Aggregate
 	cptp_level2=("beluga_cptp_l2_00" "beluga_cptp_l2_01" "beluga_cptp_l2_02" "beluga_cptp_l2_03" "beluga_cptp_l2_04" "beluga_cptp_l2_05" "beluga_cptp_l2_06" "beluga_cptp_l2_07" "beluga_cptp_l2_08" "beluga_cptp_l2_09" "beluga_cptp_l2_10" "beluga_cptp_l2_11")
-	cptp_level3=("beluga_cptp_l3_00" "beluga_cptp_l3_01" "beluga_cptp_l3_02" "beluga_cptp_l3_03" "beluga_cptp_l3_04" "beluga_cptp_l3_05" "beluga_cptp_l3_06" "beluga_cptp_l3_07" "beluga_cptp_l3_08" "beluga_cptp_l3_09" "beluga_cptp_l3_10" "beluga_cptp_l3_11")
+	cptp_level3=("beluga_cptp_l3_00" "beluga_cptp_l3_12" "beluga_cptp_l3_02" "beluga_cptp_l3_03" "beluga_cptp_l3_04" "beluga_cptp_l3_05" "beluga_cptp_l3_06" "beluga_cptp_l3_07" "beluga_cptp_l3_08" "beluga_cptp_l3_09" "beluga_cptp_l3_10" "beluga_cptp_l3_11")
 	pcorr_level2=("beluga_pcorr_l2_00" "beluga_pcorr_l2_01" "beluga_pcorr_l2_02" "beluga_pcorr_l2_03" "beluga_pcorr_l2_04" "beluga_pcorr_l2_05" "beluga_pcorr_l2_06" "beluga_pcorr_l2_07" "beluga_pcorr_l2_08" "beluga_pcorr_l2_09" "beluga_pcorr_l2_10" "beluga_pcorr_l2_11")
 	usum_level2=("beluga_usum_l2_00" "beluga_usum_l2_01" "beluga_usum_l2_02" "beluga_usum_l2_03" "beluga_usum_l2_04" "beluga_usum_l2_05" "beluga_usum_l2_06" "beluga_usum_l2_07" "beluga_usum_l2_08" "beluga_usum_l2_09" "beluga_usum_l2_10" "beluga_usum_l2_11")
 	alphas=(0 0.0003 0.0009 0.0026 0.0072 0.02 0.0002 0.0006 0.0015 0.0043 0.012 1)
@@ -324,9 +324,9 @@ copy_output() {
 	printf "\033[0m"
 }
 
-timestamps=("${cptp_level2[@]}")
-alphas=("${alphas_cptp_level2[@]}")
-log=cptp_level2
+timestamps=("${cptp_level3[@]}")
+alphas=("${alphas_cptp_level3[@]}")
+log=cptp_level3
 refts=${timestamps[0]}
 
 if [[ "$1" == "overwrite" ]]; then
@@ -545,7 +545,7 @@ elif [[ "$1" == "pmetrics" ]]; then
 	# for (( t=0; t<1; ++t )); do
 		ts=${timestamps[t]}
 		echo "sbload ${ts}" >> input/temp.txt
-		# echo "pmetrics infid" >> input/temp.txt
+		echo "pmetrics infid" >> input/temp.txt
 		echo "pmetrics dctvd" >> input/temp.txt
 		echo "collect" >> input/temp.txt
 	done

@@ -518,9 +518,7 @@ if __name__ == "__main__":
 				reuse = 1
 				for i in range(submit.noiserates.shape[0]):
 					if reuse == 1:
-						if not os.path.isfile(
-							PhysicalChannel(submit, submit.noiserates[i, :])
-						):
+						if not os.path.isfile(PhysicalChannel(submit, submit.noiserates[i, :])):
 							reuse = 0
 				if reuse == 0:
 					# print("Physical channels not found")
@@ -536,13 +534,7 @@ if __name__ == "__main__":
 				else:
 					IsComplete(submit)
 
-				submit.nodes = int(
-					np.ceil(
-						submit.noiserates.shape[0]
-						* submit.samps
-						/ np.longdouble(submit.cores[0])
-					)
-				)
+				submit.nodes = int(np.ceil(submit.noiserates.shape[0] * submit.samps / np.longdouble(submit.cores[0])))
 
 		#####################################################################
 
@@ -648,7 +640,6 @@ if __name__ == "__main__":
 			# Collect the logical failure rates into one file.
 			if submit.complete > 0:
 				GatherLogErrData(submit)
-
 
 		#####################################################################
 

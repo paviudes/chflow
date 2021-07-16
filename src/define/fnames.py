@@ -1,3 +1,8 @@
+def IsConvergedFile(dbs, logmet):
+    # Store which of the noise rates and samples have converged.
+    fname = "%s/results/isconv_%s_%s.npy" % (dbs.outdir, dbs.channel, logmet)
+    return fname
+
 def DecoderKnowledgeFile(dbs, noise):
     # File containing the decoder knowledge.
     noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))

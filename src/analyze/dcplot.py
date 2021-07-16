@@ -28,7 +28,7 @@ from analyze.utils import latex_float, scientific_float, OrderOfMagnitude
 from analyze.bins import ComputeBinVariance
 from analyze.statplot import IsConverged
 from analyze.load import LoadPhysicalErrorRates
-from define.fnames import DecodersPlot, DecodersInstancePlot, LogicalErrorRates, PhysicalErrorRates, NRWeightsFile, RawPhysicalChannel
+from define.fnames import DecodersPlot, DecodersInstancePlot, LogicalErrorRates, PhysicalErrorRates, NRWeightsFile, RawPhysicalChannel, IsConvergedFile
 
 def DecoderCompare(
 	phymet, logmet, dbses, nbins=10, thresholds={"y": 10e-16, "x": 10e-16}
@@ -370,7 +370,11 @@ def FilterLogicalErrorRates(dbses, chids, logmet, level):
 		samples.append(int(dbses[0].available[chids[ch], -1]))
 	is_converged = np.zeros((ndb, len(rates), len(samples)), dtype = np.int)
 	for d in range(ndb):
-		is_converged[d, :, :] = IsConverged(dbses[d], logmet, rates, samples, threshold = 10)
+		if os.path.isfile(IsConvergedFile(dbses[d], logmet)):
+			is_converged[d, :, :] = np.load(IsConvergedFile(dbses[d], logmet))
+		else:
+			is_converged[d, :, :] = IsConverged(dbses[d], logmet, rates, samples, threshold = 10)
+			np.save(IsConvergedFile(dbses[d], logmet), is_converged[d, :, :])
 
 	# Load the logical error rates
 	logerrs = {d: -1 * np.ones(len(chids), dtype = np.double) for d in range(ndb - 1)}
@@ -452,7 +456,7 @@ def SetInsetTVD(ax_principal, xaxes, yaxes, selected, bins):
 	nbins = len(bins)
 	ax_inset = plt.axes([0, 0, 1, 1])
 	# Position and relative size of the inset axes within ax_principal
-	ip = InsetPosition(ax_principal, [0.66, 0.65, 0.32, 0.3]) # Positon: bottom right
+	ip = InsetPosition(ax_principal, [0.17, 0.2, 0.32, 0.3]) # Positon: bottom right
 	ax_inset.set_axes_locator(ip)
 	# Mark the region corresponding to the inset axes on ax_principal and draw lines in grey linking the two axes.
 	mark_inset(ax_principal, ax_inset, loc1=2, loc2=4, fc="none")
@@ -475,6 +479,10 @@ def SetInsetTVD(ax_principal, xaxes, yaxes, selected, bins):
 			linewidth=gv.line_width
 			# label="$\\langle %s\\rangle = %s$" % (ml.Metrics[phymet]["latex"].replace("$", ""), latex_float(average_phymet))
 		)
+
+	# Gridlines
+	ax_inset.grid(which="both", axis="both", color="0.85")# Gridlines
+	ax_inset.grid(which="both", axis="both", color="0.85")
 
 	# Scales
 	ax_inset.set_xscale("log")
@@ -513,7 +521,7 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 	bin_width = 5
 	with PdfPages(plotfname) as pdf:
 		for l in range(nlevels, nlevels + 1):
-			fig = plt.figure(figsize=gv.canvas_size)
+			fig = plt.figure(figsize=(gv.canvas_size[0] * 1.3, gv.canvas_size[1]))
 			ax = plt.gca()
 			
 			# Load the logical error rates that have converged well.
@@ -545,6 +553,10 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 			print("bin_width = {}\nbin_sizes\n{}".format(bin_width, [len(bins[b]) for b in bins]))
 			max_y = 0
 			min_y = np.max(np.array(list(yaxes.values())))
+			plots = []
+			labels = []
+			empty_plots = []
+			rb_perf_labels = []
 			for b in range(nbins):
 				average_phymet = np.median(phyerrs[bins[b]])
 				#################
@@ -555,7 +567,7 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 				# print("Average number of channels selected in bin %d = %.2f." % (b, selected.size/(ndb - 1)))
 				#################
 				# Plotting
-				plotobj = ax.errorbar(
+				pl = ax.errorbar(
 					xaxes[b, selected[b]],
 					yaxes_binned[0, selected[b], b],
 					yerr=yaxes_binned[1:, selected[b], b],
@@ -564,9 +576,26 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 					marker="o",
 					markersize=gv.marker_size,
 					linestyle="--",
-					linewidth=gv.line_width,
-					label="$\\langle %s\\rangle = %s$" % (ml.Metrics[phymet]["latex"].replace("$", ""), latex_float(average_phymet))
+					linewidth=gv.line_width
 				)
+				plots.append(pl)
+				lab = "$\\langle %s\\rangle = %s$" % (ml.Metrics[phymet]["latex"].replace("$", ""), latex_float(average_phymet))
+				labels.append(lab)
+				
+				# Add an empty plot for the RB logical error rate labels.
+				pl, = ax.plot(
+					[], [],
+					color=gv.Colors[b % gv.n_Colors],
+					alpha=0.75,
+					marker="o",
+					markersize=gv.marker_size,
+					linestyle="--",
+					linewidth=gv.line_width,
+				)
+				empty_plots.append(pl)
+				lab = "$\\langle \\overline{%s}^{RB}_{%d}\\rangle = %s$" % (ml.Metrics[logmet]["latex"].replace("$", ""), l, latex_float(np.mean(minalpha_perfs[bins[b]])))
+				rb_perf_labels.append(lab)
+
 				# Compute the max y value for designing the axes limits
 				if (max_y < np.max(yaxes_binned[0, :, b])):
 					max_y = np.max(yaxes_binned[0, :, b])
@@ -588,7 +617,7 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 			# ax.set_ylim([min_y / 5, max_y * 5])
 
 			# Gridlines
-			ax.grid(which="both", axis="both")
+			ax.grid(which="both", axis="both", color="0.85")
 
 			# Axes labels
 			ax.set_xlabel(
@@ -611,13 +640,28 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 				width=gv.ticks_width,
 				labelsize=gv.ticks_fontsize,
 			)
-			# temporarily muting the legend
-			ax.legend(
+			# Lengend with curve labels of average physical infidelity
+			physinfid_legend = ax.legend(
+				plots,
+				labels,
 				numpoints=1,
-				loc="lower left",
-				# loc="upper center",
-				# ncol=4,
-				# bbox_to_anchor=(0.5, 1.16),
+				# loc="lower left",
+				loc="upper center",
+				ncol=2,
+				bbox_to_anchor=(0.45, 1.3),
+				shadow=True,
+				fontsize=gv.legend_fontsize * 1.4,
+				markerscale=gv.legend_marker_scale,
+			)
+			ax.add_artist(physinfid_legend)
+			rb_perf_legend = ax.legend(
+				empty_plots,
+				rb_perf_labels,
+				numpoints=1,
+				# loc="lower left",
+				loc="center left",
+				ncol=1,
+				bbox_to_anchor=(1, 0.6),
 				shadow=True,
 				fontsize=gv.legend_fontsize * 1.4,
 				markerscale=gv.legend_marker_scale,
@@ -626,7 +670,7 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 			ax.set_yscale("log")
 
 			# Axes ticks
-			print("max_y = {} and min_y = {}".format(max_y, min_y))
+			# print("max_y = {} and min_y = {}".format(max_y, min_y))
 			yticks = np.arange(OrderOfMagnitude(min_y/5), OrderOfMagnitude(max_y * 5))
 			ax.set_yticks(np.power(10.0, yticks), minor=True)
 			# print("Y ticks\n{}".format(yticks))
@@ -637,7 +681,7 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 			# 	adjust_text(texts, only_move={'points':'y', 'texts':'y'}, expand_points=(1, 2), precision=0.05, arrowprops=dict(arrowstyle="->", color='r', lw=0.5))
 
 			# Save the plot
-			fig.tight_layout(pad=5)
+			plt.tight_layout(pad=30)
 			pdf.savefig(fig)
 			plt.close()
 
