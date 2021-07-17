@@ -66,7 +66,7 @@ def PreparePhysicalChannels(submit, nproc=None):
 	rawchans = mp.Array(
 		ct.c_double,
 		np.zeros(
-			(submit.noiserates.shape[0] * submit.samps * raw_params), dtype=np.double
+			(submit.noiserates.shape[0] * submit.samps * raw_params), dtype=np.complex128
 		),
 	)
 	misc_info = [["None" for __ in range(submit.samps)] for __ in range(submit.noiserates.shape[0])]
