@@ -31,7 +31,7 @@ def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 	# Inset axes
 	ax_inset = plt.axes([0, 0, 1, 1])
 	# Position and relative size of the inset axes within ax_principal
-	ip = InsetPosition(ax_principal, [0.605, 0.1, 0.36, 0.33]) # Positon: bottom right
+	ip = InsetPosition(ax_principal, [0.59, 0.14, 0.36, 0.33]) # Positon: bottom right
 	ax_inset.set_axes_locator(ip)
 	# Mark the region corresponding to the inset axes on ax_principal and draw lines in grey linking the two axes.
 	mark_inset(ax_principal, ax_inset, loc1=2, loc2=4, fc="none")
@@ -72,23 +72,36 @@ def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 		current_axes.plot(xaxis[1:-1], yaxis[1:-1], marker=gv.Markers[d % gv.n_Markers], color=gv.Colors[d % gv.n_Colors], linestyle="-", linewidth=gv.line_width, markersize=gv.marker_size, alpha=0.75)
 		# Tick parameters for both axes
 		current_axes.tick_params(
-			axis="both",
+			axis="x",
 			which="both",
 			pad=relative_paddings[d % len(relative_paddings)] * gv.ticks_pad,
 			direction="inout",
-			length=gv.ticks_length,
-			width=gv.ticks_width,
-			labelsize=1.1 * gv.ticks_fontsize,
+			length=2 * gv.ticks_length,
+			width=2 * gv.ticks_width,
+			labelsize=2.5 * gv.ticks_fontsize,
 		)
 
 		print("Plot done for d = {}".format(d))
 	
+	# Tick parameters for the Y-axis
+	ax_inset.tick_params(
+		axis="y",
+		which="both",
+		pad=0.75 * gv.ticks_pad,
+		direction="inout",
+		length=2 * gv.ticks_length,
+		width=2 * gv.ticks_width,
+		labelsize=2.5 * gv.ticks_fontsize,
+	)
+
 	# Draw grid lines
 	ax_inset.grid(which="major")
 	
 	# Axes labels
-	ax_inset.set_ylabel("Dispersion ($\\Delta$)", fontsize=1.25 * gv.axes_labels_fontsize, labelpad = 0.75 * gv.axes_labelpad)
-	
+	ax_inset.set_ylabel("Dispersion ($\\Delta$)", fontsize=2.25 * gv.axes_labels_fontsize, labelpad = 1.2 * gv.axes_labelpad)
+	# Set explicit height of the Y-axis label: only for dnorm plots.
+	ax_inset.yaxis.set_label_coords(-0.22,0.38)
+
 	# Axes scales
 	ax_inset.set_xscale("log")
 	ax_inset_top.set_xscale("log")
@@ -104,8 +117,16 @@ def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 	(positions_bottom, bottom_ticks) = ComputeBinPositions(intended_bottom_ticks, raw_inset_ticks_bottom)
 	# print("bottom_ticks = {}".format(bottom_ticks))
 	# ax_inset.set_xticks(positions_bottom[positions_bottom > -1])
+	##### Mute some of the axes labels
+	labels = list(map(lambda x: "$%s$" % latex_float(x), bottom_ticks[bottom_ticks > -1]))
+	selected = np.arange(len(labels), dtype = np.int)[1::2]
+	to_mute = np.array([tk for tk in range(len(labels)) if not (tk in selected)], dtype = np.int)
+	for tk in range(len(labels)):
+		if not (tk in selected):
+			labels[tk] = ""
+	#####
 	ax_inset.set_xticks(bottom_ticks[bottom_ticks > -1])
-	ax_inset.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), bottom_ticks[bottom_ticks > -1])), rotation=45, color=gv.Colors[0], rotation_mode="anchor", ha="left", va="baseline")
+	ax_inset.set_xticklabels(labels, color=gv.Colors[0])
 	bottom_xlim = [np.min(raw_inset_ticks_bottom), np.max(raw_inset_ticks_bottom)]
 	ax_inset.set_xlim(*bottom_xlim)
 	scaled_bottom_xlim = [0.9 * bottom_xlim[0], 1.85 * bottom_xlim[1]]
@@ -123,8 +144,17 @@ def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 	(positions_top, top_ticks) = ComputeBinPositions(intended_top_ticks, raw_inset_ticks_top)
 	# print("top_ticks = {}".format(top_ticks))
 	# ax_inset_top.set_xticks(positions_top[positions_top > -1])
+	# ax_inset_top.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), top_ticks[top_ticks > -1])), color=gv.Colors[1])
+	##### Mute some of the axes labels
+	labels = list(map(lambda x: "$%s$" % latex_float(x), top_ticks[top_ticks > -1]))
+	selected = np.arange(len(labels), dtype = np.int)[::4]
+	to_mute = np.array([tk for tk in range(len(labels)) if not (tk in selected)], dtype = np.int)
+	for tk in range(len(labels)):
+		if not (tk in selected):
+			labels[tk] = ""
+	#####
 	ax_inset_top.set_xticks(top_ticks[top_ticks > -1])
-	ax_inset_top.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), top_ticks[top_ticks > -1])), rotation=-45, color=gv.Colors[1], rotation_mode="anchor", ha="left", va="baseline")	
+	ax_inset_top.set_xticklabels(labels, color=gv.Colors[1])
 	# ax_inset_top.minorticks_off()
 	# ax_inset_top.set_xticks(raw_inset_ticks_top)
 	# ax_inset_top.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), raw_inset_ticks_top)), rotation=-45, color=gv.Colors[1], rotation_mode="anchor", ha="left", va="baseline")
@@ -141,8 +171,18 @@ def DoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds, minimal=0)
 	# Compare the effect of p_u + RC on predictability.
 	# Plot no RC with infid and RC with p_u.
 	# pmets = list(map(lambda phy: phy.strip(" "), phymets.split(",")))
+	
+	# Globally set the font family.
+	matplotlib.rcParams['axes.linewidth'] = 5
+	matplotlib.rcParams["font.family"] = "Times New Roman"
+	plt.rcParams["font.family"] = "Times New Roman"
+	matplotlib.rc('mathtext', fontset='stix')
+	# plt.xticks(fontname = "Times New Roman")
+	# plt.yticks(fontname = "Times New Roman")
+	###
+
 	(ticks_bottom, ticks_top) = (None, None)
-	framesize = (1.3 * gv.canvas_size[0], 1.3 * gv.canvas_size[1])
+	framesize = (1.55 * gv.canvas_size[0], 1.55 * gv.canvas_size[1])
 	plotfname = HammerPlot(dsets[0], lmet, pmets)
 	with PdfPages(plotfname) as pdf:
 		for l in range(1, 1 + dsets[0].levels):
@@ -257,12 +297,19 @@ def DoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds, minimal=0)
 			ax_top.set_xscale("log")
 			ax_bottom.set_yscale("log")
 
+			# Set explicit Y-limits: used for lining up the Y-axes in Fig. 1 of the paper.
+			# print("Y-limits: {}".format(ax_bottom.get_ylim()))
+			ax_bottom.set_ylim(1E-15, 0.07003737842744816)
+
 			## Locations and labels for the ticks
 			if ticks_bottom is not None:
 				# Locations and labels for the bottom X-axis ticks
 				include_ticks, = np.nonzero(ticks_bottom > -1)
 				ax_bottom.set_xticks(ticks_bottom[include_ticks])
-				ax_bottom.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), ticks_bottom[include_ticks])), rotation = 30, rotation_mode="anchor", ha="left", va="baseline")
+				if (minimal == 0):
+					ax_bottom.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), ticks_bottom[include_ticks])), rotation = 30, rotation_mode="anchor", ha="left", va="baseline")
+				else:
+					ax_bottom.set_xticklabels(["" for __ in ticks_bottom[include_ticks]], rotation = 30, rotation_mode="anchor", ha="left", va="baseline")
 				ax_bottom.set_xlim(*bottom_xlim)
 				# ax_bottom.minorticks_off()
 	
@@ -271,16 +318,21 @@ def DoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds, minimal=0)
 			if ticks_top is not None:
 				# Locations and labels for the top X-axis ticks
 				include_ticks, = np.nonzero(ticks_top > -1)
-				ax_top.set_xticks(ticks_top[include_ticks])
-				ax_top.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), ticks_top[include_ticks])), rotation = -30, rotation_mode="anchor", ha="left", va="baseline")
+				ax_top.set_xticks(ticks_top[include_ticks][::2])
+				if (minimal == 0):
+					ax_top.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), ticks_top[include_ticks][::2])), rotation = -30, rotation_mode="anchor", ha="left", va="baseline")
+				else:
+					ax_top.set_xticklabels(["" for __ in ticks_top[include_ticks][::2]], rotation = -30, rotation_mode="anchor", ha="left", va="baseline")
 				ax_top.set_xlim(*top_xlim)
 				# ax_top.minorticks_off()
 
 			print("Uncorr ticks\n{}".format(ax_top.get_xticks()))
 			
 			# Locations and labels for the Y-axis ticks
-			loc = LogLocator(base=10, numticks=10) # this locator puts ticks at regular intervals
+			loc = LogLocator(base=10, numticks=5) # this locator puts ticks at regular intervals
 			ax_bottom.yaxis.set_major_locator(loc)
+			if (minimal == 1):
+				ax_bottom.yaxis.set_ticklabels([])
 			
 			# Tick params for Y-axes
 			ax_bottom.tick_params(
@@ -288,21 +340,21 @@ def DoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds, minimal=0)
 				which="both",
 				pad=gv.ticks_pad,
 				direction="inout",
-				length=gv.ticks_length,
-				width=gv.ticks_width,
-				labelsize=1.5 * gv.ticks_fontsize
+				length=2 * gv.ticks_length,
+				width=2 * gv.ticks_width,
+				labelsize=1.75 * gv.ticks_fontsize
 			)
 			# Tick params for the top and bottom X-axes
-			relative_pads = [0.5, 1]
+			relative_pads = [0.5, 1.75]
 			for (a, ax) in enumerate([ax_bottom, ax_top]):
 				ax.tick_params(
 					axis="x",
 					which="both",
 					pad=relative_pads[a] * gv.ticks_pad,
 					direction="inout",
-					length=gv.ticks_length,
-					width=gv.ticks_width,
-					labelsize=1.5 * gv.ticks_fontsize,
+					length=2 * gv.ticks_length,
+					width=2 * gv.ticks_width,
+					labelsize=1.75 * gv.ticks_fontsize,
 					# color=gv.Colors[a % gv.n_Colors],
 					color="k"
 				)
@@ -331,20 +383,12 @@ def DoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds, minimal=0)
 				t.set_color("k")
 			
 			# Legend for the bottom axes
-			leg = ax_bottom.legend(numpoints=1, loc="upper left", shadow=True, fontsize=1.75 * gv.legend_fontsize, markerscale=1.2 * gv.legend_marker_scale)
-			
-			# Match legend text with the color of the markers
-			colors = [gv.Colors[0], gv.Colors[1]]
-			for (color, text) in zip(colors, leg.get_texts()):
-				text.set_color(color)
-
-			# Globally set the font family.
-			matplotlib.rcParams["font.family"] = "Times New Roman"
-			plt.rcParams["font.family"] = "Times New Roman"
-			matplotlib.rc('mathtext', fontset='stix')
-			# plt.xticks(fontname = "Times New Roman")
-			# plt.yticks(fontname = "Times New Roman")
-			###
+			if (minimal == 0):
+				leg = ax_bottom.legend(numpoints=1, loc="upper left", shadow=True, fontsize=1.75 * gv.legend_fontsize, markerscale=1.2 * gv.legend_marker_scale)
+				# Match legend text with the color of the markers
+				colors = [gv.Colors[0], gv.Colors[1]]
+				for (color, text) in zip(colors, leg.get_texts()):
+					text.set_color(color)
 
 			# Save the plot
 			fig.tight_layout(pad=5)

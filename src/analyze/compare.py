@@ -26,6 +26,17 @@ from analyze.utils import OrderOfMagnitude
 def CompareSubs(pmet, lmet, minimal, *dbses):
 	# Compare the Logical error rates from two submissions.
 	# The comparision only makes sense when the logical error rates are measured for two submissions that have the same physical channels.
+	
+	###
+	# Globally set the font family.
+	matplotlib.rcParams['axes.linewidth'] = 6
+	matplotlib.rcParams["font.family"] = "Times New Roman"
+	plt.rcParams["font.family"] = "Times New Roman"
+	matplotlib.rc('mathtext', fontset='stix')
+	# plt.xticks(fontname = "Times New Roman")
+	# plt.yticks(fontname = "Times New Roman")
+	###
+
 	MIN = 1E-30
 	ndb = len(dbses)
 	nlevels = min([dbs.levels for dbs in dbses])
@@ -111,7 +122,7 @@ def CompareSubs(pmet, lmet, minimal, *dbses):
 			ax.set_xscale("log")
 			# ax.set_xlim([None, 30])
 			ax.set_yscale("log")
-			ax.tick_params(axis="both", which="both", pad=gv.ticks_pad, direction="inout", length=gv.ticks_length, width=gv.ticks_width, labelsize=gv.ticks_fontsize*1.9)
+			ax.tick_params(axis="both", which="both", pad=gv.ticks_pad, direction="inout", length=2 * gv.ticks_length, width=2 * gv.ticks_width, labelsize=gv.ticks_fontsize*1.9)
 
 			# Grid lines
 			ax.grid(color="0.8", which="major")
@@ -122,14 +133,23 @@ def CompareSubs(pmet, lmet, minimal, *dbses):
 			
 			# X-axis ticks
 			xlimits = ax.get_xlim()
-			fine_steps = np.concatenate((np.arange(6, 10, 1), np.arange(12, 19, 2), np.arange(20, 30, 5), np.arange(30, 100, 10)))
-			xticks = np.concatenate((ax.get_xticks(), fine_steps))
+			# fine_steps = np.concatenate((np.arange(6, 10, 1), np.arange(12, 19, 2), np.arange(20, 30, 5), np.arange(30, 100, 10)))
+			# xticks = np.concatenate((ax.get_xticks(), fine_steps))
+			# ax.set_xticks(xticks)
+			xticks = np.arange(10, 100, 10)
 			ax.set_xticks(xticks)
-			# xticklabels = list(ax.get_xticklabels()) + list(map(lambda x: Text(0, 0, "") % x, fine_steps))
 			xticklabels = [("%d" % x) for x in xticks]
 			ax.set_xticklabels(xticklabels)
-			print("xticks: {}\n labels: {}".format(xticks, xticklabels))
+			print("xticks: {}\n labels: {}".format(ax.get_xticks(), xticklabels))
 			ax.set_xlim(xlimits)
+
+			# Turn off minor ticks for the X-axis.
+			ax.tick_params(axis='x', which='minor', bottom=False)
+
+			# Mute tick labels for X and Y axis
+			if (minimal == 1):
+				ax.xaxis.set_ticklabels([])
+				ax.yaxis.set_ticklabels([])
 
 			# legends for both plots
 			# leg_left = ax.legend(loc="upper right", shadow=True, fontsize=1.4 * gv.legend_fontsize, markerscale=gv.legend_marker_scale)
@@ -143,14 +163,6 @@ def CompareSubs(pmet, lmet, minimal, *dbses):
 				for (t, text) in enumerate(leg.get_texts()):
 				    text.set_color(gv.Colors[d])
 			
-			# Globally set the font family.
-			matplotlib.rcParams["font.family"] = "Times New Roman"
-			plt.rcParams["font.family"] = "Times New Roman"
-			matplotlib.rc('mathtext', fontset='stix')
-			# plt.xticks(fontname = "Times New Roman")
-			# plt.yticks(fontname = "Times New Roman")
-			###
-
 			# Save the plot
 			fig.tight_layout(pad=5)
 			pdf.savefig(fig)

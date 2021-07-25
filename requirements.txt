@@ -1,3 +1,2 @@
 # Install the missing packages using pip install -r requirements.txt
-sklearn>=1.0
 tensorflow>=2.4.0

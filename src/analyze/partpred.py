@@ -26,7 +26,17 @@ def PartialNRPlot(logmet, pmets, dsets, inset_flag, nbins, thresholds, minimal=0
 	# Compare the effect of p_u + RC on predictability.
 	# Plot no RC with infid and RC with p_u.
 	# pmets = list(map(lambda phy: phy.strip(" "), phymets.split(",")))
+	
 	###
+	# Globally set the font family.
+	matplotlib.rcParams['axes.linewidth'] = 6
+	matplotlib.rcParams["font.family"] = "Times New Roman"
+	plt.rcParams["font.family"] = "Times New Roman"
+	matplotlib.rc('mathtext', fontset='stix')
+	# plt.xticks(fontname = "Times New Roman")
+	# plt.yticks(fontname = "Times New Roman")
+	###
+	
 	min_bin_fraction = 0.9
 	level = dsets[0].levels
 	ndb = len(dsets)
@@ -117,8 +127,8 @@ def PartialNRPlot(logmet, pmets, dsets, inset_flag, nbins, thresholds, minimal=0
 				which="both",
 				pad=relative_paddings[d % len(relative_paddings)] * gv.ticks_pad,
 				direction="inout",
-				length=gv.ticks_length,
-				width=gv.ticks_width,
+				length=2 * gv.ticks_length,
+				width=2 * gv.ticks_width,
 				labelsize=1.5 * gv.ticks_fontsize,
 			)
 			print("Plot done for alpha = {}".format(dsets[d].decoder_fraction))
@@ -171,16 +181,14 @@ def PartialNRPlot(logmet, pmets, dsets, inset_flag, nbins, thresholds, minimal=0
 		uncorr_xlim = [xcutoff_uncorr["left"], xcutoff_uncorr["right"]]
 		ax_uncorr.set_xlim(*uncorr_xlim)
 
-		# Legend
-		ax_infid.legend(numpoints=1, loc=(0.77,0.485), shadow=True, fontsize=1.25 * gv.legend_fontsize, markerscale=gv.legend_marker_scale)
+		# Mute tick labels for X and Y axis
+		if (minimal == 1):
+			ax_infid.xaxis.set_ticklabels([])
+			ax_uncorr.xaxis.set_ticklabels([])
+			ax_infid.yaxis.set_ticklabels([])
 
-		# Globally set the font family.
-		matplotlib.rcParams["font.family"] = "Times New Roman"
-		plt.rcParams["font.family"] = "Times New Roman"
-		matplotlib.rc('mathtext', fontset='stix')
-		# plt.xticks(fontname = "Times New Roman")
-		# plt.yticks(fontname = "Times New Roman")
-		###
+		# Legend
+		ax_infid.legend(numpoints=1, loc=(0.745,0.53), shadow=True, fontsize=1.55 * gv.legend_fontsize, markerscale=gv.legend_marker_scale)
 
 		# Save the plot
 		fig.tight_layout(pad=5)
