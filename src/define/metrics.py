@@ -330,7 +330,7 @@ def InfidelityPhysical(choi, kwargs):
                 )
             )
         infidelity = infidelity / kwargs["qcode"].N
-    return infidelity
+    return np.real(infidelity)
 
 
 def Infidelity(choi, kwargs):
@@ -795,7 +795,7 @@ def ComputeMetrics(submit, metrics, chtype="physical"):
         results = mp.Array(
             ct.c_longdouble, submit.channels * len(metrics) * (submit.levels + 1)
         )
-    
+
     # Prepare submission objects for some physical metrics
     if ("dctvd" in metrics):
         if submit.eccs[0].group_by_weight is None:

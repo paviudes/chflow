@@ -66,7 +66,7 @@ def PreparePhysicalChannels(submit, nproc=None):
 	rawchans = mp.Array(
 		ct.c_double,
 		np.zeros(
-			(submit.noiserates.shape[0] * submit.samps * raw_params), dtype=np.complex128
+			2*(submit.noiserates.shape[0] * submit.samps * raw_params), dtype=np.double
 		),
 	)
 	misc_info = [["None" for __ in range(submit.samps)] for __ in range(submit.noiserates.shape[0])]
@@ -113,9 +113,14 @@ def PreparePhysicalChannels(submit, nproc=None):
 	submit.phychans = np.reshape(
 		phychans, [submit.noiserates.shape[0], submit.samps, nparams], order="c"
 	)
-	submit.rawchans = np.reshape(
-		rawchans, [submit.noiserates.shape[0], submit.samps, raw_params], order="c"
+	total_raw_params = raw_params*submit.noiserates.shape[0]*submit.samps
+	rawchans_real = np.reshape(
+		rawchans[:total_raw_params], [submit.noiserates.shape[0], submit.samps, raw_params], order="c"
 	)
+	rawchans_imag = np.reshape(
+		rawchans[total_raw_params:], [submit.noiserates.shape[0], submit.samps, raw_params], order="c"
+	)
+	submit.rawchans = rawchans_real + 1j*rawchans_imag
 	# The miscellaneous info for correlated CPTP channels contains the interactions used to generate it.
 	if submit.iscorr == 3:
 		submit.misc = misc_info
