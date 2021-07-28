@@ -186,7 +186,6 @@ def SavePhysicalChannels(submit):
 		# np.save("%s/%s" % (folder, fname), submit.phychans[i, :, :])
 		fname = fn.PhysicalChannel(submit, submit.noiserates[i])
 		np.save(fname, submit.phychans[i, :, :])
-
 		if save_raw == 1:
 			# np.save("%s/raw_%s" % (folder, fname), submit.rawchans[i, :, :])
 			fname = fn.RawPhysicalChannel(submit, submit.noiserates[i])

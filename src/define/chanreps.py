@@ -435,7 +435,7 @@ def TwirlChannels(submit):
         raw_nparams = submit.eccs[0].N * 4 ** (2 * submit.eccs[0].K)
     else:
         nparams = 4 ** (submit.eccs[0].N + submit.eccs[0].K)
-        raw_nparams = 4 ** (2 * submit.eccs[0].N)
+        raw_nparams = 4 ** submit.eccs[0].N
 
     # print("nparams = %d" % (nparams))
 
