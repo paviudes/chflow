@@ -182,13 +182,15 @@ def SavePhysicalChannels(submit):
 	if submit.rawchans is None:
 		save_raw = 0
 	for i in range(submit.phychans.shape[0]):
-		(folder, fname) = os.path.split(
-			fn.PhysicalChannel(submit, submit.noiserates[i])
-		)
-		np.save("%s/%s" % (folder, fname), submit.phychans[i, :, :])
+		# (folder, fname) = os.path.split(fn.PhysicalChannel(submit, submit.noiserates[i]))
+		# np.save("%s/%s" % (folder, fname), submit.phychans[i, :, :])
+		fname = fn.PhysicalChannel(submit, submit.noiserates[i])
+		np.save(fname, submit.phychans[i, :, :])
 
 		if save_raw == 1:
-			np.save("%s/raw_%s" % (folder, fname), submit.rawchans[i, :, :])
+			# np.save("%s/raw_%s" % (folder, fname), submit.rawchans[i, :, :])
+			fname = fn.RawPhysicalChannel(submit, submit.noiserates[i])
+			np.save(fname, submit.rawchans[i, :, :])
 
 		# Save the nr_rates for the partial soft decoder to a file.
 		# if submit.decoders[0] == 4:

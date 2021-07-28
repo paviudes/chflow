@@ -436,17 +436,13 @@ def TwirlChannels(submit):
 
     # print("nparams = %d" % (nparams))
 
-    submit.phychans = np.zeros(
-        (submit.noiserates.shape[0], submit.samps, nparams), dtype=np.double
-    )
+    submit.phychans = np.zeros((submit.noiserates.shape[0], submit.samps, nparams), dtype=np.double)
     for i in range(submit.noiserates.shape[0]):
         chans = np.load(fn.PhysicalChannel(submit, submit.noiserates[i, :]))
         # print("Noise rate: {}\nchannel shape: {}".format(submit.noiserates[i, :], chans.shape))
         for j in range(submit.samps):
             if submit.iscorr == 0:
-                submit.phychans[i, j, :] = (
-                    chans[j, :] * np.eye(4 ** submit.eccs[0].K, dtype=np.int).ravel()
-                )
+                submit.phychans[i, j, :] = chans[j, :] * np.eye(4 ** submit.eccs[0].K, dtype=np.int).ravel()
             elif submit.iscorr == 2:
                 submit.phychans[i, j, :] = (
                     chans[j, :]
