@@ -426,33 +426,36 @@ def TwirlChannels(submit):
     # print("iscorr = %d" % (submit.iscorr))
     if submit.iscorr == 0:
         nparams = 4 ** (2 * submit.eccs[0].K)
+        raw_nparams = 4 ** (2 * submit.eccs[0].K)
     elif submit.iscorr == 1:
         print("These are already Pauli channels.")
         return None
     elif submit.iscorr == 2:
         nparams = submit.eccs[0].N * 4 ** (2 * submit.eccs[0].K)
+        raw_nparams = submit.eccs[0].N * 4 ** (2 * submit.eccs[0].K)
     else:
         nparams = 4 ** (submit.eccs[0].N + submit.eccs[0].K)
+        raw_nparams = 4 ** (2 * submit.eccs[0].N)
 
     # print("nparams = %d" % (nparams))
 
     submit.phychans = np.zeros((submit.noiserates.shape[0], submit.samps, nparams), dtype=np.double)
+    submit.rawchans = np.zeros((submit.noiserates.shape[0], submit.samps, raw_nparams), dtype=np.complex128)
     for i in range(submit.noiserates.shape[0]):
         chans = np.load(fn.PhysicalChannel(submit, submit.noiserates[i, :]))
+        submit.rawchans[i, :, :] = np.load(fn.RawPhysicalChannel(submit, submit.noiserates[i, :]))
+        # print("raw_chans shape: {}".format(raw_chans.shape))
         # print("Noise rate: {}\nchannel shape: {}".format(submit.noiserates[i, :], chans.shape))
         for j in range(submit.samps):
             if submit.iscorr == 0:
                 submit.phychans[i, j, :] = chans[j, :] * np.eye(4 ** submit.eccs[0].K, dtype=np.int).ravel()
+                # submit.rawchans[i, j, :] = raw_chans[j, :] * np.eye(4 ** submit.eccs[0].K, dtype=np.int).ravel()
             elif submit.iscorr == 2:
-                submit.phychans[i, j, :] = (
-                    chans[j, :]
-                    * np.tile(
-                        np.eye(4 ** submit.eccs[0].K, dtype=np.int),
-                        (submit.eccs[0].N, 1, 1),
-                    ).ravel()
-                )
+                submit.phychans[i, j, :] = chans[j, :] * np.tile(np.eye(4 ** submit.eccs[0].K, dtype=np.int), (submit.eccs[0].N, 1, 1)).ravel()
+                # submit.rawchans[i, j, :] = raw_chans[j, :] * np.tile(np.eye(4 ** submit.eccs[0].K, dtype=np.int), (submit.eccs[0].N, 1, 1)).ravel()
             else:
                 submit.phychans[i, j, :] = chans[j, :] * np.eye(2**(submit.eccs[0].N + submit.eccs[0].K), dtype=np.int).ravel()
+                # submit.rawchans[i, j, :] = raw_chans[j, :] * np.eye(4**(submit.eccs[0].N), dtype=np.int).ravel()
 
     # submit.misc = "This is the Twirl of %s" % (submit.timestamp)
     submit.plotsettings["name"] = "With Randomized compiling"
