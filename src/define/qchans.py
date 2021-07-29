@@ -198,8 +198,8 @@ Channels = {
 	},
 	"ckraus": {
 		"name": "Contrived simple RC example with correctable Kraus ops only",
-		"params": ["beta"],
-		"latex": ["$\\beta$"],
+		"params": ["theta", "ratio"],
+		"latex": ["$\\theta$", "$r$"],
 		"color": "limegreen",
 		"Pauli": 0,
 		"corr": 3,
