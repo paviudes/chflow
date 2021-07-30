@@ -16,21 +16,113 @@ from matplotlib.ticker import LogLocator
 from define import globalvars as gv
 from define import metrics as ml
 from define import qchans as qc
-from analyze.utils import GetNKDString
+from analyze.utils import GetNKDString, scientific_float, ArrayToString
 from analyze.load import LoadPhysicalErrorRates
 from define.fnames import LevelWise, LogicalErrorRates, PhysicalErrorRates
 from analyze.bins import PlotBinVarianceDataSets, PlotBinVarianceMetrics, GetXCutOff
 
+def ComparePerformance(dsets, phymet, logmet, thresholds):
+	# Compare the performance from two different datasets.
+	# The datasets should correspond to numerical simulations with the same error model.
+	# Use a new figure for every new concatenated level.
+	# Globally set the font family.
+	matplotlib.rcParams['axes.linewidth'] = 5
+	matplotlib.rcParams["font.family"] = "Times New Roman"
+	plt.rcParams["font.family"] = "Times New Roman"
+	matplotlib.rc('mathtext', fontset='stix')
+	# plt.xticks(fontname = "Times New Roman")
+	# plt.yticks(fontname = "Times New Roman")
+	###
+	ndb = len(dsets)
+	maxlevel = max([dsets[i].levels for i in range(ndb)])
+	plotfname = LevelWise(dsets[0], "_".join(phylist), logmet)
+	with PdfPages(plotfname) as pdf:
+		for l in range(1, 1 + maxlevel):
+			fig = plt.figure(figsize=gv.canvas_size)
+			ax = plt.gca()
+			logerrs = np.zeros((len(dsets), dsets[0].channels), dtype = np.double)
+			for d in range(ndb):
+				phyerrs = LoadPhysicalErrorRates(dsets[d], phymet, None, l)
+				logerrs[d, :] = np.load(LogicalErrorRates(dsets[d], lmet))[:, l]
+				# Compute the X-cutoff to include a subset of channels in the plot.
+				xcutoff = GetXCutOff(phyerrs, logerrs[d, :], thresholds[l - 1], nbins=50, space="log")
+				include, = np.nonzero(np.logical_and(phyerrs >= xcutoff["left"], phyerrs <= xcutoff["right"]))
+
+			print("Identify cases where there is a degradation")
+			degradation, = np.nonzero(logerrs[0, :] <= logerrs[1, :])
+			if (degradation.size > 0):
+				print("#######################")
+				print("Degradation under RC was observed for the following channels")
+				print("{:<5} {:<20} {:<10} {:10}".format("#", "Noise rate", "non RC", "RC"))
+				for c in range(degradation.size):
+					print("{:<5} {:<20} {:<10} {:10}".format("%d" % c, "%s" % ArrayToString(arr), scientific_float(logerrs[0, degradation[c]]), scientific_float(logerrs[0, degradation[c]])))
+				print("#######################")
+				
+			for d in range(ndb):
+				# Plot
+				ax.plot(
+					phyerrs[include],
+					logerrs[d, include],
+					color=gv.Colors[d % gv.n_Colors],
+					alpha=0.75,
+					marker=gv.Markers[d % gv.n_Markers],
+					markersize=gv.marker_size,
+					linestyle="None",
+					linewidth=gv.line_width,
+					label = "%s" % (dsets[d].plotsettings["name"])
+				)
+
+			# Draw grid lines
+			ax.grid(which="major")
+
+			# Axes labels
+			if phymet in ml.Metrics:
+				xlabel = ml.Metrics[pmets[0]]["phys"]
+			else:
+				xlabel = qc.Channels[dbs.channel]["latex"][int(pmet)]
+			ax.set_xlabel(xlabel, fontsize=gv.axes_labels_fontsize * 1.7, labelpad = gv.axes_labelpad)
+			ax.set_ylabel("%s" % (ml.Metrics[lmet]["log"]), fontsize=gv.axes_labels_fontsize * 1.7, labelpad = gv.axes_labelpad)
+			
+			# Scales
+			ax.set_xscale("log")
+			ax.set_yscale("log")
+
+			# Tick params for X and Y axes
+			ax.tick_params(
+				axis="both",
+				which="both",
+				pad=gv.ticks_pad,
+				direction="inout",
+				length=2 * gv.ticks_length,
+				width=2 * gv.ticks_width,
+				labelsize=1.75 * gv.ticks_fontsize
+			)
+
+			# Legend
+			ax.legend(numpoints=1, loc="upper left", shadow=True, fontsize=1.75 * gv.legend_fontsize, markerscale=1.2 * gv.legend_marker_scale)
+
+			# Save the plot
+			fig.tight_layout(pad=5)
+			pdf.savefig(fig)
+			plt.close()
+
+		# Set PDF attributes
+		pdfInfo = pdf.infodict()
+		pdfInfo["Title"] = "Hammer plot."
+		pdfInfo["Author"] = "Pavithran Iyer"
+		pdfInfo["ModDate"] = dt.datetime.today()
+	return None
+
+#################################################################
 
 def LevelWisePlot(phylist, logmet, dsets, inset, flow, nbins, thresholds):
 	# Plot logical error rates vs. physical error rates.
 	# Use a new figure for every new concatenated level.
 	# In each figure, each curve will represent a new physical metric.
-	atol = 10E-11
 	nphy = len(phylist)
 	ndb = len(dsets)
 	maxlevel = max([dsets[i].levels for i in range(ndb)])
-	plotfname = LevelWise(dsets[0], "_".join(phylist), logmet)
+	plotfname = fn.LevelWise(dsets[0], "_".join(phylist), logmet)
 	with PdfPages(plotfname) as pdf:
 		for l in range(1, 1 + maxlevel):
 			phlines = []
@@ -69,7 +161,7 @@ def LevelWisePlot(phylist, logmet, dsets, inset, flow, nbins, thresholds):
 							space="log",
 							atol = atol
 						)
-						print("X cutoff for l = {} is {}.".format(l, xcutoff))
+						# print("X cutoff for l = {} is {}.".format(l, xcutoff))
 						include[phylist[p]] = np.nonzero(
 							np.logical_and(
 								settings["xaxis"] >= xcutoff["left"],
@@ -112,29 +204,10 @@ def LevelWisePlot(phylist, logmet, dsets, inset, flow, nbins, thresholds):
 							dbnames.append(
 								[dsets[d].timestamp, GetNKDString(dsets[d], l)]
 							)
-				if ndb > 1 and all([ds.samps > 1 for ds in dsets]):
-					PlotBinVarianceDataSets(
-						ax1, dsets, l, logmet, phylist, nbins, include
-					)
 			# Add flow lines
-			if flow == 1:
-				AddFlowLines(ax1, dsets, phylist[0], logmet, l, include, nselect=10)
-			# Inset plot
-			# If there is more than one database, we will assume that there is only one physical metric.
-			# Else we will assume many physical metrics can be compared.
-			if l > 0:
-				if (ndb == 1 or any([ds.samps == 1 for ds in dsets])) and (inset == 1):
-					# print(
-					#     "X\n{}\nY\n{}".format(
-					#         settings["xaxis"][include], settings["yaxis"][include]
-					#     )
-					# )
-					PlotBinVarianceMetrics(
-						ax1, dsets[0], l, logmet, phylist, nbins, include
-					)
-					# print("Problem in the scatter metric computation.")
-					pass
-
+			# if flow == 1:
+			# 	AddFlowLines(ax1, dsets, phylist[0], logmet, l, include, nselect=10)
+			
 			# Title
 			# ax1.title(
 			#     (

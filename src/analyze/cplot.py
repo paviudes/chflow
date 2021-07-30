@@ -22,6 +22,7 @@ except ImportError:
 from define import metrics as ml
 from define import globalvars as gv
 from analyze.load import LoadPhysicalErrorRates
+from analyze.utils import ArrayToString, scientific_float
 from define.fnames import ChannelWise, LogicalErrorRates
 
 
@@ -35,11 +36,7 @@ def RelativeImprovement(xaxis, yaxes, plt, ax1, xlabel, only_points, l, annotati
 	atol = 10e-8
 	tol = 0.1
 	degrading_indices = (yaxes[0, :] - yaxes[1, :]) > atol
-	print(
-		"Logical error rates:\n RC: {}\n no RC: {}".format(
-			yaxes[0, degrading_indices], yaxes[1, degrading_indices]
-		)
-	)
+	# print("Logical error rates:\n RC: {}\n no RC: {}".format(yaxes[0, degrading_indices], yaxes[1, degrading_indices]))
 	if ax1 is not None:
 		ax2 = plt.axes([0, 0, 1, 1])
 		# Manually set the position and relative size of the inset axes within ax1
@@ -138,16 +135,14 @@ def RelativeImprovement(xaxis, yaxes, plt, ax1, xlabel, only_points, l, annotati
 def ChannelWisePlot(phymet, logmet, dbses, thresholds={"y": 10e-16, "x": 10e-16}, include_input=None, only_inset = False):
 	# Plot each channel in the database with a different color.
 	# Channels of similar type in different databases will be distinguished using different markers.
-	only_inset = True
+	# only_inset = True
 	ndb = len(dbses)
 	plotfname = ChannelWise(dbses[0], phymet, logmet)
 	maxlevel = max([db.levels for db in dbses])
 	annotations = None
 	select_count = min(10, dbses[0].channels)
 	if dbses[0].channels < 7:
-		annotations = [
-			("$\\mathcal{U}_{%d}$" % (i + 1)) for i in range(dbses[0].channels)
-		]
+		annotations = [("$\\mathcal{U}_{%d}$" % (i + 1)) for i in range(dbses[0].channels)]
 	with PdfPages(plotfname) as pdf:
 		for l in range(maxlevel, 0, -1):
 			fig, ax1 = plt.subplots(figsize=gv.canvas_size)
@@ -229,9 +224,22 @@ def ChannelWisePlot(phymet, logmet, dbses, thresholds={"y": 10e-16, "x": 10e-16}
 			)
 			deltas = yaxes[1, include]/yaxes[0, include]
 			min_delta_index = include[np.argmin(deltas)]
-			print("numerator = {}, denominator = {}".format(yaxes[1, min_delta_index], yaxes[0, min_delta_index]))
-			print("Minimum delta for level {}: {}, is achieved for channel {}.".format(l, np.min(deltas), min_delta_index))
-			print("Noise rate , sample : {}".format(dbses[d].available[min_delta_index, :]))
+
+			# print("Identify cases where there is a degradation")
+			degradation, = np.nonzero(deltas >= 1)
+			# print("degradation: \n{}".format(dbses[0].available[degradation]))
+			# print("channels:\n{}".format(dbses[0].available[:, :-1]))
+			if (degradation.size > 0):
+				print("#######################")
+				print("Degradation under RC was observed for the following channels")
+				print("{:<3} {:<12} {:<12} {:<12} {:<10}".format("#", "Noise rate", "non RC", "RC", "Degradation"))
+				for c in degradation:
+					print("{:<3} {:<12} {:<12} {:<12} {:<10}".format("%d" % c, "%s" % ArrayToString(dbses[0].available[c, :-1]), "%g" % (logerrs[0, c]), "%g" % (logerrs[1, c]), scientific_float(deltas[c])))
+				print("#######################")
+
+			# print("numerator = {}, denominator = {}".format(yaxes[1, min_delta_index], yaxes[0, min_delta_index]))
+			# print("Minimum delta for level {}: {}, is achieved for channel {}.".format(l, np.min(deltas), min_delta_index))
+			# print("Noise rate , sample : {}".format(dbses[d].available[min_delta_index, :]))
 			# Plot the relative improvements in an inset plot
 			RelativeImprovement(
 				settings[1]["xaxis"],

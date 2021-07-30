@@ -94,7 +94,7 @@ from analyze.collect import IsComplete, GatherLogErrData, AddPhysicalRates
 from analyze.cplot import ChannelWisePlot
 from analyze.dcplot import DecoderCompare, DecoderInstanceCompare, RelativeDecoderInstanceCompare
 from analyze.dvplot import PlotDeviationYX
-from analyze.lplot import LevelWisePlot, LevelWisePlot2D
+from analyze.lplot import LevelWisePlot, LevelWisePlot2D, ComparePerformance
 from analyze.statplot import MCStatsPlot
 from analyze.hamplot import DoubleHammerPlot
 from analyze.partpred import PartialNRPlot
@@ -651,6 +651,30 @@ if __name__ == "__main__":
 
 		#####################################################################
 
+		elif user[0] == "rciplot":
+			# Compare the performance data from two sets: (i) QEC with RC and (ii) QEC without RC, on a particular error model.
+			# We want to use this to estimate the impact of RC.
+			dbses = [submit]
+			for (i, ts) in enumerate(user[6].split(",")):
+				dbses.append(Submission())
+				LoadSub(dbses[i + 1], ts, 0)
+			check = 1
+			for d in range(len(dbses)):
+				IsComplete(dbses[d])
+				if dbses[d].complete > 0:
+					if not os.path.isfile(LogicalErrorRates(dbses[d], user[2], fmt="npy")):
+						GatherLogErrData(dbses[d])
+				else:
+					check = 0
+					break
+			if (check == 1):
+				thresholds = [{"lower": 1e-14, "upper": 1e-1} for __ in range(submit.levels)]
+				ComparePerformance(dbses, user[1], user[2], thresholds)
+			else:
+				print("\033[2mOne of the databases does not have logical error data.\033[0m")
+
+		#####################################################################
+
 		elif user[0] == "lplot":
 			# Plot the logical error rate with respect to a physical noise strength, with a new figure for every concatenation layer.
 			# One or more simulation data can be plotted in the same figure with a new curve for every dataset.
@@ -926,7 +950,7 @@ if __name__ == "__main__":
 
 		elif user[0] == "cplot":
 			# No documentation provided
-			thresholds = {"y": 10e-12, "x": 10e-16}
+			thresholds = {"y": 1e-12, "x": 1e-16}
 			dbses = [submit]
 			if len(user) > 5:
 				thresholds["x"] = np.power(0.1, int(user[5]))
@@ -941,9 +965,7 @@ if __name__ == "__main__":
 			for d in range(len(dbses)):
 				IsComplete(dbses[d])
 				if dbses[d].complete > 0:
-					if not os.path.isfile(
-						LogicalErrorRates(dbses[d], user[2], fmt="npy")
-					):
+					if not os.path.isfile(LogicalErrorRates(dbses[d], user[2], fmt="npy")):
 						GatherLogErrData(dbses[d])
 				else:
 					check = 0

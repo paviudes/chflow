@@ -166,6 +166,10 @@ def DisplayForm(number, base):
     # 	numstr = ("-%s" % (numstr))
     return numstr
 
+def ArrayToString(arr):
+    # Convert array to string.
+    return ", ".join(list(map(lambda x: "%d" % x, arr)))
+
 
 def GetNKDString(dbs, l):
     r"""
