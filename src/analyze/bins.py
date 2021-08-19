@@ -253,7 +253,7 @@ def ComputeBinPositions(principal, inset):
 	sorted_inset = np.sort(inset)
 	sorted_principal = np.sort(principal)
 	positions = np.zeros(len(principal), dtype = np.double)
-	not_found = 1 # Set to one whenever the rightmost tick is not required.
+	not_found = 0 # Set to one whenever the rightmost tick is not required.
 	for l in range(len(sorted_principal)):
 		found_index = 0
 		if (sorted_principal[l] > sorted_inset[0]):

@@ -51,7 +51,7 @@ def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 		bins = ComputeBinVariance(phyerrs[d, include[d]], logerrs[d, include[d]], space="log", nbins=nbins)
 		collapsed_bins[d] = CollapseBins(bins, min_bin_fraction * dbses[d].channels / nbins)
 		
-		# print("Number of bins for alpha = {} is {}.".format(dbses[d].decoder_fraction, collapsed_bins[d].shape[0]))
+		print("Dispersion for d = {}\n{}.".format(d, collapsed_bins[d][:, 3]))
 		
 		# xaxis = np.arange(collapsed_bins[d].shape[0])
 		xaxis = np.sqrt(collapsed_bins[d][:, 0] * collapsed_bins[d][:, 1])
@@ -119,7 +119,7 @@ def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 	# ax_inset.set_xticks(positions_bottom[positions_bottom > -1])
 	##### Mute some of the axes labels
 	labels = list(map(lambda x: "$%s$" % latex_float(x), bottom_ticks[bottom_ticks > -1]))
-	selected = np.arange(len(labels), dtype = np.int)[1::2]
+	selected = np.arange(len(labels), dtype = np.int)[:] # Use [::2] for infid plots.
 	to_mute = np.array([tk for tk in range(len(labels)) if not (tk in selected)], dtype = np.int)
 	for tk in range(len(labels)):
 		if not (tk in selected):
@@ -129,7 +129,7 @@ def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 	ax_inset.set_xticklabels(labels, color=gv.Colors[0])
 	bottom_xlim = [np.min(raw_inset_ticks_bottom), np.max(raw_inset_ticks_bottom)]
 	ax_inset.set_xlim(*bottom_xlim)
-	scaled_bottom_xlim = [0.9 * bottom_xlim[0], 1.85 * bottom_xlim[1]]
+	scaled_bottom_xlim = [0.9 * bottom_xlim[0], 1.4 * bottom_xlim[1]]
 	# ax_inset.minorticks_off()
 	# ax_inset.set_xticks(raw_inset_ticks_bottom)
 	# ax_inset.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), raw_inset_ticks_bottom)), rotation=45, color=gv.Colors[0], rotation_mode="anchor", ha="left", va="baseline")
@@ -160,10 +160,15 @@ def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 	# ax_inset_top.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), raw_inset_ticks_top)), rotation=-45, color=gv.Colors[1], rotation_mode="anchor", ha="left", va="baseline")
 	top_xlim = [np.min(raw_inset_ticks_top), np.max(raw_inset_ticks_top)]
 	ax_inset_top.set_xlim(*top_xlim)
-	scaled_top_xlim = [0.5 * top_xlim[0], 100 * top_xlim[1]]
+	scaled_top_xlim = [0.5 * top_xlim[0], 20 * top_xlim[1]]
 	# print("Inset uncorr ticks\n{}".format(ax_inset_top.get_xticks()))
 	# print("xxxxxxxxxxxx")
 	# return (raw_inset_ticks_bottom, raw_inset_ticks_top)
+
+	# Locations and labels for the Y-axis ticks
+	ax_inset.set_yticks([10, 1E4, 1E7])
+	ax_inset.set_yticklabels(["$10$", "$10^{4}$", "$10^{7}$"])
+	
 	return (bottom_ticks, top_ticks, scaled_bottom_xlim, scaled_top_xlim)
 
 
@@ -331,7 +336,7 @@ def DoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds, minimal=0)
 			# Locations and labels for the Y-axis ticks
 			loc = LogLocator(base=10, numticks=5) # this locator puts ticks at regular intervals
 			ax_bottom.yaxis.set_major_locator(loc)
-			if (minimal == 1):
+			if not (minimal == 0):
 				ax_bottom.yaxis.set_ticklabels([])
 			
 			# Tick params for Y-axes
@@ -383,7 +388,7 @@ def DoubleHammerPlot(lmet, pmets, dsets, is_inset, nbins, thresholds, minimal=0)
 				t.set_color("k")
 			
 			# Legend for the bottom axes
-			if (minimal == 0):
+			if ((minimal == 0) or (minimal == 2)):
 				leg = ax_bottom.legend(numpoints=1, loc="upper left", shadow=True, fontsize=1.75 * gv.legend_fontsize, markerscale=1.2 * gv.legend_marker_scale)
 				# Match legend text with the color of the markers
 				colors = [gv.Colors[0], gv.Colors[1]]

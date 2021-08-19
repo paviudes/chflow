@@ -900,7 +900,7 @@ if __name__ == "__main__":
 			ndb = len(dbses)
 			if (check == 1):
 				# Set minimal to 1 if the axes labels are not necessary.
-				minimal = 0
+				minimal = 1
 				if (ndb > 2):
 					# PartialHammerPlot(logmet, pmets, dbses, 0, nbins, thresholds) # old version
 					PartialNRPlot(logmet, pmets, dbses, 0, nbins, thresholds, minimal) # new version
