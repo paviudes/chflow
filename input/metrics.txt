@@ -1,9 +1,0 @@
-sbload vary_bias_Steane
-lpmetrics uncorr
-pmetrics infid
-collect
-sbload vary_bias_cyclic
-lpmetrics uncorr
-pmetrics infid
-collect
-quit

@@ -32,7 +32,7 @@ def MergeSubs(newname, *submits):
 
 	merged_rates = []
 	combined_submit.samps = max(submits[0].samps, submits[1].samps)
-	visited = np.zeros(submits[1].noiserates.shape[0], dtype=np.int)
+	visited = np.zeros(submits[1].noiserates.shape[0], dtype=np.int64)
 	for i in tqdm(range(submits[0].noiserates.shape[0]), ascii=True, desc="Merging channels:"):
 		# Is rate[i] in the second matrix?
 		# If yes: combine the samples. and set visited[j] = 1

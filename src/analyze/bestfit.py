@@ -43,11 +43,11 @@ def Jacob(optvars, logErr, dists):
 	# cdef:
 	# 	int i, k, l, ndb = logErr.shape[0], nchannels = logErr.shape[1], nlevels = logErr.shape[2]
 	# 	double ansatz = 0.0, fval = 0.0, atol = 10E-30
-	# 	np.ndarray[np.float_t, ndim = 1] jacob = np.zeros(optvars.shape[0], dtype = np.float)
+	# 	np.ndarray[np.float_t, ndim = 1] jacob = np.zeros(optvars.shape[0], dtype = np.float64)
 	ansatz = 0.0
 	fval = 0.0
 	atol = 10E-30
-	jacob = np.zeros(optvars.shape[0], dtype = np.float)
+	jacob = np.zeros(optvars.shape[0], dtype = np.float64)
 	ndb = logErr.shape[0]
 	nchannels = logErr.shape[1]
 	nlevels = logErr.shape[2]
@@ -79,19 +79,19 @@ def FitPhysErr(pmet, lmet, *dbses):
 	ndb = len(dbses)
 	nchans = dbses[0].channels
 	nlevels = min([dbses[i].levels for i in range(ndb)])
-	logerr = np.zeros((ndb, nchans, nlevels), dtype = np.float)
+	logerr = np.zeros((ndb, nchans, nlevels), dtype = np.float64)
 	phyerr = np.load(fn.PhysicalErrorRates(dbses[0], pmet))
 	for k in range(ndb):
 		logerr[k, :, :] = np.load(fn.LogicalErrorRates(dbses[k], lmet))[:, 1:]
 	# For every dataset and concatenation level, store the distance of the code that was used to error correct.
-	dists = np.zeros((ndb, nlevels), dtype = np.float)
+	dists = np.zeros((ndb, nlevels), dtype = np.float64)
 	for i in range(ndb):
 		dists[i, 0] = dbses[i].eccs[0].D
 		for l in range(1, nlevels):
 			dists[i, l] = dists[i, l - 1] * dbses[i].eccs[l].D
-		dists[i, :] = (dists[i, :] - 1)/np.float(2)
-	guess = np.zeros(nchans + len(dbses) * nlevels + len(dbses), dtype = np.float)
-	# limits = np.zeros((nchans + len(dbses) * nlevels + len(dbses), 2), dtype = np.float)
+		dists[i, :] = (dists[i, :] - 1)/np.float64(2)
+	guess = np.zeros(nchans + len(dbses) * nlevels + len(dbses), dtype = np.float64)
+	# limits = np.zeros((nchans + len(dbses) * nlevels + len(dbses), 2), dtype = np.float64)
 	limits = [[0, 0] for __ in range(nchans + len(dbses) * nlevels + len(dbses))]
 	# Bounds and initial guess for physical noise rates
 	for i in range(nchans):
@@ -99,10 +99,10 @@ def FitPhysErr(pmet, lmet, *dbses):
 		guess[i] = np.log(phyerr[i])
 	# Bounds and initial guess for the combinatorial factors
 	for i in range(ndb):
-		limits[nchans + i * nlevels] = [0, np.log(dbses[i].eccs[0].N) + np.log(dbses[i].eccs[0].N - 1) - np.log(np.float(2))]
+		limits[nchans + i * nlevels] = [0, np.log(dbses[i].eccs[0].N) + np.log(dbses[i].eccs[0].N - 1) - np.log(np.float64(2))]
 		for l in range(1, nlevels):
 			limits[nchans + i * nlevels + l][0] = 0
-			limits[nchans + i * nlevels + l][1] = limits[nchans + i * nlevels + l - 1][1] + (np.log(dbses[i].eccs[l].N) + np.log(dbses[i].eccs[l].N - 1) - np.log(np.float(2)))
+			limits[nchans + i * nlevels + l][1] = limits[nchans + i * nlevels + l - 1][1] + (np.log(dbses[i].eccs[l].N) + np.log(dbses[i].eccs[l].N - 1) - np.log(np.float64(2)))
 		# guess[nchans + i * nlevels + l] = np.random.randint(0, high = limits[nchans + i * nlevels + l][1])
 	# Bounds and initial guess for the exponent constants
 	for i in range(ndb):
@@ -120,7 +120,7 @@ def FitPhysErr(pmet, lmet, *dbses):
 	
 	# start = 0.0
 	# fin = 0.0
-	# pfit = np.zeros(nchans + ndb * nlevels + ndb, dtype = np.float)
+	# pfit = np.zeros(nchans + ndb * nlevels + ndb, dtype = np.float64)
 	#######
 	start = time.time()
 	result = opt.minimize(Obj, guess, jac = Jacob, args = (logerr, dists), bounds = limits, method = 'L-BFGS-B', options = {'disp':True, 'maxiter':5000})
@@ -171,7 +171,7 @@ def CompressObj(comp, phychans, logerr, select):
 	# Use the PartialObj function to compute the sum in chunks
 	ncpu = 8
 	nproc = min(ncpu, mp.cpu_count())
-	chunk = int(np.ceil(phychans.shape[0]/np.float(nproc)))
+	chunk = int(np.ceil(phychans.shape[0]/np.float64(nproc)))
 	print("obj cores = %d" % (nproc))
 	processes = []
 	subtotals = mp.Queue()
@@ -224,7 +224,7 @@ def PartialJacob(start, stop, comp, phychans, logerr, select, subjacobs):
 	# Compute only the part of the sum that ranges from i=start to i=stop.
 	# compmat = np.reshape(comp, [select, 12])
 	# square = np.dot(np.transpose(compmat), compmat)
-	partjacob = np.zeros(comp.shape[0], dtype = np.float)
+	partjacob = np.zeros(comp.shape[0], dtype = np.float64)
 	for i in xrange(start, stop):
 		# print("obj i = %d" % (i))
 		for j in xrange(i + 1, phychans.shape[0]):
@@ -249,7 +249,7 @@ def CompressJacob(comp, phychans, logerr, select):
 	# Use the PartialObj function to compute the sum in chunks
 	ncpu = 8
 	nproc = min(ncpu, mp.cpu_count())
-	chunk = int(np.ceil(phychans.shape[0]/np.float(nproc)))
+	chunk = int(np.ceil(phychans.shape[0]/np.float64(nproc)))
 	print("jacob cores = %d" % (nproc))
 	processes = []
 	subjacobs = mp.Queue()
@@ -260,7 +260,7 @@ def CompressJacob(comp, phychans, logerr, select):
 	for i in range(nproc):
 		processes[i].join()
 
-	jacob = np.zeros(comp.shape[0], dtype = np.float)
+	jacob = np.zeros(comp.shape[0], dtype = np.float64)
 	while (not subjacobs.empty()):
 		(start, stop, sjac) = subjacobs.get()
 		print("%d to %d done." % (start, stop))
@@ -283,7 +283,7 @@ def CompressJacob(comp, phychans, logerr, select):
 # 	# Compute the Jacobian of the objective function in CompressObj(...).
 # 	# Take the derivative with respect to the compression matrix M.
 # 	# compmat = np.reshape(comp, [select, 12])
-# 	jacob = np.zeros(comp.shape[0], dtype = np.float)
+# 	jacob = np.zeros(comp.shape[0], dtype = np.float64)
 # 	# square = np.dot(np.transpose(compmat), compmat)
 # 	# print("Compression matrix\n%s" % (np.array_str(comp)))
 # 	for i in xrange(phychans.shape[0]):
@@ -316,7 +316,7 @@ def Compress(dbs, lmet, level, ncomp):
 	# =====
 	physical = np.zeros((dbs.channels, 4, 4), dtype = np.longdouble)
 	for i in range(dbs.channels):
-		physical[i, :, :] = np.load(fn.PhysicalChannel(dbs, dbs.available[i, :np.int(dbs.available.shape[1] - 1)], loc = "storage"))[np.int(dbs.available[i, dbs.available.shape[1] - 1]), :, :]
+		physical[i, :, :] = np.load(fn.PhysicalChannel(dbs, dbs.available[i, :np.int64(dbs.available.shape[1] - 1)], loc = "storage"))[np.int64(dbs.available[i, dbs.available.shape[1] - 1]), :, :]
 	
 	if (not (os.path.isfile(fn.CompressionMatrix(dbs, lmet, level)))):
 		logerr = np.load(fn.LogicalErrorRates(dbs, lmet))[:, level]

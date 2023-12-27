@@ -50,10 +50,10 @@ def DecoderCompare(
 					% (ml.Metrics[logmet]["latex"].replace("$", ""), l),
 					"color": gv.Colors[d % gv.n_Colors]
 					if ndb > 1
-					else ml.Metrics[phylist[p]]["color"],
+					else ml.Metrics[phymet]["color"],
 					"marker": gv.Markers[d % gv.n_Markers]
 					if ndb > 1
-					else ml.Metrics[phylist[p]]["marker"],
+					else ml.Metrics[phymet]["marker"],
 					"linestyle": "",
 				}
 				if dbses[d].decoders[l - 1] == 0:
@@ -127,7 +127,7 @@ def DecoderInstanceCompare(phymet, logmet, dbses_input, chids = [0], thresholds=
 	max_weight = 1 + qcode.N//2
 	noise = dbses_input[0].available[chids[0], :-1]
 	sample = int(dbses_input[0].available[chids[0], -1])
-	(budgets, uniques) = np.unique(np.array([GetTotalErrorBudget(dbs, noise, sample) for dbs in dbses_input[1:]], dtype=np.int), return_index=True)
+	(budgets, uniques) = np.unique(np.array([GetTotalErrorBudget(dbs, noise, sample) for dbs in dbses_input[1:]], dtype=np.int64), return_index=True)
 	# Add the entries for the minimum weight decoder.
 	if (np.prod(dbses_input[0].decoders) == 1):
 		budgets = np.concatenate(([0], budgets))
@@ -143,7 +143,7 @@ def DecoderInstanceCompare(phymet, logmet, dbses_input, chids = [0], thresholds=
 	# max_budget = np.sum([comb(dbses[0].eccs[0].N, i) * 3**i for i in range(max_weight + 1)])/4**dbses[0].eccs[0].N
 
 	# The top xticklabels show the Pauli error budget left out in the NR data set.
-	alphas = np.array([dbs.decoder_fraction for dbs in dbses], dtype = np.float)
+	alphas = np.array([dbs.decoder_fraction for dbs in dbses], dtype = np.float64)
 	nr_weights = np.load(NRWeightsFile(dbses[0], noise))[sample, :]
 	chan_probs = np.load(RawPhysicalChannel(dbses_input[0], noise))[sample, :]
 	budget_left = np.zeros(alphas.size, dtype = np.double)
@@ -348,7 +348,7 @@ def SelectAlphas(ndb, nbins, logerrs, bin_phyerr):
 	selected_indices = [np.zeros(ndb - 1, dtype = np.double) for b in range(nbins)]
 	count_selected = 0
 	for b in range(nbins):
-		selected = np.zeros(ndb - 1, dtype = np.int)
+		selected = np.zeros(ndb - 1, dtype = np.int64)
 		for d in range(ndb - 1):
 			filtered_dataset = [x for x in bin_phyerr[b] if (logerrs[d][x] != -1)]
 			if (len(filtered_dataset)/len(bin_phyerr[b]) >= 0.5):
@@ -368,7 +368,7 @@ def FilterLogicalErrorRates(dbses, chids, logmet, level):
 		noise = dbses[0].available[chids[ch], :-1]
 		rates.append(np.argmin(np.sum(np.abs(dbses[0].noiserates - noise), axis=1)))
 		samples.append(int(dbses[0].available[chids[ch], -1]))
-	is_converged = np.zeros((ndb, len(rates), len(samples)), dtype = np.int)
+	is_converged = np.zeros((ndb, len(rates), len(samples)), dtype = np.int64)
 	for d in range(ndb):
 		if os.path.isfile(IsConvergedFile(dbses[d], logmet)):
 			is_converged[d, :, :] = np.load(IsConvergedFile(dbses[d], logmet))
@@ -443,7 +443,7 @@ def GetBudgets(dbses, chids):
 		noise = dbses[0].available[chids[ch], :-1]
 		sample = int(dbses[0].available[chids[ch], -1])
 		nr_weights = np.load(NRWeightsFile(dbses[0], noise))[sample, :]
-		budgets[:, c] = np.array([GetTotalErrorBudget(dbs, noise, sample) for dbs in dbses[1:]], dtype=np.int)
+		budgets[:, c] = np.array([GetTotalErrorBudget(dbs, noise, sample) for dbs in dbses[1:]], dtype=np.int64)
 		chan_probs = np.load(RawPhysicalChannel(dbses[0], noise))[sample, :]
 		# for d in range(1, alphas.size):
 		# 	(__, __, knownPaulis) = GetLeadingPaulis(alphas[d], qcode, chan_probs, "weight", nr_weights)
@@ -508,7 +508,7 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 	ndb = len(dbses)
 	plotfname = DecodersInstancePlot(dbses[0], phymet, logmet)
 	nlevels = max([db.levels for db in dbses])
-	alphas = np.array([dbs.decoder_fraction for dbs in dbses], dtype = np.float)
+	alphas = np.array([dbs.decoder_fraction for dbs in dbses], dtype = np.float64)
 
 	# Sort the alphas.
 	sort_order = np.argsort(alphas)

@@ -140,7 +140,7 @@ def GenChannelSamples(
 	nstabs = 2 ** (submit.eccs[0].N - submit.eccs[0].K)
 	nlogs = 4 ** submit.eccs[0].K
 	diagmask = np.array(
-		[nlogs * nstabs * j + j for j in range(nlogs * nstabs)], dtype=np.int
+		[nlogs * nstabs * j + j for j in range(nlogs * nstabs)], dtype=np.int64
 	)
 	for j in range(samps[0], samps[1]):
 		# print(

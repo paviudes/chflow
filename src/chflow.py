@@ -122,6 +122,7 @@ def RemoteExecution(timestamp, node):
 						% (submit.eccs[l].name)
 					)
 					PrepareSyndromeLookUp(submit.eccs[l])
+				# print("Lookp for level {}:\n{}".format(l, submit.eccs[l].lookup))
 
 	# If no node information is specified, then simulate all nodes in serial.
 	# Else simulate only the given node.
@@ -781,7 +782,7 @@ if __name__ == "__main__":
 			chids = list(range(submit.available.shape[0]))
 			if len(user) > 4:
 				if (";" in user[4]):
-					chids = np.arange(*list(map(int, user[4].split(";"))), dtype = np.int)
+					chids = np.arange(*list(map(int, user[4].split(";"))), dtype = np.int64)
 				else:
 					chids = list(map(int, user[4].split(",")))
 			# print("Doing dciplot for chids {} from available {}".format(chids, submit.available))
@@ -1027,14 +1028,14 @@ if __name__ == "__main__":
 						GatherLogErrData(dbses[i + 1])
 			if len(user) > 4:
 				if ";" in user[4]:
-					samples = np.arange(*list(map(int, user[4].split(";"))), dtype = np.int)
+					samples = np.arange(*list(map(int, user[4].split(";"))), dtype = np.int64)
 				else:
-					samples = np.array(list(map(int, user[4].split(","))), dtype = np.int)
+					samples = np.array(list(map(int, user[4].split(","))), dtype = np.int64)
 			if len(user) > 3:
 				if ";" in user[3]:
-					rates = np.arange(*list(map(int, user[3].split(";"))), dtype = np.int)
+					rates = np.arange(*list(map(int, user[3].split(";"))), dtype = np.int64)
 				else:
-					rates = np.array(list(map(int, user[3].split(","))), dtype = np.int)
+					rates = np.array(list(map(int, user[3].split(","))), dtype = np.int64)
 			
 			print("Doing MC Stat plot for rates {} and samples {}".format(rates, samples))
 			MCStatsPlot(dbses, lmet, pmet, rates, samples=samples)
@@ -1261,22 +1262,22 @@ if __name__ == "__main__":
 			nbins = 10
 			check = int(submit.complete > 0)
 			if len(user) > 4:
-				level = np.int(user[1])
+				level = np.int64(user[1])
 				lmet = user[2]
-				ncomp = np.int(user[3])
-				nbins = np.int(user[4])
+				ncomp = np.int64(user[3])
+				nbins = np.int64(user[4])
 			else:
 				if len(user) > 3:
-					level = np.int(user[1])
+					level = np.int64(user[1])
 					lmet = user[2]
-					ncomp = np.int(user[3])
+					ncomp = np.int64(user[3])
 				else:
 					if len(user) > 2:
-						level = np.int(user[1])
+						level = np.int64(user[1])
 						lmet = user[2]
 					else:
 						if len(user) > 1:
-							level = np.int(user[1])
+							level = np.int64(user[1])
 						else:
 							check = 0
 

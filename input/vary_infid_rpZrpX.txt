@@ -1,8 +1,0 @@
-# Time stamp
-timestamp vary_infid_rpZrpX
-# Type of quantum error correcting code
-ecc 
-# Type of quantum channel
-channel X
-# Representation of the quantum channel. (Available options: "krauss", "process", "choi", "chi", "stine")
-repr process

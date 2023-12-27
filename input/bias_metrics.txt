@@ -1,9 +1,0 @@
-sbload vary_bias_ststst
-lpmetrics uncorr
-pmetrics infid
-collect
-sbload vary_bias_cycycy
-lpmetrics uncorr
-pmetrics infid
-collect
-quit

@@ -79,7 +79,7 @@ def BinsPlot(dbs, lmet, pvals):
 						fontsize=gv.axes_labels_fontsize + 144,
 					)
 					ax.set_ylim([0, 50])
-					# yticks = nzrows[np.linspace(0, nzrows.shape[0] - 1, npoints, dtype = np.int)]
+					# yticks = nzrows[np.linspace(0, nzrows.shape[0] - 1, npoints, dtype = np.int64)]
 					# ax.set_yticks(yticks)
 					# ax.set_yticklabels(["%d" % (tc) for tc in yticks])
 					ax.set_xlabel(
@@ -87,7 +87,7 @@ def BinsPlot(dbs, lmet, pvals):
 						% (l + 1),
 						fontsize=gv.axes_labels_fontsize + 144,
 					)
-					# xticks = nzcols[np.linspace(0, nzcols.shape[0] - 1, npoints, dtype = np.int)]
+					# xticks = nzcols[np.linspace(0, nzcols.shape[0] - 1, npoints, dtype = np.int64)]
 					# ax.set_xticks(xticks)
 					# ax.set_xticklabels(["%d" % (tc) for tc in xticks])
 					ax.tick_params(
@@ -192,7 +192,7 @@ def PlotBinVarianceMetrics(ax_principal, dbs, level, lmet, pmets, nbins, include
 	# loc = LogLocator(base=10, numticks=10) # this locator puts ticks at regular intervals
 	# ax_inset.yaxis.set_major_locator(loc)
 	# print("nonzero_bins.size = {}".format(nonzero_bins.size))
-	ax_inset.set_xticks(np.arange(collapsed_bins[pmets[0]].shape[0], dtype=np.int))
+	ax_inset.set_xticks(np.arange(collapsed_bins[pmets[0]].shape[0], dtype=np.int64))
 	ax_inset.set_xticklabels(
 		list(
 			map(
@@ -224,7 +224,7 @@ def PlotBinVarianceMetrics(ax_principal, dbs, level, lmet, pmets, nbins, include
 			width=gv.ticks_width,
 			labelsize=gv.ticks_fontsize * 0.75,
 		)
-		ax_inset_top.set_xticks(np.arange(collapsed_bins[pmets[1]].shape[0], dtype=np.int))
+		ax_inset_top.set_xticks(np.arange(collapsed_bins[pmets[1]].shape[0], dtype=np.int64))
 		ax_inset_top.set_xticklabels(
 			list(
 				map(
@@ -455,7 +455,7 @@ def CollapseBins(bins, min_bin_size):
 	Merge bins into one if either have less than a threshold number of points.
 	"""
 	# return bins
-	collapse = np.zeros(bins.shape[0], dtype=np.int)
+	collapse = np.zeros(bins.shape[0], dtype=np.int64)
 	i = 0
 	while i < bins.shape[0] - 1:
 		if bins[i, 2] < min_bin_size:
@@ -754,15 +754,15 @@ def ComputeNDimBinVariance(xdata, ydata, nbins=3, space="linear"):
 	# print("window\n%s" % (np.array_str(window)))
 
 	# For every point in xdata, determine its address in terms of windows, in the n-dim space.
-	address = np.zeros((xdata.shape[0], ndim), dtype=np.int)
-	binindex = np.zeros(xdata.shape[0], dtype=np.int)
+	address = np.zeros((xdata.shape[0], ndim), dtype=np.int64)
+	binindex = np.zeros(xdata.shape[0], dtype=np.int64)
 	for i in range(xdata.shape[0]):
 		for j in range(ndim):
 			# which window does xdata[i, j] fall into ?
 			# print("xdata[i, j] = %g, window[j, :] = %s" % (xdata[i, j], np.array_str(window[j, :])))
 			# print "np.logical_and(xdata[i, j] >= window[j, :-1], xdata[i, j] < window[j, 1:])"
 			# print np.logical_and(xdata[i, j] >= window[j, :-1], xdata[i, j] < window[j, 1:])
-			# address[i, j] = np.nonzero(np.logical_and(xdata[i, j] >= window[j, :-1], xdata[i, j] < window[j, 1:]).astype(np.int))[0][0]
+			# address[i, j] = np.nonzero(np.logical_and(xdata[i, j] >= window[j, :-1], xdata[i, j] < window[j, 1:]).astype(np.int64))[0][0]
 			for k in range(nbins):
 				if xdata[i, j] > window[j, k]:
 					address[i, j] = k
@@ -772,7 +772,7 @@ def ComputeNDimBinVariance(xdata, ydata, nbins=3, space="linear"):
 			np.multiply(
 				address[i, :], np.power(nbins - 1, np.linspace(ndim - 1, 0, ndim))
 			),
-			dtype=np.int,
+			dtype=np.int64,
 		)
 
 		# print("address[i, :]\n%s\nnp.power(nbins - 1, np.linspace(ndim - 1, 0, ndim))\n%s" % (np.array_str(address[i, :]), np.array_str(np.power(nbins - 1, np.linspace(ndim - 1, 0, ndim)))))
@@ -781,8 +781,8 @@ def ComputeNDimBinVariance(xdata, ydata, nbins=3, space="linear"):
 	# print("binindex\n%s" % (np.array_str(binindex)))
 
 	# Count the number of xdata points with a fixed bin index and record that information in bins.
-	bins = np.zeros((np.power(nbins - 1, ndim, dtype=np.int), 4), dtype=np.longdouble)
-	isempty = np.zeros(bins.shape[0], dtype=np.int)
+	bins = np.zeros((np.power(nbins - 1, ndim, dtype=np.int64), 4), dtype=np.longdouble)
+	isempty = np.zeros(bins.shape[0], dtype=np.int64)
 	for i in range(bins.shape[0]):
 		if np.count_nonzero(binindex == i) == 0:
 			isempty[i] = 1

@@ -32,14 +32,14 @@ def MatrixPositivityConstraints(proba, inchan):
     # B = (1-M).T * (1-M) where M is the bloch rotation matrix corresponding to the input channel
     # A = (1 - M)^2 where M is the bloch rotation matrix for the Pauli channel
     # pauliKrauss = np.transpose(np.transpose(pauli, (2, 1, 0)) * proba, (2, 1, 0))
-    pI = 1 - np.sum(proba, dtype=np.float)
+    pI = 1 - np.sum(proba, dtype=np.float64)
     pauli = np.array(
         [
             [np.power(1 - pI - proba[0] + proba[1] + proba[2], 2.0), 0.0, 0.0],
             [0.0, np.power(1 - pI + proba[0] - proba[1] + proba[2], 2.0), 0.0],
             [0.0, 0.0, np.power(1 - pI + proba[0] + proba[1] - proba[2], 2.0)],
         ],
-        dtype=np.float,
+        dtype=np.float64,
     )
     # The difference between the bloch error matrices must be positive semi-definite
     positiveMatrix = pauli - inchan
@@ -50,7 +50,7 @@ def MatrixPositivityConstraints(proba, inchan):
 def DiamondDistanceFromPauli(proba, refchan):
     ## Diamond distance between a channel and a Pauli channel with a given probability distribution
     # If the Pauli channel distribution has only three elements, the first one is calculated as 1 - (sum of all other probabilties)
-    pI = 1 - np.sum(proba, dtype=np.float)
+    pI = 1 - np.sum(proba, dtype=np.float64)
     pchoi = (
         np.array(
             [
@@ -59,12 +59,12 @@ def DiamondDistanceFromPauli(proba, refchan):
                 [0, proba[0] - proba[1], proba[0] + proba[1], 0],
                 [pI - proba[2], 0, 0, pI + proba[2]],
             ],
-            dtype=np.float,
+            dtype=np.float64,
         )
         * 0.5
     )
     diff = np.real(
-        ((refchan - pchoi) + HermitianConjugate(refchan - pchoi)) / np.float(2)
+        ((refchan - pchoi) + HermitianConjugate(refchan - pchoi)) / np.float64(2)
     )
     #### picos optimization problem
     prob = pic.Problem()
@@ -103,13 +103,13 @@ def HonestPauliApproximation(channel, rep="process"):
     # non-unital channels have an additional contribution C where
     # C = ||t||^2 + 2 * ||v|| where v = (1 - M)^T * t and t is the translation of the Bloch sphere (non-unital)
     nonunital = np.linalg.norm(translation, ord="fro") + 2 * np.linalg.norm(
-        np.dot(np.transpose(np.eye(3, dtype=np.float) - rotation), translation),
+        np.dot(np.transpose(np.eye(3, dtype=np.float64) - rotation), translation),
         ord="fro",
     )
     blocherr = np.dot(
-        np.transpose(np.eye(3, dtype=np.float) - rotation),
-        (np.eye(3, dtype=np.float) - rotation),
-    ) + nonunital * np.eye(3, dtype=np.float)
+        np.transpose(np.eye(3, dtype=np.float64) - rotation),
+        (np.eye(3, dtype=np.float64) - rotation),
+    ) + nonunital * np.eye(3, dtype=np.float64)
     # Minimize the diamond distance between the Pauli channel and the input channel
     objective = lambda pp: DiamondDistanceFromPauli(pp, choi)
     cons = [{"type": "ineq", "fun": (lambda pp: 1 - pp[0] - pp[1] - pp[2])}]

@@ -294,8 +294,8 @@ def GDPerfTimeScales(submit, logmet, colx=0, coly=1):
                         "$%.2f \\times 10^{%d}$"
                         % (
                             clevels[i]
-                            * np.power(10, np.abs(np.int(np.log10(clevels[i])))),
-                            np.int(np.log10(clevels[i])),
+                            * np.power(10, np.abs(np.int64(np.log10(clevels[i])))),
+                            np.int64(np.log10(clevels[i])),
                         )
                     )
                     for i in range(len(clevels))

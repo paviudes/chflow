@@ -49,27 +49,27 @@ for i in range(4):
 process_to_chi = np.linalg.inv(np.reshape(chi_to_process, [16, 16]))
 
 # Bell states
-bell = np.zeros([4, 4, 4], dtype=np.float)
+bell = np.zeros([4, 4, 4], dtype=np.float64)
 # Bell state |00> + |11>
 bell[0, :, :] = np.dot(
     (np.kron(kets[0], kets[0]) + np.kron(kets[1], kets[1])),
     (np.kron(bras[0], bras[0]) + np.kron(bras[1], bras[1])),
-) / np.float(2)
+) / np.float64(2)
 # Bell state |01> + |10>
 bell[1, :, :] = np.dot(
     (np.kron(kets[0], kets[1]) + np.kron(kets[1], kets[0])),
     (np.kron(bras[0], bras[1]) + np.kron(bras[1], bras[0])),
-) / np.float(2)
+) / np.float64(2)
 # Bell state i(|10> - |01>)
 bell[2, :, :] = np.dot(
     (np.kron(kets[0], kets[1]) - np.kron(kets[1], kets[0])),
     (np.kron(bras[0], bras[1]) - np.kron(bras[1], bras[0])),
-) / np.float(2)
+) / np.float64(2)
 # Bell state |00> - |11>
 bell[3, :, :] = np.dot(
     (np.kron(kets[0], kets[0]) - np.kron(kets[1], kets[1])),
     (np.kron(bras[0], bras[0]) - np.kron(bras[1], bras[1])),
-) / np.float(2)
+) / np.float64(2)
 
 # Hadamard gate
 hadamard = np.array(

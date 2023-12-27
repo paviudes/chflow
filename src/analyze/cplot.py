@@ -155,12 +155,12 @@ def ChannelWisePlot(phymet, logmet, dbses, thresholds={"y": 10e-16, "x": 10e-16}
 				logerrs[d, :] = np.load(LogicalErrorRates(dbses[d], logmet))[:, l]
 			include_RC = np.nonzero(logerrs[0, :] > thresholds["y"])[0]
 			include_nonRC = np.nonzero(logerrs[1, :] > thresholds["y"])[0]
-			include_both = np.intersect1d(include_RC, include_nonRC)
+			include_both = np.int64ersect1d(include_RC, include_nonRC)
 			if include_input is None:
 				# include = np.random.choice(include_both, min(select_count, include_both.shape[0]))
 				include = include_both
 			else:
-				include = np.intersect1d(include_input, include_both)
+				include = np.int64ersect1d(include_input, include_both)
 			print("l: {} and include = {}".format(l, include))
 			if logmet == "infid":
 				ylabel = "$\\overline{%s_{%d}}$" % (ml.Metrics[logmet]["latex"].replace("$",""), l)

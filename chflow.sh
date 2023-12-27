@@ -13,7 +13,7 @@ if [[ $host == *"paviws"* ]]; then
 	chflowdir="/Users/pavi/Documents/rclearn/chflow"
 	sed_prepend=' '
 	
-elif [[ $host == "pavitp" ]]; then
+elif [[ $host == "pavi" ]]; then
 	local_user=${USER}
 	outdir="/home/pavi/Documents/chbank"
 	chflowdir="/home/pavi/Documents/chflow"
@@ -140,6 +140,6 @@ elif [[ "$1" == "chmod" ]]; then
 	
 else
 	cd src
-	python chflow.py "$@"
+	python3 chflow.py "$@"
 	cd ..
 fi

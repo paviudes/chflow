@@ -1,4 +1,0 @@
-sbload vary_bias_st
-submit vary_bias_st
-submit vary_bias_cy
-quit

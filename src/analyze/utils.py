@@ -32,8 +32,8 @@ def RoundOrder(number):
 def OrderOfMagnitude(number):
     # Compute the order of magnitude
     if (number < 0):
-        return np.int(np.floor(np.log10(-1 * number)))
-    return np.int(np.ceil(np.log10(number)))
+        return np.int64(np.floor(np.log10(-1 * number)))
+    return np.int64(np.ceil(np.log10(number)))
 
 
 def GetBaseExponent(number):
@@ -155,9 +155,9 @@ def DisplayForm(number, base):
         sign = "-"
         number = np.abs(number)
     exponent = np.floor(np.log(number) / np.log(base))
-    factor = np.int(
+    factor = np.int64(
         np.power(base, np.log(number) / np.log(base) - exponent) * 100
-    ) / np.float(100)
+    ) / np.float64(100)
     if (sign == "") and (factor == 1):
         numstr = "$%g^{%d}$" % (base, exponent)
     else:

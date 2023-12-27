@@ -73,22 +73,22 @@ def ComputeNRBudget(nr_weights_all, alphas, nq, max_weight=None):
 	if max_weight is None:
 		max_weight = nr_weights_all.max()
 	n_alphas = len(alphas)
-	relative_budget = np.zeros((n_alphas, max_weight + 1), dtype=np.float)
+	relative_budget = np.zeros((n_alphas, max_weight + 1), dtype=np.float64)
 
 	# Count the frequency of each weight.
-	weight_counts = np.zeros(max_weight + 1, dtype=np.int)
-	min_weight_counts = np.zeros(max_weight + 1, dtype=np.int)
+	weight_counts = np.zeros(max_weight + 1, dtype=np.int64)
+	min_weight_counts = np.zeros(max_weight + 1, dtype=np.int64)
 	for w in range(max_weight + 1):
 		weight_counts[w] = np.count_nonzero(nr_weights_all == w)
 	min_weight_counts[0] = 1
 
 	for (alpha_count, alpha) in enumerate(alphas):
-		weight_count_alpha = np.maximum((alpha * weight_counts).astype(np.int), min_weight_counts)
+		weight_count_alpha = np.maximum((alpha * weight_counts).astype(np.int64), min_weight_counts)
 		budget_pauli_count = np.sum(weight_count_alpha)
 		# print("alpha = {}, budget_pauli_count = {}\nweight_count_alpha\n{}".format(alpha, budget_pauli_count, weight_count_alpha))
 
 		# Resetting the number of errors of each weight to the theoretical maximum
-		nerrors_weight = np.zeros(max_weight + 1, dtype = np.int)
+		nerrors_weight = np.zeros(max_weight + 1, dtype = np.int64)
 		excess_budget = 0
 		for w in range(weight_counts.size):
 			count = weight_count_alpha[w]
@@ -124,7 +124,7 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, nr_weights_all = None
 		leading_paulis = np.argsort(chan_probs)[-nPaulis:][::-1]
 
 	elif (option == "sqprobs"):
-		single_qubit_errors = np.concatenate((np.array([0], dtype = np.int), qcode.group_by_weight[1]))
+		single_qubit_errors = np.concatenate((np.array([0], dtype = np.int64), qcode.group_by_weight[1]))
 		nPaulis = max(1, int(lead_frac * (4 ** qcode.N)))
 		top_paulis = np.argsort(chan_probs)[-nPaulis:][::-1]
 		remaining_budget = 0
@@ -147,7 +147,7 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, nr_weights_all = None
 
 		(nerrors_weight, __) = ComputeNRBudget(nr_weights_all, [lead_frac], qcode.N, max_weight=max_weight)
 
-		leading_paulis = np.zeros(np.sum(nerrors_weight, dtype = np.int), dtype=np.int)
+		leading_paulis = np.zeros(np.sum(nerrors_weight, dtype = np.int64), dtype=np.int64)
 		start = 0
 		for w in range(max_weight + 1):
 			if (nerrors_weight[w] > 0):
@@ -226,7 +226,7 @@ def PrepareNRWeights(submit):
 	# Save the nr_weights to a file.
 	qcode = submit.eccs[0]
 	max_weight = qcode.N//2 + 1
-	submit.nr_weights = np.zeros((submit.noiserates.shape[0], submit.samps, 4 ** qcode.N), dtype = np.int)
+	submit.nr_weights = np.zeros((submit.noiserates.shape[0], submit.samps, 4 ** qcode.N), dtype = np.int64)
 	for r in range(submit.noiserates.shape[0]):
 		if (submit.channel == "cptp"):
 			(__, cutoff, __, mean) = submit.noiserates[r, :]

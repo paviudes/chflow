@@ -47,7 +47,7 @@ def PrepareMLData(dbs, physmets, lmet, step, mask, neigs = 1):
 	for m in range(nmetrics):
 		phyerr[:, m] = np.load(fn.PhysicalErrorRates(dbs, physmets[m]))
 	for i in range(dbs.channels):
-		phychan = np.load(fn.PhysicalChannel(dbs, dbs.available[i, :np.int(dbs.available.shape[1] - 1)]))[np.int(dbs.available[i, dbs.available.shape[1] - 1]), :, :]
+		phychan = np.load(fn.PhysicalChannel(dbs, dbs.available[i, :np.int64(dbs.available.shape[1] - 1)]))[np.int64(dbs.available[i, dbs.available.shape[1] - 1]), :, :]
 		# phychan = np.load(fn.LogicalChannel(dbs, dbs.available[i, :(dbs.available.shape[1] - 1)], dbs.available[i, dbs.available.shape[1] - 1]))[0, :, :]
 		if (neigs == 1):
 			mldata[i, :nelems] = lk.GetLeadingKrauss(phychan)

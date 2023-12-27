@@ -110,7 +110,7 @@ def PlotDeviationYX(lmet, pmet, dbses, nbins, thresholds):
 				width=gv.ticks_width,
 				labelsize=gv.ticks_fontsize,
 			)
-			# ax.set_xticks(np.arange(0, collapsed_bins[1].shape[0], dtype=np.int))
+			# ax.set_xticks(np.arange(0, collapsed_bins[1].shape[0], dtype=np.int64))
 			# ax.set_xticklabels(
 			# 	list(
 			# 		map(

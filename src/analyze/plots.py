@@ -73,9 +73,9 @@ def DisplayForm(number, base):
         sign = "-"
         number = np.abs(number)
     exponent = np.floor(np.log(number) / np.log(base))
-    factor = np.int(
+    factor = np.int64(
         np.power(base, np.log(number) / np.log(base) - exponent) * 100
-    ) / np.float(100)
+    ) / np.float64(100)
     numstr = "$%s%g \\times %g^{%d}$" % (sign, factor, base, exponent)
     # if (number < 0):
     # 	numstr = ("-%s" % (numstr))
@@ -110,8 +110,8 @@ def LoadPhysicalErrorRates(dbs, pmet, settings, level, override=None, is_overrid
         if settings["color"] == "":
             settings["color"] = ml.Metrics[pmet]["color"]
     else:
-        settings["xlabel"] = qc.Channels[dbs.channel]["latex"][np.int(pmet)]
-        settings["xaxis"] = dbs.available[:, np.int(pmet)]
+        settings["xlabel"] = qc.Channels[dbs.channel]["latex"][np.int64(pmet)]
+        settings["xaxis"] = dbs.available[:, np.int64(pmet)]
         settings["marker"] = gv.Markers[int(pmet)]
         settings["color"] = gv.Colors[int(pmet)]
         if not (dbs.scales[int(pmet)] == 1):

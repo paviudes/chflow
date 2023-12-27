@@ -178,7 +178,7 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity, rawchan=None
 	else:
 		chans = [
 			np.prod(
-				[submit.eccs[nlevels - l - 1].N for l in range(inter)], dtype=np.int
+				[submit.eccs[nlevels - l - 1].N for l in range(inter)], dtype=np.int64
 			)
 			for inter in range(nlevels + 1)
 		][::-1]
@@ -216,7 +216,7 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity, rawchan=None
 			ndecoderbins,
 			submit.frame,
 			len(submit.stats),
-			submit.stats.astype(np.long),
+			submit.stats.astype(np.longlong),
 			submit.nbins,
 			submit.maxbin,
 			submit.importance,
@@ -225,32 +225,32 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity, rawchan=None
 
 	_bmark = ctypes.cdll.LoadLibrary(os.path.abspath("simulate/bmark.so"))
 	_bmark.Benchmark.argtypes = (
-		ctypes.c_int,  # nlevels
-		ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),  # nkd
-		ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),  # SS
-		ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),  # normalizer
-		ndpointer(dtype=np.float64, ndim=1, flags="C_CONTIGUOUS"),  # normphases_real
-		ndpointer(dtype=np.float64, ndim=1, flags="C_CONTIGUOUS"),  # normphases_imag
+		ctypes.c_int32,  # nlevels
+		ndpointer(dtype=ctypes.c_int32, ndim=1, flags="C_CONTIGUOUS"),  # nkd
+		ndpointer(dtype=ctypes.c_int32, ndim=1, flags="C_CONTIGUOUS"),  # SS
+		ndpointer(dtype=ctypes.c_int32, ndim=1, flags="C_CONTIGUOUS"),  # normalizer
+		ndpointer(dtype=ctypes.c_double, ndim=1, flags="C_CONTIGUOUS"),  # normphases_real
+		ndpointer(dtype=ctypes.c_double, ndim=1, flags="C_CONTIGUOUS"),  # normphases_imag
 		ctypes.POINTER(ctypes.c_char),  # chname
 		ctypes.c_int,  # iscorr
-		ndpointer(dtype=np.float64, ndim=1, flags="C_CONTIGUOUS"),  # physical
+		ndpointer(dtype=ctypes.c_double, ndim=1, flags="C_CONTIGUOUS"),  # physical
 		ctypes.c_int,
 		ctypes.c_int,  # nmetrics
 		ctypes.c_char_p * nmetrics,  # metrics
-		ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),  # decoders
-		ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),  # dclookups
-		ndpointer(dtype=np.float64, ndim=1, flags="C_CONTIGUOUS"),  # mpinfo
-		ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),  # operators_LST
+		ndpointer(dtype=ctypes.c_int32, ndim=1, flags="C_CONTIGUOUS"),  # decoders
+		ndpointer(dtype=ctypes.c_int32, ndim=1, flags="C_CONTIGUOUS"),  # dclookups
+		ndpointer(dtype=ctypes.c_double, ndim=1, flags="C_CONTIGUOUS"),  # mpinfo
+		ndpointer(dtype=ctypes.c_int32, ndim=1, flags="C_CONTIGUOUS"),  # operators_LST
 		ctypes.c_int,  # hybrid
-		ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),  # decoderbins
-		ndpointer(dtype=np.int32, ndim=1, flags="C_CONTIGUOUS"),  # ndecoderbins
+		ndpointer(dtype=ctypes.c_int32, ndim=1, flags="C_CONTIGUOUS"),  # decoderbins
+		ndpointer(dtype=ctypes.c_int32, ndim=1, flags="C_CONTIGUOUS"),  # ndecoderbins
 		ctypes.c_int,  # frame
 		ctypes.c_int,  # nbreaks
-		ndpointer(dtype=np.long, ndim=1, flags="C_CONTIGUOUS"),  # stats
+		ndpointer(dtype=ctypes.c_int64, ndim=1, flags="C_CONTIGUOUS"),  # stats
 		ctypes.c_int,  # nbins
 		ctypes.c_int,  # maxbin
 		ctypes.c_int,  # importance
-		ndpointer(dtype=np.float64, ndim=1, flags="C_CONTIGUOUS"),  # refchan
+		ndpointer(dtype=ctypes.c_double, ndim=1, flags="C_CONTIGUOUS"),  # refchan
 		ctypes.c_double,  # infidelity
 	)
 	_bmark.Benchmark.restype = GetBMOutput(
@@ -280,7 +280,7 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity, rawchan=None
 		ndecoderbins,  # arg 18
 		submit.frame,  # arg 19
 		len(submit.stats),  # arg 20
-		submit.stats.astype(np.long),  # arg 21
+		submit.stats.astype(np.longlong),  # arg 21
 		submit.nbins,  # arg 22
 		submit.maxbin,  # arg 23
 		submit.importance,  # arg 24

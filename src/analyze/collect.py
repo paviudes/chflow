@@ -36,7 +36,7 @@ def IsComplete(submit):
 		submit.channels = chcount
 		if chcount > 0:
 			submit.available = np.zeros(
-				(submit.channels, 1 + submit.noiserates.shape[1]), dtype=np.float
+				(submit.channels, 1 + submit.noiserates.shape[1]), dtype=np.float64
 			)
 			chcount = 0
 			for i in range(submit.noiserates.shape[0]):
@@ -53,7 +53,7 @@ def IsComplete(submit):
 					submit.available[chcount, -1] = j
 					chcount = chcount + 1
 					
-		submit.complete = (100 * chcount) / np.float(
+		submit.complete = (100 * chcount) / np.float64(
 			submit.noiserates.shape[0] * submit.samps
 		)
 		print(
@@ -150,7 +150,7 @@ def ComputeBestFitLine(xydata):
 	# Use linear regression: https://en.wikipedia.org/wiki/Simple_linear_regression#Fitting_the_regression_line
 	# print("xydata\n%s" % (np.array_str(xydata)))
 
-	line = np.zeros(2, dtype=np.float)
+	line = np.zeros(2, dtype=np.float64)
 	tol = 10e-20
 	xave = 0.0
 	yave = 0.0
@@ -158,8 +158,8 @@ def ComputeBestFitLine(xydata):
 		if xydata[i, 1] > tol:
 			xave = xave + xydata[i, 0]
 			yave = yave + np.log10(xydata[i, 1])
-	xave = xave / np.float(xydata.shape[0])
-	yave = yave / np.float(xydata.shape[0])
+	xave = xave / np.float64(xydata.shape[0])
+	yave = yave / np.float64(xydata.shape[0])
 
 	# print("xave = %g, yave = %g." % (xave, yave))
 
@@ -172,7 +172,7 @@ def ComputeBestFitLine(xydata):
 	# print("covxy = %g, varx = %g." % (covxy, varx))
 
 	# Best fit line
-	line[0] = covxy / np.float(varx)
+	line[0] = covxy / np.float64(varx)
 	line[1] = yave - line[0] * xave
 	return line
 
@@ -184,7 +184,7 @@ def ComputeThreshold(dbs, lmet):
 	# The threshold is the average of the smallest physical noise rate that is above threshold and the largest physical noise rate that is below threshold.
 	logErr = np.load(LogicalErrorRates(dbs, lmet, fmt="npy"))
 	regime = np.zeros(dbs.noiserates.shape[0], dtype=np.int8)
-	bestfit = np.zeros(2, dtype=np.float)
+	bestfit = np.zeros(2, dtype=np.float64)
 	for i in range(dbs.channels):
 		bestfit = ComputeBestFitLine(
 			np.concatenate(
@@ -193,7 +193,7 @@ def ComputeThreshold(dbs, lmet):
 			)
 		)
 		regime[dbs.available[i, 0]] = np.power(-1, int(bestfit[0] < 0))
-	thresholds = np.zeros(2, dtype=np.float)
+	thresholds = np.zeros(2, dtype=np.float64)
 	for i in range(dbs.noiserates.shape[0]):
 		if regime[i] == 1:
 			threshold[0] = dbs.noiserates[i][0]
@@ -202,7 +202,7 @@ def ComputeThreshold(dbs, lmet):
 		if regime[dbs.noiserates.shape[0] - i - 1] == -1:
 			threshold[1] = dbs.noiserates[i][0]
 			break
-	threshold = (thresholds[0] + thresholds[1]) / np.float(2)
+	threshold = (thresholds[0] + thresholds[1]) / np.float64(2)
 	return threshold
 
 

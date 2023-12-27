@@ -94,8 +94,9 @@ def Save(submit):
 			"# Decoding algorithm to be used -- 0 for the maximum likelihood decoder and 1 for minimum weight decoder.\ndecoder %s\n"
 			% ",".join(list(map(str, submit.decoders)))
 		)
+
 		infid.write(
-			"# Fraction of Pauli probabilities accessible to the ML decoder.\ndcfraction %g\n"
+				"# Fraction of Pauli probabilities accessible to the ML decoder.\ndcfraction %g\n"
 			% (submit.decoder_fraction)
 		)
 		if submit.hybrid > 0:

@@ -94,11 +94,11 @@ class QuantumErrorCorrectingCode:
 
 		Finally, the position of :math:`P` in the :math:`LST` ordering is simply :math:`\gamma + 2^{n-k}\beta + \alpha 2^{2n - 2k}`.
 		"""
-		ordering = np.array(([0, 3], [1, 2]), dtype=np.int)
+		ordering = np.array(([0, 3], [1, 2]), dtype=np.int64)
 		gen_support = {
-			"L": np.zeros(2 * self.K, dtype=np.int),
-			"S": np.zeros(self.N - self.K, dtype=np.int),
-			"T": np.zeros(self.N - self.K, dtype=np.int),
+			"L": np.zeros(2 * self.K, dtype=np.int64),
+			"S": np.zeros(self.N - self.K, dtype=np.int64),
+			"T": np.zeros(self.N - self.K, dtype=np.int64),
 		}
 		positions = {"L": 0, "S": 0, "T": 0}
 		log_indices = GetCommutingInSet(self.L, op, parity=1, props="set")
@@ -864,8 +864,8 @@ def PrepareSyndromeLookUp(qecc):
 	nlogs = 4 ** qecc.K
 	ordering = np.array([[0, 3], [1, 2]], dtype=np.int8)
 	qecc.lookup = np.zeros((nstabs, 2 + qecc.N), dtype=np.double)
-	qecc.PauliOperatorsLST = np.zeros((4 ** qecc.N, qecc.N), dtype=np.int)
-	qecc.weightdist = np.zeros(4 ** qecc.N, dtype=np.int)
+	qecc.PauliOperatorsLST = np.zeros((4 ** qecc.N, qecc.N), dtype=np.int64)
+	qecc.weightdist = np.zeros(4 ** qecc.N, dtype=np.int64)
 	for t in range(nstabs):
 		if t > 0:
 			tgens = np.array(
@@ -950,18 +950,18 @@ def ComputeCorrectableIndices(qcode):
 	r"""
 	Compute the indices of correctable errors in a code.
 	"""
-	minwt_reps = list(map(ut.convert_Pauli_to_symplectic, qcode.lookup[:, 2:].astype(np.int)))
+	minwt_reps = list(map(ut.convert_Pauli_to_symplectic, qcode.lookup[:, 2:].astype(np.int64)))
 	degeneracies = [
 		ut.prod_sym(unique_rep, stab)
 		for unique_rep in minwt_reps
 		for stab in qcode.SGroupSym
 	]
 	qcode.Paulis_correctable = np.array(
-		list(map(ut.convert_symplectic_to_Pauli, degeneracies)), dtype=np.int
+		list(map(ut.convert_symplectic_to_Pauli, degeneracies)), dtype=np.int64
 	)
 	qcode.PauliCorrectableIndices = np.array(
 		list(map(lambda op: qcode.GetPositionInLST(op), qcode.Paulis_correctable)),
-		dtype=np.int,
+		dtype=np.int64,
 	)
 	# print("Pauli correctable indices : {}".format(list(qcode.PauliCorrectableIndices)))
 	return None
@@ -1152,8 +1152,8 @@ def GetCommuting(log_op, stab_op, lgens, sgens, tgens):
 	#     )
 	# )
 	indicators = {
-		"commuting": np.zeros(4 ** n, dtype=np.int),
-		"anticommuting": np.zeros(4 ** n, dtype=np.int),
+		"commuting": np.zeros(4 ** n, dtype=np.int64),
+		"anticommuting": np.zeros(4 ** n, dtype=np.int64),
 	}
 	for l in supports["LC"]:
 		for t in supports["TC"]:
@@ -1164,7 +1164,7 @@ def GetCommuting(log_op, stab_op, lgens, sgens, tgens):
 			# )
 			indicators["commuting"][
 				l * 2 ** (2 * n - 2 * k)
-				+ np.arange(2 ** (n - k), dtype=np.int) * 2 ** (n - k)
+				+ np.arange(2 ** (n - k), dtype=np.int64) * 2 ** (n - k)
 				+ t
 			] = 1
 	# print("LC indicator: {}".format(np.nonzero(indicators["commuting"])))
@@ -1177,7 +1177,7 @@ def GetCommuting(log_op, stab_op, lgens, sgens, tgens):
 			# )
 			indicators["commuting"][
 				l * 2 ** (2 * n - 2 * k)
-				+ np.arange(2 ** (n - k), dtype=np.int) * 2 ** (n - k)
+				+ np.arange(2 ** (n - k), dtype=np.int64) * 2 ** (n - k)
 				+ t
 			] = 1
 	# print("LA indicator: {}".format(np.nonzero(indicators["commuting"])))
@@ -1190,7 +1190,7 @@ def GetCommuting(log_op, stab_op, lgens, sgens, tgens):
 			# )
 			indicators["anticommuting"][
 				l * 2 ** (2 * n - 2 * k)
-				+ np.arange(2 ** (n - k), dtype=np.int) * 2 ** (n - k)
+				+ np.arange(2 ** (n - k), dtype=np.int64) * 2 ** (n - k)
 				+ t
 			] = 1
 	# print("TC indicator: {}".format(np.nonzero(indicators["anticommuting"])))
@@ -1203,7 +1203,7 @@ def GetCommuting(log_op, stab_op, lgens, sgens, tgens):
 			# )
 			indicators["anticommuting"][
 				l * 2 ** (2 * n - 2 * k)
-				+ np.arange(2 ** (n - k), dtype=np.int) * 2 ** (n - k)
+				+ np.arange(2 ** (n - k), dtype=np.int64) * 2 ** (n - k)
 				+ t
 			] = 1
 	# print("TA indicator: {}".format(np.nonzero(indicators["anticommuting"])))
@@ -1224,7 +1224,7 @@ def GetCommutingInSet(gens, op, parity=0, props="set"):
 		size = 2 ** gens.shape[0]
 	else:
 		size = gens.shape[0]
-	indicator = np.zeros(size, dtype=np.int)
+	indicator = np.zeros(size, dtype=np.int64)
 	for i in range(size):
 		if props == "group":
 			select = np.array(
@@ -1232,7 +1232,7 @@ def GetCommutingInSet(gens, op, parity=0, props="set"):
 				dtype=np.int8,
 			)
 			if i == 0:
-				group_op = np.zeros(gens.shape[1], dtype=np.int)
+				group_op = np.zeros(gens.shape[1], dtype=np.int64)
 			else:
 				(group_op, __) = PauliProduct(*gens[np.nonzero(select)])
 		else:
@@ -1251,7 +1251,7 @@ def ComputeLSTOrdering(qcode, ops):
 	"""
 	Compute the ordering of the given Pauli operators in the Pauli group indexed by LST.
 	"""
-	ordering = np.zeros(len(ops), dtype=np.int)
+	ordering = np.zeros(len(ops), dtype=np.int64)
 	for i in range(len(ops)):
 		ordering[i] = qcode.GetPositionInLST(qcode, ops[i])
 	return ordering
@@ -1266,10 +1266,10 @@ def GetOperatorsForLSTIndex(qcode, indices):
 	2 --> Y = 11 = 3
 	3 --> Z = 01 = 1
 	"""
-	log_ordering = np.array([0, 2, 3, 1], dtype=np.int)
+	log_ordering = np.array([0, 2, 3, 1], dtype=np.int64)
 
 	nstabs = 2 ** (qcode.N - qcode.K)
-	ops = np.zeros((len(indices), qcode.N), dtype=np.int)
+	ops = np.zeros((len(indices), qcode.N), dtype=np.int64)
 	phases = np.zeros(len(indices), dtype=np.complex128)
 	for i in range(len(indices)):
 		pure_index = indices[i] % nstabs
@@ -1299,11 +1299,11 @@ def GetOperatorsForTLSIndex(qcode, indices):
 	2 --> Y = 11 = 3
 	3 --> Z = 01 = 1
 	"""
-	log_ordering = np.array([0, 2, 3, 1], dtype=np.int)
+	log_ordering = np.array([0, 2, 3, 1], dtype=np.int64)
 
 	nstabs = 2 ** (qcode.N - qcode.K)
 	nlogs = 4 ** qcode.K
-	ops = np.zeros((len(indices), qcode.N), dtype=np.int)
+	ops = np.zeros((len(indices), qcode.N), dtype=np.int64)
 	phases = np.zeros(len(indices), dtype=np.complex128)
 	for i in range(len(indices)):
 		stab_index = indices[i] % nstabs
@@ -1332,7 +1332,7 @@ def GetElementInGroup(group_index, gens):
 	Get element given its index and weight_enumerators
 	"""
 	if group_index == 0:
-		return (np.zeros(gens.shape[1], dtype=np.int),1)
+		return (np.zeros(gens.shape[1], dtype=np.int64),1)
 	include_gens = np.array(
 		list(map(np.int8, np.binary_repr(group_index, width=gens.shape[0]))),
 		dtype=np.int8,

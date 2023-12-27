@@ -20,12 +20,12 @@ def NRWeightsPlot(dbses_input, noise, sample):
 	qcode = dbses_input[0].eccs[0]
 	# Only show alpha values that correspond to distinct number of Pauli error rates.
 	max_weight = 1 + qcode.N//2
-	budgets, uniques = np.unique(np.array([GetTotalErrorBudget(dbs, noise, sample) for dbs in dbses_input[1:-1]], dtype=np.int), return_index=True)
+	budgets, uniques = np.unique(np.array([GetTotalErrorBudget(dbs, noise, sample) for dbs in dbses_input[1:-1]], dtype=np.int64), return_index=True)
 	# print("uniques = {}".format(type(uniques)))
 	dbses = [dbses_input[d + 1] for d in uniques]
 	
-	nr_weights = np.loadtxt(NRWeightsFile(dbses[0], noise), dtype = np.int)[sample, :]
-	alphas = np.array([dbs.decoder_fraction for dbs in dbses], dtype = np.float)
+	nr_weights = np.loadtxt(NRWeightsFile(dbses[0], noise), dtype = np.int64)[sample, :]
+	alphas = np.array([dbs.decoder_fraction for dbs in dbses], dtype = np.float64)
 	xticklabels_bottom = budgets
 	(__, percentages) = ComputeNRBudget(nr_weights, alphas, qcode.N)
 	(n_rows, n_cols) = percentages.shape

@@ -25,7 +25,7 @@ def GetChannelPosition(noise_rates, samples, available):
     """
     Compute the channel index corresponding to a rate and sample.
     """
-    pos = np.zeros((len(noise_rates), len(samples)), dtype=np.int)
+    pos = np.zeros((len(noise_rates), len(samples)), dtype=np.int64)
     for r in range(len(noise_rates)):
         for s in range(len(samples)):
             pos[r, s] = np.nonzero(
@@ -45,7 +45,7 @@ def MaxFluctuationFilter(filter, rates, samples, running_averages, cutoff, xincl
     """
     Compute an inficator array to include only the leading fluctuations for every rate.
     """
-    maximums = np.zeros((rates.shape[0], samples.shape[0]), dtype=np.int)
+    maximums = np.zeros((rates.shape[0], samples.shape[0]), dtype=np.int64)
     for r in range(rates.shape[0]):
         for s in range(samples.shape[0]):
             filter[r, s] = 1 - np.any(
@@ -247,7 +247,7 @@ def MCStatsPlot(dbses, lmet, pmet, rates, samples=None, cutoff=1e3):
 def IsConverged(dbs, lmet, rates, samples, threshold = 10):
     # Determine if the estimates of logical error rates have converged.
     running_averages = LoadRunningAverages(dbs, lmet, rates, samples)
-    is_converged = np.zeros((len(rates), len(samples)), dtype = np.int)
+    is_converged = np.zeros((len(rates), len(samples)), dtype = np.int64)
     left = np.argmin(np.abs(dbs.stats - dbs.stats[-1]/10))
     # print("Left = {} and stats[left] = {}\nstats = {}".format(left, dbs.stats[left], dbs.stats))
     for r in range(len(rates)):

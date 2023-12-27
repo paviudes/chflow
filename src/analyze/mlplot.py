@@ -29,7 +29,7 @@ def CompareAnsatzToMetrics(dbs, pmet, lmet):
     fiterr = np.load(fn.FitPhysRates(dbs, lmet))
     weightenums = np.load(fn.FitWtEnums(dbs, lmet))
     expo = np.load(fn.FitExpo(dbs, lmet))
-    fitlines = np.zeros((2, 2), dtype=np.float)
+    fitlines = np.zeros((2, 2), dtype=np.float64)
     plotfname = fn.AnsatzComparePlot(dbs, lmet, pmet)
     with PdfPages(plotfname) as pdf:
         for l in range(1 + dbs.levels):
@@ -132,7 +132,7 @@ def ValidatePrediction(dbs, pmet, lmet):
 
     # print("macerr\n%s\nnon positive elements\n%s" % (np.array_str(macerr), np.array_str(macerr[np.where(macerr <= 0)])))
 
-    fitlines = np.zeros((2, 2), dtype=np.float)
+    fitlines = np.zeros((2, 2), dtype=np.float64)
     plotfname = fn.PredictComparePlot(dbs, lmet, pmet)
     with PdfPages(plotfname) as pdf:
         for l in range(1 + dbs.levels):

@@ -119,8 +119,8 @@ def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 	# ax_inset.set_xticks(positions_bottom[positions_bottom > -1])
 	##### Mute some of the axes labels
 	labels = list(map(lambda x: "$%s$" % latex_float(x), bottom_ticks[bottom_ticks > -1]))
-	selected = np.arange(len(labels), dtype = np.int)[:] # Use [::2] for infid plots.
-	to_mute = np.array([tk for tk in range(len(labels)) if not (tk in selected)], dtype = np.int)
+	selected = np.arange(len(labels), dtype = np.int64)[:] # Use [::2] for infid plots.
+	to_mute = np.array([tk for tk in range(len(labels)) if not (tk in selected)], dtype = np.int64)
 	for tk in range(len(labels)):
 		if not (tk in selected):
 			labels[tk] = ""
@@ -147,8 +147,8 @@ def BinVariancePlot(ax_principal, dbses, level, lmet, pmets, nbins, include):
 	# ax_inset_top.set_xticklabels(list(map(lambda x: "$%s$" % latex_float(x), top_ticks[top_ticks > -1])), color=gv.Colors[1])
 	##### Mute some of the axes labels
 	labels = list(map(lambda x: "$%s$" % latex_float(x), top_ticks[top_ticks > -1]))
-	selected = np.arange(len(labels), dtype = np.int)[::4]
-	to_mute = np.array([tk for tk in range(len(labels)) if not (tk in selected)], dtype = np.int)
+	selected = np.arange(len(labels), dtype = np.int64)[::4]
+	to_mute = np.array([tk for tk in range(len(labels)) if not (tk in selected)], dtype = np.int64)
 	for tk in range(len(labels)):
 		if not (tk in selected):
 			labels[tk] = ""

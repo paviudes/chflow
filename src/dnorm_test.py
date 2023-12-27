@@ -279,12 +279,12 @@ def MultiQubitChoi(*single_qubit_choi):
 	"""
 	n = len(single_qubit_choi)
 	unordered = Kron(*single_qubit_choi).reshape([2] * 4 * n)
-	ordering = np.zeros((2 * n, 2), dtype=np.int)
+	ordering = np.zeros((2 * n, 2), dtype=np.int64)
 	# Row ordering
-	ordering[:n, 0] = np.arange(n, dtype=np.int)
+	ordering[:n, 0] = np.arange(n, dtype=np.int64)
 	ordering[:n, 1] = ordering[:n, 0] + n
 	# Column ordering
-	ordering[n:, 0] = 2 * n + np.arange(n, dtype=np.int)
+	ordering[n:, 0] = 2 * n + np.arange(n, dtype=np.int64)
 	ordering[n:, 1] = ordering[n:, 0] + n
 	# Transpose according to the ordering
 	# print(

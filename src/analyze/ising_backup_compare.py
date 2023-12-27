@@ -77,7 +77,7 @@ def CompareSubs(pmet, lmet, *dbses):
                     ax.plot([], [], "k", marker=ml.Metrics["uncorr"]["marker"], markersize=gv.marker_size, label = ml.Metrics["uncorr"]["latex"], linestyle="solid", linewidth=gv.line_width)
 
                 # Axes labels
-                tick_list = np.concatenate((np.linspace(np.min(settings["xaxis"]),1,5)[:-1],np.linspace(1,np.ceil(np.max(settings["xaxis"])),7,dtype=np.int)))
+                tick_list = np.concatenate((np.linspace(np.min(settings["xaxis"]),1,5)[:-1],np.linspace(1,np.ceil(np.max(settings["xaxis"])),7,dtype=np.int64)))
 
 
                 if (p == 0):

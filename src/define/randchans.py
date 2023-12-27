@@ -70,7 +70,7 @@ def RandomUnitary(prox, dim, method="qr", randH=None):
 		# The desired Hermitian matrix is simply: \sum_i (xi * Pi) where Pi is the i-th Pauli matrix in the basis.
 		if randH is None:
 			# paulibasis = np.load("codedata/paulibasis_3qubits.npy")
-			npoints = np.power(dim, 2, dtype=np.int)
+			npoints = np.power(dim, 2, dtype=np.int64)
 			#### This part of the code is to ensure that there are only a few (determined by the number of distinct classes) degress of freedom in the random hermitian matrix.
 			## Here we force the Hermitian matrix to have non-zero equal contributions from the X,Y and Z Pauli matrices.
 			## If we assign the same index to two Pauli matrices in the linear combination, we essentially cut a degree of freedom.
@@ -195,7 +195,7 @@ def IIDWtihCrossTalk(infid, qcode, iid_fraction, subset_fraction):
 	# print("subset_fraction_weights = {}".format(subset_fraction_weights))
 	n_errors = np.cumsum(
 		[
-			max(1, np.int(subset_fraction_weights[w] * qcode.group_by_weight[w].size))
+			max(1, np.int64(subset_fraction_weights[w] * qcode.group_by_weight[w].size))
 			for w in weights_to_boost
 		]
 	)
@@ -205,7 +205,7 @@ def IIDWtihCrossTalk(infid, qcode, iid_fraction, subset_fraction):
 	####
 
 	# print("n_errors: {}".format(n_errors))
-	errors_to_boost = np.zeros(n_errors[-1], dtype=np.int)
+	errors_to_boost = np.zeros(n_errors[-1], dtype=np.int64)
 	corr_error_dist = np.zeros(iid_error_dist.size, dtype=np.double)
 	for i in range(len(weights_to_boost)):
 		w = weights_to_boost[i]
@@ -318,12 +318,12 @@ def AdversarialRandomPauli(infid, max_weight, qcode):
 			subset_fraction = np.random.uniform(0, 1)
 
 		# Choose some Anisotropic errors and isotropic errors.
-		selected_correctable_errors = np.array([], dtype=np.int)
+		selected_correctable_errors = np.array([], dtype=np.int64)
 		if np.count_nonzero(is_correctable_errors) > 0:
 			correctable_errors = qcode.group_by_weight[w][np.nonzero(is_correctable_errors)]
 			selected_correctable_errors = np.random.choice(correctable_errors, int(subset_fraction * correctable_errors.size))
 		# The number of isotropic errors are a fraction of the anisotropic ones.
-		selected_uncorrectable_errors = np.array([], dtype=np.int)
+		selected_uncorrectable_errors = np.array([], dtype=np.int64)
 		if np.count_nonzero(1 - is_correctable_errors) > 0:
 			uncorrectable_errors = qcode.group_by_weight[w][np.nonzero(1 - is_correctable_errors)]
 			selected_uncorrectable_errors = np.random.choice(uncorrectable_errors, int((1 - subset_fraction) * correctable_errors.size))
@@ -393,11 +393,11 @@ def AnIsotropicRandomPauli(infid, max_weight, subset_fraction_mean, qcode):
 					qcode.PauliOperatorsLST[qcode.group_by_weight[w]],
 				)
 			),
-			dtype=np.int,
+			dtype=np.int64,
 		)
 
 		# Choose some Anisotropic errors and isotropic errors.
-		selected_anisotropic_errors = np.array([], dtype=np.int)
+		selected_anisotropic_errors = np.array([], dtype=np.int64)
 		if np.count_nonzero(is_anisotropic_errors) > 0:
 			anisotropic_errors, = np.nonzero(is_anisotropic_errors)
 			selected_anisotropic_errors = np.random.choice(
@@ -407,7 +407,7 @@ def AnIsotropicRandomPauli(infid, max_weight, subset_fraction_mean, qcode):
 			# selected_anisotropic_errors = np.random.choice(anisotropic_errors, int(subset_fraction))
 			###
 		# The number of isotropic errors are a fraction of the anisotropic ones.
-		selected_isotropic_errors = np.array([], dtype=np.int)
+		selected_isotropic_errors = np.array([], dtype=np.int64)
 		if np.count_nonzero(1 - is_anisotropic_errors) > 0:
 			isotropic_errors, = np.nonzero(1 - is_anisotropic_errors)
 			selected_isotropic_errors = np.random.choice(
@@ -457,11 +457,11 @@ def PoissonRandomPauli(infid, mean_correlation_length, subset_fraction, qcode):
 	"""
 	error_dist = CreateIIDPauli(infid, qcode)
 	# Limit the number of errors of a given weight.
-	# n_selected = np.array(comb(qcode.N, np.arange(qcode.N + 1)), dtype=np.int) * np.power(np.arange(qcode.N + 1), 2)
+	# n_selected = np.array(comb(qcode.N, np.arange(qcode.N + 1)), dtype=np.int64) * np.power(np.arange(qcode.N + 1), 2)
 
 	# Generate a Poisson distribution for probability of an error having a weight w.
 	weight_dist = poisson.pmf(
-		np.arange(1 + qcode.N, dtype=np.int), mean_correlation_length
+		np.arange(1 + qcode.N, dtype=np.int64), mean_correlation_length
 	)
 	# Set the probability of the identity error to be 1 - infid.
 	weight_dist[0] = 1 - infid
@@ -471,7 +471,7 @@ def PoissonRandomPauli(infid, mean_correlation_length, subset_fraction, qcode):
 
 	for w in range(1 + qcode.N):
 		# Limit the number of errors of a given weight.
-		mask = np.zeros(qcode.group_by_weight[w].size, dtype=np.int)
+		mask = np.zeros(qcode.group_by_weight[w].size, dtype=np.int64)
 		if w < 2:
 			boost = 1
 			n_selected = qcode.group_by_weight[w].size
@@ -582,7 +582,7 @@ def HyperSphereSampling(npoints, center=0.0, radius=1.0, classification=None):
 	## There is an additional option to reduce the degrees of freedom on the surface by ensuring that the points are concentrated into various classes.
 	## See also: https://math.stackexchange.com/questions/132933/generating-3-times-3-unitary-matrices-close-to-the-identity
 	if classification is None:
-		classification = np.arange(npoints, dtype=np.int)
+		classification = np.arange(npoints, dtype=np.int64)
 	normalization = 0
 	normalvariates = np.random.normal(
 		loc=center,
@@ -621,7 +621,7 @@ def RandomPauliTransfer(pauliprobs, maxterms=-1):
 		maxterms = pauliprobs.shape[0]
 	ptm = np.zeros(maxterms, dtype=np.double)
 	ptm[0] = 1
-	partition = np.zeros(pauliprobs.shape[0] - 2, dtype=np.int)
+	partition = np.zeros(pauliprobs.shape[0] - 2, dtype=np.int64)
 	partition[: (partition.shape[0] // 2)] = 1
 	for i in range(maxterms - 1):
 		np.random.shuffle(partition)

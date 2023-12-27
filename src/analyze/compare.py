@@ -52,14 +52,14 @@ def CompareSubs(pmet, lmet, minimal, *dbses):
 			for d in range(ndb):
 				# Plot multiple logical error rates, with respect to the same physical error rates.
 				# We use linestyles to distinguish between codes, and colors/markers to distinguish between y-axis metrics.
-				rates = np.arange(dbses[d].noiserates.shape[0], dtype = np.int)
+				rates = np.arange(dbses[d].noiserates.shape[0], dtype = np.int64)
 				(converged_rates, __) = np.nonzero(IsConverged(dbses[d], lmet, rates, [0], threshold = 100000))
 				# print("Dataset: {}\nConvereged rates\n{}".format(dbses[d].eccs[0].name, converged_rates))
 				converged_channels_dset[d] = GetChannelPosition(dbses[d].noiserates[converged_rates], [0], dbses[d].available).flatten()
 				# print("Dataset: {}, converged_channels\n{}".format(d, converged_channels_dset[d]))
 
 			# Common channels that passed the convergence test.
-			converged_channels = np.intersect1d(converged_channels_dset[0], converged_channels_dset[1])
+			converged_channels = np.int64ersect1d(converged_channels_dset[0], converged_channels_dset[1])
 
 			# Empty plots for legends
 			legend_plots = [[None, None] for __ in range(ndb)]
@@ -226,7 +226,7 @@ def CompareSubs(pmet, lmet, minimal, *dbses):
 #             ax.plot([], [], "k", marker=ml.Metrics["uncorr"]["marker"], markersize=gv.marker_size, label = ml.Metrics["uncorr"]["latex"], linestyle="solid", linewidth=gv.line_width)
 #
 #             # Axes labels
-#             tick_list = np.concatenate((np.linspace(np.min(settings["xaxis"]),1,5)[:-1],np.linspace(1,np.ceil(np.max(settings["xaxis"])),7,dtype=np.int)))
+#             tick_list = np.concatenate((np.linspace(np.min(settings["xaxis"]),1,5)[:-1],np.linspace(1,np.ceil(np.max(settings["xaxis"])),7,dtype=np.int64)))
 #
 # 			# Axes label for uncorr plot
 #             ax.set_xlabel(settings["xlabel"], fontsize=gv.axes_labels_fontsize*1.4, labelpad = 30)

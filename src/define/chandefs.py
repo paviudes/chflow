@@ -553,7 +553,7 @@ def IsNumber(numstr):
 	# Determine if a string contains a number of not.
 	# Try to convert it to a float. If it fails, it is not a number. Else it is.
 	try:
-		np.float(numstr)
+		np.float64(numstr)
 	except ValueError:
 		return 0
 	return 1

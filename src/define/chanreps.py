@@ -286,9 +286,9 @@ def ChangeOrdering(probs, old_order, new_order, qcode):
     new = T L S
     perm = 2 0 1
     """
-    t_size = np.power(2, qcode.N - qcode.K, dtype=np.int)
+    t_size = np.power(2, qcode.N - qcode.K, dtype=np.int64)
     s_size = t_size
-    l_size = np.power(4, qcode.K, dtype=np.int)
+    l_size = np.power(4, qcode.K, dtype=np.int64)
     sizes = {"T": t_size, "S": s_size, "L": l_size}
     probs_reshaped = np.reshape(
         probs, [sizes[old_order[0]], sizes[old_order[1]], sizes[old_order[2]]]
@@ -334,13 +334,13 @@ def GetTransferMatrixElements(logidx, pauliprobs, qcode, ptm):
         list(map(np.int8, np.binary_repr(logidx, width=2 * qcode.K))), dtype=np.int8
     )
     if logidx == 0:
-        log_op = np.zeros(qcode.N, dtype=np.int)
+        log_op = np.zeros(qcode.N, dtype=np.int64)
     else:
         (log_op, __) = qc.PauliProduct(*qcode.L[np.nonzero(log_select)[0]])
     # for s in tqdm(range(nstabs), ascii=True, desc="\033[2mGoing over Stabilizers:"):
     for s in range(nstabs):
         if s == 0:
-            stab_op = np.zeros(qcode.N, dtype=np.int)
+            stab_op = np.zeros(qcode.N, dtype=np.int64)
         else:
             stab_select = np.array(
                 list(map(np.int8, np.binary_repr(s, width=qcode.N - qcode.K))),
@@ -391,7 +391,7 @@ def CreatePauliDistChannels(submit):
             if submit.iscorr == 0:
                 submit.rawchans[i, j, :] = np.real(
                     ConvertRepresentations(
-                        (chans[j, :] * np.eye(nlogs, dtype=np.int).ravel()).reshape(
+                        (chans[j, :] * np.eye(nlogs, dtype=np.int64).ravel()).reshape(
                             [nlogs, nlogs]
                         ),
                         "process",
@@ -403,7 +403,7 @@ def CreatePauliDistChannels(submit):
                     chan_qubit = chans[j, q * chan_dim : (q + 1) * chan_dim]
                     submit.rawchans[i, j, q * chan_dim : (q + 1) * chan_dim] = np.real(
                         ConvertRepresentations(
-                            (chan_qubit * np.eye(nlogs, dtype=np.int).ravel()).reshape(
+                            (chan_qubit * np.eye(nlogs, dtype=np.int64).ravel()).reshape(
                                 [nlogs, nlogs]
                             ),
                             "process",
@@ -448,14 +448,14 @@ def TwirlChannels(submit):
         # print("Noise rate: {}\nchannel shape: {}".format(submit.noiserates[i, :], chans.shape))
         for j in range(submit.samps):
             if submit.iscorr == 0:
-                submit.phychans[i, j, :] = chans[j, :] * np.eye(4 ** submit.eccs[0].K, dtype=np.int).ravel()
-                # submit.rawchans[i, j, :] = raw_chans[j, :] * np.eye(4 ** submit.eccs[0].K, dtype=np.int).ravel()
+                submit.phychans[i, j, :] = chans[j, :] * np.eye(4 ** submit.eccs[0].K, dtype=np.int64).ravel()
+                # submit.rawchans[i, j, :] = raw_chans[j, :] * np.eye(4 ** submit.eccs[0].K, dtype=np.int64).ravel()
             elif submit.iscorr == 2:
-                submit.phychans[i, j, :] = chans[j, :] * np.tile(np.eye(4 ** submit.eccs[0].K, dtype=np.int), (submit.eccs[0].N, 1, 1)).ravel()
-                # submit.rawchans[i, j, :] = raw_chans[j, :] * np.tile(np.eye(4 ** submit.eccs[0].K, dtype=np.int), (submit.eccs[0].N, 1, 1)).ravel()
+                submit.phychans[i, j, :] = chans[j, :] * np.tile(np.eye(4 ** submit.eccs[0].K, dtype=np.int64), (submit.eccs[0].N, 1, 1)).ravel()
+                # submit.rawchans[i, j, :] = raw_chans[j, :] * np.tile(np.eye(4 ** submit.eccs[0].K, dtype=np.int64), (submit.eccs[0].N, 1, 1)).ravel()
             else:
-                submit.phychans[i, j, :] = chans[j, :] * np.eye(2**(submit.eccs[0].N + submit.eccs[0].K), dtype=np.int).ravel()
-                # submit.rawchans[i, j, :] = raw_chans[j, :] * np.eye(4**(submit.eccs[0].N), dtype=np.int).ravel()
+                submit.phychans[i, j, :] = chans[j, :] * np.eye(2**(submit.eccs[0].N + submit.eccs[0].K), dtype=np.int64).ravel()
+                # submit.rawchans[i, j, :] = raw_chans[j, :] * np.eye(4**(submit.eccs[0].N), dtype=np.int64).ravel()
 
     # submit.misc = "This is the Twirl of %s" % (submit.timestamp)
     submit.plotsettings["name"] = "With Randomized compiling"

@@ -1,3 +1,0 @@
-sbload vary_bias_st
-compare infid infid vary_bias_cy
-quit

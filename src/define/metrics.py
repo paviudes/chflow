@@ -787,7 +787,7 @@ def ComputeMetrics(submit, metrics, chtype="physical"):
     # Compute metrics for all physical channels in a submission.
     ncpu = 1
     nproc = min(ncpu, mp.cpu_count())
-    chunk = int(np.ceil(submit.channels / np.float(nproc)))
+    chunk = int(np.ceil(submit.channels / np.float64(nproc)))
     processes = []
     if chtype == "physical":
         results = mp.Array(ct.c_longdouble, submit.channels * len(metrics))

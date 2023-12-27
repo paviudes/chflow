@@ -7,10 +7,6 @@ from define.utils import LoadTimeStamp, IsNumber
 from define import fnames as fn
 from define import globalvars as gv
 
-# from define import metrics as ml
-
-# from define import *
-
 
 def Update(submit, pname, newvalue, lookup_load=1):
     # Update the parameters to be submitted
@@ -23,7 +19,7 @@ def Update(submit, pname, newvalue, lookup_load=1):
         names = newvalue.split(",")
         submit.ecfiles = []
         submit.levels = len(names)
-        submit.decoders = np.zeros(submit.levels, dtype=np.int)
+        submit.decoders = np.zeros(submit.levels, dtype=np.int64)
         for i in range(submit.levels):
             submit.eccs.append(qec.QuantumErrorCorrectingCode(names[i]))
             qec.Load(submit.eccs[i], lookup_load)
@@ -32,12 +28,12 @@ def Update(submit, pname, newvalue, lookup_load=1):
 
     elif pname == "decoder":
         decoder_info = newvalue.split(",")
-        submit.decoders = np.zeros(submit.levels, dtype=np.int)
+        submit.decoders = np.zeros(submit.levels, dtype=np.int64)
         for l in range(len(decoder_info)):
             submit.decoders[l] = int(decoder_info[l])
 
     elif pname == "dcfraction":
-        submit.decoder_fraction = np.float(newvalue)
+        submit.decoder_fraction = float(newvalue)
 
     elif pname == "channel":
         submit.channel = newvalue
@@ -83,13 +79,13 @@ def Update(submit, pname, newvalue, lookup_load=1):
                         np.linspace(
                             np.longdouble(newRanges[i][0]),
                             np.longdouble(newRanges[i][1]),
-                            np.int(newRanges[i][2]),
+                            np.int64(newRanges[i][2]),
                         )
                     )
                 else:
                     submit.noiserange.append(newRanges[i])
             submit.noiserates = np.array(
-                list(map(list, it.product(*submit.noiserange))), dtype=np.float
+                list(map(list, it.product(*submit.noiserange))), dtype=np.float64
             )
 
     elif pname == "samples":
@@ -110,8 +106,8 @@ def Update(submit, pname, newvalue, lookup_load=1):
         else:
             filterDetails = newvalue.split(",")
             submit.filter["metric"] = filterDetails[0]
-            submit.filter["lower"] = np.float(filterDetails[1])
-            submit.filter["upper"] = np.float(filterDetails[2])
+            submit.filter["lower"] = np.float64(filterDetails[1])
+            submit.filter["upper"] = np.float64(filterDetails[2])
 
     elif pname == "stats":
         # The value can be
@@ -119,16 +115,16 @@ def Update(submit, pname, newvalue, lookup_load=1):
         # an explicit range of numbers -- [<list of values separated by commas>]
         # compact range of numbers -- lower,upper,number_of_steps
         if IsNumber(newvalue) == 1:
-            submit.stats = np.array([int(newvalue)], dtype=np.int)
+            submit.stats = np.array([int(newvalue)], dtype=np.int64)
         else:
             if "[" in newvalue:
                 submit.stats = np.array(
-                    list(map(int, newvalue[1:-1].split(","))), dtype=np.int
+                    list(map(int, newvalue[1:-1].split(","))), dtype=np.int64
                 )
             else:
                 submit.stats = np.geomspace(
-                    *np.array(list(map(int, newvalue.split(","))), dtype=np.int),
-                    dtype=np.int
+                    *np.array(list(map(int, newvalue.split(","))), dtype=np.int64),
+                    dtype=np.int64
                 )
         submit.isSubmission = 1
 
@@ -246,14 +242,14 @@ def ParseDecodingBins(submit, fname):
         chans = [
             np.prod(
                 [submit.eccs[submit.levels - l - 1].N for l in range(inter)],
-                dtype=np.int,
+                dtype=np.int64,
             )
             for inter in range(submit.levels + 1)
         ][::-1]
         if fname == "soft":
             # Choose to put every channel in its own bin -- this is just soft decoding.
             for l in range(submit.levels):
-                submit.decoderbins.append(np.arange(chans[l], dtype=np.int))
+                submit.decoderbins.append(np.arange(chans[l], dtype=np.int64))
         elif "random" in fname:
             # Choose to have random bins
             n_rand_decbins = int(fname.split("_")[1])
@@ -271,7 +267,7 @@ def ParseDecodingBins(submit, fname):
         elif fname == "hard":
             # All channels in one bin -- this is hard decoding.
             for l in range(submit.levels):
-                submit.decoderbins.append(np.zeros(chans[l], dtype=np.int))
+                submit.decoderbins.append(np.zeros(chans[l], dtype=np.int64))
         else:
             pass
     return None

@@ -261,9 +261,9 @@ def GenChannelsForCalibration(chname, rangeinfo):
 	# Store the channels as a 3D array of size (number of channels) x 4 x 4.
 	noiserange = np.array(
 		list(
-			map(lambda intv: list(map(np.float, intv.split(","))), rangeinfo.split(";"))
+			map(lambda intv: list(map(np.float64, intv.split(","))), rangeinfo.split(";"))
 		),
-		dtype=np.float,
+		dtype=np.float64,
 	)
 	pvalues = np.array(
 		list(
@@ -271,17 +271,17 @@ def GenChannelsForCalibration(chname, rangeinfo):
 				*list(
 					map(
 						lambda intv: np.linspace(intv[0], intv[1], int(intv[2])).astype(
-							np.float
+							np.float64
 						),
 						noiserange,
 					)
 				)
 			)
 		),
-		dtype=np.float,
+		dtype=np.float64,
 	)
 	channels = np.zeros(
-		(np.prod(noiserange[:, 2], dtype=np.int), 4, 4), dtype=np.complex128
+		(np.prod(noiserange[:, 2], dtype=np.int64), 4, 4), dtype=np.complex128
 	)
 	for i in range(channels.shape[0]):
 		channels[i, :, :] = crep.ConvertRepresentations(

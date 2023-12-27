@@ -138,7 +138,7 @@ def LocalSimulations(submit, node, stream=sys.stdout):
 					if line.strip("\n").strip(" ")[0] == "!":
 						break
 					params.append(
-						list(map(np.float, line.strip("\n").strip(" ").split(" ")))
+						list(map(np.float64, line.strip("\n").strip(" ").split(" ")))
 					)
 				if line.strip("\n").strip(" ") == ("!!node %d!!" % (node)):
 					isfound = 1
@@ -201,13 +201,13 @@ def LocalSimulations(submit, node, stream=sys.stdout):
 					args=(
 						submit,
 						params[finished + p, :-1],
-						np.int(params[finished + p, -1]),
+						np.int64(params[finished + p, -1]),
 						p,
 						results,
 					),
 				)
 			)
-			# SimulateSampleIndex(submit, params[finished + p, :-1], np.int(params[finished + p, -1]), p, results)
+			# SimulateSampleIndex(submit, params[finished + p, :-1], np.int64(params[finished + p, -1]), p, results)
 		for p in range(nproc):
 			processes[p].start()
 		# wait for all the processes to finish
