@@ -460,28 +460,31 @@ def GetKraussForChannel(chType, *params):
 		# This is the photon loss channel.
 		kraus = PhotonLoss(params)
 
-	elif chType == "rand":
+	elif chType == "uncorr_cptp":
 		# Random CPTP channel.
 		kraus = RandomStochastic(params)
 
-	elif chType == "randunit":
+	elif chType == "uncorr_unitary":
 		# Random Hamiltonian on the qubit.
 		kraus = RandomHamiltonian(params)
 
-	elif chType == "pcorr":
+	elif chType == "corr_unitary":
+		kraus = CorrelatedNonPauli(params, "corr_unitary")
+
+	elif chType == "corr_pauli":
 		# This is a correlated Pauli channel.
 		kraus = CorrelatedPauli(params)
 
-	elif chType == "usum":
+	elif chType == "sum_unitaries":
 		kraus = CorrelatedNonPauli(params, "sum_unitaries")
 
 	elif chType == "ising":
 		kraus = CorrelatedNonPauli(params, "ising")
 
-	elif chType == "cptp":
-		kraus = CorrelatedNonPauli(params, "sum_cptps")
+	elif chType == "corr_cptp":
+		kraus = CorrelatedNonPauli(params, "corr_cptp")
 
-	elif chType == "ckraus":
+	elif chType == "correctable_kraus":
 		kraus = CorrelatedNonPauli(params, "correctable_kraus")
 
 	elif chType == "wpc":

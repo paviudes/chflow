@@ -156,7 +156,23 @@ Channels = {
 		"Pauli": 0,
 		"corr": 2,
 	},
-	"rand": {
+	"uncorr_unitary": {
+		"name": "Uncorrelated random unitary channel",
+		"params": ["Interaction time"],
+		"latex": ["$t$"],
+		"color": "goldenrod",
+		"Pauli": 0,
+		"corr": 0,
+	},
+	"corr_unitary": {
+		"name": "Correlated random unitary channel",
+		"params": ["Interaction time"],
+		"latex": ["$t$"],
+		"color": "goldenrod",
+		"Pauli": 0,
+		"corr": 3,
+	},
+	"uncorr_cptp": {
 		"name": "Random CPTP map",
 		"params": ["Interaction time of Hamiltonian on system and environment"],
 		"latex": ["$t$"],
@@ -164,15 +180,15 @@ Channels = {
 		"Pauli": 0,
 		"corr": 0,
 	},
-	"randunit": {
-		"name": "Random unitary channel",
-		"params": ["Interaction time"],
-		"latex": ["$t$"],
-		"color": "goldenrod",
+	"corr_cptp": {
+		"name": "Correlated n-qubit CPTP map as a composition of k-qubit CPTP maps",
+		"params": ["Angle", "Cutoff", "Number of maps", "Mean"],
+		"latex": ["$\\theta$", "K", "$n_{\\mathsf{maps}}$", "\\mu"],
+		"color": "limegreen",
 		"Pauli": 0,
-		"corr": 0,
+		"corr": 3,
 	},
-	"pcorr": {
+	"corr_pauli": {
 		"name": "Random correlated Pauli channel",
 		"params": ["Infidelity", "Method", "I.I.D fraction", "Subset fraction"],
 		"latex": ["$1 - p_{I}$", "$M$", "$f_{iid}$", "$f_{s}$"],
@@ -188,15 +204,7 @@ Channels = {
 		"Pauli": 0,
 		"corr": 3,
 	},
-	"cptp": {
-		"name": "Correlated non Pauli channel as sum of CPTP maps",
-		"params": ["Angle", "Cutoff", "Number of maps", "Mean"],
-		"latex": ["$\\theta$", "K", "$n_{\\mathsf{maps}}$", "\\mu"],
-		"color": "limegreen",
-		"Pauli": 0,
-		"corr": 3,
-	},
-	"ckraus": {
+	"correctable_kraus": {
 		"name": "Contrived simple RC example with correctable Kraus ops only",
 		"params": ["theta", "ratio"],
 		"latex": ["$\\theta$", "$r$"],

@@ -40,7 +40,7 @@ def RandomHermitian(dim, method="qr"):
 	return randH
 
 
-def RandomUnitary(prox, dim, method="qr", randH=None):
+def RandomUnitary(prox, dim, method="exp", randH=None):
 	# Generate a random unitary matrix of given dimensions and of a certain proximity to identity.
 	randMat = np.random.standard_normal(
 		size=(dim, dim)
