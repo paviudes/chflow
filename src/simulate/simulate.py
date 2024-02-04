@@ -146,7 +146,7 @@ def LocalSimulations(submit, node, stream=sys.stdout):
 	params = np.array(params)
 	# print("params: {}".format(params))
 	submit.cores[0] = min(submit.cores[0], params.shape[0])
-	# print("Parameters to be simulated in node %d with %d cores.\n%s" % (submit.current, min(params.shape[0], submit.cores[0]), np.array_str(params)))
+	print("Parameters to be simulated in node %d with %d cores.\n%s" % (submit.current, min(params.shape[0], submit.cores[0]), np.array_str(params)))
 	if submit.host == "local":
 		availcores = mp.cpu_count()
 	else:
