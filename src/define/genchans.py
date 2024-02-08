@@ -80,35 +80,35 @@ def PreparePhysicalChannels(submit, nproc=None):
 				noise[j] = np.power(submit.scales[j], submit.noiserates[i, j])
 		# if submit.iscorr > 0:
 		#     noise = np.insert(noise, 0, submit.eccs[0].N)
-		misc = mp.Queue()
-		processes = []
+		# processes = []
 		for k in range(nproc):
-			processes.append(
-				mp.Process(
-					target=GenChannelSamples,
-					args=(
-						noise,
-						i,
-						[k * chunk, min(submit.samps, (k + 1) * chunk)],
-						submit,
-						nparams,
-						raw_params,
-						phychans,
-						rawchans,
-						misc
-					),
-				)
-			)
-		for k in range(nproc):
-			processes[k].start()
-		for k in range(nproc):
-			processes[k].join()
+			# processes.append(
+			# 	mp.Process(
+			# 		target=GenChannelSamples,
+			# 		args=(
+			# 			noise,
+			# 			i,
+			# 			[k * chunk, min(submit.samps, (k + 1) * chunk)],
+			# 			submit,
+			# 			nparams,
+			# 			raw_params,
+			# 			phychans,
+			# 			rawchans,
+			# 			misc
+			# 		),
+			# 	)
+			# )
+			GenChannelSamples(noise, i, [k * chunk, min(submit.samps, (k + 1) * chunk)], submit, nparams, raw_params, phychans, rawchans, misc_info[i])
+		# for k in range(nproc):
+		# 	processes[k].start()
+		# for k in range(nproc):
+		# 	processes[k].join()
 		# Gathering the interactions results
-		for s in range(submit.samps):
-			(samp, info) = misc.get()
-			if (info == 0):
-				info = ([("N", "N")], 0, 0, 0)
-			misc_info[i][samp] = info
+		# for s in range(submit.samps):
+		# 	(samp, info) = misc.get()
+		# 	if (info == 0):
+		# 		info = ([("N", "N")], 0, 0, 0)
+		# 	misc_info[i][samp] = info
 
 	submit.phychans = np.reshape(
 		phychans, [submit.noiserates.shape[0], submit.samps, nparams], order="c"
@@ -175,7 +175,7 @@ def GenChannelSamples(
 					"chi",
 				)
 			).ravel()
-			misc.put((j, 0))
+			misc[j] = ([("N", "N")], 0, 0, 0)
 
 		elif submit.iscorr == 1:
 			rawchans[
@@ -198,7 +198,7 @@ def GenChannelSamples(
 				),
 				submit.eccs[0],
 			)
-			misc.put((j, 0))
+			misc[j] = ([("N", "N")], 0, 0, 0)
 
 		elif submit.iscorr == 2:
 			chans = GetKraussForChannel(submit.channel, submit.eccs[0].N, *noise)
@@ -243,7 +243,7 @@ def GenChannelSamples(
 						"chi",
 					)
 				).ravel()
-			misc.put((j, 0))
+			misc[j] = ([("N", "N")], 0, 0, 0)
 
 		else:
 			(
@@ -259,5 +259,5 @@ def GenChannelSamples(
 				],
 				interactions # Information about the different interactions.
 			) = GetKraussForChannel(submit.channel, submit.eccs[0], *noise)
-			misc.put((j, interactions))
+			misc[j] = interactions
 	return None
