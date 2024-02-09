@@ -515,9 +515,10 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 	alphas = alphas[sort_order]
 	dbses = [dbses[i] for i in sort_order]
 
-	# print("alphas: {}".format(alphas))
+	print("channels: {}".format(chids))
 
 	phyerrs = np.load(PhysicalErrorRates(dbses[0], phymet))[chids]
+	
 	bin_width = 5
 	with PdfPages(plotfname) as pdf:
 		for l in range(nlevels, nlevels + 1):
@@ -526,12 +527,13 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 			
 			# Load the logical error rates that have converged well.
 			(yaxes, minalpha_perfs) = FilterLogicalErrorRates(dbses, chids, logmet, l)
-			# print("Yaxes\n{}".format(yaxes))
+			print("l: {} and Yaxes\n{}".format(l, yaxes))
 
 			# Bin the physical and logical error rates.
 			(bins, yaxes_binned, filtered) = BinPhysErrs(phyerrs, yaxes, bin_width, ndb)
 			nbins = len(bins)
-
+			# print("bin_width = {}\nbin_sizes\n{}".format(bin_width, [len(bins[b]) for b in bins]))
+			
 			# Print the performance of the minimum alpha (RB) for each bin.
 			for b in range(nbins):
 				if (len(bins[b]) >= 5):
@@ -550,7 +552,6 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 			selected = SelectAlphas(ndb, nbins, yaxes, bins)
 
 			# Bin the physical error rates and average logical error rates in a bin.
-			print("bin_width = {}\nbin_sizes\n{}".format(bin_width, [len(bins[b]) for b in bins]))
 			max_y = 0
 			min_y = np.max(np.array(list(yaxes.values())))
 			plots = []
@@ -562,9 +563,9 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 				#################
 				# Exclude bins
 				# If the number of points in a bin in less than 5, do not plot.
+				# print("Average number of channels selected in bin %d = %.2f." % (b, selected.size/(ndb - 1)))
 				if (len(bins[b]) < 5):
 					continue
-				# print("Average number of channels selected in bin %d = %.2f." % (b, selected.size/(ndb - 1)))
 				#################
 				# Plotting
 				pl = ax.errorbar(

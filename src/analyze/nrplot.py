@@ -24,14 +24,14 @@ def NRWeightsPlot(dbses_input, noise, sample):
 	# print("uniques = {}".format(type(uniques)))
 	dbses = [dbses_input[d + 1] for d in uniques]
 	
-	nr_weights = np.loadtxt(NRWeightsFile(dbses[0], noise), dtype = np.int64)[sample, :]
+	nr_weights = np.load(NRWeightsFile(dbses[0], noise))[sample, :].astype(np.int64)
 	alphas = np.array([dbs.decoder_fraction for dbs in dbses], dtype = np.float64)
 	xticklabels_bottom = budgets
 	(__, percentages) = ComputeNRBudget(nr_weights, alphas, qcode.N)
 	(n_rows, n_cols) = percentages.shape
 
 	# The top xticklabels show the Pauli error budget left out in the NR data set.
-	chan_probs = np.load(RawPhysicalChannel(dbses_input[0], noise))[sample, :]
+	chan_probs = np.real(np.load(RawPhysicalChannel(dbses_input[0], noise))[sample, :])
 	xticklabels_top = [None for __ in alphas]
 	for (i, alpha) in enumerate(alphas):
 		(__, __, knownPaulis) = GetLeadingPaulis(alpha, qcode, chan_probs, "weight", nr_weights)
@@ -42,7 +42,7 @@ def NRWeightsPlot(dbses_input, noise, sample):
 
 	plotfname = NRWeightsPlotFile(dbses_input[0], noise, sample)
 	with PdfPages(plotfname) as pdf:
-		fig = plt.figure(figsize=gv.canvas_size)
+		fig = plt.figure(figsize=(36,30))
 
 		# We want the histograms for each weight, stacked vertically. So we need to compute the bottom of each bar.
 		bottoms = np.zeros(n_rows)

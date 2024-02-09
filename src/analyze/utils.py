@@ -86,12 +86,12 @@ def ExtractPDFPages(information, save_folder, save_fname):
     """
     for f in range(len(information)):
         pdfobj = open("%s" % information[f]["fname"], "rb")
-        pdfReader = pp.PdfFileReader(pdfobj)
-        pdf_writer = pp.PdfFileWriter()
+        pdfReader = pp.PdfReader(pdfobj)
+        pdf_writer = pp.PdfWriter()
         from_page = information[f]["start"]
         to_page = information[f]["end"]
         for p in range(from_page, to_page + 1):
-            pdf_writer.addPage(pdfReader.getPage(from_page - 1))
+            pdf_writer.add_page(pdfReader.pages[from_page - 1])
         if not os.path.exists(save_folder):
             os.makedirs(save_folder)
         pdfname = "%s/pg_%d%s" % (save_folder, from_page, save_fname)
@@ -134,6 +134,7 @@ def latex_float(f):
 def scientific_float(f):
     # Function taken from: https://stackoverflow.com/questions/13490292/format-number-using-latex-notation-in-python
     float_str = "{0:.1e}".format(f)
+    # print("float_str = {}".format(float_str))
     if "e" in float_str:
         base, exponent = float_str.split("e")
         return r"{0}e{1}".format(base, int(exponent))
