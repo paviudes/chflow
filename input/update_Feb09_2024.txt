@@ -1,0 +1,17 @@
+# Updates for 09/02/2024.
+# Noise tailored decoder under random n-qubit Unitary errors expressed as composition of k-qubit unitary errors.
+#
+#
+!!Case 1!!
+# Random Unitary channel for level 2 simulations
+sbload unitary_partial_decoder_test
+#
+# Distribution of the NR budget over weights of Pauli errors
+nrplot 0 4 unitary_partial_decoder_test_dc_0.01,unitary_partial_decoder_test_dc_0.02,unitary_partial_decoder_test_dc_0.03,unitary_partial_decoder_test_dc_0.04,unitary_partial_decoder_test_dc_0.05,unitary_partial_decoder_test_dc_0.06
+notes 0 4 cptp nrplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
+#
+# Performance gains for the decoder
+dciplot infid infid unitary_partial_decoder_test_dc_0.01,unitary_partial_decoder_test_dc_0.02,unitary_partial_decoder_test_dc_0.03,unitary_partial_decoder_test_dc_0.04,unitary_partial_decoder_test_dc_0.05,unitary_partial_decoder_test_dc_0.06 0
+notes infid infid cptp dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 3
+#
+quit

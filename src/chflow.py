@@ -520,6 +520,7 @@ if __name__ == "__main__":
 				for i in range(submit.noiserates.shape[0]):
 					if reuse == 1:
 						if not os.path.isfile(PhysicalChannel(submit, submit.noiserates[i, :])):
+							print("No channel found at {}".format(PhysicalChannel(submit, submit.noiserates[i, :])))
 							reuse = 0
 				if reuse == 0:
 					# print("Physical channels not found")
