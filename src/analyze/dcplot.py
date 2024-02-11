@@ -380,11 +380,11 @@ def FilterLogicalErrorRates(dbses, chids, logmet, level):
 	logerrs = {d: -1 * np.ones(len(chids), dtype = np.double) for d in range(ndb - 1)}
 	minalpha_perfs = np.zeros(len(chids), dtype = np.double)
 	for (c, ch) in enumerate(chids):
-		noise = dbses[0].available[chids[ch], :-1]
+		noise = dbses[0].available[ch, :-1]
 		rate_index = np.argmin(np.sum(np.abs(dbses[0].noiserates - noise), axis=1))
-		sample_index = int(dbses[0].available[chids[ch], -1])
+		sample_index = int(dbses[0].available[ch, -1])
 		# Load the minimum alpha performance.
-		minalpha_perfs[ch] = np.load(LogicalErrorRates(dbses[1], logmet))[ch, level]
+		minalpha_perfs[c] = np.load(LogicalErrorRates(dbses[1], logmet))[ch, level]
 		for d in range(1, ndb): # Start from d = 2 when taking the ratio between the first alpha and the rest.
 			if (is_converged[d, rate_index, sample_index] == 1):
 				# Normalize with the performance of the lowest alpha (ideally, RB).
@@ -444,7 +444,7 @@ def GetBudgets(dbses, chids):
 		sample = int(dbses[0].available[chids[ch], -1])
 		nr_weights = np.load(NRWeightsFile(dbses[0], noise))[sample, :]
 		budgets[:, c] = np.array([GetTotalErrorBudget(dbs, noise, sample) for dbs in dbses[1:]], dtype=np.int64)
-		chan_probs = np.load(RawPhysicalChannel(dbses[0], noise))[sample, :]
+		# chan_probs = np.load(RawPhysicalChannel(dbses[0], noise))[sample, :]
 		# for d in range(1, alphas.size):
 		# 	(__, __, knownPaulis) = GetLeadingPaulis(alphas[d], qcode, chan_probs, "weight", nr_weights)
 		# 	budget_left[d - 1, c] = 1 - np.sum(knownPaulis)
@@ -515,11 +515,11 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 	alphas = alphas[sort_order]
 	dbses = [dbses[i] for i in sort_order]
 
-	print("channels: {}".format(chids))
+	# print("channels: {}".format(chids))
 
 	phyerrs = np.load(PhysicalErrorRates(dbses[0], phymet))[chids]
 	
-	bin_width = 5
+	bin_width = 2
 	with PdfPages(plotfname) as pdf:
 		for l in range(nlevels, nlevels + 1):
 			fig = plt.figure(figsize=(gv.canvas_size[0] * 1.3, gv.canvas_size[1]))
@@ -527,7 +527,7 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 			
 			# Load the logical error rates that have converged well.
 			(yaxes, minalpha_perfs) = FilterLogicalErrorRates(dbses, chids, logmet, l)
-			print("l: {} and Yaxes\n{}".format(l, yaxes))
+			print("l: {}\nminalpha_perfs\n{}\nYaxes\n{}".format(l, minalpha_perfs, yaxes))
 
 			# Bin the physical and logical error rates.
 			(bins, yaxes_binned, filtered) = BinPhysErrs(phyerrs, yaxes, bin_width, ndb)

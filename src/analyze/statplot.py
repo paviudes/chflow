@@ -163,7 +163,7 @@ def MCStatsPlot(dbses, lmet, pmet, rates, samples=None, cutoff=1e3):
                     ylimits["min"] = np.min(yaxis)
                 if (ylimits["max"] <= np.max(yaxis)):
                     ylimits["max"] = np.max(yaxis)
-                # print("Rate: {} and sample: {}\nxaxis\n{}\nyaxis\n{}".format(dbs.noiserates[rates[r], :-1], samples[s], xaxis, yaxis))
+                print("Rate: {} and sample: {}\nxaxis\n{}\nyaxis\n{}".format(dbs.noiserates[rates[r], :-1], samples[s], xaxis, yaxis))
                 # label = scientific_float(phyerrs[pos[r, s]])
                 label = None
                 linestyle = gv.line_styles[s % len(gv.line_styles)]
@@ -301,23 +301,26 @@ def MCompare(dbses_input, pmet, lmet, rates, samples=None, cutoff=1e6):
                     linestyle=gv.line_styles[d % len(gv.line_styles)],
                 )
             )
-            # dset_labels.append(dbs.plotsettings["name"]) ORIGINAL
+            dset_labels.append(dbs.plotsettings["name"]) # ORIGINAL
             is_converged = IsConverged(dbs, lmet, rates, samples, threshold = 10)
             for r in range(rates.shape[0]):
                 for s in range(samples.shape[0]):
                     yaxis = running_averages[r, s, xindices]
-                    # print("xaxis\n{}\nyaxis\n{}".format(xaxis, yaxis))
+                    print("r = {}, s = {}\nxaxis\n{}\nyaxis\n{}".format(r, s, xaxis, yaxis))
                     if (is_converged[r, s] == 1):
-                        linestyle = "solid"
+                        plot_alpha = 1
+                        print("Converged")
                     else:
-                        linestyle = "dotted"
+                        plot_alpha = 0.2
+                        print("Not yet converged.")
                     plt.plot(
                         xaxis,
                         yaxis,
                         linewidth=gv.line_width,
-                        label="%g" % (dbs.noiserates[rates[r], 1]),
-                        color=gv.Colors[d % len(gv.Colors)],
-                        linestyle=linestyle
+                        label="%g %d" % (dbs.noiserates[rates[r], 0], samples[s]),
+                        color=gv.Colors[(r * rates.shape[0] + s) % len(gv.Colors)],
+                        linestyle=gv.line_styles[d % len(gv.line_styles)],
+                        alpha=plot_alpha
                     )
                     # Compute the max and min y values
                     if (max_y < np.max(yaxis)):

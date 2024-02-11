@@ -1015,18 +1015,14 @@ if __name__ == "__main__":
 			# To use this feature, submit.stats must be a list.
 			pmet = user[1]
 			lmet = user[2]
-			nrates = min(3, submit.noiserates.shape[0])
-			nsamps = 10
+			rates = np.array([0], dtype = np.int64)
+			samps = np.array([0], dtype = np.int64)
 			dbses = [submit]
 			if len(user) > 5:
 				for (i, ts) in enumerate(user[5].split(",")):
 					dbses.append(Submission())
 					LoadSub(dbses[i + 1], ts, 0, 0)
 					IsComplete(dbses[i + 1])
-					if not os.path.isfile(
-						LogicalErrorRates(dbses[i + 1], lmet, fmt="npy")
-					):
-						GatherLogErrData(dbses[i + 1])
 			if len(user) > 4:
 				if ";" in user[4]:
 					samples = np.arange(*list(map(int, user[4].split(";"))), dtype = np.int64)
