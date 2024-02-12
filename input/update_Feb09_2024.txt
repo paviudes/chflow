@@ -23,5 +23,20 @@ mcplot infid infid 0,1 3 unitary_partial_decoder_is_dc_0
 #
 notes infid infid cptp mcplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 0
 #
-quit
+#
+##
+#
+!!Case 3!!
+# Random Unitary channel for level 2 simulations
+sbload unitary_partial_decoder_is_dc_0
+#
+# Distribution of the NR budget over weights of Pauli errors
+nrplot 0 4 unitary_partial_decoder_is_dc_0.005,unitary_partial_decoder_is_dc_0.01,unitary_partial_decoder_is_dc_0.015,unitary_partial_decoder_is_dc_0.02,unitary_partial_decoder_is_dc_0.025,unitary_partial_decoder_is_dc_0.03,unitary_partial_decoder_is_dc_0.035,unitary_partial_decoder_is_dc_0.04,unitary_partial_decoder_is_dc_0.045,unitary_partial_decoder_is_dc_0.1,unitary_partial_decoder_is_dc_0.3,unitary_partial_decoder_is_dc_0.5
+# notes 0 4 cptp nrplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
+#
+# Performance gains for the decoder
+dciplot infid infid unitary_partial_decoder_is_dc_0.005,unitary_partial_decoder_is_dc_0.01,unitary_partial_decoder_is_dc_0.015,unitary_partial_decoder_is_dc_0.02,unitary_partial_decoder_is_dc_0.025,unitary_partial_decoder_is_dc_0.03,unitary_partial_decoder_is_dc_0.035,unitary_partial_decoder_is_dc_0.04,unitary_partial_decoder_is_dc_0.045,unitary_partial_decoder_is_dc_0.1,unitary_partial_decoder_is_dc_0.3,unitary_partial_decoder_is_dc_0.5
+notes infid infid cptp dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
+#
+#
 quit
