@@ -340,6 +340,7 @@ def AllocateBins(values, threshold_width=10):
 		else:
 			bins[bin_count] = [i]
 			current_bin_min = values[i]
+	print("values\n{}\nbins\n{}".format(values[sort_index], bins))
 	return bins
 
 
@@ -394,8 +395,8 @@ def FilterLogicalErrorRates(dbses, chids, logmet, level):
 
 def BinPhysErrs(phyerrs, logerrs, bin_width, ndb):
 	# Bin the physical error rates and average logical error rates in a bin.
+	print("phyerrs\n{}".format(phyerrs))
 	bins = AllocateBins(phyerrs, bin_width)
-	# print("Bins\n{}\nlogerrs\n{}".format(bins, logerrs))
 	nbins = len(bins)
 	logerrs_binned = np.zeros((3, ndb - 1, nbins), dtype = np.double)
 	filtered = {d: [] for d in range(ndb - 1)}
@@ -519,7 +520,7 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 
 	phyerrs = np.load(PhysicalErrorRates(dbses[0], phymet))[chids]
 	
-	bin_width = 2
+	bin_width = 5
 	with PdfPages(plotfname) as pdf:
 		for l in range(nlevels, nlevels + 1):
 			fig = plt.figure(figsize=(gv.canvas_size[0] * 1.3, gv.canvas_size[1]))
