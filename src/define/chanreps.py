@@ -58,7 +58,7 @@ def ShortestPath(adjacency, source, target, labels):
     return sequence
 
 
-def ConvertRepresentations(channel, initial, final):
+def ConvertRepresentations(channel, initial_rep, final_rep):
     # Convert between different representations of a quantum channel
     gv.Pauli = np.array(
         [[[1, 0], [0, 1]], [[0, 1], [1, 0]], [[0, -1j], [1j, 0]], [[1, 0], [0, -1]]],
@@ -105,15 +105,15 @@ def ConvertRepresentations(channel, initial, final):
         dtype=np.int8,
     )
 
-    map_process = ShortestPath(costs, initial, final, reprs)
+    map_process = ShortestPath(costs, initial_rep, final_rep, reprs)
     outrep = np.copy(channel)
 
     for i in range(len(map_process) - 1):
-        initial = map_process[i]
-        final = map_process[i + 1]
+        initial_rep = map_process[i]
+        final_rep = map_process[i + 1]
         inprep = np.copy(outrep)
 
-        if initial == "choi" and final == "process":
+        if initial_rep == "choi" and final_rep == "process":
             # Convert from the Choi matrix to the process matrix, of a quantum channel
             # CHI[a,b] = Trace( Choi * (Pb \otimes Pa^T) )
             process = np.zeros((4, 4), dtype=np.longdouble)
@@ -131,7 +131,7 @@ def ConvertRepresentations(channel, initial, final):
                     )
             outrep = np.copy(process)
 
-        elif initial == "process" and final == "choi":
+        elif initial_rep == "process" and final_rep == "choi":
             # Convert from the process matrix representation to the Choi matrix represenation, of a quantum channel
             choi = np.zeros((4, 4), dtype=np.complex128)
             for ri in range(4):
@@ -142,7 +142,7 @@ def ConvertRepresentations(channel, initial, final):
             choi = choi / np.complex128(4)
             outrep = np.copy(choi)
 
-        elif initial == "stine" and final == "krauss":
+        elif initial_rep == "stine" and final_rep == "krauss":
             # Compute the Krauss operators for the input quantum channel, which is represented in the Stinespring dialation
             # The Krauss operator T_k is given by: <a|T_k|b> = <a e_k|U|b e_0> , where {|e_i>} is a basis for the environment and |a>, |b> are basis vectors of the system
             environment = np.zeros((4, 4, 1), dtype=int)
@@ -166,9 +166,9 @@ def ConvertRepresentations(channel, initial, final):
                         )[0, 0]
             outrep = np.copy(krauss)
 
-        elif initial == "krauss" and final == "stine":
+        elif initial_rep == "krauss" and final_rep == "stine":
             # Compute the Stinespring dialation of the input Krauss operators.
-            # The Stinespring dialation is defined only up to a fixed choice of the initial state of the environment.
+            # The Stinespring dialation is defined only up to a fixed choice of the initial_rep state of the environment.
             # We will consider the size of the environment to be 2 qubits. Hence there must be 4 Krauss operartors.
             # If there are less than 4, we will pad additional Krauss operators with zeros.
             # U[phi, j1, j2][psi, 0, 0] = <phi|K_(j1,j2)|psi>
@@ -182,7 +182,7 @@ def ConvertRepresentations(channel, initial, final):
                             ] = inprep[j1 * 2 + j2, phi, psi]
             outrep = np.copy(stineU)
 
-        elif initial == "krauss" and final == "process":
+        elif initial_rep == "krauss" and final_rep == "process":
             # Convert from the Krauss representation to the Process matrix representation
             ## In particular, Process[i,j] = 1/2 * trace( E(Pi) Pj)
             process = np.zeros((4, 4), dtype=np.longdouble)
@@ -203,7 +203,7 @@ def ConvertRepresentations(channel, initial, final):
             # forcing the channel to be trace preserving.
             outrep = np.copy(process / process[0, 0])
 
-        elif initial == "krauss" and final == "choi":
+        elif initial_rep == "krauss" and final_rep == "choi":
             # Convert from the Krauss operator representation to the Choi matrix of a quantum channel
             choi = np.zeros((4, 4), dtype=np.complex128)
             for k in range(inprep.shape[0]):
@@ -216,7 +216,7 @@ def ConvertRepresentations(channel, initial, final):
                 )
             outrep = np.copy(choi)
 
-        elif initial == "choi" and final == "krauss":
+        elif initial_rep == "choi" and final_rep == "krauss":
             # Convert from the Choi matrix to the Krauss representation of a quantum channel.
             # Compute the eigenvalues and the eigen vectors of the Choi matrix. The eigen vectors operators are vectorized forms of the Krauss operators.
             (eigvals, eigvecs) = np.linalg.eig(inprep.astype(np.complex128))
@@ -227,7 +227,7 @@ def ConvertRepresentations(channel, initial, final):
                 )
             outrep = np.copy(krauss)
 
-        elif initial == "process" and final == "chi":
+        elif initial_rep == "process" and final_rep == "chi":
             # Convert from the process matrix to the chi matrix
             # The process matrix is the action of the channel on the Pauli basis whereas the Chi matrix describes the amplitude of applying a pair of gv.Pauli operators (on the left and right) to the input state
             # Lambda_ij = \sum_(k,l) W_ijkl * Chi_(k,l)
@@ -237,7 +237,7 @@ def ConvertRepresentations(channel, initial, final):
             )
             outrep = np.copy(chi)
 
-        elif initial == "chi" and final == "process":
+        elif initial_rep == "chi" and final_rep == "process":
             # Convert from the chi matrix to the process matrix
             # The process matrix is the action of the channel on the Pauli basis whereas the Chi matrix describes the amplitude of applying a pair of Pauli operators (on the left and right) to the input state
             # Lambda_ij = \sum_(k,l) W_ijkl * Chi_(k,l)
@@ -250,7 +250,7 @@ def ConvertRepresentations(channel, initial, final):
             )
             outrep = np.copy(process)
 
-        elif initial == "choi" and final == "chi":
+        elif initial_rep == "choi" and final_rep == "chi":
             # Convert from the Choi matrix to the Chi matrix
             # Tr(J(E) . (Pa o Pb^T)) = 1/2 \sum_(ij) X_(ij) W_((ij)(ab))
             # where W_(ijab) = 1/2 * Tr(Pi Pb Pj Pa).
@@ -272,10 +272,33 @@ def ConvertRepresentations(channel, initial, final):
             chi = np.reshape(np.dot(choivec, gv.choi_to_chi), [4, 4])
             outrep = np.copy(chi)
 
+        # elif initial_rep == "chi" and final_rep == "theta":
+        #     # Convert from the chi matrix to the theta matrix.
+
+        # elif initial_rep == "kraus" and final_rep == "chi":
+        #     # Convert from the Kraus representation to the chi matrix.
+        #     # chi_ij = \sum_k Tr(E_k P_i) Tr(E^\dag_k P_j)
+        #     #        = \sum_(k,l,m) (E_k P_i)_(ll) (E^\dag_k Pj)_(mm)
+        #     #        = \sum_(k,l,m,n,p) (E_k)_(ln) (P_i)_(nl) (E*_k)_(pm) (P_j)_(pm)
+            
+
         else:
             sys.stderr.write("\033[91mUnknown conversion task.\n\033[0m")
 
     return outrep
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def ChangeOrdering(probs, old_order, new_order, qcode):
