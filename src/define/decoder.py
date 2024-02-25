@@ -190,7 +190,8 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full
 
 	if ((option == "full") or (option == "weight")):
 		infid_qubit = 1 - np.power(1 - infid, 1 / qcode.N)
-		decoder_probs = CreateIIDPauli(np.sqrt(infid_qubit), qcode)
+		decoder_probs = CreateIIDPauli(infid_qubit, qcode) # If noise is non-unitary
+		# decoder_probs = CreateIIDPauli(np.sqrt(infid_qubit), qcode) # If noise is unitary
 
 	elif (option == "sqprobs"):
 		if chan_probs.ndim > 1:
