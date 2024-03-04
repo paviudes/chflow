@@ -68,4 +68,41 @@ dciplot infid infid unitary_partial_decoder_test_dc_0.1,unitary_partial_decoder_
 notes infid infid cptp dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
 #
 #
+#
+!!Case 4!!
+# Random CPTP channel for level 2 simulations
+sbload cptp_partial_decoder_is_dc_0
+#
+# Distribution of the NR budget over weights of Pauli errors
+# nrplot 0 4 cptp_partial_decoder_is_dc_0.01,cptp_partial_decoder_is_dc_0.03,cptp_partial_decoder_is_dc_0.05
+# notes 0 4 cptp nrplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
+#
+# Performance gains for the decoder
+dciplot infid infid cptp_partial_decoder_is_dc_0.01,cptp_partial_decoder_is_dc_0.03,cptp_partial_decoder_is_dc_0.05
+notes infid infid cptp dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
+#
+#
+!!Case 5!!
+# Random Unitary channel for level 2 simulations
+sbload unitary_partial_decoder_test_dc_0.1
+#
+# Distribution of the NR budget over weights of Pauli errors
+# nrplot 0 4 unitary_partial_decoder_test_dc_0.1,unitary_partial_decoder_test_dc_0.2,unitary_partial_decoder_test_dc_0.3,unitary_partial_decoder_test_dc_0.4,unitary_partial_decoder_test_dc_0.5
+# notes 0 4 cptp nrplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
+#
+# Performance gains for the decoder
+dciplot infid infid unitary_partial_decoder_test_dc_0.1,unitary_partial_decoder_test_dc_0.2,unitary_partial_decoder_test_dc_0.3,unitary_partial_decoder_test_dc_0.4,unitary_partial_decoder_test_dc_0.5
+notes infid infid cptp dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
+#
+#
+#
+!!Case 6!!
+# Random Unitary channel for level 2 simulations
+sbload cptp_partial_decoder_test
+#
+# Performance gains for the decoder
+dciplot infid infid cptp_partial_decoder_test,cptp_partial_decoder_test_dc_0.2,cptp_partial_decoder_test_dc_0.4
+notes infid infid cptp dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
+#
+#
 quit

@@ -45,6 +45,7 @@ def RandomUnitary(prox, dim, method="exp", randH=None):
 	randMat = np.random.standard_normal(
 		size=(dim, dim)
 	) + 1j * np.random.standard_normal(size=(dim, dim))
+	randMat = randMat / np.linalg.norm(randMat)
 	if method == "qr":
 		if randH is None:
 			randH = (
