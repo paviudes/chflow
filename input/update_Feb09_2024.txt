@@ -98,11 +98,16 @@ notes infid infid cptp dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
 #
 !!Case 6!!
 # Random Unitary channel for level 2 simulations
-sbload cptp_partial_decoder_test
+sbload cptp_dc_0
 #
 # Performance gains for the decoder
-dciplot infid infid cptp_partial_decoder_test,cptp_partial_decoder_test_dc_0.2,cptp_partial_decoder_test_dc_0.4
+dciplot infid infid cptp_dc_0,cptp_dc_0.01,cptp_dc_0.8
 notes infid infid cptp dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
 #
 #
+#
+!!Case 7!!
+# Generating random CPTP channels
+sbload cptp_partial_decoder
+submit cptp_10k_dc_0
 quit
