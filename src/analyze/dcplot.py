@@ -520,7 +520,7 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 
 	phyerrs = np.load(PhysicalErrorRates(dbses[0], phymet))[chids]
 	
-	bin_width = 5
+	bin_width = 2
 	with PdfPages(plotfname) as pdf:
 		for l in range(nlevels, nlevels + 1):
 			fig = plt.figure(figsize=(gv.canvas_size[0] * 1.3, gv.canvas_size[1]))
