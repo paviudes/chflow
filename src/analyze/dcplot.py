@@ -389,7 +389,7 @@ def FilterLogicalErrorRates(dbses, chids, logmet, level):
 		for d in range(1, ndb): # Start from d = 2 when taking the ratio between the first alpha and the rest.
 			if (is_converged[d, rate_index, sample_index] == 1):
 				# Normalize with the performance of the lowest alpha (ideally, RB).
-				logerrs[d - 1][c] = np.load(LogicalErrorRates(dbses[d], logmet))[ch, level]/minalpha_perfs[ch]
+				logerrs[d - 1][c] = minalpha_perfs[ch] / np.load(LogicalErrorRates(dbses[d], logmet))[ch, level]
 	return (logerrs, minalpha_perfs)
 
 

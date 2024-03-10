@@ -190,9 +190,11 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full
 
 	if ((option == "full") or (option == "weight")):
 		infid_qubit = 1 - np.power(1 - infid, 1 / qcode.N)
-		decoder_probs = CreateIIDPauli(infid_qubit, qcode) # If noise is non-unitary
-		# decoder_probs = CreateIIDPauli(np.sqrt(infid_qubit), qcode) # If noise is unitary
-
+		# depolarizing_rate = infid_qubit # If noise is non-unitary
+		depolarizing_rate = np.sqrt(infid_qubit) # If noise is unitary
+		depolarizing_rate = np.power(depolarizing_rate, 0.8) # If the decoder is correlation aware.
+		decoder_probs = CreateIIDPauli(depolarizing_rate, qcode) 
+		
 	elif (option == "sqprobs"):
 		if chan_probs.ndim > 1:
 			pauli_probs = ut.GetErrorProbabilities(qcode.PauliOperatorsLST, chan_probs, 0)

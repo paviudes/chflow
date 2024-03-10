@@ -98,20 +98,31 @@ notes infid infid cptp dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
 #
 !!Case 6!!
 # Random Unitary channel for level 2 simulations
-sbload cptp_dc_0
+sbload cptp_intensive_dc_0
 #
 # Performance gains for the decoder
-dciplot infid infid cptp_dc_0,cptp_dc_0.001,cptp_dc_0.01,cptp_dc_0.8
+dciplot infid infid cptp_intensive_dc_0,cptp_intensive_dc_0.001,cptp_intensive_dc_0.01,cptp_intensive_dc_0.1
 notes infid infid cptp dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
+quit
 #
 #
 !!Case 7!!
-# Random Unitary channel for level 2 simulations
-sbload unitary_dc_0
+# Random Unitary channel for level 2 simulations with the r decoder.
+sbload unitary_intensive_dc_0
 #
 # Performance gains for the decoder
-dciplot infid infid unitary_dc_0,unitary_dc_0.001,unitary_dc_0.01,unitary_dc_0.1
+dciplot infid infid unitary_intensive_dc_0,unitary_intensive_dc_0.001,unitary_intensive_dc_0.01,unitary_intensive_dc_0.1
 notes infid infid unitary dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
+#
+#
+#
+!!Case 8!!
+# Random Unitary channel for level 2 simulations with the sqrt(r) decoder
+sbload unitary_intensive_sqr_dc_0
+#
+# Performance gains for the decoder
+dciplot infid infid unitary_intensive_sqr_dc_0,unitary_intensive_sqr_dc_0.001,unitary_intensive_sqr_dc_0.01,unitary_intensive_sqr_dc_0.1
+notes infid infid unitary_sqr dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
 #
 #
 quit
