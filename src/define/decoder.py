@@ -6,10 +6,12 @@ from define import fnames as fn
 from scipy.special import comb
 from define.qcode import PrepareSyndromeLookUp
 from define.QECCLfid.utils import SamplePoisson
+from define.heuristic import AssignErrorProbs
 
 def SetDecoderKnowledge(submit, rawchan=None, noise=None, sample=None):
 	# Set the decoder knowledge variable for the submission object.
 	nr_weights = None
+	total_unknown = 0
 	if ((submit.decoders)[0] == 3 or (submit.decoders)[0] == 4): # Introduced decoder 4 to capture top alpha grouped by weight
 		if submit.iscorr == 0:
 			chan_probs = np.tile(
@@ -28,15 +30,15 @@ def SetDecoderKnowledge(submit, rawchan=None, noise=None, sample=None):
 		else:
 			chan_probs = rawchan
 		if (submit.decoders)[0] == 3:
-			mpinfo = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, submit.eccs[0], option="full", nr_weights = None).astype(np.float64)
+			(mpinfo, total_unknown) = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, submit.eccs[0], option="full", nr_weights = None)
 		else:
 			# decoder is 4 i.e distribute by weight guided by Poisson
 			# print("noise = {}, sample = {}".format(noise, sample))
 			nr_weights = np.load(fn.NRWeightsFile(submit, noise))[sample, :]
-			mpinfo = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, submit.eccs[0], option="weight", nr_weights = nr_weights).astype(np.float64)
+			(mpinfo, total_unknown) = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, submit.eccs[0], option="split", nr_weights = nr_weights)
 	else:
 		mpinfo = np.zeros(4**submit.eccs[0].N, dtype=np.float64)
-	return (mpinfo, nr_weights)
+	return (mpinfo, nr_weights, total_unknown)
 
 
 def TailorDecoder(qecc, channel, levels, bias=None):
@@ -106,7 +108,8 @@ def ComputeNRBudget(nr_weights_all, alphas, nq, max_weight=None):
 			nerrors_weight[w] += add_to_weight_w
 			excess_budget -= add_to_weight_w
 
-		relative_budget[alpha_count, :] = [nerrors_weight[w]*100/budget_pauli_count for w in range(max_weight+1)]
+		total_nr_dataset = np.sum(nerrors_weight)
+		relative_budget[alpha_count, :] = [nerrors_weight[w]*100/total_nr_dataset for w in range(max_weight+1)]
 
 	return (nerrors_weight, relative_budget)
 
@@ -137,7 +140,7 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, nr_weights_all = None
 		leading_paulis = leading_paulis[np.sort(inds)][ : ((3 * qcode.N + 1) + remaining_budget)]
 		
 
-	elif option == "weight":
+	elif ((option == "weight") or (option == "split")):
 
 		if max_weight is None:
 			max_weight = qcode.N//2 + 1
@@ -178,7 +181,6 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, nr_weights_all = None
 
 def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full", nr_weights = None):
 	# Complete the probabilities given to a ML decoder.
-	(infid, known_paulis, known_probs) = GetLeadingPaulis(leading_fraction, qcode, chan_probs, option, nr_weights)
 	"""
 	Create a function similar to GetLeadingPaulis.
 	This function will simply identify the Pauli indices (in LST) we need to keep from NR.
@@ -188,6 +190,9 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full
 	# )
 	# print("Total known probability = {}".format(np.sum(known_probs)))
 
+	(infid, known_paulis, known_probs) = GetLeadingPaulis(leading_fraction, qcode, np.real(chan_probs), option, nr_weights)
+	total_unknown = 1 - np.sum(known_probs)
+	
 	if ((option == "full") or (option == "weight")):
 		infid_qubit = 1 - np.power(1 - infid, 1 / qcode.N)
 		# depolarizing_rate = infid_qubit # If noise is non-unitary
@@ -202,12 +207,15 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full
 			pauli_probs = chan_probs
 		decoder_probs = ReconstructPauliChannel(pauli_probs, qcode)
 
+	elif (option == "split"):
+		infid_qubit = 1 - np.power(1 - infid, 1 / qcode.N)
+		decoder_probs = AssignErrorProbs(known_paulis, known_probs, qcode.PauliOperatorsLST, infid_qubit)
+
 	else:
 		pass
 
 	# print("RAW Decoder ansatz before normalization\n{}".format(np.sort(decoder_probs)[::-1][:30]))
 	decoder_probs[known_paulis] = known_probs
-	total_unknown = 1 - np.sum(known_probs)
 	# print("Total unknown probability = {}".format(total_unknown))
 	# Normalize the unknown Paulis
 	# https://stackoverflow.com/questions/27824075/accessing-numpy-array-elements-not-in-a-given-index-list
@@ -220,7 +228,7 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full
 	# print("Known paulis weights\n{}\nNR data Known probs\n{}".format(qcode.weightdist[known_paulis], known_probs))
 	# print("Decoder ansatz\n{}".format(np.sort(decoder_probs)[::-1][:30]))
 	# print("xxxxxxxxxxxxxxxxx")
-	return decoder_probs
+	return (decoder_probs.astype(np.float64), total_unknown)
 
 
 def PrepareNRWeights(submit):

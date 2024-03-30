@@ -14,33 +14,51 @@ from define.fnames import NRWeightsFile, NRWeightsPlotFile, RawPhysicalChannel
 from define.decoder import ComputeNRBudget, GetTotalErrorBudget, GetLeadingPaulis
 from analyze.utils import scientific_float
 
-def NRWeightsPlot(dbses_input, noise, sample):
+def NRWeightsPlot(dbses, noise, samples):
 	# Compute the relative budget taken up by the set of Pauli error rates for each weight, in the NR dataset.
 	# Plot histograms one on top of each other: stacked histogram.
-	qcode = dbses_input[0].eccs[0]
+	qcode = dbses[0].eccs[0]
 	# Only show alpha values that correspond to distinct number of Pauli error rates.
 	max_weight = 1 + qcode.N//2
-	budgets, uniques = np.unique(np.array([GetTotalErrorBudget(dbs, noise, sample) for dbs in dbses_input[1:-1]], dtype=np.int64), return_index=True)
-	# print("uniques = {}".format(type(uniques)))
-	dbses = [dbses_input[d + 1] for d in uniques]
+	budgets = np.mean(np.array([[GetTotalErrorBudget(dbs, noise, samp) for dbs in dbses[:]] for samp in samples], dtype=np.int64), axis=0).astype(int)
+	# print("budgets = {}".format(budgets))
+	# dbses = [dbses_input[d + 1] for d in uniques]
 	
-	nr_weights = np.load(NRWeightsFile(dbses[0], noise))[sample, :].astype(np.int64)
+	# Compute the average number of errors of each weight in the NR data.
+	nr_weights = np.load(NRWeightsFile(dbses[0], noise))[samples, :].astype(np.int64)
+	nr_weights_avg = np.mean(nr_weights, axis=0).astype(np.int64)
 	alphas = np.array([dbs.decoder_fraction for dbs in dbses], dtype = np.float64)
 	xticklabels_bottom = budgets
-	(__, percentages) = ComputeNRBudget(nr_weights, alphas, qcode.N)
+
+	# Compute the average relative budget of errors for each weight in the NR data.
+	max_weight = qcode.N//2
+	# (__, percentages) = ComputeNRBudget(nr_weights_avg, alphas, qcode.N, max_weight=max_weight)
+	# print("percentages\n{}".format(percentages))
+	percentages = np.zeros((len(dbses), 1 + max_weight), dtype = np.float64)
+	for s in range(len(samples)):
+		(__, percentage_samp) = ComputeNRBudget(nr_weights[s, :], alphas, qcode.N, max_weight=max_weight)
+		percentages = percentages + percentage_samp
+		# print("Sample {}\npercentages\n{}".format(s, percentage_samp))
+	percentages = percentages / len(samples)
+
+	# print("percentages\n{}".format(np.round(percentages, 1)))
+	
+	# (__, percentages) = np.array([ComputeNRBudget(nr_weights[s, :], alphas, qcode.N) for s in range(len(samples))], dtype = np.int64)
+	# print("percentages\n{}".format(percentages))
 	(n_rows, n_cols) = percentages.shape
 
 	# The top xticklabels show the Pauli error budget left out in the NR data set.
-	chan_probs = np.real(np.load(RawPhysicalChannel(dbses_input[0], noise))[sample, :])
+	chan_probs = np.real(np.mean(np.load(RawPhysicalChannel(dbses[0], noise))[samples, :], axis=0))
 	xticklabels_top = [None for __ in alphas]
 	for (i, alpha) in enumerate(alphas):
-		(__, __, knownPaulis) = GetLeadingPaulis(alpha, qcode, chan_probs, "weight", nr_weights)
+		(__, __, knownPaulis) = GetLeadingPaulis(alpha, qcode, chan_probs, "weight", nr_weights_avg)
 		xticklabels_top[i] = scientific_float(1 - np.sum(knownPaulis))
 	
-	# print("percentages\n{}".format(np.round(percentages, 1)))
-	print("alphas\n{}\nxticklabels_bottom\n{}\nxticklabels top\n{}\nrows\n{}".format(alphas, xticklabels_bottom, xticklabels_top, np.arange(n_rows)))
+	# print("alphas\n{}\nxticklabels_bottom\n{}\nxticklabels top\n{}\nrows\n{}".format(alphas, xticklabels_bottom, xticklabels_top, np.arange(n_rows)))
 
-	plotfname = NRWeightsPlotFile(dbses_input[0], noise, sample)
+	# print("samples: {}".format(samples))
+
+	plotfname = NRWeightsPlotFile(dbses[0], noise, samples)
 	with PdfPages(plotfname) as pdf:
 		fig = plt.figure(figsize=(36,30))
 
@@ -49,7 +67,7 @@ def NRWeightsPlot(dbses_input, noise, sample):
 		for w in range(n_cols):
 			plt.bar(np.arange(n_rows), percentages[:, w], width = 0.7, bottom = bottoms, label = "w = %d" % (w), color=gv.Colors[w % gv.n_Colors])
 			bottoms += percentages[:, w]
-		
+			
 		plt.ylabel("Relative budget", fontsize=gv.axes_labels_fontsize)
 		plt.xlabel("Number of Pauli errors", fontsize=gv.axes_labels_fontsize)
 		
@@ -57,7 +75,7 @@ def NRWeightsPlot(dbses_input, noise, sample):
 		ax_top = ax.twiny()
 		
 		# Legend
-		ax.legend(numpoints=1, loc=1, shadow=True, fontsize=gv.legend_fontsize, markerscale=gv.legend_marker_scale)
+		ax.legend(numpoints=1, loc=1, shadow=True, fontsize=2 * gv.legend_fontsize, markerscale=gv.legend_marker_scale)
 		
 		# Bottom X ticks show the size of the NR data set.
 		ax.set_xticks(np.arange(n_rows))

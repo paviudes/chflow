@@ -306,18 +306,29 @@ def MCompare(dbses_input, pmet, lmet, rates, samples=None, cutoff=1e6):
             for r in range(rates.shape[0]):
                 for s in range(samples.shape[0]):
                     yaxis = running_averages[r, s, xindices]
-                    print("r = {}, s = {}\nxaxis\n{}\nyaxis\n{}".format(r, s, xaxis, yaxis))
+                    print("r = {}, s = {}\nxaxis\n{}\nyaxis\n{}".format(rates[r], samples[s], xaxis, yaxis))
                     if (is_converged[r, s] == 1):
                         plot_alpha = 1
-                        print("Converged")
+                        # print("Converged")
                     else:
                         plot_alpha = 0.2
-                        print("Not yet converged.")
+                        # print("Not yet converged.")
+
+                    if (d == 0):
+                        # Empty plot for legend entries of the channels with their infidelities.
+                        plt.plot(
+                            [], [],
+                            linewidth=gv.line_width,
+                            label="$r = %.3f$" % (phyerrs[r * samples.shape[0] + s]),
+                            color=gv.Colors[(r * rates.shape[0] + s) % len(gv.Colors)],
+                            linestyle=gv.line_styles[d % len(gv.line_styles)],
+                            alpha=plot_alpha
+                        )
                     plt.plot(
                         xaxis,
                         yaxis,
                         linewidth=gv.line_width,
-                        label="%g %d" % (dbs.noiserates[rates[r], 0], samples[s]),
+                        # label="$r = %.3f$" % (phyerrs[r * samples.shape[0] + s]),
                         color=gv.Colors[(r * rates.shape[0] + s) % len(gv.Colors)],
                         linestyle=gv.line_styles[d % len(gv.line_styles)],
                         alpha=plot_alpha
@@ -368,8 +379,7 @@ def MCompare(dbses_input, pmet, lmet, rates, samples=None, cutoff=1e6):
             labels=mc_labels + dset_labels,
             numpoints=1,
             loc="upper center",
-            # ncol=4, ORIGINAL
-            ncol=6,
+            ncol=4,
             bbox_to_anchor=(0.5, 1.15),
             shadow=True,
             fontsize=gv.legend_fontsize,

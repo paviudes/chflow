@@ -152,6 +152,8 @@ def DecoderInstanceCompare(phymet, logmet, dbses_input, chids = [0], thresholds=
 		budget_left[i] = 1 - np.sum(knownPaulis)
 		# xticklabels_top[i] = scientific_float(1 - np.sum(knownPaulis))
 
+	print("Budget left out: {}".format(budget_left))
+
 	# Stretch X axis by enlarging the canvas
 	extended = (gv.canvas_size[0], gv.canvas_size[1])
 
@@ -434,6 +436,28 @@ def GetTVD(dbses, chids, bins, logerrs):
 			tvds_filtered[2, d, b] = np.percentile(tvds[d, filtered_dataset], 75) - median
 	return tvds_filtered
 
+def GetUnknownBudget(dbses, chids, bins, logerrs):
+	# Extract the TVDs for each alpha, and plot as an inset.
+	# Get the TVD for each decoder knowledge with the full Pauli error distribution. These will be in the annotations.
+	ndb = len(dbses)
+	nbins = len(bins)
+	alphas = [dbs.decoder_fraction for dbs in dbses]
+	unknown_errbg = np.zeros((ndb - 1, len(chids)), dtype = np.double)
+	for d in range(1, len(alphas)):
+		unknown_errbg[d - 1, :] = np.load(PhysicalErrorRates(dbses[d], "unknown_errbg"))[chids]
+		# print("unknown_errbg for alpha = {}\n{}".format(alphas[d], unknown_errbg[d - 1, :]))
+	# Bin the unknown_errbg
+	unknown_errbg_filtered = np.zeros((3, ndb, nbins), dtype = np.double)
+	for b in range(nbins):
+		for d in range(ndb - 1):
+			filtered_dataset = [x for x in bins[b] if (logerrs[d][x] != -1)]
+			median = np.median(unknown_errbg[d, filtered_dataset])
+			unknown_errbg_filtered[0, d, b] = median
+			# Compute the upper and lower error bars.
+			unknown_errbg_filtered[1, d, b] = median - np.percentile(unknown_errbg[d, filtered_dataset], 25)
+			unknown_errbg_filtered[2, d, b] = np.percentile(unknown_errbg[d, filtered_dataset], 75) - median
+	return unknown_errbg_filtered
+
 
 def GetBudgets(dbses, chids):
 	# Compute the budgets (X-axis): number of Pauli error rates in NR.
@@ -457,7 +481,7 @@ def SetInsetTVD(ax_principal, xaxes, yaxes, selected, bins):
 	nbins = len(bins)
 	ax_inset = plt.axes([0, 0, 1, 1])
 	# Position and relative size of the inset axes within ax_principal
-	ip = InsetPosition(ax_principal, [0.17, 0.2, 0.32, 0.3]) # Positon: bottom right
+	ip = InsetPosition(ax_principal, [0.19, 0.65, 0.32, 0.3]) # Positon: bottom right
 	ax_inset.set_axes_locator(ip)
 	# Mark the region corresponding to the inset axes on ax_principal and draw lines in grey linking the two axes.
 	mark_inset(ax_principal, ax_inset, loc1=2, loc2=4, fc="none")
@@ -491,7 +515,7 @@ def SetInsetTVD(ax_principal, xaxes, yaxes, selected, bins):
 	
 	# Axes labels
 	ax_inset.set_xlabel("$K$", fontsize=gv.axes_labels_fontsize * 0.8, labelpad=gv.axes_labelpad)
-	ax_inset.set_ylabel("TVD ($\\delta$)", fontsize=gv.axes_labels_fontsize * 0.75, labelpad=gv.axes_labelpad)
+	ax_inset.set_ylabel("$p_{not~characterized}$", fontsize=gv.axes_labels_fontsize * 0.75, labelpad=gv.axes_labelpad)
 	# Axes ticks
 	ax_inset.tick_params(axis="both", which="both", pad=gv.ticks_pad, direction="inout", length=gv.ticks_length, width=gv.ticks_width, labelsize=gv.ticks_fontsize * 0.75)
 	return None
@@ -520,10 +544,10 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 
 	phyerrs = np.load(PhysicalErrorRates(dbses[0], phymet))[chids]
 	
-	bin_width = 2
+	bin_width = 3
 	with PdfPages(plotfname) as pdf:
 		for l in range(nlevels, nlevels + 1):
-			fig = plt.figure(figsize=(gv.canvas_size[0] * 1.3, gv.canvas_size[1]))
+			fig = plt.figure(figsize=(gv.canvas_size[0] * 1.5, gv.canvas_size[1] * 1.2))
 			ax = plt.gca()
 			
 			# Load the logical error rates that have converged well.
@@ -541,7 +565,8 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 					print("Bin {}, Logical performance with RB data: {}".format(b, np.mean(minalpha_perfs[bins[b]])))
 			
 			# Compute the TVDs for the decoders and bin them.
-			tvds_filtered = GetTVD(dbses, chids, bins, yaxes)
+			# tvds_filtered = GetTVD(dbses, chids, bins, yaxes)
+			unknown_errbg_filtered = GetUnknownBudget(dbses, chids, bins, yaxes)
 
 			# Compute the number of Pauli error rates in NR.
 			budgets = GetBudgets(dbses, chids)
@@ -581,8 +606,8 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 					linewidth=gv.line_width
 				)
 				plots.append(pl)
-				lab = "$\\langle %s\\rangle = %s$" % (ml.Metrics[phymet]["latex"].replace("$", ""), latex_float(average_phymet))
-				labels.append(lab)
+				# lab = "$\\langle %s\\rangle = %s$" % (ml.Metrics[phymet]["latex"].replace("$", ""), latex_float(average_phymet))
+				# labels.append(lab)
 				
 				# Add an empty plot for the RB logical error rate labels.
 				pl, = ax.plot(
@@ -595,7 +620,7 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 					linewidth=gv.line_width,
 				)
 				empty_plots.append(pl)
-				lab = "$\\langle \\overline{%s}^{RB}_{%d}\\rangle = %s$" % (ml.Metrics[logmet]["latex"].replace("$", ""), l, latex_float(np.mean(minalpha_perfs[bins[b]])))
+				lab = "$\\langle %s\\rangle = %s$\n$\\langle \\overline{%s}^{RB}_{%d}\\rangle = %s [%d]$" % (ml.Metrics[phymet]["latex"].replace("$", ""), latex_float(average_phymet), ml.Metrics[logmet]["latex"].replace("$", ""), l, latex_float(np.mean(minalpha_perfs[bins[b]])), len(bins[b]))
 				rb_perf_labels.append(lab)
 
 				# Compute the max y value for designing the axes limits
@@ -613,7 +638,8 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 				"""
 
 			# Set the inset plots to show TVD.
-			SetInsetTVD(ax, xaxes, tvds_filtered, selected, bins)
+			# SetInsetTVD(ax, xaxes, tvds_filtered, selected, bins)
+			SetInsetTVD(ax, xaxes, unknown_errbg_filtered, selected, bins)
 
 			# Axes limits
 			# ax.set_ylim([min_y / 5, max_y * 5])
@@ -643,33 +669,33 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 				labelsize=gv.ticks_fontsize,
 			)
 			# Lengend with curve labels of average physical infidelity
-			physinfid_legend = ax.legend(
-				plots,
-				labels,
-				numpoints=1,
-				# loc="lower left",
-				loc="upper center",
-				ncol=2,
-				bbox_to_anchor=(0.45, 1.3),
-				shadow=True,
-				fontsize=gv.legend_fontsize * 1.4,
-				markerscale=gv.legend_marker_scale,
-			)
-			ax.add_artist(physinfid_legend)
+			# physinfid_legend = ax.legend(
+			# 	plots,
+			# 	labels,
+			# 	numpoints=1,
+			# 	# loc="lower left",
+			# 	loc="center",
+			# 	ncol=3,
+			# 	bbox_to_anchor=(0.6, 1.3),
+			# 	shadow=True,
+			# 	fontsize=gv.legend_fontsize * 1.4,
+			# 	markerscale=gv.legend_marker_scale,
+			# )
+			# ax.add_artist(physinfid_legend)
 			rb_perf_legend = ax.legend(
 				empty_plots,
 				rb_perf_labels,
 				numpoints=1,
 				# loc="lower left",
-				loc="center left",
-				ncol=1,
-				bbox_to_anchor=(1, 0.6),
+				loc="center",
+				ncol=4,
+				bbox_to_anchor=(0.5, 1.07),
 				shadow=True,
-				fontsize=gv.legend_fontsize * 1.4,
+				fontsize=gv.legend_fontsize * 1.2,
 				markerscale=gv.legend_marker_scale,
 			)
 			ax.set_xscale("log")
-			ax.set_yscale("log")
+			# ax.set_yscale("log")
 
 			# Axes ticks
 			# print("max_y = {} and min_y = {}".format(max_y, min_y))
@@ -683,7 +709,7 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 			# 	adjust_text(texts, only_move={'points':'y', 'texts':'y'}, expand_points=(1, 2), precision=0.05, arrowprops=dict(arrowstyle="->", color='r', lw=0.5))
 
 			# Save the plot
-			plt.tight_layout(pad=30)
+			# plt.tight_layout(pad=30)
 			pdf.savefig(fig)
 			plt.close()
 

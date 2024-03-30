@@ -797,7 +797,7 @@ if __name__ == "__main__":
 		elif user[0] == "nrplot":
 			# Plot the relative budget taken by the Pauli error weights in the NR data.
 			noise = submit.noiserates[int(user[1]), :]
-			sample = int(user[2])
+			samples = np.array(list(map(int, user[2].split(","))), dtype = np.int64)
 
 			dbses = [submit]
 			if len(user) > 3:
@@ -811,8 +811,8 @@ if __name__ == "__main__":
 						is_complete = 0
 
 			if (is_complete == 1):
-				print("Doing nrplot for noise {} and sample {}".format(noise, sample))
-				NRWeightsPlot(dbses, noise, sample)
+				print("Doing nrplot for noise {} and samples {}".format(noise, samples))
+				NRWeightsPlot(dbses, noise, samples)
 
 
 		#####################################################################
@@ -1024,15 +1024,9 @@ if __name__ == "__main__":
 					LoadSub(dbses[i + 1], ts, 0, 0)
 					IsComplete(dbses[i + 1])
 			if len(user) > 4:
-				if ";" in user[4]:
-					samples = np.arange(*list(map(int, user[4].split(";"))), dtype = np.int64)
-				else:
-					samples = np.array(list(map(int, user[4].split(","))), dtype = np.int64)
+				samples = np.array(list(map(int, user[4].split(","))), dtype = np.int64)
 			if len(user) > 3:
-				if ";" in user[3]:
-					rates = np.arange(*list(map(int, user[3].split(";"))), dtype = np.int64)
-				else:
-					rates = np.array(list(map(int, user[3].split(","))), dtype = np.int64)
+				rates = np.array(list(map(int, user[3].split(","))), dtype = np.int64)
 			
 			print("Doing MC Stat plot for rates {} and samples {}".format(rates, samples))
 			MCStatsPlot(dbses, lmet, pmet, rates, samples=samples)
@@ -1418,8 +1412,9 @@ if __name__ == "__main__":
 			elif plot_option == "nrplot":
 				# The phymet is to be used as "noise" index and the logmet as "sample"
 				noise = submit.noiserates[int(phymet), :]
-				sample = int(logmet)
-				plot_file = NRWeightsPlotFile(submit, noise, sample)
+				# print("samples = {}".format(logmet.split(",")))
+				samples = np.array(list(map(int, logmet.split(","))), dtype = np.int64)
+				plot_file = NRWeightsPlotFile(submit, noise, samples)
 
 			elif plot_option == "hamplot":
 				plot_file = HammerPlot(submit, logmet, phymet.split(","))

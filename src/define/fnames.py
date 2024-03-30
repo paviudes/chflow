@@ -49,10 +49,11 @@ def PauliDistribution(outdir, channel):
     return fname
 
 
-def NRWeightsPlotFile(dbs, noise, sample):
+def NRWeightsPlotFile(dbs, noise, samples):
     # Name of the file containing the relative budgets in NR for Pauli error weights.
     noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
-    fname = "%s/results/nrdist_%s_s%d.pdf" % (dbs.outdir, noisedes, sample)
+    sampledes = "_".join(list(map(lambda s: ("%d" % s), samples)))
+    fname = "%s/results/nrdist_%s_s%s.pdf" % (dbs.outdir, noisedes, sampledes)
     return fname
 
 

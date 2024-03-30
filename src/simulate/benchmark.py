@@ -121,7 +121,7 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity, rawchan=None
 		dtype=np.int32,
 	)
 
-	(mpinfo, __) = SetDecoderKnowledge(submit, rawchan, noise, sample)
+	(mpinfo, __, __) = SetDecoderKnowledge(submit, rawchan, noise, sample)
 
 	s_count = 0
 	ss_count = 0

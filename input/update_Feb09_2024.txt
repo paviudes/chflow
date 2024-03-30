@@ -97,7 +97,7 @@ notes infid infid cptp dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
 #
 #
 !!Case 6!!
-# Random Unitary channel for level 2 simulations
+# Random CPTP channel for level 2 simulations
 sbload cptp_intensive_dc_0
 #
 # Performance gains for the decoder
@@ -112,7 +112,8 @@ sbload unitary_intensive_dc_0
 #
 # Performance gains for the decoder
 dciplot infid infid unitary_intensive_dc_0,unitary_intensive_dc_0.001,unitary_intensive_dc_0.01,unitary_intensive_dc_0.1
-notes infid infid unitary dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
+notes infid infid unitary_linear dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
+quit
 #
 #
 #
@@ -122,7 +123,52 @@ sbload unitary_intensive_sqr_dc_0
 #
 # Performance gains for the decoder
 dciplot infid infid unitary_intensive_sqr_dc_0,unitary_intensive_sqr_dc_0.001,unitary_intensive_sqr_dc_0.01,unitary_intensive_sqr_dc_0.1
-notes infid infid unitary_sqr dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
+notes infid infid unitary_sqrt dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
+quit
+#
+#
+!!Case 9!!
+# Random Unitary channel for level 2 simulations with the correlation-aware decoder
+sbload unitary_ca_dc_0
+#
+# Performance gains for the decoder
+dciplot infid infid unitary_ca_dc_0,unitary_ca_dc_0.001,unitary_ca_dc_0.01,unitary_ca_dc_0.1,unitary_ca_dc_0.5
+notes infid infid unitary_ca dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
+quit
+#
+#
+!!Case 10!!
+# Highly correlated random Unitary channel for level 2 simulations.
+sbload unitary_lam2_dc_0
+#nrplot 3 0,1,2,3,4,5,6,7 unitary_lam2_dc_0.001,unitary_lam2_dc_0.01,unitary_lam2_dc_0.1
+#notes 3 0,1,2,3,4,5,6,7 unitary nrplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
+#
+# Performance gains for the decoder
+dciplot infid infid unitary_lam2_dc_0,unitary_lam2_dc_0.001,unitary_lam2_dc_0.01,unitary_lam2_dc_0.1
+notes infid infid unitary dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
+quit
+#
+#
+#
+!!Case 11!!
+# convergence of Montecarlo estimates
+sbload unitary_mc_direct
+mcplot infid infid 0,1,2,3 0,7 unitary_mc_importance
+#
+notes infid infid unitary mcplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 0
+quit
+#
+#
+#
+#
+!!Case 12!!
+# Random CPTP channel with lambda = 2 for level 2 simulations
+sbload cptp_lam_2
+#
+# Performance gains for the decoder
+dciplot infid infid cptp_lam_2,cptp_lam_2_0.001,cptp_lam_2_0.01,cptp_lam_2_0.1
+notes infid infid cptp_lam_2 dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
+quit
 #
 #
 quit

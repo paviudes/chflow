@@ -174,6 +174,16 @@ Metrics = {
         "desc": "TVD between the decoder knowledge and the true Pauli error distribution",
         "func": "lambda P, kwargs: DecoderKnowledgeDisparity(P, kwargs)",
     },
+    "unknown_errbg": {
+        "name": "Total probability of unknown errors from NR",
+        "phys": "Total probability of unknown errors from NR",
+        "log": "Total probability of unknown errors from NR",
+        "latex": "$D$",
+        "marker": u"s",
+        "color": "red",
+        "desc": "Total probability of unknown errors from NR",
+        "func": "lambda P, kwargs: ErrorBudgetUnknown(P, kwargs)",
+    },
     "errbg": {
         "name": "Error budget for NR",
         "phys": "Error budget for NR",
@@ -542,11 +552,6 @@ def ErrorBudgetNR(channel, kwargs):
             np.real(np.diag(crep.ConvertRepresentations(channel, "choi", "chi"))),
             [kwargs["qcode"].N, 1],
         )
-        # print(
-        #     "Pauli probs\n1-p = {}, p/3 = {}.".format(
-        #         pauliProbs[0, 0], pauliProbs[0, 1]
-        #     )
-        # )
     elif kwargs["corr"] == 1:
         pauliProbs = channel
     else:
@@ -644,9 +649,20 @@ def DecoderKnowledgeDisparity(channel, kwargs):
     """
     max_weight = kwargs["qcode"].N//2 + 1
     selected = np.concatenate([kwargs["qcode"].group_by_weight[w] for w in range(max_weight + 1)])
-    (mpinfo, __) = SetDecoderKnowledge(kwargs["submit"], channel, kwargs["noise"], kwargs["sample"])
+    (mpinfo, __, total_unknown) = SetDecoderKnowledge(kwargs["submit"], channel, kwargs["noise"], kwargs["sample"])
     tvd = 1/2 * np.sum(np.abs(channel[selected] - mpinfo[selected]))
-    return tvd
+    return (tvd / total_unknown)
+
+def ErrorBudgetUnknown(channel, kwargs):
+    """
+    Compute the total probability of errors that are excluded by the NR data.
+    Return:
+    error_budget_unknown
+    """
+    max_weight = kwargs["qcode"].N//2 + 1
+    selected = np.concatenate([kwargs["qcode"].group_by_weight[w] for w in range(max_weight + 1)])
+    (mpinfo, __, total_unknown) = SetDecoderKnowledge(kwargs["submit"], channel, kwargs["noise"], kwargs["sample"])
+    return total_unknown
 
 
 ########################################################################################
@@ -797,7 +813,7 @@ def ComputeMetrics(submit, metrics, chtype="physical"):
         )
 
     # Prepare submission objects for some physical metrics
-    if ("dctvd" in metrics):
+    if (any([met in metrics for met in ["dctvd", "unknown_errbg"]])):
         if submit.eccs[0].group_by_weight is None:
             PrepareSyndromeLookUp(submit.eccs[0])
 
