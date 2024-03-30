@@ -1,6 +1,6 @@
 import numpy as np
 from define import qcode as qc
-from define.heuristic import AssignErrorProbs
+from define.heuristic import AssignErrorProbs, BuildNRHash, prob_splitting_method
 
 if __name__ == '__main__':
 	r'''
@@ -26,15 +26,39 @@ if __name__ == '__main__':
 			[0, 2, 0, 0, 2],
 			[0, 3, 0, 3, 0],
 			[3, 0, 0, 0, 0],
-			[0, 0, 3, 0, 0]
+			[0, 0, 0, 0, 3]
 
-		], dtype = int)
-	known_pauli_indices = np.array([qecc.GetPositionInLST(known_pauli_errors[p, :]) for p in range(known_pauli_errors.shape[0])], dtype = int)
-	known_probs = np.array([0.9, 0.00264285, 0.02541568, 0.04758009, 0.0161835 , 0.00522989, 0.04834212, 0.02560945, 0.01376481, 0.03177657, 0.02972115], dtype = np.double)
+		], dtype = np.uint8)
+	known_pauli_indices = np.array([qecc.GetPositionInLST(known_pauli_errors[p, :]) for p in range(known_pauli_errors.shape[0])], dtype = np.uint64)
+	known_probs = np.array([0.9,
+							0.00264285,
+							0.02541568,
+							0.04758009,
+							0.0161835,
+							0.00522989,
+							0.04834212,
+							0.02560945,
+							0.01376481,
+							0.03177657], dtype = np.float64)
+	pauli_errors = qecc.PauliOperatorsLST.astype(np.uint8)
 
-	pauli_errors = qecc.PauliOperatorsLST
-
-	pauli_probs = AssignErrorProbs(known_pauli_indices, known_probs, pauli_errors)
+	r'''
+	r = 1 - 0.9^1/5
+	  = 0.82
+	Testing individual errors
+	1. P( Y2 Y4 Y5 ) = 
+		Note that
+			P( Y2 Y4 Y5 ) = P( Y4 ) * P( Y2 Y5 )
+						  = 0.00522989 * 0.04834212
+						  = 0.00025282396
+	'''
+	nr_hash = BuildNRHash(known_pauli_indices, known_probs, pauli_errors)
+	pauli_error = np.array([1, 2, 3, 2, 4, 2], dtype=np.uint8)
+	single_qubit_infid = 1 - np.power(nr_hash[0], 1/5)
+	prob = prob_splitting_method(pauli_error, nr_hash, 5, single_qubit_infid)
+	print("P ( {} ) = {}".format(pauli_error, prob))
+	
+	pauli_probs = AssignErrorProbs(known_pauli_indices, known_probs, pauli_errors, single_qubit_infid)
 
 	print("Errors and their probabilities")
 	for w in qecc.group_by_weight:

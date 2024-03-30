@@ -1,41 +1,80 @@
+from numba import jit, njit, prange
+from numba.core import types
 import numpy as np
 
-def PartitionError(pauli, split_at):
-	# Given an n-qubit error E, find partitions of it into a k-qubit error and an n-k qubit error, for a given k.
-	# The Pauli error is provided as a list of tuples of the form (x, P) where x is a qubit index and P is a single qubit Pauli error P supported on x.
-	error_left = pauli[:split_at]
-	error_right = pauli[split_at:]
-	return (error_left, error_right)
-
+@njit("uint8[:](uint8[:])")
 def FormatPauliError(pauli_error_op):
 	# Format a Pauli operator as a list of tuples: [(x_1, P_1), ..., (x_k, P_k)] where x_i are integers and P_i are Pauli operators indexed from 0 to 3.
 	# The Pauli error is given to us as a list of single qubit operators in the tensor product form.
-	pauli_format = [(q, pauli_error_op[q]) for q in range(len(pauli_error_op)) if pauli_error_op[q] > 0]
+	support_size = np.count_nonzero(pauli_error_op)
+	pauli_format = np.empty(2 * support_size, dtype = np.uint8)
+	n_nontrivial = 0
+	for k in range(pauli_error_op.size):
+		if (pauli_error_op[k] > 0):
+			pauli_format[2 * n_nontrivial] = k
+			pauli_format[2 * n_nontrivial + 1] = pauli_error_op[k]
+			n_nontrivial = n_nontrivial + 1
+	# print("pauli error ", pauli_error_op, " is formatted as ", pauli_format)
 	return pauli_format
 
+@njit("uint64(uint8[:])")
 def HashPauliError(pauli_error):
 	# Convert a Pauli error formatted as [(x_1, P_1), ..., (x_k, P_k)] into a string: x_1P_1_..._x_kP_k.
-	if (len(pauli_error) == 0):
-		hash_encoding = "I"
-	else:
-		hash_encoding = "_".join(["%d%d" % (tup[0], tup[1]) for tup in pauli_error])
-	return hash_encoding
+	# We will assign the error its index in an lexicographic ordering of n-qubit Pauli errors
+	# O ( [(x_1, P_1), ..., (x_k, P_k)] ) = 4^x_1 * P_1 + 4^x_2 * P_2 + ... + 4^x_k * P_k
+	# O ( [1, 2, 2, 3, 4, 2] ) = O( [ 0 2 3 0 2 ] ) = 2 * 4^4 + 3 * 4^2 + 2 * 4^1 = 568
+	hash_encoding = 0
+	support_size = len(pauli_error) // 2
+	if (len(pauli_error) > 0):
+		for k in range(support_size):
+			(x_k, P_k) = (pauli_error[2 * k], pauli_error[2 * k + 1])
+			hash_encoding = hash_encoding + np.power(4, x_k) * P_k
+	# print("Error ", pauli_error, " is logged with hash ",  hash_encoding, ".")
+	return types.uint64(hash_encoding)
 
+@njit("float64[:](uint64[:], float64[:], uint8[:, :])")
 def BuildNRHash(known_paulis, known_probs, operators):
 	# We want to store the NR data as a hash table.
 	# For each error in the NR data, we want to use the string encoding of its format:
 	# [(x_1, P_1), ..., (x_k, P_k)]
 	# as a index for a dictionary to store the probability of the error retrieved from NR.
-	nr_hash = {}
+	(nerrors, nqubits) = operators.shape
+	nr_hash = -1 * np.ones(nerrors, dtype = np.float64)
 	# print("Building the hash table")
 	for p in range(known_paulis.size):
-		error = operators[known_paulis[p], :]
-		# print("E = {}\nF_E = {}".format(error, FormatPauliError(error)))
-		# print("and hash = {}, prob = {}".format(HashPauliError(FormatPauliError(error)), known_probs[p]))
-		nr_hash[HashPauliError(FormatPauliError(error))] = known_probs[p]
+		error = operators[known_paulis[p], :].astype(np.uint8)
+		nr_hash[HashPauliError(FormatPauliError(error))] = types.float64(known_probs[p])
 	return nr_hash
 
-def prob_splitting_method(pauli_error, nr_hash, nqubits = 7, single_qubit_infid = None):
+def get_partitions(arr):
+	# Compute all bi-partitions of an array.
+	# We will compute all subsets of an array. Each subset would correspond to a bi-partition, along with its complement.
+	# We will exclude the trivial cases: the empty set and the complete set.
+	# Assume that the set has n elements.
+	# Each non-trivial subset corresponds to a unique binary sequence of n bits that encodes a number from 1 to 2^n - 2.
+	# The position of 1's in the binary sequence determines the elements selected in the set.
+	n = len(arr)
+	partitions = []
+	for s in range(1, np.power(2, n, dtype = int) - 1):
+		partition_encoding = np.array(list(map(int, np.binary_repr(s, width=n))), dtype = int)
+		selected_elements, = np.nonzero(partition_encoding)
+		unselected_elements, = np.nonzero(1 - partition_encoding)
+		left_partition = [arr[j] for j in selected_elements]
+		right_partition = [arr[j] for j in unselected_elements]
+		partitions.append((left_partition, right_partition))
+	return partitions
+
+@njit("uint8[:](uint64, uint64)")
+def dec2bin(dec_num, nbits):
+	# Convert from the decimal to binary
+	bin_num = np.zeros(nbits, dtype = np.uint8)
+	for b in range(nbits):
+		bin_num[nbits - b - 1] = types.uint8(dec_num % 2)
+		dec_num = types.uint8(dec_num // 2)
+	return bin_num
+
+@jit("float64(uint8[:], float64[:], uint8, float64)")
+def prob_splitting_method(pauli_error, nr_hash, nqubits, single_qubit_infid):
 	# Assign the probability of an error given the error probabilities extracted from NR.
 	# We assume that the Pauli error is specified in the format {(q,P) : where P is the single qubit error from X, Y or Z supported on q}
 	# Refer to the handwritten notes on Slack for a detailed explaination of this algorithm.
@@ -54,49 +93,79 @@ def prob_splitting_method(pauli_error, nr_hash, nqubits = 7, single_qubit_infid 
 				# set prob = max {prob_1, prob_2, ..., prob_M} where M is the number of partitions. # Compute the maximum probability.
 	# return prob
 	prob = 0
-	pauli_key = HashPauliError(pauli_error)
 	
-	if (pauli_key in nr_hash):
-		prob = nr_hash[pauli_key]
+	# This base case will never happen because we will directly deal with a single qubit error.
+	# We have to state this case explicity for the compiler. 
+	if (len(pauli_error) == 0):
+		return nr_hash[0]
 	
 	else:
-		support_size = len(pauli_error)
-
-		if (support_size == 1):
-			if (single_qubit_infid is None):
-				single_qubit_infid = 1 - np.power(1 - nr_hash["I"], 1/nqubits)
-			prob = single_qubit_infid / 3 * np.power(1 - single_qubit_infid, nqubits - 1)
+		pauli_key = HashPauliError(pauli_error)
+		
+		if (nr_hash[pauli_key] >= 0):
+			prob = nr_hash[pauli_key]
+			# print("Found ", pauli_error, " in nr_hash and its probability is ", prob)
 		
 		else:
-			max_prob = 0
+			# print("Guessing the probability of ", pauli_error, ".")
 
-			for p in range(1, support_size):
+			support_size = len(pauli_error) // 2
+
+			if (support_size == 1):
+				prob = single_qubit_infid / 3 * np.power(1 - single_qubit_infid, nqubits - 1)
+			
+			else:
 				
-				left_partition = pauli_error[:p]
-				right_partition = pauli_error[p:]
+				n_partitions = np.power(2, support_size)
 
-				prob_left = prob_splitting_method(left_partition, nr_hash)
-				prob_right = prob_splitting_method(right_partition, nr_hash)
+				# print("Computing ", n_partitions - 2, " partitions of the error ", pauli_error)
+				
+				max_prob = 0
+				for j in range(1, n_partitions - 1):
+					binary_repr_j = dec2bin(j, support_size)
 
-				if (max_prob < prob_left * prob_right):
-					max_prob = prob_left * prob_right
+					left_partition_size = np.count_nonzero(binary_repr_j)
+					left_partition = np.empty(2 * left_partition_size, dtype = np.uint8)
+					right_partition_size = support_size - left_partition_size
+					right_partition = np.empty(2 * right_partition_size, dtype = np.uint8)
+					left_count = 0
+					right_count = 0
+					# print("Partition ", j, "of ", pauli_error, " corresponding to ", binary_repr_j)
+					for k in range(support_size):
+						if (binary_repr_j[k] == 1):
+							left_partition[2 * left_count] = pauli_error[2 * k]
+							left_partition[2 * left_count + 1] = pauli_error[2 * k + 1]
+							left_count = left_count + 1
+						else:
+							right_partition[2 * right_count] = pauli_error[2 * k]
+							right_partition[2 * right_count + 1] = pauli_error[2 * k + 1]
+							right_count = right_count + 1
 
-			prob = max_prob
+					# print("left = ", left_partition, " and right = ", right_partition)
 
+					prob_left = prob_splitting_method(left_partition, nr_hash, nqubits, single_qubit_infid)
+					prob_right = prob_splitting_method(right_partition, nr_hash, nqubits, single_qubit_infid)
+
+					if (max_prob < prob_left * prob_right):
+						max_prob = prob_left * prob_right
+
+				prob = max_prob
+	
+		# print("Prob( ", pauli_error, " ) = ", prob)
+		nr_hash[pauli_key] = prob
 	return prob
 
-
+@njit("float64[:](uint64[:], float64[:], uint8[:,:], float64)")
 def AssignErrorProbs(known_paulis, known_probs, pauli_errors, single_qubit_infid):
 	# Assign the probability of errors using the splitting method described in prob_splitting_method(...).
 	
-	print("Using the splitting method to assign probabilities of {} errors excluded in the NR data.".format(pauli_errors.shape[0] - known_paulis.size))
-
-	(npauli, nqubits) = pauli_errors.shape
-
-	nr_hash = BuildNRHash(known_paulis, known_probs, pauli_errors)
-	pauli_probs = np.zeros(npauli, dtype = np.double)
+	print("Using the splitting method to assign probabilities of ", pauli_errors.shape[0] - known_paulis.size, " errors excluded in the NR data.")
 	
-	for p in range(npauli):
+	(npauli, nqubits) = pauli_errors.shape
+	nr_hash = BuildNRHash(known_paulis, known_probs, pauli_errors)
+	
+	pauli_probs = np.zeros(npauli, dtype = np.float64)
+	for p in prange(npauli):
 		pauli_probs[p] = prob_splitting_method(FormatPauliError(pauli_errors[p, :]), nr_hash, nqubits, single_qubit_infid)
 
 	return pauli_probs

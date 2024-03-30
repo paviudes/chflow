@@ -661,7 +661,7 @@ def ErrorBudgetUnknown(channel, kwargs):
     """
     max_weight = kwargs["qcode"].N//2 + 1
     selected = np.concatenate([kwargs["qcode"].group_by_weight[w] for w in range(max_weight + 1)])
-    (mpinfo, __, total_unknown) = SetDecoderKnowledge(kwargs["submit"], channel, kwargs["noise"], kwargs["sample"])
+    (__, __, total_unknown) = SetDecoderKnowledge(kwargs["submit"], channel, kwargs["noise"], kwargs["sample"], complete_error_dist=0)
     return total_unknown
 
 
