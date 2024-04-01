@@ -44,13 +44,13 @@ if __name__ == '__main__':
 
 	r'''
 	r = 1 - 0.9^1/5
-	  = 0.82
 	Testing individual errors
 	1. P( Y2 Y4 Y5 ) = 
 		Note that
-			P( Y2 Y4 Y5 ) = P( Y4 ) * P( Y2 Y5 )
-						  = 0.00522989 * 0.04834212
-						  = 0.00025282396
+			P( Y2 Y4 Y5 ) = P( Y2 ) * P( Y4 Y5 ) + P( Y4 ) * P( Y2 Y5 ) + P( Y5 ) * P( Y2 Y4 )
+						  = 0.0161835 * P( Y4 ) * P( Y5 ) + 0.00522989 * 0.04834212 + (1-r)^4 * r/3 * P( Y2 ) * P( Y4 )
+						  = 0.0161835 * 0.00522989 * (1-r)^4*r/3 + 0.00522989 * 0.04834212 + (1-r)^4 * r/3 * 0.0161835 * 0.00522989
+						  = 0.0002539054236503904
 	'''
 	nr_hash = BuildNRHash(known_pauli_indices, known_probs, pauli_errors)
 	pauli_error = np.array([1, 2, 3, 2, 4, 2], dtype=np.uint8)
