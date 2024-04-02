@@ -471,6 +471,9 @@ def GetKraussForChannel(chType, *params):
 	elif chType == "corr_unitary":
 		kraus = CorrelatedNonPauli(params, "corr_unitary")
 
+	elif chType == "comp_unitary":
+		kraus = CorrelatedNonPauli(params, "comp_unitary")
+
 	elif chType == "corr_pauli":
 		# This is a correlated Pauli channel.
 		kraus = CorrelatedPauli(params)

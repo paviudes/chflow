@@ -172,6 +172,14 @@ Channels = {
 		"Pauli": 0,
 		"corr": 3,
 	},
+	"comp_unitary": {
+		"name": "Correlated random unitary channel composed with depolarizing channel",
+		"params": ["Interaction time"],
+		"latex": ["$t$"],
+		"color": "goldenrod",
+		"Pauli": 0,
+		"corr": 3,
+	},
 	"uncorr_cptp": {
 		"name": "Random CPTP map",
 		"params": ["Interaction time of Hamiltonian on system and environment"],
