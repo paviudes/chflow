@@ -85,7 +85,8 @@ from define.save import SavePhysicalChannels, Save, Schedule, PrepOutputDir
 from define.load import LoadSub
 from define.merge import MergeSubs
 from define.metrics import Metrics, ComputeNorms, ComputeMetrics  # Calibrate,
-from define.qchans import Channels, SaveChan  # Twirl, PrintChan
+from define.qchans import Channels, SaveChan, PrintChan #Twirl
+from define.chandefs import GetKraussForChannel
 from define.genchans import PreparePhysicalChannels
 from define.chanreps import CreatePauliDistChannels, TwirlChannels, ConvertRepresentations
 from define.QECCLfid.utils import GetErrorProbabilities
@@ -390,16 +391,15 @@ if __name__ == "__main__":
 			noiserates = []
 			if len(user) > 2:
 				noiserates = list(map(np.longdouble, user[2].split(",")))
-			for i in range(10):
-				channel = ConvertRepresentations(
-					GetKraussForChannel(user[1], *noiserates), "krauss", "process"
-				)
-				rep = "process"
-				print(
-					'\033[2mNote: the current channel is in the "process" representation.\033[0m'
-				)
-				PrintChan(channel, rep)
-				print("\033[2mxxxxxx\033[0m")
+			channel = ConvertRepresentations(
+				GetKraussForChannel(user[1], *noiserates), "krauss", "process"
+			)
+			rep = "process"
+			print(
+				'\033[2mNote: the current channel is in the "process" representation.\033[0m'
+			)
+			PrintChan(channel, rep)
+			print("\033[2mxxxxxx\033[0m")
 
 		#####################################################################
 

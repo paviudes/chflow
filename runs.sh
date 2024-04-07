@@ -1,2 +1,2 @@
-./chflow.sh cptp_split_dc_0
-./chflow.sh cptp_split_dc_0.01
+./chflow.sh cptp_nc_dc_0
+./chflow.sh cptp_nc_dc_0.1

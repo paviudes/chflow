@@ -190,15 +190,8 @@ def ConvertRepresentations(channel, initial_rep, final_rep):
                 for pj in range(4):
                     element = 0 + 0 * 1j
                     for ki in range(inprep.shape[0]):
-                        element = element + np.trace(
-                            np.dot(
-                                np.dot(
-                                    np.dot(inprep[ki, :, :], gv.Pauli[pi, :, :]),
-                                    HermitianConjugate(inprep[ki, :, :]),
-                                ),
-                                gv.Pauli[pj, :, :],
-                            )
-                        )
+                        element = element + np.trace(inprep[ki, :, :] @ gv.Pauli[pi, :, :] @ HermitianConjugate(inprep[ki, :, :]) @ gv.Pauli[pj, :, :])
+                    # print("PTM[{}, {}] = {}".format(pi, pj, element))
                     process[pi, pj] = 1 / np.longdouble(2) * np.real(element)
             # forcing the channel to be trace preserving.
             outrep = np.copy(process / process[0, 0])

@@ -73,7 +73,7 @@ def dec2bin(dec_num, nbits):
 		dec_num = types.uint8(dec_num // 2)
 	return bin_num
 
-@jit("float64(uint8[:], float64[:], uint8, float64)")
+@jit("float64(uint8[:], float64[:], uint8, float64)", fastmath=True)
 def prob_splitting_method(pauli_error, nr_hash, nqubits, single_qubit_infid):
 	# Assign the probability of an error given the error probabilities extracted from NR.
 	# We assume that the Pauli error is specified in the format {(q,P) : where P is the single qubit error from X, Y or Z supported on q}
@@ -154,7 +154,7 @@ def prob_splitting_method(pauli_error, nr_hash, nqubits, single_qubit_infid):
 		nr_hash[pauli_key] = prob
 	return prob
 
-@njit("float64[:](uint64[:], float64[:], uint8[:,:], float64)")
+@njit("float64[:](uint64[:], float64[:], uint8[:,:], float64)", fastmath=True)
 def AssignErrorProbs(known_paulis, known_probs, pauli_errors, single_qubit_infid):
 	# Assign the probability of errors using the splitting method described in prob_splitting_method(...).
 	

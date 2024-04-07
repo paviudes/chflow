@@ -130,9 +130,7 @@ def PreparePhysicalChannels(submit, nproc=None):
 	return None
 
 
-def GenChannelSamples(
-	noise, noiseidx, samps, submit, nparams, raw_params, phychans, rawchans, misc
-):
+def GenChannelSamples(noise, noiseidx, samps, submit, nparams, raw_params, phychans, rawchans, misc):
 	r"""
 	Generate samples of various channels with a given noise rate.
 	"""

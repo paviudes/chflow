@@ -251,7 +251,7 @@ def FixedRotation(params):
 	for i in range(3):
 		exponent = exponent + axis[i] * gv.Pauli[i + 1, :, :]
 	krauss = np.zeros((1, 2, 2), dtype=np.complex128)
-	krauss[0, :, :] = linalg.expm(-1j * delta * np.pi * exponent)
+	krauss[0, :, :] = linalg.expm(-1j * delta * exponent)
 	return krauss
 
 
@@ -468,11 +468,8 @@ def GetKraussForChannel(chType, *params):
 		# Random Hamiltonian on the qubit.
 		kraus = RandomHamiltonian(params)
 
-	elif chType == "corr_unitary":
-		kraus = CorrelatedNonPauli(params, "corr_unitary")
-
-	elif chType == "comp_unitary":
-		kraus = CorrelatedNonPauli(params, "comp_unitary")
+	elif chType == "nc_cptp":
+		kraus = CorrelatedNonPauli(params, "nc_cptp")
 
 	elif chType == "corr_pauli":
 		# This is a correlated Pauli channel.

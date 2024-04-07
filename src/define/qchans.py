@@ -172,7 +172,7 @@ Channels = {
 		"Pauli": 0,
 		"corr": 3,
 	},
-	"comp_unitary": {
+	"nc_cptp": {
 		"name": "Correlated random unitary channel composed with depolarizing channel",
 		"params": ["Interaction time"],
 		"latex": ["$t$"],
@@ -336,7 +336,7 @@ def SaveChan(fname, channel, rep="Unknwon"):
 	return channel
 
 
-def Print(channel, rep="unknown"):
+def PrintChan(channel, rep="unknown"):
 	# Print a channel in its current representation
 	if rep == "krauss":
 		print("Krauss representation")
@@ -348,7 +348,7 @@ def Print(channel, rep="unknown"):
 					np.array_str(
 						channel[i, :, :],
 						max_line_width=150,
-						precision=3,
+						precision=8,
 						suppress_small=True,
 					),
 				)
@@ -379,7 +379,7 @@ def Print(channel, rep="unknown"):
 			"%s"
 			% (
 				np.array_str(
-					channel, max_line_width=150, precision=3, suppress_small=True
+					channel, max_line_width=150, precision=7, suppress_small=True
 				)
 			)
 		)
