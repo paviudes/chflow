@@ -171,4 +171,15 @@ notes infid infid cptp_lam_2 dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_
 quit
 #
 #
+#
+!!Case 13!!
+# Random non-catastrophic CPTP channel expressed as a composition of a random unitary followed by a random Pauli channel.
+sbload cptp_nc_dc_0
+#
+# Performance gains for the decoder
+dciplot infid infid cptp_nc_dc_0,cptp_nc_dc_0.001,cptp_nc_dc_0.01,cptp_nc_dc_0.1
+notes infid infid cptp_nc dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
+quit
+#
+#
 quit
