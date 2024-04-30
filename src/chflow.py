@@ -57,6 +57,7 @@ from define.fnames import (
 	DeviationPlotFile,
 	NRWeightsFile,
 	NRWeightsPlotFile,
+	NRProbsPlotFile,
 	CompareSubsPlot
 )
 from define.qcode import (
@@ -1414,7 +1415,7 @@ if __name__ == "__main__":
 				noise = submit.noiserates[int(phymet), :]
 				# print("samples = {}".format(logmet.split(",")))
 				samples = np.array(list(map(int, logmet.split(","))), dtype = np.int64)
-				plot_file = NRWeightsPlotFile(submit, noise, samples)
+				plot_file = NRProbsPlotFile(submit, noise, samples)
 
 			elif plot_option == "hamplot":
 				plot_file = HammerPlot(submit, logmet, phymet.split(","))

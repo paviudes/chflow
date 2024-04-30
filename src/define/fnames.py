@@ -53,7 +53,14 @@ def NRWeightsPlotFile(dbs, noise, samples):
     # Name of the file containing the relative budgets in NR for Pauli error weights.
     noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
     sampledes = "_".join(list(map(lambda s: ("%d" % s), samples)))
-    fname = "%s/results/nrdist_%s_s%s.pdf" % (dbs.outdir, noisedes, sampledes)
+    fname = "%s/results/nrdist_weights_%s_s%s.pdf" % (dbs.outdir, noisedes, sampledes)
+    return fname
+
+def NRProbsPlotFile(dbs, noise, samples):
+    # Name of the file containing the relative budgets in NR for Pauli error weights.
+    noisedes = "_".join(list(map(lambda p: ("%g" % p), noise)))
+    sampledes = "_".join(list(map(lambda s: ("%d" % s), samples)))
+    fname = "%s/results/nrdist_probs_%s_s%s.pdf" % (dbs.outdir, noisedes, sampledes)
     return fname
 
 

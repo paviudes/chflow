@@ -228,6 +228,14 @@ Channels = {
 		"Pauli": 0,
 		"corr": 3,
 	},
+	"cg1d": {
+		"name": "Coarse grained 1D error model",
+		"params": ["t", "mu", "time"],
+		"latex": ["$t$", "$\\mu$", "$t$"],
+		"color": "limegreen",
+		"Pauli": 0,
+		"corr": 3,
+	},
 	"wpc": {
 		"name": "Worst Pauli channel",
 		"params": "Infidelity",

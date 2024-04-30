@@ -16,27 +16,10 @@ def HermitianConjugate(mat):
 	return np.conjugate(np.transpose(mat))
 
 
-def RandomHermitian(dim, method="qr"):
+def RandomHermitian(dim):
 	# Generate a random hermitian matrix of given dimensions.
-	randMat = np.random.standard_normal(
-		size=(dim, dim)
-	) + 1j * np.random.standard_normal(size=(dim, dim))
-	if method == "qr":
-		randH = (
-			np.identity(dim)
-			+ prox * randMat
-			+ HermitianConjugate(np.identity(dim) + prox * randMat)
-		) / np.longdouble(2)
-	elif method == "exp":
-		randH = (randMat + HermitianConjugate(randMat)) / np.longdouble(2)
-	elif method == "haar":
-		randH = (randMat + HermitianConjugate(randMat)) / np.longdouble(2)
-	else:
-		print(
-			'Method subscribed for random Hermitian production is unknown: "%s".'
-			% (method)
-		)
-		randH = np.identity(dim)
+	randMat = np.random.standard_normal(size=(dim, dim)) + 1j * np.random.standard_normal(size=(dim, dim))
+	randH = (randMat + randMat.T.conj()) / (2 * np.linalg.norm(randMat))
 	return randH
 
 

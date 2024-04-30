@@ -140,12 +140,12 @@ quit
 !!Case 10!!
 # Highly correlated random Unitary channel for level 2 simulations.
 sbload unitary_lam2_dc_0
-#nrplot 3 0,1,2,3,4,5,6,7 unitary_lam2_dc_0.001,unitary_lam2_dc_0.01,unitary_lam2_dc_0.1
-#notes 3 0,1,2,3,4,5,6,7 unitary nrplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
+nrplot 3 0,1,2,3,4,5,6,7 unitary_lam2_dc_0.001,unitary_lam2_dc_0.01,unitary_lam2_dc_0.1
+notes 3 0,1,2,3,4,5,6,7 unitary nrplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
 #
 # Performance gains for the decoder
-dciplot infid infid unitary_lam2_dc_0,unitary_lam2_dc_0.001,unitary_lam2_dc_0.01,unitary_lam2_dc_0.1
-notes infid infid unitary dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
+#dciplot infid infid unitary_lam2_dc_0,unitary_lam2_dc_0.001,unitary_lam2_dc_0.01,unitary_lam2_dc_0.1
+#notes infid infid unitary dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
 quit
 #
 #

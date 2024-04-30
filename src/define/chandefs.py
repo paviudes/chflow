@@ -471,6 +471,9 @@ def GetKraussForChannel(chType, *params):
 	elif chType == "nc_cptp":
 		kraus = CorrelatedNonPauli(params, "nc_cptp")
 
+	elif chType == "corr_unitary":
+		kraus = CorrelatedNonPauli(params, "corr_unitary")
+
 	elif chType == "corr_pauli":
 		# This is a correlated Pauli channel.
 		kraus = CorrelatedPauli(params)
@@ -480,6 +483,9 @@ def GetKraussForChannel(chType, *params):
 
 	elif chType == "ising":
 		kraus = CorrelatedNonPauli(params, "ising")
+
+	elif chType == "cg1d":
+		kraus = CorrelatedNonPauli(params, "cg1d")
 
 	elif chType == "corr_cptp":
 		kraus = CorrelatedNonPauli(params, "corr_cptp")
@@ -495,7 +501,7 @@ def GetKraussForChannel(chType, *params):
 		kraus = UserdefQC(chType, params)
 
 	else:
-		print("\033[93mUnknown channel type, resetting to the identity channel.\033[0m")
+		print("\033[93mUnknown channel type {}, resetting to the identity channel.\033[0m".format(chType))
 		kraus = Identity()
 
 	return kraus
