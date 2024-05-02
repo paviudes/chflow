@@ -26,6 +26,7 @@ def NRBudgetInfo(dbses, noise, samples):
 			chan_probs = np.load(RawPhysicalChannel(dbses[d], noise))[samples[s], :]
 			nr_weights = np.load(NRWeightsFile(dbses[d], noise))[samples[s], :].astype(np.int64)
 			(__, leading_paulis, leading_probs) = GetLeadingPaulis(alpha, qcode, chan_probs, "split", nr_weights_all = nr_weights, max_weight = max_weight)
+			# print("leading_probs for alpha = {}\n{}".format(alpha, leading_probs))
 			for p in range(leading_paulis.size):
 				(operator, __) = GetOperatorsForLSTIndex(qcode, [leading_paulis[p]])
 				weight = np.count_nonzero(operator[0])
@@ -47,7 +48,7 @@ def NRBudgetInfo(dbses, noise, samples):
 		print(nr_paulis[d], end = ",")
 		for w in range(budgets_averaged.shape[1]):
 			# print("Total fraction of weight w = {} errors: {} %".format(w, np.round(budgets_averaged_percentages[d, w], 3)))
-			print(np.round(budgets_averaged_percentages[d, w], 3), end=",")
+			print(budgets_averaged_percentages[d, w], end=",")
 		print("")
 
 	(n_rows, n_cols) = budgets_averaged_percentages.shape
