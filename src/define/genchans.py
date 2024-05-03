@@ -3,7 +3,6 @@ import sys
 import numpy as np
 import ctypes as ct
 from tqdm import tqdm
-import multiprocessing as mp
 from scipy import linalg as linalg
 from define.decoder import PrepareNRWeights
 from define.chandefs import GetKraussForChannel
@@ -37,10 +36,8 @@ def ChannelPair(chtype, rates, dim, method="qr"):
 	return channels
 
 
-def PreparePhysicalChannels(submit, nproc=None):
+def PreparePhysicalChannels(submit, nproc=1):
 	# Prepare a file for each noise rate, that contains all single qubit channels, one for each sample.
-	if nproc is None:
-		nproc = mp.cpu_count()
 	chunk = int(np.ceil(submit.samps / nproc))
 	os.system("mkdir -p %s/physical" % (submit.outdir))
 	# Create quantum channels for various noise parameters and store them in the process matrix formalism.
@@ -57,18 +54,9 @@ def PreparePhysicalChannels(submit, nproc=None):
 		nparams = 4 ** (submit.eccs[0].N + submit.eccs[0].K)
 		raw_params = 4 ** submit.eccs[0].N
 
-	phychans = mp.Array(
-		ct.c_double,
-		np.zeros(
-			(submit.noiserates.shape[0] * submit.samps * nparams), dtype=np.double
-		),
-	)
-	rawchans = mp.Array(
-		ct.c_double,
-		np.zeros(
-			2*(submit.noiserates.shape[0] * submit.samps * raw_params), dtype=np.double
-		),
-	)
+	phychans = np.zeros((submit.noiserates.shape[0] * submit.samps * nparams), dtype=np.double)
+	rawchans = np.zeros(2*(submit.noiserates.shape[0] * submit.samps * raw_params), dtype=np.double)
+
 	misc_info = [["None" for __ in range(submit.samps)] for __ in range(submit.noiserates.shape[0])]
 
 	for i in tqdm(range(submit.noiserates.shape[0]), ascii=True, desc="Preparing physical channels:", colour = "green"):
@@ -78,37 +66,9 @@ def PreparePhysicalChannels(submit, nproc=None):
 				noise[j] = submit.noiserates[i, j]
 			else:
 				noise[j] = np.power(submit.scales[j], submit.noiserates[i, j])
-		# if submit.iscorr > 0:
-		#     noise = np.insert(noise, 0, submit.eccs[0].N)
-		# processes = []
+		
 		for k in range(nproc):
-			# processes.append(
-			# 	mp.Process(
-			# 		target=GenChannelSamples,
-			# 		args=(
-			# 			noise,
-			# 			i,
-			# 			[k * chunk, min(submit.samps, (k + 1) * chunk)],
-			# 			submit,
-			# 			nparams,
-			# 			raw_params,
-			# 			phychans,
-			# 			rawchans,
-			# 			misc
-			# 		),
-			# 	)
-			# )
 			GenChannelSamples(noise, i, [k * chunk, min(submit.samps, (k + 1) * chunk)], submit, nparams, raw_params, phychans, rawchans, misc_info[i])
-		# for k in range(nproc):
-		# 	processes[k].start()
-		# for k in range(nproc):
-		# 	processes[k].join()
-		# Gathering the interactions results
-		# for s in range(submit.samps):
-		# 	(samp, info) = misc.get()
-		# 	if (info == 0):
-		# 		info = ([("N", "N")], 0, 0, 0)
-		# 	misc_info[i][samp] = info
 
 	submit.phychans = np.reshape(
 		phychans, [submit.noiserates.shape[0], submit.samps, nparams], order="c"
