@@ -798,7 +798,10 @@ if __name__ == "__main__":
 		elif user[0] == "nrplot":
 			# Plot the relative budget taken by the Pauli error weights in the NR data.
 			noise = submit.noiserates[int(user[1]), :]
-			samples = np.array(list(map(int, user[2].split(","))), dtype = np.int64)
+			if user[2] == "-1":
+				samples = np.arange(submit.samps, dtype = np.int64)
+			else:
+				samples = np.array(list(map(int, user[2].split(","))), dtype = np.int64)
 
 			dbses = [submit]
 			if len(user) > 3:

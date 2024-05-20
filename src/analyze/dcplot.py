@@ -397,10 +397,10 @@ def FilterLogicalErrorRates(dbses, chids, logmet, level):
 
 def BinPhysErrs(phyerrs, logerrs, bin_width, ndb):
 	# Bin the physical error rates and average logical error rates in a bin.
-	print("phyerrs\n{}".format(phyerrs))
+	# print("phyerrs\n{}".format(phyerrs))
 	bins = AllocateBins(phyerrs, bin_width)
 	nbins = len(bins)
-	logerrs_binned = np.zeros((3, ndb - 1, nbins), dtype = np.double)
+	logerrs_binned = np.zeros((5, ndb - 1, nbins), dtype = np.double)
 	filtered = {d: [] for d in range(ndb - 1)}
 	for b in range(nbins):
 		for d in range(ndb - 1):
@@ -411,6 +411,9 @@ def BinPhysErrs(phyerrs, logerrs, bin_width, ndb):
 			# Compute the lower and upper error bars.
 			logerrs_binned[1, d, b] = median - np.percentile(logerrs[d][filtered_dataset], 25)
 			logerrs_binned[2, d, b] = np.percentile(logerrs[d][filtered_dataset], 75) - median
+			# Mean and standard deviation
+			logerrs_binned[3, d, b] = np.mean(logerrs[d][filtered_dataset])
+			logerrs_binned[4, d, b] = np.std(logerrs[d][filtered_dataset])
 	return (bins, logerrs_binned, filtered)
 			
 
@@ -425,7 +428,7 @@ def GetTVD(dbses, chids, bins, logerrs):
 		tvds[d - 1, :] = np.load(PhysicalErrorRates(dbses[d], "dctvd"))[chids]
 		# print("TVDs for alpha = {}\n{}".format(alphas[d], tvds[d - 1, :]))
 	# Bin the TVDs
-	tvds_filtered = np.zeros((3, ndb, nbins), dtype = np.double)
+	tvds_filtered = np.zeros((5, ndb, nbins), dtype = np.double)
 	for b in range(nbins):
 		for d in range(ndb - 1):
 			filtered_dataset = [x for x in bins[b] if (logerrs[d][x] != -1)]
@@ -434,6 +437,9 @@ def GetTVD(dbses, chids, bins, logerrs):
 			# Compute the upper and lower error bars.
 			tvds_filtered[1, d, b] = median - np.percentile(tvds[d, filtered_dataset], 25)
 			tvds_filtered[2, d, b] = np.percentile(tvds[d, filtered_dataset], 75) - median
+			# Mean and standard deviation
+			tvds_filtered[3, d, b] = np.mean(tvds[d, filtered_dataset])
+			tvds_filtered[4, d, b] = np.std(tvds[d, filtered_dataset])
 	return tvds_filtered
 
 def GetUnknownBudget(dbses, chids, bins, logerrs):
@@ -442,9 +448,10 @@ def GetUnknownBudget(dbses, chids, bins, logerrs):
 	ndb = len(dbses)
 	nbins = len(bins)
 	alphas = [dbs.decoder_fraction for dbs in dbses]
-	unknown_errbg = np.zeros((ndb - 1, len(chids)), dtype = np.double)
+	unknown_errbg = np.ones((ndb - 1, len(chids)), dtype = np.double)
 	for d in range(1, len(alphas)):
-		unknown_errbg[d - 1, :] = np.load(PhysicalErrorRates(dbses[d], "unknown_errbg"))[chids]
+		if (np.all(dbses[d].decoders == 4)):
+			unknown_errbg[d - 1, :] = np.load(PhysicalErrorRates(dbses[d], "unknown_errbg"))[chids]
 		# print("unknown_errbg for alpha = {}\n{}".format(alphas[d], unknown_errbg[d - 1, :]))
 	# Bin the unknown_errbg
 	unknown_errbg_filtered = np.zeros((3, ndb, nbins), dtype = np.double)
@@ -552,7 +559,7 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 			
 			# Load the logical error rates that have converged well.
 			(yaxes, minalpha_perfs) = FilterLogicalErrorRates(dbses, chids, logmet, l)
-			print("l: {}\nminalpha_perfs\n{}\nYaxes\n{}".format(l, minalpha_perfs, yaxes))
+			# print("l: {}\nminalpha_perfs\n{}\nYaxes\n{}".format(l, minalpha_perfs, yaxes))
 
 			# Bin the physical and logical error rates.
 			(bins, yaxes_binned, filtered) = BinPhysErrs(phyerrs, yaxes, bin_width, ndb)
@@ -597,7 +604,9 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 				pl = ax.errorbar(
 					xaxes[b, selected[b]],
 					yaxes_binned[0, selected[b], b],
-					yerr=yaxes_binned[1:, selected[b], b],
+					yerr=yaxes_binned[1:3, selected[b], b],
+					#yaxes_binned[3, selected[b], b],
+					#yerr=yaxes_binned[4, selected[b], b],
 					color=gv.Colors[b % gv.n_Colors],
 					alpha=0.75,
 					marker="o",

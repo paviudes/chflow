@@ -36,7 +36,7 @@ def SetDecoderKnowledge(submit, rawchan=None, noise=None, sample=None, complete_
 			# decoder is 4 i.e distribute by weight guided by Poisson
 			# print("noise = {}, sample = {}".format(noise, sample))
 			nr_weights = np.load(fn.NRWeightsFile(submit, noise))[sample, :]
-			(mpinfo, total_unknown) = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, submit.eccs[0], option="split", nr_weights = nr_weights, complete_error_dist=complete_error_dist)
+			(mpinfo, total_unknown) = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, submit.eccs[0], option="full", nr_weights = nr_weights, complete_error_dist=complete_error_dist)
 	else:
 		mpinfo = np.zeros(4**submit.eccs[0].N, dtype=np.float64)
 	return (mpinfo, nr_weights, total_unknown)
@@ -200,9 +200,10 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full
 		if ((option == "full") or (option == "weight")):
 			infid_qubit = 1 - np.power(1 - infid, 1 / qcode.N)
 			# depolarizing_rate = infid_qubit # If noise is non-unitary
-			depolarizing_rate = np.sqrt(infid_qubit) # If noise is unitary
-			depolarizing_rate = np.power(depolarizing_rate, 0.8) # If the decoder is correlation aware.
-			decoder_probs = CreateIIDPauli(depolarizing_rate, qcode) 
+			# depolarizing_rate = np.sqrt(infid_qubit) # If noise is unitary
+			# depolarizing_rate = np.power(depolarizing_rate, 0.8) # If the decoder is correlation aware.
+			# decoder_probs = CreateIIDPauli(depolarizing_rate, qcode)
+			decoder_probs = AssignErrorProbs(known_paulis.astype(np.uint64), known_probs.astype(np.float64), qcode.PauliOperatorsLST.astype(np.uint8), np.float64(infid_qubit))
 			
 		elif (option == "sqprobs"):
 			if chan_probs.ndim > 1:

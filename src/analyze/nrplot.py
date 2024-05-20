@@ -45,26 +45,32 @@ def NRBudgetInfo(dbses, noise, samples):
 	for d in range(len(dbses)):
 		budgets_averaged_percentages[d, :] = budgets_averaged[d, :] / np.sum(budgets_averaged[d]) * 100
 		# print("NR data set with {} Pauli error rates.".format(nr_paulis[d]))
-		print(nr_paulis[d], end = ",")
+		print(nr_paulis[d], end = "")
 		for w in range(budgets_averaged.shape[1]):
 			# print("Total fraction of weight w = {} errors: {} %".format(w, np.round(budgets_averaged_percentages[d, w], 3)))
-			print(budgets_averaged_percentages[d, w], end=",")
-		print("")
+			print(" & %.5f" % (budgets_averaged_percentages[d, w]), end="")
+		print(" \\\\\n\\hline")
 
 	(n_rows, n_cols) = budgets_averaged_percentages.shape
 	# Plot the histogram
-	plotfname = NRProbsPlotFile(dbses[0], noise, samples)
+	plotfname = NRProbsPlotFile(dbses[0], noise, [-1])
 	with PdfPages(plotfname) as pdf:
 		fig = plt.figure(figsize=(36,30))
 
 		# We want the histograms for each weight, stacked vertically. So we need to compute the bottom of each bar.
-		bottoms = np.zeros(n_rows)
-		for w in range(n_cols):
-			plt.bar(np.arange(n_rows), budgets_averaged_percentages[:, w], width = 0.7, bottom = bottoms, label = "w = %d" % (w), color=gv.Colors[w % gv.n_Colors])
-			bottoms += budgets_averaged_percentages[:, w]
+		# bottoms = np.zeros(n_rows)
+		# for w in range(n_cols):
+		# 	plt.bar(np.arange(n_rows), budgets_averaged_percentages[:, w], width = 0.7, bottom = bottoms, label = "w = %d" % (w), color=gv.Colors[w % gv.n_Colors])
+		# 	bottoms += budgets_averaged_percentages[:, w]
+
+		# Plot the budgets
+		for d in range(len(dbses)):
+			plt.plot(np.linspace(0, n_cols - 1, n_cols), budgets_averaged_percentages[d, :], marker = gv.Markers[d % gv.n_Markers], markersize = gv.marker_size, linewidth = gv.line_width, color = gv.Colors[d % gv.n_Colors], label = "$K = %d$" % (nr_paulis[d]))
 			
+		plt.yscale('log')
 		plt.ylabel("Relative budget", fontsize=gv.axes_labels_fontsize)
-		plt.xlabel("Number of Pauli errors", fontsize=gv.axes_labels_fontsize)
+		# plt.xlabel("Number of Pauli errors", fontsize=gv.axes_labels_fontsize)
+		plt.xlabel("Weight $(w)$", fontsize=gv.axes_labels_fontsize)
 		
 		ax = plt.gca()
 		
@@ -72,8 +78,9 @@ def NRBudgetInfo(dbses, noise, samples):
 		ax.legend(numpoints=1, loc=1, shadow=True, fontsize=2 * gv.legend_fontsize, markerscale=gv.legend_marker_scale)
 		
 		# Bottom X ticks show the size of the NR data set.
-		ax.set_xticks(np.arange(n_rows))
-		ax.set_xticklabels(nr_paulis, rotation = 45)
+		# ax.set_xticks(np.arange(n_rows))
+		ax.set_xticks(np.linspace(0, n_cols - 1, n_cols))
+		# ax.set_xticklabels(nr_paulis, rotation = 45)
 		ax.tick_params(axis="both", which="both", pad=gv.ticks_pad * 0.5, direction="inout", length=gv.ticks_length, width=gv.ticks_width, labelsize=gv.ticks_fontsize)
 		
 		# Save the plot
