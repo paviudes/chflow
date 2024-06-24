@@ -195,6 +195,8 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full
 
 	(infid, known_paulis, known_probs) = GetLeadingPaulis(leading_fraction, qcode, np.real(chan_probs), option, nr_weights)
 	total_unknown = 1 - np.sum(known_probs)
+	decoder_probs = np.zeros(qcode.PauliOperatorsLST.shape[0], dtype = np.double)
+	decoder_probs[known_paulis] = known_probs / (1 - total_unknown)
 	
 	if (complete_error_dist == 1):
 		if ((option == "full") or (option == "weight")):
