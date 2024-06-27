@@ -60,15 +60,20 @@ def TailorDecoder(qecc, channel, levels, bias=None):
 			PrepareSyndromeLookUp(qecc)
 	return None
 
+def GetTotalErrorBudget(dbs):
+	# Compute the total number of distinct Pauli error rates included in the NR dataset.
+	return np.ceil(dbs.decoder_fraction * np.power(4, dbs.eccs[0].N))
+
+"""
 def GetTotalErrorBudget(dbs, noise, sample):
 	# Compute the total number of distinct Pauli error rates included in the NR dataset.
 	nrw = np.load(fn.NRWeightsFile(dbs, noise))[sample, :]
-	max_weight = 1 + dbs.eccs[0].N//2
-	(weight_count_alpha, __) = ComputeNRBudget(nrw, [dbs.decoder_fraction], dbs.eccs[0].N, max_weight=max_weight)
+	# max_weight = dbs.eccs[0].N//2
+	(weight_count_alpha, __) = ComputeNRBudget(nrw, [dbs.decoder_fraction], dbs.eccs[0].N)
 	budget = np.sum(weight_count_alpha)
 	# print("alpha = {}, budget = {}".format(dbs.decoder_fraction, budget))
 	return budget
-
+"""
 
 def ComputeNRBudget(nr_weights_all, alphas, nq, max_weight=None):
 	# Compute the relative budget of weight-w error rates in the NR dataset.

@@ -469,13 +469,14 @@ def GetUnknownBudget(dbses, chids, bins, logerrs):
 def GetBudgets(dbses, chids):
 	# Compute the budgets (X-axis): number of Pauli error rates in NR.
 	ndb = len(dbses)
+	print("Alphas in GetBudgets = {}".format([db.decoder_fraction for db in dbses]))
 	budgets = np.zeros((ndb - 1, len(chids)), dtype = np.double)
 	budget_left = np.zeros((ndb - 1, len(chids)), dtype = np.double)
 	for (c, ch) in enumerate(chids):
 		noise = dbses[0].available[chids[ch], :-1]
 		sample = int(dbses[0].available[chids[ch], -1])
-		nr_weights = np.load(NRWeightsFile(dbses[0], noise))[sample, :]
-		budgets[:, c] = np.array([GetTotalErrorBudget(dbs, noise, sample) for dbs in dbses[1:]], dtype=np.int64)
+		# nr_weights = np.load(NRWeightsFile(dbses[0], noise))[sample, :]
+		budgets[:, c] = np.array([GetTotalErrorBudget(dbs) for dbs in dbses[1:]], dtype=np.int64)
 		# chan_probs = np.load(RawPhysicalChannel(dbses[0], noise))[sample, :]
 		# for d in range(1, alphas.size):
 		# 	(__, __, knownPaulis) = GetLeadingPaulis(alphas[d], qcode, chan_probs, "weight", nr_weights)
@@ -545,6 +546,7 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 	# Sort the alphas.
 	sort_order = np.argsort(alphas)
 	alphas = alphas[sort_order]
+	print("Alphas = {}".format(alphas))
 	dbses = [dbses[i] for i in sort_order]
 
 	# print("channels: {}".format(chids))
@@ -577,10 +579,12 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 
 			# Compute the number of Pauli error rates in NR.
 			budgets = GetBudgets(dbses, chids)
+			print("budgets = {}".format(budgets))
 			xaxes = np.zeros((nbins, ndb - 1), dtype = np.double)
 			for b in range(nbins):
-				xaxes[b, :] = np.array([np.mean(budgets[d, filtered[d]]) for d in range(ndb - 1)])
-			
+				xaxes[b, :] = np.array([np.mean(budgets[d, filtered[d]]) for d in range(ndb-1)])
+			print("filtered = {}".format(filtered))
+			print("Xaxes = {}".format(xaxes))
 			# If the number of points excluded is more than 50% of the bin, ignore the bin in the plot.
 			selected = SelectAlphas(ndb, nbins, yaxes, bins)
 
@@ -601,6 +605,7 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 					continue
 				#################
 				# Plotting
+				print("X axis values: {}".format(xaxes[b, selected[b]]))
 				pl = ax.errorbar(
 					xaxes[b, selected[b]],
 					yaxes_binned[0, selected[b], b],
