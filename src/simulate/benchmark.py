@@ -121,7 +121,7 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity, rawchan=None
 		dtype=np.int32,
 	)
 
-	(mpinfo, __, __) = SetDecoderKnowledge(submit, rawchan, noise, sample, complete_error_dist=1) # complete_error_dist is set to zero if we do not want to employ any method to complete the error distribution beyond what is extracted from partial CER.
+	(mpinfo, __, __) = SetDecoderKnowledge(submit, rawchan, noise, sample, complete_error_dist=0) # complete_error_dist is set to zero if we do not want to employ any method to complete the error distribution beyond what is extracted from partial CER.
 
 	s_count = 0
 	ss_count = 0

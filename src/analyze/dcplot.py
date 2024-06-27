@@ -342,7 +342,7 @@ def AllocateBins(values, threshold_width=10):
 		else:
 			bins[bin_count] = [i]
 			current_bin_min = values[i]
-	print("values\n{}\nbins\n{}".format(values[sort_index], bins))
+	# print("values\n{}\nbins\n{}".format(values[sort_index], bins))
 	return bins
 
 
@@ -378,43 +378,53 @@ def FilterLogicalErrorRates(dbses, chids, logmet, level):
 		else:
 			is_converged[d, :, :] = IsConverged(dbses[d], logmet, rates, samples, threshold = 10)
 			np.save(IsConvergedFile(dbses[d], logmet), is_converged[d, :, :])
-
-	# Load the logical error rates
-	logerrs = {d: -1 * np.ones(len(chids), dtype = np.double) for d in range(ndb - 1)}
-	minalpha_perfs = np.zeros(len(chids), dtype = np.double)
+	
+	# Compute the converged logical error rates
+	logerrs = -1 * np.ones((ndb, len(chids)), dtype = np.double)
 	for (c, ch) in enumerate(chids):
 		noise = dbses[0].available[ch, :-1]
 		rate_index = np.argmin(np.sum(np.abs(dbses[0].noiserates - noise), axis=1))
 		sample_index = int(dbses[0].available[ch, -1])
-		# Load the minimum alpha performance.
-		minalpha_perfs[c] = np.load(LogicalErrorRates(dbses[1], logmet))[ch, level]
-		for d in range(1, ndb): # Start from d = 2 when taking the ratio between the first alpha and the rest.
+		for d in range(ndb):
 			if (is_converged[d, rate_index, sample_index] == 1):
-				# Normalize with the performance of the lowest alpha (ideally, RB).
-				logerrs[d - 1][c] = minalpha_perfs[ch] / np.load(LogicalErrorRates(dbses[d], logmet))[ch, level]
-	return (logerrs, minalpha_perfs)
+				logerrs[d, c] = np.load(LogicalErrorRates(dbses[d], logmet))[ch, level]
+
+	return logerrs
+
+def ComputeGain(logerrs):
+	# Compute the Gain metric: ratio of the logical error rates of the first dataset with that of all the other datasets.
+	# Load the logical error rates
+	gains = -1 * np.ones_like(logerrs)
+	for d in range(logerrs.shape[0]):
+		for c in range(logerrs.shape[1]):
+			# Normalize with the performance of the lowest alpha (ideally, RB).
+			gains[d, c] = logerrs[0, c] / logerrs[d, c]
+	return gains
 
 
-def BinPhysErrs(phyerrs, logerrs, bin_width, ndb):
+def BinPhysLogErrs(phyerrs, logerrs, bin_width):
 	# Bin the physical error rates and average logical error rates in a bin.
 	# print("phyerrs\n{}".format(phyerrs))
-	bins = AllocateBins(phyerrs, bin_width)
-	nbins = len(bins)
-	logerrs_binned = np.zeros((5, ndb - 1, nbins), dtype = np.double)
-	filtered = {d: [] for d in range(ndb - 1)}
+	ndb = logerrs.shape[0]
+	phyerr_bins = AllocateBins(phyerrs, bin_width)
+	nbins = len(phyerr_bins)
+	logerr_bins = np.zeros((5, ndb, nbins), dtype = np.double)
+	filtered = {d: [] for d in range(ndb)}
 	for b in range(nbins):
-		for d in range(ndb - 1):
-			filtered_dataset = [x for x in bins[b] if (logerrs[d][x] != -1)]
+		for d in range(ndb):
+			# Filtered dataset contains the channels for which logical error rates are available and convered well.
+			filtered_dataset = [x for x in phyerr_bins[b] if (logerrs[d, x] != -1)]
 			filtered[d].extend(filtered_dataset)
-			median = np.median(logerrs[d][filtered_dataset])
-			logerrs_binned[0, d, b] = median
+			# Compute the median
+			median = np.median(logerrs[d, filtered_dataset])
+			logerr_bins[0, d, b] = median
 			# Compute the lower and upper error bars.
-			logerrs_binned[1, d, b] = median - np.percentile(logerrs[d][filtered_dataset], 25)
-			logerrs_binned[2, d, b] = np.percentile(logerrs[d][filtered_dataset], 75) - median
+			logerr_bins[1, d, b] = median - np.percentile(logerrs[d, filtered_dataset], 25)
+			logerr_bins[2, d, b] = np.percentile(logerrs[d, filtered_dataset], 75) - median
 			# Mean and standard deviation
-			logerrs_binned[3, d, b] = np.mean(logerrs[d][filtered_dataset])
-			logerrs_binned[4, d, b] = np.std(logerrs[d][filtered_dataset])
-	return (bins, logerrs_binned, filtered)
+			logerr_bins[3, d, b] = np.mean(logerrs[d, filtered_dataset])
+			logerr_bins[4, d, b] = np.std(logerrs[d, filtered_dataset])
+	return (phyerr_bins, logerr_bins, filtered)
 			
 
 def GetTVD(dbses, chids, bins, logerrs):
@@ -457,7 +467,7 @@ def GetUnknownBudget(dbses, chids, bins, logerrs):
 	unknown_errbg_filtered = np.zeros((3, ndb, nbins), dtype = np.double)
 	for b in range(nbins):
 		for d in range(ndb - 1):
-			filtered_dataset = [x for x in bins[b] if (logerrs[d][x] != -1)]
+			filtered_dataset = [x for x in bins[b] if (logerrs[d, x] != -1)]
 			median = np.median(unknown_errbg[d, filtered_dataset])
 			unknown_errbg_filtered[0, d, b] = median
 			# Compute the upper and lower error bars.
@@ -537,7 +547,6 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 		thresholds={"y": 10e-16, "x": 10e-16}
 	
 	qcode = dbses[0].eccs[0]
-	max_weight = 1 + qcode.N//2
 	ndb = len(dbses)
 	plotfname = DecodersInstancePlot(dbses[0], phymet, logmet)
 	nlevels = max([db.levels for db in dbses])
@@ -546,7 +555,6 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 	# Sort the alphas.
 	sort_order = np.argsort(alphas)
 	alphas = alphas[sort_order]
-	print("Alphas = {}".format(alphas))
 	dbses = [dbses[i] for i in sort_order]
 
 	# print("channels: {}".format(chids))
@@ -560,37 +568,28 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 			ax = plt.gca()
 			
 			# Load the logical error rates that have converged well.
-			(yaxes, minalpha_perfs) = FilterLogicalErrorRates(dbses, chids, logmet, l)
-			# print("l: {}\nminalpha_perfs\n{}\nYaxes\n{}".format(l, minalpha_perfs, yaxes))
+			logerrs = FilterLogicalErrorRates(dbses, chids, logmet, l)
+			# Compute the Gain metric -- ratio of the performance of the first dataset with that of the others.
+			yaxes = ComputeGain(logerrs)
 
 			# Bin the physical and logical error rates.
-			(bins, yaxes_binned, filtered) = BinPhysErrs(phyerrs, yaxes, bin_width, ndb)
+			(bins, yaxes_binned, filtered) = BinPhysLogErrs(phyerrs, yaxes, bin_width)
 			nbins = len(bins)
-			# print("bin_width = {}\nbin_sizes\n{}".format(bin_width, [len(bins[b]) for b in bins]))
 			
-			# Print the performance of the minimum alpha (RB) for each bin.
-			for b in range(nbins):
-				if (len(bins[b]) >= 5):
-					print("Bin {}, Logical performance with RB data: {}".format(b, np.mean(minalpha_perfs[bins[b]])))
-			
-			# Compute the TVDs for the decoders and bin them.
-			# tvds_filtered = GetTVD(dbses, chids, bins, yaxes)
+			# Compute the total probability of errors excluded in the CER data.
 			unknown_errbg_filtered = GetUnknownBudget(dbses, chids, bins, yaxes)
 
 			# Compute the number of Pauli error rates in NR.
-			budgets = GetBudgets(dbses, chids)
-			print("budgets = {}".format(budgets))
-			xaxes = np.zeros((nbins, ndb - 1), dtype = np.double)
-			for b in range(nbins):
-				xaxes[b, :] = np.array([np.mean(budgets[d, filtered[d]]) for d in range(ndb-1)])
-			print("filtered = {}".format(filtered))
-			print("Xaxes = {}".format(xaxes))
+			budgets = np.array([GetTotalErrorBudget(dbs) for dbs in dbses], dtype=np.int64)
+			# xaxes = np.zeros((nbins, ndb), dtype = np.double)
+			# for b in range(nbins):
+			# 	xaxes[b, :] = np.array([np.mean(budgets[d, filtered[d]]) for d in range(ndb)])
 			# If the number of points excluded is more than 50% of the bin, ignore the bin in the plot.
 			selected = SelectAlphas(ndb, nbins, yaxes, bins)
 
 			# Bin the physical error rates and average logical error rates in a bin.
 			max_y = 0
-			min_y = np.max(np.array(list(yaxes.values())))
+			min_y = np.max(yaxes)
 			plots = []
 			labels = []
 			empty_plots = []
@@ -605,9 +604,8 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 					continue
 				#################
 				# Plotting
-				print("X axis values: {}".format(xaxes[b, selected[b]]))
 				pl = ax.errorbar(
-					xaxes[b, selected[b]],
+					budgets[selected[b]],
 					yaxes_binned[0, selected[b], b],
 					yerr=yaxes_binned[1:3, selected[b], b],
 					#yaxes_binned[3, selected[b], b],
@@ -634,7 +632,12 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 					linewidth=gv.line_width,
 				)
 				empty_plots.append(pl)
-				lab = "$\\langle %s\\rangle = %s$\n$\\langle \\overline{%s}^{RB}_{%d}\\rangle = %s [%d]$" % (ml.Metrics[phymet]["latex"].replace("$", ""), latex_float(average_phymet), ml.Metrics[logmet]["latex"].replace("$", ""), l, latex_float(np.mean(minalpha_perfs[bins[b]])), len(bins[b]))
+				lab = "$\\langle %s\\rangle = %s$\n$\\langle \\overline{%s}^{RB}_{%d}\\rangle = %s [%d]$" % (ml.Metrics[phymet]["latex"].replace("$", ""), 
+																											latex_float(average_phymet),
+																											ml.Metrics[logmet]["latex"].replace("$", ""),
+																											l,
+																											latex_float(np.mean(logerrs[0, bins[b]])),
+																											len(bins[b]))
 				rb_perf_labels.append(lab)
 
 				# Compute the max y value for designing the axes limits
@@ -653,7 +656,7 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 
 			# Set the inset plots to show TVD.
 			# SetInsetTVD(ax, xaxes, tvds_filtered, selected, bins)
-			SetInsetTVD(ax, xaxes, unknown_errbg_filtered, selected, bins)
+			# SetInsetTVD(ax, xaxes, unknown_errbg_filtered, selected, bins)
 
 			# Axes limits
 			# ax.set_ylim([min_y / 5, max_y * 5])

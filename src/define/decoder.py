@@ -149,7 +149,7 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, nr_weights_all = None
 	elif ((option == "weight") or (option == "split")):
 
 		if max_weight is None:
-			max_weight = qcode.N//2 + 1
+			max_weight = qcode.N
 
 		if qcode.group_by_weight is None:
 			PrepareSyndromeLookUp(qcode)
@@ -204,7 +204,7 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full
 	decoder_probs[known_paulis] = known_probs / (1 - total_unknown)
 	
 	if (complete_error_dist == 1):
-		if ((option == "full") or (option == "weight")):
+		if ((option == "full") or (option == "weight") or (option == "split")):
 			infid_qubit = 1 - np.power(1 - infid, 1 / qcode.N)
 			# depolarizing_rate = infid_qubit # If noise is non-unitary
 			# depolarizing_rate = np.sqrt(infid_qubit) # If noise is unitary
@@ -219,17 +219,11 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full
 				pauli_probs = chan_probs
 			decoder_probs = ReconstructPauliChannel(pauli_probs, qcode)
 
-		elif (option == "split"):
-			infid_qubit = 1 - np.power(1 - infid, 1 / qcode.N)
-			decoder_probs = AssignErrorProbs(known_paulis.astype(np.uint64), known_probs.astype(np.float64), qcode.PauliOperatorsLST.astype(np.uint8), np.float64(infid_qubit))
-
 		else:
 			pass
 
 		# print("RAW Decoder ansatz before normalization\n{}".format(np.sort(decoder_probs)[::-1][:30]))
 		decoder_probs[known_paulis] = known_probs
-		# print("Total unknown probability = {}".format(total_unknown))
-		# Normalize the unknown Paulis
 		# https://stackoverflow.com/questions/27824075/accessing-numpy-array-elements-not-in-a-given-index-list
 		mask = np.ones(decoder_probs.shape[0], dtype=bool)
 		mask[known_paulis] = False
