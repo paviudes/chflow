@@ -62,7 +62,7 @@ def TailorDecoder(qecc, channel, levels, bias=None):
 
 def GetTotalErrorBudget(dbs):
 	# Compute the total number of distinct Pauli error rates included in the NR dataset.
-	return np.ceil(dbs.decoder_fraction * np.power(4, dbs.eccs[0].N))
+	return np.ceil(max(1, dbs.decoder_fraction * np.power(4, dbs.eccs[0].N)))
 
 """
 def GetTotalErrorBudget(dbs, noise, sample):

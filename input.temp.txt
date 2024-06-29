@@ -1,0 +1,1 @@
+sbload cg1d submit cg1d_dc_ exit

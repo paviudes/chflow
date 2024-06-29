@@ -94,7 +94,7 @@ from define.QECCLfid.utils import GetErrorProbabilities
 
 from analyze.collect import IsComplete, GatherLogErrData, AddPhysicalRates
 from analyze.cplot import ChannelWisePlot
-from analyze.dcplot import DecoderCompare, DecoderInstanceCompare, RelativeDecoderInstanceCompare
+from analyze.dcplot import DecoderCompare, DecoderInstanceCompare, RelativeDecoderGains
 from analyze.dvplot import PlotDeviationYX
 from analyze.lplot import LevelWisePlot, LevelWisePlot2D, ComparePerformance
 from analyze.statplot import MCStatsPlot
@@ -789,7 +789,7 @@ if __name__ == "__main__":
 					chids = list(map(int, user[4].split(",")))
 			# print("Doing dciplot for chids {} from available {}".format(chids, submit.available))
 			print("Doing dciplot for chids {} out of the {} available channels.".format(chids, submit.channels))
-			RelativeDecoderInstanceCompare(pmet, lmet, dbses, chids)
+			RelativeDecoderGains(pmet, lmet, dbses, chids)
 
 
 		#####################################################################

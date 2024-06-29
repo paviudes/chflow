@@ -348,11 +348,11 @@ def AllocateBins(values, threshold_width=10):
 
 def SelectAlphas(ndb, nbins, logerrs, bin_phyerr):
 	# If the number of points excluded is more than 50%, do not plot the curve.
-	selected_indices = [np.zeros(ndb - 1, dtype = np.double) for b in range(nbins)]
+	selected_indices = [np.zeros(ndb, dtype = np.double) for b in range(nbins)]
 	count_selected = 0
 	for b in range(nbins):
-		selected = np.zeros(ndb - 1, dtype = np.int64)
-		for d in range(ndb - 1):
+		selected = np.zeros(ndb, dtype = np.int64)
+		for d in range(ndb):
 			filtered_dataset = [x for x in bin_phyerr[b] if (logerrs[d][x] != -1)]
 			if (len(filtered_dataset)/len(bin_phyerr[b]) >= 0.5):
 				selected[d] = 1
@@ -424,8 +424,9 @@ def BinPhysLogErrs(phyerrs, logerrs, bin_width):
 			# Mean and standard deviation
 			logerr_bins[3, d, b] = np.mean(logerrs[d, filtered_dataset])
 			logerr_bins[4, d, b] = np.std(logerrs[d, filtered_dataset])
+			print("Bin {}: mean physerr: {}, Dataset = {}\nLogical Error Rates:\n{}\n\033[1mMedian: {}\033[0m".format(b, np.median(phyerrs[b]), d, logerrs[d, filtered_dataset], median))
 	return (phyerr_bins, logerr_bins, filtered)
-			
+
 
 def GetTVD(dbses, chids, bins, logerrs):
 	# Extract the TVDs for each alpha, and plot as an inset.
@@ -452,21 +453,22 @@ def GetTVD(dbses, chids, bins, logerrs):
 			tvds_filtered[4, d, b] = np.std(tvds[d, filtered_dataset])
 	return tvds_filtered
 
+
 def GetUnknownBudget(dbses, chids, bins, logerrs):
 	# Extract the TVDs for each alpha, and plot as an inset.
 	# Get the TVD for each decoder knowledge with the full Pauli error distribution. These will be in the annotations.
 	ndb = len(dbses)
 	nbins = len(bins)
 	alphas = [dbs.decoder_fraction for dbs in dbses]
-	unknown_errbg = np.ones((ndb - 1, len(chids)), dtype = np.double)
-	for d in range(1, len(alphas)):
+	unknown_errbg = np.ones((ndb, len(chids)), dtype = np.double)
+	for d in range(len(alphas)):
 		if (np.all(dbses[d].decoders == 4)):
 			unknown_errbg[d - 1, :] = np.load(PhysicalErrorRates(dbses[d], "unknown_errbg"))[chids]
 		# print("unknown_errbg for alpha = {}\n{}".format(alphas[d], unknown_errbg[d - 1, :]))
 	# Bin the unknown_errbg
 	unknown_errbg_filtered = np.zeros((3, ndb, nbins), dtype = np.double)
 	for b in range(nbins):
-		for d in range(ndb - 1):
+		for d in range(ndb):
 			filtered_dataset = [x for x in bins[b] if (logerrs[d, x] != -1)]
 			median = np.median(unknown_errbg[d, filtered_dataset])
 			unknown_errbg_filtered[0, d, b] = median
@@ -479,7 +481,7 @@ def GetUnknownBudget(dbses, chids, bins, logerrs):
 def GetBudgets(dbses, chids):
 	# Compute the budgets (X-axis): number of Pauli error rates in NR.
 	ndb = len(dbses)
-	print("Alphas in GetBudgets = {}".format([db.decoder_fraction for db in dbses]))
+	# print("Alphas in GetBudgets = {}".format([db.decoder_fraction for db in dbses]))
 	budgets = np.zeros((ndb - 1, len(chids)), dtype = np.double)
 	budget_left = np.zeros((ndb - 1, len(chids)), dtype = np.double)
 	for (c, ch) in enumerate(chids):
@@ -539,7 +541,7 @@ def SetInsetTVD(ax_principal, xaxes, yaxes, selected, bins):
 	return None
 
 
-def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], thresholds=None):
+def RelativeDecoderGains(phymet, logmet, dbses, chids = [0], thresholds=None):
 	# Compare performance of various decoders.
 	# Only show alpha values that correspond to distinct number of Pauli error rates.
 	
@@ -570,14 +572,17 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 			# Load the logical error rates that have converged well.
 			logerrs = FilterLogicalErrorRates(dbses, chids, logmet, l)
 			# Compute the Gain metric -- ratio of the performance of the first dataset with that of the others.
-			yaxes = ComputeGain(logerrs)
+			# yaxes = ComputeGain(logerrs)
+			yaxes = logerrs
+			# np.savetxt("/home/pavi/Documents/IQC/notes/logerrs_fill.txt", yaxes)
+			# np.savetxt("/home/pavi/Documents/IQC/notes/logerrs_nofill.txt", yaxes)
 
 			# Bin the physical and logical error rates.
 			(bins, yaxes_binned, filtered) = BinPhysLogErrs(phyerrs, yaxes, bin_width)
 			nbins = len(bins)
 			
 			# Compute the total probability of errors excluded in the CER data.
-			unknown_errbg_filtered = GetUnknownBudget(dbses, chids, bins, yaxes)
+			# unknown_errbg_filtered = GetUnknownBudget(dbses, chids, bins, yaxes)
 
 			# Compute the number of Pauli error rates in NR.
 			budgets = np.array([GetTotalErrorBudget(dbs) for dbs in dbses], dtype=np.int64)
@@ -586,7 +591,6 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 			# 	xaxes[b, :] = np.array([np.mean(budgets[d, filtered[d]]) for d in range(ndb)])
 			# If the number of points excluded is more than 50% of the bin, ignore the bin in the plot.
 			selected = SelectAlphas(ndb, nbins, yaxes, bins)
-
 			# Bin the physical error rates and average logical error rates in a bin.
 			max_y = 0
 			min_y = np.max(yaxes)
@@ -606,10 +610,10 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 				# Plotting
 				pl = ax.errorbar(
 					budgets[selected[b]],
-					yaxes_binned[0, selected[b], b],
+					yaxes_binned[1, selected[b], b],
 					yerr=yaxes_binned[1:3, selected[b], b],
-					#yaxes_binned[3, selected[b], b],
-					#yerr=yaxes_binned[4, selected[b], b],
+					# yaxes_binned[3, selected[b], b],
+					# yerr=yaxes_binned[2, selected[b], b],
 					color=gv.Colors[b % gv.n_Colors],
 					alpha=0.75,
 					marker="o",
@@ -712,9 +716,14 @@ def RelativeDecoderInstanceCompare(phymet, logmet, dbses, chids = [0], threshold
 				markerscale=gv.legend_marker_scale,
 			)
 			ax.set_xscale("log")
-			# ax.set_yscale("log")
+			ax.set_yscale("log")
+
+			# Axes limits
+			ax.set_xlim([np.min(budgets), 2 * np.max(budgets)])
+			ax.set_ylim([1E-10, 1E-2])
 
 			# Axes ticks
+			# print("budgets = {}".format(budgets))
 			# print("max_y = {} and min_y = {}".format(max_y, min_y))
 			yticks = np.arange(OrderOfMagnitude(min_y/5), OrderOfMagnitude(max_y * 5))
 			ax.set_yticks(np.power(10.0, yticks), minor=True)

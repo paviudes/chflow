@@ -187,10 +187,10 @@ quit
 sbload cg1d
 #
 # Print the characteristics of the model
-#nrplot 0 -1 cg1d_dc_0.001,cg1d_dc_0.01,cg1d_dc_0.1,,cg1d_dc_1
+#nrplot 0 -1 cg1d_dc_0.001,cg1d_dc_0.01,cg1d_dc_0.1,cg1d_dc_1
 #notes 0 -1 cg1d nrplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
 # Performance gains for the decoder
-dciplot infid infid cg1d,cg1d_dc_0.001,cg1d_dc_0.01,cg1d_dc_0.1,cg1d_dc_1
+dciplot infid infid cg1d_dc_0.001,cg1d_dc_0.01,cg1d_dc_0.1,cg1d_dc_1
 notes infid infid cg1d dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
 quit
 #
@@ -203,7 +203,7 @@ sbload cg1d_nofill
 #nrplot 0 -1 cg1d_dc_0.001_nofill,cg1d_dc_0.01_nofill,cg1d_dc_0.1_nofill
 #notes 0 -1 cg1d nrplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
 # Performance gains for the decoder
-dciplot infid infid cg1d,cg1d_dc_0.001_nofill,cg1d_dc_0.01_nofill,cg1d_dc_0.1_nofill
+dciplot infid infid cg1d_dc_0.001_nofill,cg1d_dc_0.01_nofill,cg1d_dc_0.1_nofill,cg1d_dc_1
 notes infid infid cg1d_nofill dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
 quit
 #
