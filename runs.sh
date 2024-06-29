@@ -1,2 +1,2 @@
-./chflow.sh test_cg1d
-./chflow.sh test_cg1d_dc_0.1
+./chflow.sh cg1d_dc_0.05
+./chflow.sh cg1d_dc_0.5

@@ -1,5 +1,6 @@
-alphas=("0.00134" "0.01288" "0.07056" "0.24359" "0.55505" "0.86652" "1")
-
+# alphas=("0.00134" "0.01288" "0.07056" "0.24359" "0.55505" "0.86652" "1")
+alphas=("0.05" "0.5")
+rm runs.sh
 touch runs.sh
 
 for dc in "${alphas[@]}"
@@ -22,10 +23,10 @@ do
 
 		# Run chflow with the above created input file.
 		./chflow.sh -- temp.txt
-
+		
 		# An input file named cg1d_dc_<value of the dc variable> will be created.
 		# Change line dcfraction 0 to dcfraction <value of the dc variable>
-		sed -i 's/dcfraction 0/dcfraction ${dc}/g' input/cg1d_dc_${dc}.txt
+		sed -i 's/dcfraction 0/dcfraction '${dc}'/g' input/cg1d_dc_${dc}.txt
 
 		# Add the simulation instruction to runs.sh
 		echo -e "./chflow.sh cg1d_dc_${dc}" >> runs.sh;		
