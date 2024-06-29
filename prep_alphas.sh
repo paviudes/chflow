@@ -28,6 +28,6 @@ do
 		sed -i 's/dcfraction 0/dcfraction ${dc}/g' input/cg1d_dc_${dc}.txt
 
 		# Add the simulation instruction to runs.sh
-		echo -e "./chflow.sh cg1d_dc_${dc}" > runs.sh;		
+		echo -e "./chflow.sh cg1d_dc_${dc}" >> runs.sh;		
 	fi
 done
