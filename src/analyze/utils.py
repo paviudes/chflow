@@ -21,6 +21,9 @@ except ImportError:
 # Functions from other modules
 from define import qchans as qc
 
+def flatten2d(list_of_lists):
+    # Flatten a 2D list of lists into a 1D list.
+    return [item for sublist in list_of_lists for item in sublist]
 
 def RoundOrder(number):
     # Round a number to the nearest order: a * 10^-b where a is a multiple of 5 and b is an integer.
@@ -97,7 +100,7 @@ def ExtractPDFPages(information, save_folder, save_fname):
         pdfname = "%s/pg_%d%s" % (save_folder, from_page, save_fname)
         if os.path.isfile(pdfname):
             print("\033[3m!!!Warning, overwriting %s.\033[0m" % pdfname)
-            os.system("trash %s" % (pdfname))
+            os.system("gio trash %s" % (pdfname))
         with open(pdfname, "wb") as out:
             pdf_writer.write(out)
         # Convert the PDF to PNG

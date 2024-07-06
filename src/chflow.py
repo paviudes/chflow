@@ -94,7 +94,7 @@ from define.QECCLfid.utils import GetErrorProbabilities
 
 from analyze.collect import IsComplete, GatherLogErrData, AddPhysicalRates
 from analyze.cplot import ChannelWisePlot
-from analyze.dcplot import DecoderCompare, DecoderInstanceCompare, RelativeDecoderGains
+from analyze.dcplot import DecoderCompare, DecoderInstanceCompare, RelativeDecoderGains, RelativeDecoderPerfs
 from analyze.dvplot import PlotDeviationYX
 from analyze.lplot import LevelWisePlot, LevelWisePlot2D, ComparePerformance
 from analyze.statplot import MCStatsPlot
@@ -791,6 +791,32 @@ if __name__ == "__main__":
 			print("Doing dciplot for chids {} out of the {} available channels.".format(chids, submit.channels))
 			RelativeDecoderGains(pmet, lmet, dbses, chids)
 
+		#####################################################################
+
+		elif user[0] == "dccompare":
+			# We want to analyze the case where limited CER data is provided to a ML decoder.
+			# Compare decoders that use a heuristic to fill the error distribution vs a decoder that doesn't.
+			pmet = user[1]
+			lmet = user[2]
+			dbses = [submit]
+			if len(user) > 3:
+				for (i, ts) in enumerate(user[3].split(",")):
+					dbses.append(Submission())
+					LoadSub(dbses[i + 1], ts, 0, 0)
+					IsComplete(dbses[i + 1])
+					if not os.path.isfile(
+						LogicalErrorRates(dbses[i + 1], lmet, fmt="npy")
+					):
+						GatherLogErrData(dbses[i + 1])
+			chids = list(range(submit.available.shape[0]))
+			if len(user) > 4:
+				if (";" in user[4]):
+					chids = np.arange(*list(map(int, user[4].split(";"))), dtype = np.int64)
+				else:
+					chids = list(map(int, user[4].split(",")))
+			print("Doing dccompare for chids {} out of the {} available channels.".format(chids, submit.channels))
+			RelativeDecoderPerfs(pmet, lmet, dbses, chids)
+
 
 		#####################################################################
 
@@ -1435,7 +1461,7 @@ if __name__ == "__main__":
 			elif plot_option == "mcplot":
 				plot_file = MCStatsPlotFile(submit, logmet, phymet.split(",")[0])
 
-			elif plot_option == "dciplot":
+			elif plot_option in ["dciplot", "dccompare"]:
 				plot_file = DecodersInstancePlot(submit, phymet.split(",")[0], logmet)
 
 			elif plot_option == "compare":

@@ -187,10 +187,10 @@ quit
 sbload cg1d
 #
 # Print the characteristics of the model
-#nrplot 0 -1 cg1d_dc_0.001,cg1d_dc_0.01,cg1d_dc_0.1,cg1d_dc_1
+#nrplot 0 -1 cg1d_dc_0.001,cg1d_dc_0.01,cg1d_dc_0.1,cg1d_dc_1,cg1d_dc_0.00134,cg1d_dc_0.01288,cg1d_dc_0.07056,cg1d_dc_0.24359
 #notes 0 -1 cg1d nrplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
 # Performance gains for the decoder
-dciplot infid infid cg1d_dc_0.001,cg1d_dc_0.01,cg1d_dc_0.1,cg1d_dc_1
+dciplot infid infid cg1d_dc_0.001,cg1d_dc_0.01,cg1d_dc_0.1,cg1d_dc_1,cg1d_dc_0.00134,cg1d_dc_0.01288,cg1d_dc_0.07056,cg1d_dc_0.24359
 notes infid infid cg1d dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
 quit
 #
@@ -200,14 +200,25 @@ quit
 sbload cg1d_nofill
 #
 # Print the characteristics of the model
-#nrplot 0 -1 cg1d_dc_0.001_nofill,cg1d_dc_0.01_nofill,cg1d_dc_0.1_nofill
+#nrplot 0 -1 cg1d_dc_0.001_nofill,cg1d_dc_0.01_nofill,cg1d_dc_0.1_nofill,cg1d_dc_0.00134_nofill,cg1d_dc_0.01288_nofill,cg1d_dc_0.07056_nofill,cg1d_dc_0.24359_nofill
 #notes 0 -1 cg1d nrplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
 # Performance gains for the decoder
-dciplot infid infid cg1d_dc_0.001_nofill,cg1d_dc_0.01_nofill,cg1d_dc_0.1_nofill,cg1d_dc_1
+dciplot infid infid cg1d_dc_0.001_nofill,cg1d_dc_0.01_nofill,cg1d_dc_0.1_nofill,cg1d_dc_1,cg1d_dc_0.00134_nofill,cg1d_dc_0.01288_nofill,cg1d_dc_0.07056_nofill,cg1d_dc_0.24359_nofill
 notes infid infid cg1d_nofill dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
 quit
 #
 !!Case 16!!
+# Random 1D coarse grained error model from Robin and Steve Flammia's paper. Compare logical error rates from (i) using heuristic vs (ii) not using the heuristic.
+# We will prvide a separate dataset for each case and each alpha (dc fraction).
+# The datasets are provided in consecutive pairs.
+sbload cg1d_minwt
+#
+# Performance gains for the decoder
+dccompare infid infid cg1d,cg1d_nofill,cg1d_dc_0.001,cg1d_dc_0.001_nofill,cg1d_dc_0.01,cg1d_dc_0.01_nofill,cg1d_dc_0.1,cg1d_dc_0.1_nofill,cg1d_dc_1,cg1d_dc_1
+notes infid infid cg1d_compare dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
+quit
+#
+!!Case 17!!
 # Random 1D coarse grained error model from Robin and Steve Flammia's paper using the Cyclic code.
 sbload 7qc_cg1d
 #

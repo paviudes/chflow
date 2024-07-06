@@ -68,7 +68,7 @@ Metrics = {
         "name": "Infidelity",
         "phys": "Phys. infidelity",
         "log": "Logical infidelity",
-        "latex": "$r$",
+        "latex": "$\\epsilon$",
         "marker": u"o",
         "color": gv.QB_BLUE,
         "desc": "1 - Fidelity between the input Choi matrix and the Choi matrix corresponding to the identity state.",

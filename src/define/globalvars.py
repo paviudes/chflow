@@ -88,8 +88,8 @@ n_line_styles = len(line_styles)
 # https://matplotlib.org/2.0.2/api/markers_api.html
 Markers = [
     "o",  # Without RC, choose o for predictability plots
-    "o",  # With RC, choose o for predictability plots
-    "s",
+    "s",  # With RC, choose o for predictability plots
+    "d",
     "*",  # Diamond norm (predictability)
     "^",  # Infidelity (predictability)
     "v",

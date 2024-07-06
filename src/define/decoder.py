@@ -36,7 +36,7 @@ def SetDecoderKnowledge(submit, rawchan=None, noise=None, sample=None, complete_
 			# decoder is 4 i.e distribute by weight guided by Poisson
 			# print("noise = {}, sample = {}".format(noise, sample))
 			nr_weights = np.load(fn.NRWeightsFile(submit, noise))[sample, :]
-			(mpinfo, total_unknown) = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, submit.eccs[0], option="full", nr_weights = nr_weights, complete_error_dist=complete_error_dist)
+			(mpinfo, total_unknown) = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, submit.eccs[0], option="dpfill", nr_weights = nr_weights, complete_error_dist=complete_error_dist)
 	else:
 		mpinfo = np.zeros(4**submit.eccs[0].N, dtype=np.float64)
 	return (mpinfo, nr_weights, total_unknown)
@@ -128,7 +128,7 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, nr_weights_all = None
 	if chan_probs.ndim > 1:
 		chan_probs = ut.GetErrorProbabilities(qcode.PauliOperatorsLST, chan_probs, 0)
 
-	if (option == "full"):
+	if ((option == "full") or (option == "dpfill")):
 		nPaulis = max(1, int(lead_frac * (4 ** qcode.N)))
 		leading_paulis = np.argsort(chan_probs)[-nPaulis:][::-1]
 
@@ -201,9 +201,12 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full
 	(infid, known_paulis, known_probs) = GetLeadingPaulis(leading_fraction, qcode, np.real(chan_probs), option, nr_weights)
 	total_unknown = 1 - np.sum(known_probs)
 	decoder_probs = np.zeros(qcode.PauliOperatorsLST.shape[0], dtype = np.double)
-	decoder_probs[known_paulis] = known_probs / (1 - total_unknown)
 	
-	if (complete_error_dist == 1):
+	if (complete_error_dist == 0):
+		decoder_probs[known_paulis] = known_probs / (1 - total_unknown)
+	
+	else:
+		
 		if ((option == "full") or (option == "weight") or (option == "split")):
 			infid_qubit = 1 - np.power(1 - infid, 1 / qcode.N)
 			# depolarizing_rate = infid_qubit # If noise is non-unitary
@@ -211,7 +214,10 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full
 			# depolarizing_rate = np.power(depolarizing_rate, 0.8) # If the decoder is correlation aware.
 			# decoder_probs = CreateIIDPauli(depolarizing_rate, qcode)
 			decoder_probs = AssignErrorProbs(known_paulis.astype(np.uint64), known_probs.astype(np.float64), qcode.PauliOperatorsLST.astype(np.uint8), np.float64(infid_qubit))
-			
+		
+		elif (option == "dpfill"):
+			decoder_probs = CreateIIDPauli(depolarizing_rate, qcode)
+
 		elif (option == "sqprobs"):
 			if chan_probs.ndim > 1:
 				pauli_probs = ut.GetErrorProbabilities(qcode.PauliOperatorsLST, chan_probs, 0)

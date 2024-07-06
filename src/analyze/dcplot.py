@@ -12,6 +12,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes, InsetPosition, mark_inset
 from scipy.interpolate import griddata
+from scipy.special import comb
 
 # Non critical packages
 try:
@@ -24,7 +25,7 @@ except ImportError:
 from define import metrics as ml
 from define import globalvars as gv
 from define.decoder import GetTotalErrorBudget, GetLeadingPaulis
-from analyze.utils import latex_float, scientific_float, OrderOfMagnitude
+from analyze.utils import latex_float, scientific_float, OrderOfMagnitude, flatten2d
 from analyze.bins import ComputeBinVariance
 from analyze.statplot import IsConverged
 from analyze.load import LoadPhysicalErrorRates
@@ -353,7 +354,7 @@ def SelectAlphas(ndb, nbins, logerrs, bin_phyerr):
 	for b in range(nbins):
 		selected = np.zeros(ndb, dtype = np.int64)
 		for d in range(ndb):
-			filtered_dataset = [x for x in bin_phyerr[b] if (logerrs[d][x] != -1)]
+			filtered_dataset = [x for x in bin_phyerr[b] if (logerrs[d,x] != -1)]
 			if (len(filtered_dataset)/len(bin_phyerr[b]) >= 0.5):
 				selected[d] = 1
 				count_selected += len(filtered_dataset)
@@ -424,7 +425,7 @@ def BinPhysLogErrs(phyerrs, logerrs, bin_width):
 			# Mean and standard deviation
 			logerr_bins[3, d, b] = np.mean(logerrs[d, filtered_dataset])
 			logerr_bins[4, d, b] = np.std(logerrs[d, filtered_dataset])
-			print("Bin {}: mean physerr: {}, Dataset = {}\nLogical Error Rates:\n{}\n\033[1mMedian: {}\033[0m".format(b, np.median(phyerrs[b]), d, logerrs[d, filtered_dataset], median))
+			# print("Bin {}: mean physerr: {}, Dataset = {}\nLogical Error Rates:\n{}\n\033[1mMedian: {}\033[0m".format(b, np.median(phyerrs[b]), d, logerrs[d, filtered_dataset], median))
 	return (phyerr_bins, logerr_bins, filtered)
 
 
@@ -723,6 +724,262 @@ def RelativeDecoderGains(phymet, logmet, dbses, chids = [0], thresholds=None):
 			ax.set_ylim([1E-10, 1E-2])
 
 			# Axes ticks
+			xticks = np.concatenate((np.cumsum([comb(7, i) * 3**i for i in range(1, 5)]), [4**7], [4**7 * alpha for alpha in [0.001, 0.01, 0.1]]))
+			ax.set_xticks(xticks)
+			ax.set_xticklabels(["$N_{%d}$" % (i) for i in range(1, 5)] + ["$N_{7}$"] + ["%d" % np.ceil(4**7 * alpha) for alpha in [0.001, 0.01, 0.1]], rotation=90)
+			# print("budgets = {}".format(budgets))
+			# print("max_y = {} and min_y = {}".format(max_y, min_y))
+			yticks = np.arange(OrderOfMagnitude(min_y/5), OrderOfMagnitude(max_y * 5))
+			ax.set_yticks(np.power(10.0, yticks), minor=True)
+			# print("Y ticks\n{}".format(yticks))
+
+			# Make non overlapping annotations
+			# https://stackoverflow.com/questions/19073683/matplotlib-overlapping-annotations-text
+			# if (ADJUST == 1):
+			# 	adjust_text(texts, only_move={'points':'y', 'texts':'y'}, expand_points=(1, 2), precision=0.05, arrowprops=dict(arrowstyle="->", color='r', lw=0.5))
+
+			# Save the plot
+			# plt.tight_layout(pad=30)
+			pdf.savefig(fig)
+			plt.close()
+
+		# Set PDF attributes
+		pdfInfo = pdf.infodict()
+		pdfInfo["Title"] = "Comparing different decoders"
+		pdfInfo["Author"] = "Pavithran Iyer"
+		pdfInfo["ModDate"] = dt.datetime.today()
+	return None
+
+
+def RelativeDecoderPerfs(phymet, logmet, dbses, chids = [0]):
+	# Compare the performances of two decoders that have access to limited CER data:
+	# (i) that employs a heuristic method to.complete the error distribution, and
+	# (ii) the other that does not employ a heuristic.
+	# Each of the decoder's performances are provided as a dataset.
+	# The databases are provided in consecutive pairs: each pair corresponds to a decoder fraction.
+	
+	# Isolate the minimum weight decoder's database if it exists and place it at the beginning of the array of databases.
+	decoder_options = np.array([dbs.decoders[0] for dbs in dbses], dtype=int)
+	# print("decoder options: {}".format(decoder_options))
+	if (1 in decoder_options):
+		minwt_index, = np.nonzero(decoder_options == 1)
+		# print("minwt_index = {}".format(minwt_index))
+		db_minwt = dbses[minwt_index[0]]
+		dbses_ml = [dbs for dbs in dbses if (dbs.decoders[0] == 4)]
+		dbses = [db_minwt] + dbses_ml
+	else:
+		db_minwt = None
+		dbses_ml = dbses
+
+	qcode = dbses_ml[0].eccs[0]
+	ndb = len(dbses_ml) // 2
+	plotfname = DecodersInstancePlot(dbses[0], phymet, logmet)
+	nlevels = max([db.levels for db in dbses_ml])
+	alphas = np.array([dbs.decoder_fraction for dbs in dbses_ml[::2]], dtype = np.float64)
+
+	# Sort the alphas.
+	sort_order = np.argsort(alphas)
+	alphas = alphas[sort_order]
+	dbses_ml = flatten2d([[dbses_ml[2*i], dbses_ml[2*i+1]] for i in sort_order])
+
+	# print("Alphas: {}".format([db.decoder_fraction for db in dbses_ml]))
+
+	phyerrs = np.load(PhysicalErrorRates(dbses_ml[0], phymet))[chids]
+	
+	bin_width = 3
+	with PdfPages(plotfname) as pdf:
+		for l in range(nlevels, nlevels + 1):
+			fig = plt.figure(figsize=(gv.canvas_size[0] * 1.5, gv.canvas_size[1] * 1.2))
+			ax = plt.gca()
+			
+			# Load the logical error rates that have converged well.
+			logerrs = FilterLogicalErrorRates(dbses, chids, logmet, l)
+			yaxes = logerrs
+			
+			# Bin the physical and logical error rates.
+			(bins, yaxes_binned, filtered) = BinPhysLogErrs(phyerrs, yaxes, bin_width)
+			nbins = len(bins)
+
+			# If there is a dataset specifying min weight performance, isolate those logical error rates.
+			if (db_minwt is None):
+				yaxes_ml = yaxes
+				yaxes_binned_ml = yaxes_binned
+			else:
+				yaxes_ml = yaxes[1:, :]
+				yaxes_binned_minwt = yaxes_binned[:, 0, :]
+				yaxes_binned_ml = yaxes_binned[:, 1:, :]
+			
+			# Compute the number of Pauli error rates in NR.
+			budgets = np.array([GetTotalErrorBudget(dbs) for dbs in dbses_ml[::2]], dtype=np.int64)
+			selected = SelectAlphas(ndb, nbins, yaxes_ml[::2, :], bins)
+			# print("Alphas: {}".format([db.decoder_fraction for db in dbses_ml[::2]]))
+			# print("Selected: {}".format(selected))
+						
+			# Bin the physical error rates and average logical error rates in a bin.
+			max_y = 0
+			min_y = np.max(yaxes_ml)
+			plots = []
+			labels = []
+			empty_plots_phyerrs = []
+			rb_perf_labels = []
+			for b in range(nbins):
+				average_phymet = np.median(phyerrs[bins[b]])
+				#################
+				# Exclude bins
+				# If the number of points in a bin in less than 5, do not plot.
+				# print("Average number of channels selected in bin %d = %.2f." % (b, selected.size/(ndb - 1)))
+				if (len(bins[b]) < 5):
+					continue
+				#################
+				# Plotting the logical error rates of the database where the heuristic is used to fill the error distribution.
+				pl_fill = ax.errorbar(
+					budgets[selected[b]],
+					yaxes_binned_ml[1, 2 * selected[b], b],
+					yerr=yaxes_binned_ml[1:3, 2 * selected[b], b],
+					# yaxes_binned_ml[3, selected[b], b],
+					# yerr=yaxes_binned_ml[2, selected[b], b],
+					color=gv.Colors[b % gv.n_Colors],
+					alpha=0.75,
+					marker=gv.Markers[b % gv.n_Markers],
+					markersize=2 * gv.marker_size,
+					linestyle="-",
+					linewidth=gv.line_width
+				)
+				plots.append(pl_fill)
+				#################
+				# Plotting the logical error rates of the database where the heuristic is NOT used to fill the error distribution.
+				pl_nofill = ax.errorbar(
+					budgets[selected[b]],
+					yaxes_binned_ml[1, 2 * selected[b] + 1, b],
+					yerr=yaxes_binned_ml[1:3, 2 * selected[b] + 1, b],
+					# yaxes_binned_ml[3, selected[b], b],
+					# yerr=yaxes_binned_ml[2, selected[b], b],
+					color=gv.Colors[b % gv.n_Colors],
+					alpha=0.75,
+					marker=gv.Markers[b % gv.n_Markers],
+					markersize=2 * gv.marker_size,
+					linestyle="--",
+					linewidth=gv.line_width
+				)
+				plots.append(pl_nofill)
+				
+				pl_empty, = ax.plot(
+					[], [],
+					color=gv.Colors[b % gv.n_Colors],
+					alpha=0.75,
+					marker=gv.Markers[b % gv.n_Markers],
+					markersize=gv.marker_size,
+					#linestyle="--",
+					linewidth=gv.line_width,
+				)
+				empty_plots_phyerrs.append(pl_empty)
+				if (db_minwt is None):
+					lab = "$\\langle %s\\rangle = %s$ $[%d]$" % (ml.Metrics[phymet]["latex"].replace("$", ""), 
+																latex_float(average_phymet),
+																len(bins[b]))
+				else:
+					# print("yaxes_binned_minwt[1, b] = {}".format(yaxes_binned_minwt[1, b]))
+					lab = "$\\langle %s\\rangle = %s$\n$\\langle \\overline{%s}^{RB}_{%d}\\rangle = %s [%d]$" % (ml.Metrics[phymet]["latex"].replace("$", ""), 
+																												latex_float(average_phymet),
+																												ml.Metrics[logmet]["latex"].replace("$", ""),
+																												l,
+																												latex_float(yaxes_binned_minwt[1, b]),
+																												len(bins[b]))
+				rb_perf_labels.append(lab)
+
+				# Compute the max y value for designing the axes limits
+				if (max_y < np.max(yaxes_binned_ml[0, :, b])):
+					max_y = np.max(yaxes_binned_ml[0, :, b])
+				if (min_y > np.min(yaxes_binned_ml[0, :, b])):
+					min_y = np.min(yaxes_binned_ml[0, :, b])
+
+			
+			# Add an empty plot for the curves corresponding to with and without using the heuristic.
+			empty_plots_heuristic = []
+			pl_with_heuristic, = ax.plot(
+				[], [],
+				color="k",
+				alpha=0.75,
+				linestyle="-",
+				linewidth=gv.line_width,
+			)
+			empty_plots_heuristic.append(pl_with_heuristic)
+			pl_without_heuristic, = ax.plot(
+				[], [],
+				color="k",
+				alpha=0.75,
+				linestyle="--",
+				linewidth=gv.line_width,
+			)
+			empty_plots_heuristic.append(pl_without_heuristic)
+			heuristic_labels = ["CER + Uncorrelated Split Search", "CER + Fill with zeros"]
+			
+			# Set the inset plots to show TVD.
+			# SetInsetTVD(ax, xaxes, tvds_filtered, selected, bins)
+			# SetInsetTVD(ax, xaxes, unknown_errbg_filtered, selected, bins)
+
+			# Axes limits
+			# ax.set_ylim([min_y / 5, max_y * 5])
+
+			# Gridlines
+			ax.grid(which="both", axis="both", color="0.85")
+
+			# Axes labels
+			ax.set_xlabel(
+				"Number of Pauli decay rates $(K)$",
+				fontsize=gv.axes_labels_fontsize,
+				labelpad=gv.axes_labelpad,
+			)
+			ax.set_ylabel("Logical error rate: $\\overline{%s}_{%d}$" % (ml.Metrics[logmet]["latex"].replace("$", ""), nlevels), fontsize=gv.axes_labels_fontsize, labelpad=gv.axes_labelpad)
+			
+			# Axes ticks
+			ax.tick_params(
+				axis="both",
+				which="both",
+				pad=gv.ticks_pad,
+				direction="inout",
+				length=gv.ticks_length,
+				width=gv.ticks_width,
+				labelsize=gv.ticks_fontsize,
+			)
+			
+			# Lengend with the median physical and logical error rates in each bin.
+			heuristic_legend = ax.legend(
+				empty_plots_heuristic,
+				heuristic_labels,
+				numpoints=1,
+				loc="center",
+				ncol=1,
+				bbox_to_anchor=(0.75, 0.9),
+				shadow=True,
+				fontsize=gv.legend_fontsize * 1.4,
+				markerscale=gv.legend_marker_scale,
+			)
+			ax.add_artist(heuristic_legend)
+			# Lengend with the median physical and logical error rates in each bin.
+			rb_perf_legend = ax.legend(
+				empty_plots_phyerrs,
+				rb_perf_labels,
+				numpoints=1,
+				# loc="lower left",
+				loc="center",
+				ncol=4,
+				bbox_to_anchor=(0.5, 1.07),
+				shadow=True,
+				fontsize=gv.legend_fontsize * 1.2,
+				markerscale=gv.legend_marker_scale,
+			)
+			ax.set_xscale("log")
+			ax.set_yscale("log")
+
+			# Axes limits
+			ax.set_xlim([np.min(budgets), 2 * np.max(budgets)])
+			ax.set_ylim([1E-10, 1E-2])
+
+			# Axes ticks
+			xticks = np.concatenate((np.cumsum([comb(7, i) * 3**i for i in range(0, 5)]), [4**7], [4**7 * alpha for alpha in [0.001, 0.01, 0.1]]))
+			ax.set_xticks(xticks)
+			ax.set_xticklabels(["1"] + ["$N_{%d}$" % (i) for i in range(1, 5)] + ["$N_{7}$"] + ["%d" % np.ceil(4**7 * alpha) for alpha in [0.001, 0.01, 0.1]], rotation=90)
 			# print("budgets = {}".format(budgets))
 			# print("max_y = {} and min_y = {}".format(max_y, min_y))
 			yticks = np.arange(OrderOfMagnitude(min_y/5), OrderOfMagnitude(max_y * 5))
