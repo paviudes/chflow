@@ -36,7 +36,7 @@ def SetDecoderKnowledge(submit, rawchan=None, noise=None, sample=None, complete_
 			# decoder is 4 i.e distribute by weight guided by Poisson
 			# print("noise = {}, sample = {}".format(noise, sample))
 			nr_weights = np.load(fn.NRWeightsFile(submit, noise))[sample, :]
-			(mpinfo, total_unknown) = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, submit.eccs[0], option="dpfill", nr_weights = nr_weights, complete_error_dist=complete_error_dist)
+			(mpinfo, total_unknown) = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, submit.eccs[0], option="knr", nr_weights = nr_weights, complete_error_dist=complete_error_dist)
 	else:
 		mpinfo = np.zeros(4**submit.eccs[0].N, dtype=np.float64)
 	return (mpinfo, nr_weights, total_unknown)
@@ -124,11 +124,11 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, nr_weights_all = None
 	# Get the leading Pauli probabilities in the iid model.
 	# To get the indices of the k-largest elements: https://stackoverflow.com/questions/6910641/how-do-i-get-indices-of-n-maximum-values-in-a-numpy-array
 	# If the option is "full", it supplies top alpha fraction of entire chi diagonal
-	# If the option is "weight", it supplies errors with weights sampled from Poisson distribution having mean 1 and excess budget redistributed
+	# If the option is "knr", it supplies all errors up to a given weight.
 	if chan_probs.ndim > 1:
 		chan_probs = ut.GetErrorProbabilities(qcode.PauliOperatorsLST, chan_probs, 0)
 
-	if ((option == "full") or (option == "dpfill")):
+	if ((option == "full") or (option == "dpfill") or (option == "split")):
 		nPaulis = max(1, int(lead_frac * (4 ** qcode.N)))
 		leading_paulis = np.argsort(chan_probs)[-nPaulis:][::-1]
 
@@ -146,7 +146,12 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, nr_weights_all = None
 		leading_paulis = leading_paulis[np.sort(inds)][ : ((3 * qcode.N + 1) + remaining_budget)]
 		
 
-	elif ((option == "weight") or (option == "split")):
+	elif (option == "knr"):
+		# We will pick all errors up to a certain weight, given by lead_frac.
+		weight_include = int(abs(lead_frac)) + 1
+		leading_paulis = np.concatenate([qcode.group_by_weight[w] for w in range(weight_include)])
+
+	elif (option == "psweight"):
 
 		if max_weight is None:
 			max_weight = qcode.N
@@ -206,9 +211,9 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full
 		decoder_probs[known_paulis] = known_probs / (1 - total_unknown)
 	
 	else:
-		
-		if ((option == "full") or (option == "weight") or (option == "split")):
-			infid_qubit = 1 - np.power(1 - infid, 1 / qcode.N)
+		infid_qubit = 1 - np.power(1 - infid, 1 / qcode.N)
+
+		if ((option == "full") or (option == "knr") or (option == "split")):
 			# depolarizing_rate = infid_qubit # If noise is non-unitary
 			# depolarizing_rate = np.sqrt(infid_qubit) # If noise is unitary
 			# depolarizing_rate = np.power(depolarizing_rate, 0.8) # If the decoder is correlation aware.
@@ -216,6 +221,7 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full
 			decoder_probs = AssignErrorProbs(known_paulis.astype(np.uint64), known_probs.astype(np.float64), qcode.PauliOperatorsLST.astype(np.uint8), np.float64(infid_qubit))
 		
 		elif (option == "dpfill"):
+			depolarizing_rate = infid_qubit
 			decoder_probs = CreateIIDPauli(depolarizing_rate, qcode)
 
 		elif (option == "sqprobs"):
