@@ -834,10 +834,10 @@ def RelativeDecoderPerfs(phymet, logmet, dbses, chids = [0]):
 				# Plotting the logical error rates of the database where the heuristic is used to fill the error distribution.
 				pl_fill = ax.errorbar(
 					budgets[selected[b]],
-					yaxes_binned_ml[1, 2 * selected[b], b],
-					yerr=yaxes_binned_ml[1:3, 2 * selected[b], b],
-					# yaxes_binned_ml[3, selected[b], b],
-					# yerr=yaxes_binned_ml[2, selected[b], b],
+					# yaxes_binned_ml[1, 2 * selected[b], b],
+					# yerr=yaxes_binned_ml[1:3, 2 * selected[b], b],
+					yaxes_binned_ml[3, selected[b], b],
+					yerr=yaxes_binned_ml[4, selected[b], b],
 					color=gv.Colors[b % gv.n_Colors],
 					alpha=0.75,
 					marker=gv.Markers[b % gv.n_Markers],
@@ -850,10 +850,10 @@ def RelativeDecoderPerfs(phymet, logmet, dbses, chids = [0]):
 				# Plotting the logical error rates of the database where the heuristic is NOT used to fill the error distribution.
 				pl_nofill = ax.errorbar(
 					budgets[selected[b]],
-					yaxes_binned_ml[1, 2 * selected[b] + 1, b],
-					yerr=yaxes_binned_ml[1:3, 2 * selected[b] + 1, b],
-					# yaxes_binned_ml[3, selected[b], b],
-					# yerr=yaxes_binned_ml[2, selected[b], b],
+					# yaxes_binned_ml[1, 2 * selected[b] + 1, b],
+					# yerr=yaxes_binned_ml[1:3, 2 * selected[b] + 1, b],
+					yaxes_binned_ml[3, selected[b], b],
+					yerr=yaxes_binned_ml[4, selected[b], b],
 					color=gv.Colors[b % gv.n_Colors],
 					alpha=0.75,
 					marker=gv.Markers[b % gv.n_Markers],
@@ -912,7 +912,7 @@ def RelativeDecoderPerfs(phymet, logmet, dbses, chids = [0]):
 				linewidth=gv.line_width,
 			)
 			empty_plots_heuristic.append(pl_without_heuristic)
-			heuristic_labels = ["CER + Uncorrelated Split Search", "CER + Fill with zeros"]
+			heuristic_labels = ["CER + Uncorrelated Split Search", "CER + Depolarizing"]
 			
 			# Set the inset plots to show TVD.
 			# SetInsetTVD(ax, xaxes, tvds_filtered, selected, bins)

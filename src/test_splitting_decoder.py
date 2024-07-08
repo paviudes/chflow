@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
 		], dtype = np.uint8)
 	known_pauli_indices = np.array([qecc.GetPositionInLST(known_pauli_errors[p, :]) for p in range(known_pauli_errors.shape[0])], dtype = np.uint64)
-	known_probs = np.array([0.9,
+	known_probs = np.array([0.7,
 							0.00264285,
 							0.02541568,
 							0.04758009,
@@ -40,6 +40,7 @@ if __name__ == '__main__':
 							0.02560945,
 							0.01376481,
 							0.03177657], dtype = np.float64)
+	print("Total known probabilities: {}".format(np.sum(known_probs)))
 	pauli_errors = qecc.PauliOperatorsLST.astype(np.uint8)
 
 	r'''
@@ -60,9 +61,10 @@ if __name__ == '__main__':
 	
 	pauli_probs = AssignErrorProbs(known_pauli_indices, known_probs, pauli_errors, single_qubit_infid)
 
-	print("Errors and their probabilities")
-	for w in qecc.group_by_weight:
-		print("===========\nWeight {} errors".format(w))
-		for p in range(qecc.group_by_weight[w].size):
-			error_index = qecc.group_by_weight[w][p]
-			print("Prob( {} ) = {}".format(pauli_errors[error_index], pauli_probs[error_index]))
+	# print("Errors and their probabilities")
+	# for w in qecc.group_by_weight:
+	# 	print("===========\nWeight {} errors".format(w))
+	# 	for p in range(qecc.group_by_weight[w].size):
+	# 		error_index = qecc.group_by_weight[w][p]
+	# 		print("Prob( {} ) = {}".format(pauli_errors[error_index], pauli_probs[error_index]))
+	print("Sum of all error probabilities = {}".format(np.sum(pauli_probs)))

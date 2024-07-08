@@ -208,7 +208,7 @@ notes infid infid cg1d_nofill dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09
 quit
 #
 !!Case 16!!
-# Random 1D coarse grained error model from Robin and Steve Flammia's paper. Compare logical error rates from (i) using heuristic vs (ii) not using the heuristic.
+# Random 1D coarse grained error model from Robin and Steve Flammia's paper. Compare logical error rates from (i) CER + using heuristic vs (ii) CER + filling the rest with zeros.
 # We will prvide a separate dataset for each case and each alpha (dc fraction).
 # The datasets are provided in consecutive pairs.
 sbload cg1d_minwt
@@ -219,6 +219,17 @@ notes infid infid cg1d_compare dciplot /home/pavi/Documents/IQC/notes/figs/Feb_0
 quit
 #
 !!Case 17!!
+# Random 1D coarse grained error model from Robin and Steve Flammia's paper. Compare logical error rates from (i) CER + using heuristic vs (ii) CER + filling the rest with zeros.
+# We will prvide a separate dataset for each case and each alpha (dc fraction).
+# The datasets are provided in consecutive pairs.
+sbload cg1d_minwt
+#
+# Performance gains for the decoder
+dccompare infid infid cg1d,cg1d_dc_0_dpfill,cg1d_dc_0.001,cg1d_dc_0.001_dpfill,cg1d_dc_0.01,cg1d_dc_0.01_dpfill,cg1d_dc_0.1,cg1d_dc_0.1_dpfill,cg1d_dc_1,cg1d_dc_1
+notes infid infid cg1d_compare_dpfill dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
+quit
+#
+!!Case 18!!
 # Random 1D coarse grained error model from Robin and Steve Flammia's paper using the Cyclic code.
 sbload 7qc_cg1d
 #
