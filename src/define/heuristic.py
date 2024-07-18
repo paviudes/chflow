@@ -32,8 +32,8 @@ def HashPauliError(pauli_error):
 	# print("Error ", pauli_error, " is logged with hash ",  hash_encoding, ".")
 	return types.uint64(hash_encoding)
 
-@njit("float64[:](uint64[:], float64[:], uint8[:, :])")
-def BuildNRHash(known_paulis, known_probs, operators):
+@njit("float64[:](uint64[:], float64[:], uint8[:, :], float64)")
+def BuildNRHash(known_paulis, known_probs, operators, single_qubit_infid):
 	# We want to store the NR data as a hash table.
 	# For each error in the NR data, we want to use the string encoding of its format:
 	# [(x_1, P_1), ..., (x_k, P_k)]
@@ -43,7 +43,8 @@ def BuildNRHash(known_paulis, known_probs, operators):
 	# print("Building the hash table")
 	for p in range(known_paulis.size):
 		error = operators[known_paulis[p], :].astype(np.uint8)
-		nr_hash[HashPauliError(FormatPauliError(error))] = types.float64(known_probs[p])
+		weight = np.count_nonzero(error)
+		nr_hash[HashPauliError(FormatPauliError(error))] = types.float64(known_probs[p]) * np.power(1 - single_qubit_infid, weight - nqubits)
 	return nr_hash
 
 def get_partitions(arr):
@@ -112,7 +113,7 @@ def prob_splitting_method(pauli_error, nr_hash, nqubits, single_qubit_infid):
 			support_size = len(pauli_error) // 2
 
 			if (support_size == 1):
-				prob = single_qubit_infid / 3 * np.power(1 - single_qubit_infid, nqubits - 1)
+				prob = single_qubit_infid / 3# * np.power(1 - single_qubit_infid, nqubits - 1)
 			
 			else:
 				
@@ -148,8 +149,9 @@ def prob_splitting_method(pauli_error, nr_hash, nqubits, single_qubit_infid):
 					prob_right = prob_splitting_method(right_partition, nr_hash, nqubits, single_qubit_infid)
 
 					# sum_prob = sum_prob + prob_left * prob_right
-					if (max_prob < prob_left * prob_right):
-						max_prob = prob_left * prob_right
+					error_prob = prob_left * prob_right
+					if (max_prob < error_prob):
+						max_prob = error_prob
 
 				# prob = sum_prob
 				prob = max_prob
@@ -165,10 +167,11 @@ def AssignErrorProbs(known_paulis, known_probs, pauli_errors, single_qubit_infid
 	print("Using the splitting method to assign probabilities of ", pauli_errors.shape[0] - known_paulis.size, " errors excluded in the NR data.")
 	
 	(npauli, nqubits) = pauli_errors.shape
-	nr_hash = BuildNRHash(known_paulis, known_probs, pauli_errors)
+	nr_hash = BuildNRHash(known_paulis, known_probs, pauli_errors, single_qubit_infid)
 	
 	pauli_probs = np.zeros(npauli, dtype = np.float64)
 	for p in prange(npauli):
-		pauli_probs[p] = prob_splitting_method(FormatPauliError(pauli_errors[p, :]), nr_hash, nqubits, single_qubit_infid)
+		weight = np.count_nonzero(pauli_errors[p, :])
+		pauli_probs[p] = prob_splitting_method(FormatPauliError(pauli_errors[p, :]), nr_hash, nqubits, single_qubit_infid) * np.power(1 - single_qubit_infid, nqubits - weight)
 
 	return pauli_probs

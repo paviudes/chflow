@@ -145,11 +145,11 @@ def DecoderInstanceCompare(phymet, logmet, dbses_input, chids = [0], thresholds=
 
 	# The top xticklabels show the Pauli error budget left out in the NR data set.
 	alphas = np.array([dbs.decoder_fraction for dbs in dbses], dtype = np.float64)
-	nr_weights = np.load(NRWeightsFile(dbses[0], noise))[sample, :]
+	nr_weights = np.load(NRWeightsFile(dbses[0], noise, sample))
 	chan_probs = np.load(RawPhysicalChannel(dbses_input[0], noise))[sample, :]
 	budget_left = np.zeros(alphas.size, dtype = np.double)
 	for (i, alpha) in enumerate(alphas):
-		(__, __, knownPaulis) = GetLeadingPaulis(alpha, qcode, chan_probs, "weight", nr_weights)
+		(__, __, knownPaulis) = GetLeadingPaulis(alpha, qcode, chan_probs, "weight")
 		budget_left[i] = 1 - np.sum(knownPaulis)
 		# xticklabels_top[i] = scientific_float(1 - np.sum(knownPaulis))
 

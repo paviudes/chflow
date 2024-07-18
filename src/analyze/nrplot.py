@@ -109,7 +109,7 @@ def NRWeightsPlot(dbses, noise, samples):
 	# dbses = [dbses_input[d + 1] for d in uniques]
 	
 	# Compute the average number of errors of each weight in the NR data.
-	nr_weights = np.load(NRWeightsFile(dbses[0], noise))[samples, :].astype(np.int64)
+	nr_weights = np.load(NRWeightsFile(dbses[0], noise, sample))
 
 	nr_weights_avg = np.mean(nr_weights, axis=0).astype(np.int64)
 	alphas = np.array([dbs.decoder_fraction for dbs in dbses], dtype = np.float64)

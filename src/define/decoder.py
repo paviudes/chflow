@@ -8,7 +8,7 @@ from define.qcode import PrepareSyndromeLookUp
 from define.QECCLfid.utils import SamplePoisson
 from define.heuristic import AssignErrorProbs
 
-def SetDecoderKnowledge(submit, rawchan=None, noise=None, sample=None, complete_error_dist=1):
+def SetDecoderKnowledge(submit, rawchan=None, noise=None, sample=None):
 	# Set the decoder knowledge variable for the submission object.
 	nr_weights = None
 	mpinfo = None
@@ -31,14 +31,15 @@ def SetDecoderKnowledge(submit, rawchan=None, noise=None, sample=None, complete_
 		else:
 			chan_probs = rawchan
 		if (submit.decoders)[0] == 3:
-			(mpinfo, total_unknown) = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, submit.eccs[0], option="full", nr_weights = None, complete_error_dist=complete_error_dist)
+			(mpinfo, total_unknown) = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, submit.eccs[0], submit.cer_options)
 		else:
 			# decoder is 4 i.e distribute by weight guided by Poisson
 			# print("noise = {}, sample = {}".format(noise, sample))
-			nr_weights = np.load(fn.NRWeightsFile(submit, noise))[sample, :]
-			(mpinfo, total_unknown) = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, submit.eccs[0], option="knr", nr_weights = nr_weights, complete_error_dist=complete_error_dist)
+			(mpinfo, total_unknown) = CompleteDecoderKnowledge(submit.decoder_fraction, chan_probs, submit.eccs[0], submit.cer_options)
 	else:
 		mpinfo = np.zeros(4**submit.eccs[0].N, dtype=np.float64)
+	submit.nr_weights = mpinfo
+	SaveNRWeights(submit, noise, sample)
 	return (mpinfo, nr_weights, total_unknown)
 
 
@@ -120,7 +121,7 @@ def ComputeNRBudget(nr_weights_all, alphas, nq, max_weight=None):
 	return (nerrors_weight, relative_budget)
 
 
-def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, nr_weights_all = None, max_weight = None):
+def GetLeadingPaulis(lead_frac, qcode, chan_probs, option):
 	# Get the leading Pauli probabilities in the iid model.
 	# To get the indices of the k-largest elements: https://stackoverflow.com/questions/6910641/how-do-i-get-indices-of-n-maximum-values-in-a-numpy-array
 	# If the option is "full", it supplies top alpha fraction of entire chi diagonal
@@ -128,8 +129,9 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, nr_weights_all = None
 	if chan_probs.ndim > 1:
 		chan_probs = ut.GetErrorProbabilities(qcode.PauliOperatorsLST, chan_probs, 0)
 
-	if ((option == "full") or (option == "dpfill") or (option == "split")):
+	if (option == "full"):
 		nPaulis = max(1, int(lead_frac * (4 ** qcode.N)))
+		print("Choosing the leading {} error probabilities from CER.".format(nPaulis))
 		leading_paulis = np.argsort(chan_probs)[-nPaulis:][::-1]
 
 	elif (option == "sqprobs"):
@@ -148,9 +150,14 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, nr_weights_all = None
 
 	elif (option == "knr"):
 		# We will pick all errors up to a certain weight, given by lead_frac.
+		print("Choosing all error probabilities up to weight {} errors from CER.".format(int(abs(lead_frac))))
 		weight_include = int(abs(lead_frac)) + 1
 		leading_paulis = np.concatenate([qcode.group_by_weight[w] for w in range(weight_include)])
 
+	else:
+		pass
+
+	"""
 	elif (option == "psweight"):
 
 		if max_weight is None:
@@ -170,9 +177,7 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, nr_weights_all = None
 				indices_picked = errors_wtw[np.argsort(chan_probs[errors_wtw])[-nerrors_weight[w]:]]
 				leading_paulis[start:stop] = indices_picked[:]
 				start = stop
-	else:
-		pass
-
+	"""
 	"""
 	##### Print cases where weight 2 errors are found in the leading alpha.
 	if (lead_frac == 0.0014):
@@ -190,7 +195,7 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option, nr_weights_all = None
 	return (1 - chan_probs[0], leading_paulis, chan_probs[leading_paulis])
 
 
-def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full", nr_weights = None, complete_error_dist=1):
+def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, cer_options):
 	# Complete the probabilities given to a ML decoder.
 	"""
 	Create a function similar to GetLeadingPaulis.
@@ -203,33 +208,25 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full
 
 	decoder_probs = None
 
-	(infid, known_paulis, known_probs) = GetLeadingPaulis(leading_fraction, qcode, np.real(chan_probs), option, nr_weights)
+	(infid, known_paulis, known_probs) = GetLeadingPaulis(leading_fraction, qcode, np.real(chan_probs), cer_options[0])
 	total_unknown = 1 - np.sum(known_probs)
 	decoder_probs = np.zeros(qcode.PauliOperatorsLST.shape[0], dtype = np.double)
 	
-	if (complete_error_dist == 0):
+	if (cer_options[1] == "zeros"):
 		decoder_probs[known_paulis] = known_probs / (1 - total_unknown)
 	
 	else:
 		infid_qubit = 1 - np.power(1 - infid, 1 / qcode.N)
 
-		if ((option == "full") or (option == "knr") or (option == "split")):
+		if (cer_options[1] == "split"):
 			# depolarizing_rate = infid_qubit # If noise is non-unitary
 			# depolarizing_rate = np.sqrt(infid_qubit) # If noise is unitary
 			# depolarizing_rate = np.power(depolarizing_rate, 0.8) # If the decoder is correlation aware.
 			# decoder_probs = CreateIIDPauli(depolarizing_rate, qcode)
 			decoder_probs = AssignErrorProbs(known_paulis.astype(np.uint64), known_probs.astype(np.float64), qcode.PauliOperatorsLST.astype(np.uint8), np.float64(infid_qubit))
 		
-		elif (option == "dpfill"):
-			depolarizing_rate = infid_qubit
-			decoder_probs = CreateIIDPauli(depolarizing_rate, qcode)
-
-		elif (option == "sqprobs"):
-			if chan_probs.ndim > 1:
-				pauli_probs = ut.GetErrorProbabilities(qcode.PauliOperatorsLST, chan_probs, 0)
-			else:
-				pauli_probs = chan_probs
-			decoder_probs = ReconstructPauliChannel(pauli_probs, qcode)
+		elif (cer_options[1] == "dp"):
+			decoder_probs = CreateIIDPauli(infid_qubit, qcode)
 
 		else:
 			pass
@@ -250,21 +247,11 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, option = "full
 	return (decoder_probs, total_unknown)
 
 
-def PrepareNRWeights(submit):
-	# Prepare the weights of Pauli errors that will be supplied to the decoder: nr_weights.
+def SaveNRWeights(submit, noise, sample):
+	# Record the Pauli error probabilities that are supplied to the decoder.
 	# Use properties of submit to retrieve the mean and cutoff of \the Poisson distribution: submit.noiserates[i, :] = (__, cutoff, __, mean)
 	# Save the nr_weights to a file.
-	qcode = submit.eccs[0]
-	max_weight = qcode.N//2 + 1
-	submit.nr_weights = np.zeros((submit.noiserates.shape[0], submit.samps, 4 ** qcode.N), dtype = np.int64)
-	for r in range(submit.noiserates.shape[0]):
-		if (submit.channel == "cptp"):
-			(__, cutoff, __, mean) = submit.noiserates[r, :]
-		else:
-			mean = 1
-			cutoff = max_weight
-		for s in range(submit.samps):
-			submit.nr_weights[r, s, :] = [SamplePoisson(mean, cutoff=max_weight) for __ in range(4 ** qcode.N)]
+	np.save(fn.NRWeightsFile(submit, noise, sample), submit.nr_weights)
 	return None
 
 

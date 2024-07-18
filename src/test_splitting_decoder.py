@@ -1,6 +1,7 @@
 import numpy as np
 from define import qcode as qc
 from define.heuristic import AssignErrorProbs, BuildNRHash, prob_splitting_method
+from define.randchans import CreateIIDPauli
 
 if __name__ == '__main__':
 	r'''
@@ -40,7 +41,12 @@ if __name__ == '__main__':
 							0.02560945,
 							0.01376481,
 							0.03177657], dtype = np.float64)
-	print("Total known probabilities: {}".format(np.sum(known_probs)))
+	
+	mask = np.ones(qecc.PauliOperatorsLST.shape[0], dtype=bool)
+	mask[known_pauli_indices] = False
+	
+	total_unknown = 1 - np.sum(known_probs)
+	print("Total probability of known errors: {}".format(1 - total_unknown))
 	pauli_errors = qecc.PauliOperatorsLST.astype(np.uint8)
 
 	r'''
@@ -54,17 +60,24 @@ if __name__ == '__main__':
 						  = 0.0002539054236503904
 	'''
 	nr_hash = BuildNRHash(known_pauli_indices, known_probs, pauli_errors)
-	pauli_error = np.array([1, 2, 3, 2, 4, 2], dtype=np.uint8)
-	single_qubit_infid = 1 - np.power(nr_hash[0], 1/5)
-	prob = prob_splitting_method(pauli_error, nr_hash, 5, single_qubit_infid)
-	print("P ( {} ) = {}".format(pauli_error, prob))
+	single_qubit_infid = 1 - np.power(nr_hash[0], 1/qecc.N)
+	
+	# pauli_error = np.array([1, 2, 3, 2, 4, 2], dtype=np.uint8)
+	# prob = prob_splitting_method(pauli_error, nr_hash, 5, single_qubit_infid)
+	# print("P ( {} ) = {}".format(pauli_error, prob))
 	
 	pauli_probs = AssignErrorProbs(known_pauli_indices, known_probs, pauli_errors, single_qubit_infid)
+	pauli_probs[mask] = total_unknown / np.sum(pauli_probs[mask]) * pauli_probs[mask]
 
-	# print("Errors and their probabilities")
-	# for w in qecc.group_by_weight:
-	# 	print("===========\nWeight {} errors".format(w))
-	# 	for p in range(qecc.group_by_weight[w].size):
-	# 		error_index = qecc.group_by_weight[w][p]
-	# 		print("Prob( {} ) = {}".format(pauli_errors[error_index], pauli_probs[error_index]))
-	print("Sum of all error probabilities = {}".format(np.sum(pauli_probs)))
+	pauli_probs_dp = CreateIIDPauli(single_qubit_infid, qecc)
+	pauli_probs_dp[known_pauli_indices] = known_probs
+	pauli_probs_dp[mask] = total_unknown / np.sum(pauli_probs_dp[mask]) * pauli_probs_dp[mask]
+
+	print("Errors and their probabilities")
+	for w in qecc.group_by_weight:
+		print("===========\nWeight {} errors".format(w))
+		for p in range(qecc.group_by_weight[w].size):
+			error_index = qecc.group_by_weight[w][p]
+			print("Prob( {} ): Heuristic = {}, Depolarizing = {}, Relative factor = {}".format(pauli_errors[error_index], pauli_probs[error_index], pauli_probs_dp[error_index], pauli_probs[error_index] / pauli_probs_dp[error_index]))
+	
+	print("Sum of all error probabilities: Heuristic = {}, Depolarizing = {}.".format(np.sum(pauli_probs), np.sum(pauli_probs_dp)))

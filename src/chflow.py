@@ -836,7 +836,7 @@ if __name__ == "__main__":
 					LoadSub(dbses[i + 1], ts, 0, 0)
 					IsComplete(dbses[i + 1])
 					is_complete = 1
-					if not os.path.isfile(NRWeightsFile(dbses[i + 1], noise)):
+					if not os.path.isfile(NRWeightsFile(dbses[i + 1], noise, samples)):
 						print("\033[2mNRWeightsFile for noise rate {} does not exist. Cannot plot.\033[0m".format(noise))
 						is_complete = 0
 

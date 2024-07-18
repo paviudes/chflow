@@ -99,6 +99,12 @@ def Save(submit):
 				"# Fraction of Pauli probabilities accessible to the ML decoder.\ndcfraction %g\n"
 			% (submit.decoder_fraction)
 		)
+
+		infid.write(
+				"# Scheme for selecting limited CER data. Options are: full, knr. # Choice for an algorithm for completing the Pauli error distribution. Options are: dp, split\ncer_options %s\n"
+			% (",".join(submit.cer_options))
+		)
+
 		if submit.hybrid > 0:
 			infid.write(
 				'# Channels to be averaged at intermediate levels by a hybrid decoder Either a file name containing bins for channels or a keyword from \{"soft", "random <number of bins>", "hard"\}.\ndecbins %s\n'

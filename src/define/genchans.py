@@ -4,7 +4,6 @@ import numpy as np
 import ctypes as ct
 from tqdm import tqdm
 from scipy import linalg as linalg
-from define.decoder import PrepareNRWeights
 from define.chandefs import GetKraussForChannel
 from define.QECCLfid.utils import SamplePoisson
 from define.randchans import RandomHermitian, RandomUnitary
@@ -85,8 +84,6 @@ def PreparePhysicalChannels(submit, nproc=1):
 	if submit.iscorr == 3:
 		submit.misc = misc_info
 	# print("Physical channels: {}".format(submit.phychans))
-	# Prepare the weights of Pauli errors that will be supplied to the decoder: nr_weights.
-	PrepareNRWeights(submit)
 	return None
 
 

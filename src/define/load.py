@@ -32,6 +32,9 @@ def Update(submit, pname, newvalue, lookup_load=1):
         for l in range(len(decoder_info)):
             submit.decoders[l] = int(decoder_info[l])
 
+    elif pname == "cer_options":
+        submit.cer_options = list(map(lambda str: str.strip(" "), newvalue.split(",")))
+
     elif pname == "dcfraction":
         submit.decoder_fraction = float(newvalue)
 

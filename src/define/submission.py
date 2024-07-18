@@ -63,6 +63,7 @@ class Submission:
         # Decoder
         self.decoders = []
         self.decoder_fraction = 0
+        self.cer_options = []
         self.decoder_type = "default_soft"
         self.hybrid = 0
         self.decoderbins = []
