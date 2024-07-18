@@ -1,2 +1,2 @@
-./chflow.sh cg1d_dc_0.05
-./chflow.sh cg1d_dc_0.5
+./chflow.sh cg1d_lam3_dc_0.01_fill
+./chflow.sh cg1d_lam3_dc_0.01_dpfill
