@@ -18,14 +18,13 @@ from analyze.utils import scientific_float
 def NRBudgetInfo(dbses, noise, samples):
 	# Compute the total probabilities of errors by weight for each alpha.
 	qcode = dbses[0].eccs[0]
-	max_weight = qcode.N // 2 + 1
+	max_weight = qcode.N
 	budgets = np.zeros((len(dbses), 1 + max_weight, len(samples)), dtype = np.double)
 	for d in range(len(dbses)):
 		alpha = dbses[d].decoder_fraction
 		for s in range(len(samples)):
 			chan_probs = np.load(RawPhysicalChannel(dbses[d], noise))[samples[s], :]
-			nr_weights = np.load(NRWeightsFile(dbses[d], noise))[samples[s], :].astype(np.int64)
-			(__, leading_paulis, leading_probs) = GetLeadingPaulis(alpha, qcode, chan_probs, "split", nr_weights_all = nr_weights, max_weight = max_weight)
+			(__, leading_paulis, leading_probs) = GetLeadingPaulis(alpha, qcode, chan_probs, "full")
 			# print("leading_probs for alpha = {}\n{}".format(alpha, leading_probs))
 			for p in range(leading_paulis.size):
 				(operator, __) = GetOperatorsForLSTIndex(qcode, [leading_paulis[p]])
@@ -34,7 +33,7 @@ def NRBudgetInfo(dbses, noise, samples):
 					budgets[d, weight, s] = budgets[d, weight, s] + np.real(leading_probs[p])
 
 	# Compute the total number of Pauli errors for each alpha
-	nr_paulis = np.mean(np.array([[GetTotalErrorBudget(dbs, noise, samp) for dbs in dbses[:]] for samp in samples], dtype=np.int64), axis=0).astype(int)
+	nr_paulis = np.array([GetTotalErrorBudget(dbs) for dbs in dbses[:]], dtype=np.int64)
 
 	# Average the budgets computed over all samples.
 	budgets_averaged = np.sum(budgets, axis=2)

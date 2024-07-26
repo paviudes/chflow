@@ -44,7 +44,7 @@ def BuildNRHash(known_paulis, known_probs, operators, single_qubit_infid):
 	for p in range(known_paulis.size):
 		error = operators[known_paulis[p], :].astype(np.uint8)
 		weight = np.count_nonzero(error)
-		nr_hash[HashPauliError(FormatPauliError(error))] = types.float64(known_probs[p]) * np.power(1 - single_qubit_infid, weight - nqubits)
+		nr_hash[HashPauliError(FormatPauliError(error))] = types.float64(known_probs[p])
 	return nr_hash
 
 def get_partitions(arr):
@@ -113,7 +113,7 @@ def prob_splitting_method(pauli_error, nr_hash, nqubits, single_qubit_infid):
 			support_size = len(pauli_error) // 2
 
 			if (support_size == 1):
-				prob = single_qubit_infid / 3# * np.power(1 - single_qubit_infid, nqubits - 1)
+				prob = single_qubit_infid / 3 * np.power(1 - single_qubit_infid, nqubits - 1)
 			
 			else:
 				
@@ -150,6 +150,9 @@ def prob_splitting_method(pauli_error, nr_hash, nqubits, single_qubit_infid):
 
 					# sum_prob = sum_prob + prob_left * prob_right
 					error_prob = prob_left * prob_right
+					# Normalization: divide the error probability by (1-p)^n to compensate for Identitiy terms.
+					norm = (1 - single_qubit_infid) ** nqubits
+					error_prob = error_prob / norm
 					if (max_prob < error_prob):
 						max_prob = error_prob
 
@@ -172,6 +175,6 @@ def AssignErrorProbs(known_paulis, known_probs, pauli_errors, single_qubit_infid
 	pauli_probs = np.zeros(npauli, dtype = np.float64)
 	for p in prange(npauli):
 		weight = np.count_nonzero(pauli_errors[p, :])
-		pauli_probs[p] = prob_splitting_method(FormatPauliError(pauli_errors[p, :]), nr_hash, nqubits, single_qubit_infid) * np.power(1 - single_qubit_infid, nqubits - weight)
+		pauli_probs[p] = prob_splitting_method(FormatPauliError(pauli_errors[p, :]), nr_hash, nqubits, single_qubit_infid)
 
 	return pauli_probs

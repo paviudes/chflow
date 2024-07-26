@@ -240,4 +240,12 @@ sbload 7qc_cg1d
 dciplot infid infid 7qc_cg1d,7qc_cg1d_0.001,7qc_cg1d_0.01,7qc_cg1d_0.1
 notes infid infid 7qc_cg1d dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
 quit
+#
+#
+#
+!!Case 19!!
+# Testing the small dataset of high noise and high correlation channels: theta -> theta / range, and lambda = 2.5.
+sbload cg1d_lam3_high_dc_0.01
+nrplot 0 -1 cg1d_lam3_high_dc_0.01
+quit
 #quit

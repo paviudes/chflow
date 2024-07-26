@@ -102,7 +102,7 @@ from analyze.hamplot import DoubleHammerPlot
 from analyze.partpred import PartialNRPlot
 from analyze.hamplot_backup import PartialHammerPlot #, DoubleHammerPlot
 from analyze.pdplot import PauliDistributionPlot
-from analyze.nrplot import NRWeightsPlot
+from analyze.nrplot import NRBudgetInfo #, NRWeightsPlot
 from analyze.compare import CompareSubs
 from analyze.utils import ExtractPDFPages
 
@@ -828,7 +828,6 @@ if __name__ == "__main__":
 				samples = np.arange(submit.samps, dtype = np.int64)
 			else:
 				samples = np.array(list(map(int, user[2].split(","))), dtype = np.int64)
-
 			dbses = [submit]
 			if len(user) > 3:
 				for (i, ts) in enumerate(user[3].split(",")):
@@ -836,13 +835,16 @@ if __name__ == "__main__":
 					LoadSub(dbses[i + 1], ts, 0, 0)
 					IsComplete(dbses[i + 1])
 					is_complete = 1
-					if not os.path.isfile(NRWeightsFile(dbses[i + 1], noise, samples)):
-						print("\033[2mNRWeightsFile for noise rate {} does not exist. Cannot plot.\033[0m".format(noise))
+					# if not os.path.isfile(NRWeightsFile(dbses[i + 1], noise, samples)):
+					# 	print("\033[2mNRWeightsFile for noise rate {} does not exist. Cannot plot.\033[0m".format(noise))
+					# 	is_complete = 0
+					if not os.path.isfile(PhysicalChannel(dbses[i + 1], noise)):
 						is_complete = 0
 
 			if (is_complete == 1):
 				print("Doing nrplot for noise {} and samples {}".format(noise, samples))
-				NRWeightsPlot(dbses, noise, samples)
+				# NRWeightsPlot(dbses, noise, samples) # Fix this function
+				NRBudgetInfo(dbses, noise, samples) # For now we only want to print the relative budgets of weight-w errors.
 
 
 		#####################################################################

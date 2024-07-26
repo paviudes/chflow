@@ -229,7 +229,7 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, cer_options):
 			decoder_probs = CreateIIDPauli(infid_qubit, qcode)
 
 		else:
-			pass
+			print("Unecognized option: \"{}\". Going to fill unknown error probabilities with zeros.".format(cer_options[1]))
 
 		# print("RAW Decoder ansatz before normalization\n{}".format(np.sort(decoder_probs)[::-1][:30]))
 		decoder_probs[known_paulis] = known_probs
