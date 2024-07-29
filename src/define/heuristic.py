@@ -155,12 +155,12 @@ def prob_splitting_method(pauli_error, nr_hash, nqubits, single_qubit_infid):
 
 					# print("Probability of left partition = ", prob_left, "\nProbability of right partition = ", prob_right)
 
-					error_prob = prob_left * prob_right + np.sqrt(prob_left * prob_right)
+					error_prob = prob_left * prob_right
 					# Normalization: divide the error probability by (1-p)^n to compensate for Identity terms.
 					norm = (1 - single_qubit_infid) ** nqubits
 					error_prob = error_prob / norm
 					
-					sum_prob = sum_prob + error_prob
+					# sum_prob = sum_prob + error_prob
 
 					if (max_prob < error_prob):
 						max_prob = error_prob
