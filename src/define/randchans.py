@@ -15,10 +15,18 @@ def HermitianConjugate(mat):
 	# Return the Hermitian conjugate of a matrix
 	return np.conjugate(np.transpose(mat))
 
+def RandomPauli(nqubits):
+	# Generate a random Pauli operator supported on n qubits.
+	# gv.Paulis
+	# Pick each tensor factor in the n-qubit Pauli uniformly from X, Y or Z
+	pauli_op = np.random.randint(1, high=3, size=(nqubits,))
+	pauli_mat = ut.PauliTensor(pauli_op).reshape(2**nqubits, 2**nqubits)
+	return pauli_mat
 
 def RandomHermitian(dim):
 	# Generate a random hermitian matrix of given dimensions.
-	randMat = np.random.standard_normal(size=(dim, dim)) + 1j * np.random.standard_normal(size=(dim, dim))
+	# randMat = np.random.standard_normal(size=(dim, dim)) + 1j * np.random.standard_normal(size=(dim, dim))
+	randMat = np.random.uniform(size=(dim, dim)) + 1j * np.random.uniform(size=(dim, dim))
 	randH = (randMat + randMat.T.conj()) / (2 * np.linalg.norm(randMat))
 	return randH
 

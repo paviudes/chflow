@@ -6,7 +6,7 @@ from define import fnames as fn
 from scipy.special import comb
 from define.qcode import PrepareSyndromeLookUp
 from define.QECCLfid.utils import SamplePoisson
-from define.heuristic import AssignErrorProbs
+from define.heuristic import AssignErrorProbs, FilterUnrealInferences
 
 def SetDecoderKnowledge(submit, rawchan=None, noise=None, sample=None):
 	# Set the decoder knowledge variable for the submission object.
@@ -209,6 +209,10 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, cer_options):
 	decoder_probs = None
 
 	(infid, known_paulis, known_probs) = GetLeadingPaulis(leading_fraction, qcode, np.real(chan_probs), cer_options[0])
+
+	weights = qcode.weightdist[known_paulis]
+	print("Weights of errors in the NR data:\n{}".format(weights))
+
 	total_unknown = 1 - np.sum(known_probs)
 	decoder_probs = np.zeros(qcode.PauliOperatorsLST.shape[0], dtype = np.double)
 	
@@ -237,6 +241,11 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, cer_options):
 		mask = np.ones(decoder_probs.shape[0], dtype=bool)
 		mask[known_paulis] = False
 		decoder_probs[mask] = total_unknown * decoder_probs[mask] / np.sum(decoder_probs[mask])
+
+		# Remove unreal inferences by the Heuristic.
+		if (cer_options[1] == "split"):
+			decoder_probs = FilterUnrealInferences(known_paulis, known_probs, decoder_probs)
+
 		# print("RAW Decoder ansatz after normalization\n{}".format(np.sort(decoder_probs)[::-1][:30]))
 		# print("Sum of decoder probs = {}".format(np.sum(decoder_probs)))
 		# print("True NR data\n{}".format(np.sort(chan_probs)[::-1][:30]))

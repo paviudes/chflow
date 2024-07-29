@@ -1,0 +1,2 @@
+Invalid chi matrix: chi[0,0] = 0.9556851889078396 and sum of chi = 1.2622932560949711
+.Budget of chi excluded = -0.2622932560949711 and infid = 0.0443148110921604.

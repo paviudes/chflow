@@ -22,7 +22,7 @@ def HashPauliError(pauli_error):
 	# Convert a Pauli error formatted as [(x_1, P_1), ..., (x_k, P_k)] into a string: x_1P_1_..._x_kP_k.
 	# We will assign the error its index in an lexicographic ordering of n-qubit Pauli errors
 	# O ( [(x_1, P_1), ..., (x_k, P_k)] ) = 4^x_1 * P_1 + 4^x_2 * P_2 + ... + 4^x_k * P_k
-	# O ( [1, 2, 2, 3, 4, 2] ) = O( [ 0 2 3 0 2 ] ) = 2 * 4^4 + 3 * 4^2 + 2 * 4^1 = 568
+	# O ( [0, 3, 1, 2, 2, 3, 4, 2] ) = 3 * 4^0 + 2 * 4^1 + 3 * 4^2 + 2 * 4^4 = 571
 	hash_encoding = 0
 	support_size = len(pauli_error) // 2
 	if (len(pauli_error) > 0):
@@ -32,18 +32,17 @@ def HashPauliError(pauli_error):
 	# print("Error ", pauli_error, " is logged with hash ",  hash_encoding, ".")
 	return types.uint64(hash_encoding)
 
-@njit("float64[:](uint64[:], float64[:], uint8[:, :], float64)")
-def BuildNRHash(known_paulis, known_probs, operators, single_qubit_infid):
+@njit("float64[:](uint64[:], float64[:], uint8[:, :])")
+def BuildNRHash(known_paulis, known_probs, operators):
 	# We want to store the NR data as a hash table.
 	# For each error in the NR data, we want to use the string encoding of its format:
 	# [(x_1, P_1), ..., (x_k, P_k)]
 	# as a index for a dictionary to store the probability of the error retrieved from NR.
-	(nerrors, nqubits) = operators.shape
+	(nerrors, __) = operators.shape
 	nr_hash = -1 * np.ones(nerrors, dtype = np.float64)
 	# print("Building the hash table")
 	for p in range(known_paulis.size):
 		error = operators[known_paulis[p], :].astype(np.uint8)
-		weight = np.count_nonzero(error)
 		nr_hash[HashPauliError(FormatPauliError(error))] = types.float64(known_probs[p])
 	return nr_hash
 
@@ -94,6 +93,8 @@ def prob_splitting_method(pauli_error, nr_hash, nqubits, single_qubit_infid):
 				# set prob = max {prob_1, prob_2, ..., prob_M} where M is the number of partitions. # Compute the maximum probability.
 	# return prob
 	prob = 0
+
+	# print("Error = ", pauli_error)
 	
 	# This base case will never happen because we will directly deal with a single qubit error.
 	# We have to state this case explicity for the compiler. 
@@ -114,9 +115,13 @@ def prob_splitting_method(pauli_error, nr_hash, nqubits, single_qubit_infid):
 
 			if (support_size == 1):
 				prob = single_qubit_infid / 3 * np.power(1 - single_qubit_infid, nqubits - 1)
-			
+				print("Depolarizing channel assumption invoked, with probability = ", prob)
+				
 			else:
 				
+				# We associate each partition to a binary string of length equal to the size of the support.
+				# The location of 0's in the binary string denotes the left partition and the location of ones denotes the right partition.
+
 				n_partitions = np.power(2, support_size - 1)
 				
 				# print("Computing ", n_partitions - 2, " partitions of the error ", pauli_error)
@@ -148,11 +153,16 @@ def prob_splitting_method(pauli_error, nr_hash, nqubits, single_qubit_infid):
 					prob_left = prob_splitting_method(left_partition, nr_hash, nqubits, single_qubit_infid)
 					prob_right = prob_splitting_method(right_partition, nr_hash, nqubits, single_qubit_infid)
 
+					# print("Probability of left partition = ", prob_left, "\nProbability of right partition = ", prob_right)
+
 					# sum_prob = sum_prob + prob_left * prob_right
 					error_prob = prob_left * prob_right
-					# Normalization: divide the error probability by (1-p)^n to compensate for Identitiy terms.
-					norm = (1 - single_qubit_infid) ** nqubits
-					error_prob = error_prob / norm
+					# Normalization: divide the error probability by (1-p)^n to compensate for Identity terms.
+					# norm = (1 - single_qubit_infid) ** nqubits
+					# error_prob = error_prob / norm
+					
+					# sum_prob = sum_prob + error_prob
+
 					if (max_prob < error_prob):
 						max_prob = error_prob
 
@@ -170,7 +180,7 @@ def AssignErrorProbs(known_paulis, known_probs, pauli_errors, single_qubit_infid
 	print("Using the splitting method to assign probabilities of ", pauli_errors.shape[0] - known_paulis.size, " errors excluded in the NR data.")
 	
 	(npauli, nqubits) = pauli_errors.shape
-	nr_hash = BuildNRHash(known_paulis, known_probs, pauli_errors, single_qubit_infid)
+	nr_hash = BuildNRHash(known_paulis, known_probs, pauli_errors)
 	
 	pauli_probs = np.zeros(npauli, dtype = np.float64)
 	for p in prange(npauli):
@@ -178,3 +188,30 @@ def AssignErrorProbs(known_paulis, known_probs, pauli_errors, single_qubit_infid
 		pauli_probs[p] = prob_splitting_method(FormatPauliError(pauli_errors[p, :]), nr_hash, nqubits, single_qubit_infid)
 
 	return pauli_probs
+
+def FilterUnrealInferences(known_paulis, known_probs, inferred_probs):
+	# We want to eliminate instances where the heuristic guessed a probability for a Pauli error that is higher than the chosen errors in the NR dataset.
+	npauli = inferred_probs.size
+	adjusted_probs = np.zeros(npauli, dtype = np.float64)
+	
+	# Identify the Pauli errors that are not in the NR data.
+	mask = np.ones(npauli, dtype=bool)
+	mask[known_paulis] = False
+
+	# If the error is excluded in the NR dataset, check if its probability is higher than the lowest probability of an error in the NR dataset.
+	# If yes, then set it to the probability of the lowest known error in the NR dataset.
+	min_nr_prob = np.min(known_probs)
+	n_unreal_probs = 0
+	for p in prange(npauli):
+		if (mask[p]):
+			if (inferred_probs[p] > min_nr_prob):
+				adjusted_probs[p] = min_nr_prob
+				n_unreal_probs = n_unreal_probs + 1
+			else:
+				adjusted_probs[p] = inferred_probs[p]
+		else:
+			adjusted_probs[p] = inferred_probs[p]
+	
+	print("Filtered {} unreal probabilities where the heuristic inferrence is higher than the NR data.".format(n_unreal_probs))
+
+	return adjusted_probs

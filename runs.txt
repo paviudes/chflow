@@ -1,0 +1,2 @@
+./chflow.sh test_cg1d_split
+./chflow.sh test_cg1d_dp
