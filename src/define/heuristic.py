@@ -126,8 +126,8 @@ def prob_splitting_method(pauli_error, nr_hash, nqubits, single_qubit_infid):
 				
 				# print("Computing ", n_partitions - 2, " partitions of the error ", pauli_error)
 				
-				# sum_prob = 0
-				max_prob = 0
+				sum_prob = 0
+				# max_prob = 0
 				for j in range(1, n_partitions):
 					binary_repr_j = dec2bin(j, support_size)
 
@@ -155,19 +155,18 @@ def prob_splitting_method(pauli_error, nr_hash, nqubits, single_qubit_infid):
 
 					# print("Probability of left partition = ", prob_left, "\nProbability of right partition = ", prob_right)
 
-					# sum_prob = sum_prob + prob_left * prob_right
 					error_prob = prob_left * prob_right
 					# Normalization: divide the error probability by (1-p)^n to compensate for Identity terms.
-					# norm = (1 - single_qubit_infid) ** nqubits
-					# error_prob = error_prob / norm
+					norm = (1 - single_qubit_infid) ** nqubits
+					error_prob = error_prob / norm
 					
-					# sum_prob = sum_prob + error_prob
+					sum_prob = sum_prob + error_prob
 
-					if (max_prob < error_prob):
-						max_prob = error_prob
+					# if (max_prob < error_prob):
+					# 	max_prob = error_prob
 
-				# prob = sum_prob
-				prob = max_prob
+				prob = sum_prob
+				# prob = max_prob
 	
 		# print("Prob( ", pauli_error, " ) = ", prob)
 		nr_hash[pauli_key] = prob
