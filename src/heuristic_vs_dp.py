@@ -18,6 +18,8 @@ def compare_depolarizing_heuristic(qcode, leading_fraction, chan_probs):
 	# Plot D(E) and H(E) for errors ordered according to their weights.
 	npauli = np.power(4, qcode.N, dtype=int)
 	
+	print("1 qubit error probabilities in the originl channel\n{}".format(chan_probs[qcode.group_by_weight[1]]))
+
 	print("2 qubit error probabilities in the originl channel\n{}".format(chan_probs[qcode.group_by_weight[2]]))
 
 	# Filling using the Heuristic
