@@ -212,6 +212,10 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, cer_options):
 
 	weights = qcode.weightdist[known_paulis]
 	print("Weights of errors in the NR data:\n{}".format(weights))
+	(wts, wt_freq) = np.unique(weights, return_counts=True)
+	print("Weight of the error | Number of errors")
+	for w in range(wts.size):
+		print("{}  |  {}".format(wts[w], wt_freq[w]))
 
 	total_unknown = 1 - np.sum(known_probs)
 	decoder_probs = np.zeros(qcode.PauliOperatorsLST.shape[0], dtype = np.double)
@@ -243,8 +247,8 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, cer_options):
 		decoder_probs[mask] = total_unknown * decoder_probs[mask] / np.sum(decoder_probs[mask])
 
 		# Remove unreal inferences by the Heuristic.
-		if (cer_options[1] == "split"):
-			decoder_probs = FilterUnrealInferences(known_paulis, known_probs, decoder_probs)
+		#if (cer_options[1] == "split"):
+		#	decoder_probs = FilterUnrealInferences(known_paulis, known_probs, decoder_probs)
 
 		# print("RAW Decoder ansatz after normalization\n{}".format(np.sort(decoder_probs)[::-1][:30]))
 		# print("Sum of decoder probs = {}".format(np.sum(decoder_probs)))
