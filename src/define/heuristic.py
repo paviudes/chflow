@@ -126,8 +126,7 @@ def prob_splitting_method(pauli_error, nr_hash, nqubits, single_qubit_infid):
 				
 				# print("Computing ", n_partitions - 2, " partitions of the error ", pauli_error)
 				
-				sum_prob = 0
-				max_prob = 0
+				partitions = np.empty((n_partitions - 1, 2), dtype=np.double)
 				for j in range(1, n_partitions):
 					binary_repr_j = dec2bin(j, support_size)
 
@@ -153,20 +152,40 @@ def prob_splitting_method(pauli_error, nr_hash, nqubits, single_qubit_infid):
 					prob_left = prob_splitting_method(left_partition, nr_hash, nqubits, single_qubit_infid)
 					prob_right = prob_splitting_method(right_partition, nr_hash, nqubits, single_qubit_infid)
 
+					partitions[j-1, 0] = prob_left
+					partitions[j-1, 1] = prob_right
+
 					# print("Probability of left partition = ", prob_left, "\nProbability of right partition = ", prob_right)
 
-					error_prob = prob_left * prob_right
 					# Normalization: divide the error probability by (1-p)^n to compensate for Identity terms.
-					norm = (1 - single_qubit_infid) ** nqubits
-					error_prob = error_prob / norm
+					# norm = (1 - single_qubit_infid) ** nqubits
+					
+					# error_prob = prob_left * prob_right / norm
+					# if (left_pa):
+					# 	error_prob += 2 * np.sqrt(prob_left * prob_right / norm)
 					
 					# sum_prob = sum_prob + error_prob
 
-					if (max_prob < error_prob):
-						max_prob = error_prob
+					# if (max_prob < error_prob):
+					# 	max_prob = error_prob
 
-				# prob = sum_prob
-				prob = max_prob
+				# We have all the left and their corresponding right partitions: [L1 R1, L2 R2, ..., Ln Rn]
+				# The n-qubit error (input) appears in the channel as
+				# Li Ri rho Li Ri : whose weight is obtained by multiplying the probabilities of the left and right partitions. 
+				# Li Ri rho Lj Rj : whose weight is approximated by sqrt( product of left and right partitions of Li Ri * product of left and right partitions of Lj Rj ) 
+
+				# Normalization: divide the error probability by (1-p)^n to compensate for Identity terms.
+				norm = (1 - single_qubit_infid) ** nqubits
+
+				sum_prob = 0
+				# max_prob = 0
+				
+				for i in range(n_partitions - 1):
+					for j in range(n_partitions - 1):
+						sum_prob += np.sqrt(partitions[i, 0] * partitions[i, 1] * partitions[j, 0] * partitions[j, 1]) / norm
+
+				prob = sum_prob
+				# prob = max_prob
 	
 		# print("Prob( ", pauli_error, " ) = ", prob)
 		nr_hash[pauli_key] = prob
