@@ -211,7 +211,7 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, cer_options):
 	(infid, known_paulis, known_probs) = GetLeadingPaulis(leading_fraction, qcode, np.real(chan_probs), cer_options[0])
 
 	weights = qcode.weightdist[known_paulis]
-	print("Weights of errors in the NR data:\n{}".format(weights))
+	print("Weights of errors in the NR data:")
 	(wts, wt_freq) = np.unique(weights, return_counts=True)
 	print("Weight of the error | Number of errors")
 	for w in range(wts.size):

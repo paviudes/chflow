@@ -18,19 +18,19 @@ def compare_depolarizing_heuristic(qcode, leading_fraction, chan_probs):
 	# Plot D(E) and H(E) for errors ordered according to their weights.
 	npauli = np.power(4, qcode.N, dtype=int)
 	
-	print("1 qubit error probabilities in the originl channel\n{}".format(chan_probs[qcode.group_by_weight[1]]))
+	print("1 qubit error probabilities in the original channel\n{}".format(chan_probs[qcode.group_by_weight[1]]))
 
-	print("2 qubit error probabilities in the originl channel\n{}".format(chan_probs[qcode.group_by_weight[2]]))
+	print("2 qubit error probabilities in the original channel\n{}".format(chan_probs[qcode.group_by_weight[2]]))
 
-	print("3 qubit error probabilities in the originl channel\n{}".format(chan_probs[qcode.group_by_weight[3]]))
+	print("3 qubit error probabilities in the original channel\n{}".format(chan_probs[qcode.group_by_weight[3]]))
 
 	# Filling using the Heuristic
 	(heuristic, __) = CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, ["knr","split"])
-	print("3 qubit error probabilities in the heuristic\n{}".format(heuristic[qcode.group_by_weight[3]]))
+	# print("3 qubit error probabilities in the heuristic\n{}".format(heuristic[qcode.group_by_weight[3]]))
 
 	# Filling using the depolarizing ansatz
 	(depolarizing, __) = CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, ["knr","dp"])
-	print("3 qubit error probabilities in the depolarizing channel\n{}".format(depolarizing[qcode.group_by_weight[3]]))
+	# print("3 qubit error probabilities in the depolarizing channel\n{}".format(depolarizing[qcode.group_by_weight[3]]))
 	
 	# Order errors by weights
 	weight_ordering = np.concatenate([qcode.group_by_weight[w] for w in range(qcode.N+1)])
@@ -40,8 +40,8 @@ def compare_depolarizing_heuristic(qcode, leading_fraction, chan_probs):
 	plotfname = "depolarizing_vs_heuristic.pdf"
 	with PdfPages(plotfname) as pdf:
 		fig = plt.figure(figsize=(gv.canvas_size[0] * 1.5, gv.canvas_size[1] * 1.2))
-		plt.plot(np.arange(1, 1 + npauli, dtype=int), depolarizing[weight_ordering], linestyle="None", marker="o", markersize=0.8 * gv.marker_size, color="blue", label="Depolarizing")
-		plt.plot(np.arange(1, 1 + npauli, dtype=int), heuristic[weight_ordering], linestyle="None", marker="s", markersize=0.5 * gv.marker_size, color="red", label="Heuristic")
+		# plt.plot(np.arange(1, 1 + npauli, dtype=int), depolarizing[weight_ordering], linestyle="None", marker="o", markersize=0.8 * gv.marker_size, color="blue", label="Depolarizing")
+		# plt.plot(np.arange(1, 1 + npauli, dtype=int), heuristic[weight_ordering], linestyle="None", marker="s", markersize=0.5 * gv.marker_size, color="red", label="Heuristic")
 
 		plt.plot(np.arange(1, 1 + npauli, dtype=int), chan_probs[weight_ordering], linestyle="None", marker="d", markersize=0.3 * gv.marker_size, color="k", label="True Channel")
 
@@ -101,7 +101,7 @@ if __name__ == '__main__':
 	# print("LS Operators\n{}\nPhases\n{}".format(ls_ops[test_ops], phases[test_ops]))
 	
 	# Load the channel
-	chan_probs_samples = np.load("/home/pavi/Documents/IQC/chbank/cg1d/test/test_cg1d_split/physical/raw_cg1d_2_2_20_1.npy")
+	chan_probs_samples = np.load("/home/pavi/Documents/IQC/chbank/unitary/linear/unitary_intensive_dc_0/physical/raw_corr_unitary_0.3_4_9_1.25.npy")
 	chan_probs = chan_probs_samples[0, :]
 
 	print("p = {}".format((1 - np.power(chan_probs[0], 1/7)) / 3))
