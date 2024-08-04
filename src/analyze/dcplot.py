@@ -573,8 +573,8 @@ def RelativeDecoderGains(phymet, logmet, dbses, chids = [0], thresholds=None):
 			# Load the logical error rates that have converged well.
 			logerrs = FilterLogicalErrorRates(dbses, chids, logmet, l)
 			# Compute the Gain metric -- ratio of the performance of the first dataset with that of the others.
-			# yaxes = ComputeGain(logerrs)
-			yaxes = logerrs
+			yaxes = ComputeGain(logerrs)
+			# yaxes = logerrs
 			# np.savetxt("/home/pavi/Documents/IQC/notes/logerrs_fill.txt", yaxes)
 			# np.savetxt("/home/pavi/Documents/IQC/notes/logerrs_nofill.txt", yaxes)
 
@@ -611,7 +611,7 @@ def RelativeDecoderGains(phymet, logmet, dbses, chids = [0], thresholds=None):
 				# Plotting
 				pl = ax.errorbar(
 					budgets[selected[b]],
-					yaxes_binned[1, selected[b], b],
+					yaxes_binned[0, selected[b], b],
 					yerr=yaxes_binned[1:3, selected[b], b],
 					# yaxes_binned[3, selected[b], b],
 					# yerr=yaxes_binned[2, selected[b], b],
@@ -717,20 +717,20 @@ def RelativeDecoderGains(phymet, logmet, dbses, chids = [0], thresholds=None):
 				markerscale=gv.legend_marker_scale,
 			)
 			ax.set_xscale("log")
-			ax.set_yscale("log")
+			# ax.set_yscale("log")
 
 			# Axes limits
 			ax.set_xlim([np.min(budgets), 2 * np.max(budgets)])
-			ax.set_ylim([1E-10, 1E-2])
+			# ax.set_ylim([1E-10, 1E-2])
 
 			# Axes ticks
-			xticks = np.concatenate((np.cumsum([comb(7, i) * 3**i for i in range(1, 5)]), [4**7], [4**7 * alpha for alpha in [0.001, 0.01, 0.1]]))
+			xticks = np.concatenate((np.cumsum([comb(7, i) * 3**i for i in range(1, 4)]), [4**7 * alpha for alpha in [0.001, 0.01, 0.1]]))
 			ax.set_xticks(xticks)
-			ax.set_xticklabels(["$N_{%d}$" % (i) for i in range(1, 5)] + ["$N_{7}$"] + ["%d" % np.ceil(4**7 * alpha) for alpha in [0.001, 0.01, 0.1]], rotation=90)
+			ax.set_xticklabels(["$N_{%d}$" % (i) for i in range(1, 4)] + ["%d" % np.ceil(4**7 * alpha) for alpha in [0.001, 0.01, 0.1]], rotation=90)
 			# print("budgets = {}".format(budgets))
 			# print("max_y = {} and min_y = {}".format(max_y, min_y))
-			yticks = np.arange(OrderOfMagnitude(min_y/5), OrderOfMagnitude(max_y * 5))
-			ax.set_yticks(np.power(10.0, yticks), minor=True)
+			# yticks = np.arange(OrderOfMagnitude(min_y/5), OrderOfMagnitude(max_y * 5))
+			# ax.set_yticks(np.power(10.0, yticks), minor=True)
 			# print("Y ticks\n{}".format(yticks))
 
 			# Make non overlapping annotations
@@ -834,7 +834,7 @@ def RelativeDecoderPerfs(phymet, logmet, dbses, chids = [0]):
 				# Plotting the logical error rates of the database where the heuristic is used to fill the error distribution.
 				pl_fill = ax.errorbar(
 					budgets[selected[b]],
-					# yaxes_binned_ml[1, 2 * selected[b], b],
+					# yaxes_binned_ml[0, 2 * selected[b], b],
 					# yerr=yaxes_binned_ml[1:3, 2 * selected[b], b],
 					yaxes_binned_ml[3, selected[b], b],
 					yerr=yaxes_binned_ml[4, selected[b], b],
@@ -850,7 +850,7 @@ def RelativeDecoderPerfs(phymet, logmet, dbses, chids = [0]):
 				# Plotting the logical error rates of the database where the heuristic is NOT used to fill the error distribution.
 				pl_nofill = ax.errorbar(
 					budgets[selected[b]],
-					# yaxes_binned_ml[1, 2 * selected[b] + 1, b],
+					# yaxes_binned_ml[0, 2 * selected[b] + 1, b],
 					# yerr=yaxes_binned_ml[1:3, 2 * selected[b] + 1, b],
 					yaxes_binned_ml[3, selected[b], b],
 					yerr=yaxes_binned_ml[4, selected[b], b],

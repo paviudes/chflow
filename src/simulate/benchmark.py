@@ -359,8 +359,8 @@ def Benchmark(submit, noise, sample, physical, refchan, infidelity, rawchan=None
 def SaveAndChangeOwnership(fname, arr=None):
 	# Change ownership from user to group.
 	# chown -h -R $USER:def-jemerson -- /projects/def-jemerson/chbank
-	os.system("touch %s" % (fname))
-	os.system("chown $USER:def-jemerson %s" % (fname))
+	# os.system("touch %s" % (fname)) ## Not needed for Google Cloud
+	# os.system("chown $USER:def-jemerson %s" % (fname)) ## Not needed for Google Cloud
 	if arr is not None:
 		np.save(fname, arr)
 	return None

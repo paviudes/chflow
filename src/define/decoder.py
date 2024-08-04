@@ -247,8 +247,8 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, cer_options):
 		decoder_probs[mask] = total_unknown * decoder_probs[mask] / np.sum(decoder_probs[mask])
 
 		# Remove unreal inferences by the Heuristic.
-		#if (cer_options[1] == "split"):
-		#	decoder_probs = FilterUnrealInferences(known_paulis, known_probs, decoder_probs)
+		# if (cer_options[1] == "split"):
+		# 	decoder_probs = FilterUnrealInferences(known_paulis, known_probs, decoder_probs)
 
 		# print("RAW Decoder ansatz after normalization\n{}".format(np.sort(decoder_probs)[::-1][:30]))
 		# print("Sum of decoder probs = {}".format(np.sum(decoder_probs)))

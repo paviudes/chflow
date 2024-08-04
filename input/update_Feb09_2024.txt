@@ -139,13 +139,14 @@ quit
 #
 !!Case 10!!
 # Highly correlated random Unitary channel for level 2 simulations.
+# PAPER FINAL
 sbload unitary_lam2_dc_0
-nrplot 3 0,1,2,3,4,5,6,7 unitary_lam2_dc_0.001,unitary_lam2_dc_0.01,unitary_lam2_dc_0.1
-notes 3 0,1,2,3,4,5,6,7 unitary nrplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
+#nrplot 3 0,1,2,3,4,5,6,7 unitary_lam2_dc_0.001,unitary_lam2_dc_0.01,unitary_lam2_dc_0.1
+#notes 3 0,1,2,3,4,5,6,7 unitary nrplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
 #
 # Performance gains for the decoder
-#dciplot infid infid unitary_lam2_dc_0,unitary_lam2_dc_0.001,unitary_lam2_dc_0.01,unitary_lam2_dc_0.1
-#notes infid infid unitary dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
+dciplot infid infid unitary_lam2_dc_0,unitary_lam2_dc_0.001,unitary_lam2_dc_0.01,unitary_lam2_dc_0.1
+notes infid infid unitary dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
 quit
 #
 #
@@ -174,10 +175,11 @@ quit
 #
 !!Case 13!!
 # Random non-catastrophic CPTP channel expressed as a composition of a random unitary followed by a random Pauli channel.
+# PAPER FINAL
 sbload cptp_nc_dc_0
 #
 # Performance gains for the decoder
-dciplot infid infid cptp_nc_dc_0,cptp_nc_dc_0.001,cptp_nc_dc_0.01,cptp_nc_dc_0.1
+dciplot infid infid cptp_nc_dc_0.001,cptp_nc_dc_0.01,cptp_nc_dc_0.1
 notes infid infid cptp_nc dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
 quit
 #
@@ -187,10 +189,12 @@ quit
 sbload cg1d
 #
 # Print the characteristics of the model
-#nrplot 0 -1 cg1d_dc_0.001,cg1d_dc_0.01,cg1d_dc_0.1,cg1d_dc_1,cg1d_dc_0.00134,cg1d_dc_0.01288,cg1d_dc_0.07056,cg1d_dc_0.24359
+#nrplot 0 -1 cg1d_dc_0.001,cg1d_dc_0.01,cg1d_dc_0.1
+#,cg1d_dc_1,cg1d_dc_0.00134,cg1d_dc_0.01288,cg1d_dc_0.07056,cg1d_dc_0.24359
 #notes 0 -1 cg1d nrplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
 # Performance gains for the decoder
-dciplot infid infid cg1d_dc_0.001,cg1d_dc_0.01,cg1d_dc_0.1,cg1d_dc_1,cg1d_dc_0.00134,cg1d_dc_0.01288,cg1d_dc_0.07056,cg1d_dc_0.24359
+dciplot infid infid cg1d_dc_0.001,cg1d_dc_0.01,cg1d_dc_0.1
+#,cg1d_dc_1,cg1d_dc_0.00134,cg1d_dc_0.01288,cg1d_dc_0.07056,cg1d_dc_0.24359
 notes infid infid cg1d dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
 quit
 #
@@ -248,4 +252,17 @@ quit
 sbload cg1d_lam3_high_dc_0.01
 nrplot 0 -1 cg1d_lam3_high_dc_0.01
 quit
-#quit
+#
+#
+!!Case 20!!
+# We want to compare CER + heuristic vs CER + DP, for composition of random unitaries (weight cutoff removed).
+# The datasets are provided in consecutive pairs.
+sbload unitary_lam2_minwt # this has garbage logical error rates.
+#
+# Performance gains for the decoder
+dccompare infid infid unitary_lam2_dc_0,unitary_lam2_dp_dc_0,unitary_lam2_dc_0.001,unitary_lam2_dp_dc_0.001,unitary_lam2_dc_0.01,unitary_lam2_dp_dc_0.01,unitary_lam2_dc_0.1,unitary_lam2_dp_dc_0.1,unitary_lam2_dc_1,unitary_lam2_dc_1
+notes infid infid unitary_heuristic dciplot /home/pavi/Documents/IQC/notes/figs/Feb_09_2024 1
+quit
+#
+#
+quit
