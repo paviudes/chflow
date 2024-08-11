@@ -161,13 +161,13 @@ def prob_splitting_method(pauli_error, nr_hash, nqubits, single_qubit_infid):
 					norm = (1 - single_qubit_infid) ** nqubits
 					error_prob = error_prob / norm
 					
-					# sum_prob = sum_prob + error_prob
+					sum_prob = sum_prob + error_prob
 
 					if (max_prob < error_prob):
 						max_prob = error_prob
 
-				# prob = sum_prob
-				prob = max_prob
+				prob = sum_prob
+				# prob = max_prob
 	
 		# print("Prob( ", pauli_error, " ) = ", prob)
 		nr_hash[pauli_key] = prob

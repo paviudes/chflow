@@ -1,0 +1,6 @@
+!!Case 1!!
+sbload cptp_split
+collect
+sbload cptp_dp
+collect
+quit

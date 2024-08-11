@@ -49,6 +49,10 @@ def RandomUnitary(prox, dim, method="exp", randH=None):
 		if randH is None:
 			randH = (randMat + HermitianConjugate(randMat)) / np.longdouble(2)
 		randU = linalg.expm(1j * prox * randH)
+	elif method == "pauli":
+		# We will derive the unitary matrix by exponentiating a random Pauli matrix of the specified dimension.
+		randH = RandomPauli(int(np.round(np.log2(dim))))
+		randU = linalg.expm(1j * prox * randH)
 	elif method == "haar":
 		if randH is None:
 			randH = (randMat + HermitianConjugate(randMat)) / np.longdouble(2)

@@ -1,2 +1,3 @@
-./chflow.sh cg1d_lam3_dc_0.01_fill
-./chflow.sh cg1d_lam3_dc_0.01_dpfill
+./chflow.sh cptp_split
+./chflow.sh cptp_dp
+./chflow.sh -- gather_cptp.txt 1

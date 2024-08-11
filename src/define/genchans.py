@@ -2,6 +2,7 @@ import os
 import sys
 import numpy as np
 import ctypes as ct
+from timeit import default_timer as timer
 from tqdm import tqdm
 from scipy import linalg as linalg
 from define.chandefs import GetKraussForChannel
@@ -103,6 +104,9 @@ def GenChannelSamples(noise, noiseidx, samps, submit, nparams, raw_params, phych
 		#         noiseidx, j, list(map(lambda num: "%g" % num, noise))
 		#     )
 		# )
+		
+		start = timer()
+
 		if submit.iscorr == 0:
 			phychans[
 				(noiseidx * submit.samps * nparams + j * nparams) : (
@@ -215,4 +219,7 @@ def GenChannelSamples(noise, noiseidx, samps, submit, nparams, raw_params, phych
 				interactions # Information about the different interactions.
 			) = GetKraussForChannel(submit.channel, submit.eccs[0], *noise)
 			misc[j] = interactions
+	
+		print("Sample {} done in {} seconds.".format(j, timer() - start))
+
 	return None
