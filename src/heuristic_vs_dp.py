@@ -25,11 +25,11 @@ def compare_depolarizing_heuristic(qcode, leading_fraction, chan_probs):
 	# print("3 qubit error probabilities in the original channel\n{}".format(chan_probs[qcode.group_by_weight[3]]))
 
 	# Filling using the Heuristic
-	(heuristic, __) = CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, ["full","split"])
+	(heuristic, __) = CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, ["knr","split"])
 	# print("3 qubit error probabilities in the heuristic\n{}".format(heuristic[qcode.group_by_weight[3]]))
 
 	# Filling using the depolarizing ansatz
-	(depolarizing, __) = CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, ["full","dp"])
+	(depolarizing, __) = CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, ["knr","dp"])
 	# print("3 qubit error probabilities in the depolarizing channel\n{}".format(depolarizing[qcode.group_by_weight[3]]))
 	
 	# Order errors by weights
@@ -101,8 +101,8 @@ if __name__ == '__main__':
 	# print("LS Operators\n{}\nPhases\n{}".format(ls_ops[test_ops], phases[test_ops]))
 	
 	# Load the channel
-	chan_probs_samples = np.load("/home/pavi/Documents/IQC/chbank/cptp/regen/cptp_split/physical/raw_corr_unitary_0.05_3_15_1.npy")
-	chan_probs = chan_probs_samples[0, :]
+	chan_probs_samples = np.load("/home/pavi/Documents/IQC/chbank/unitary/regen/cptp_split/physical/raw_corr_cptp_0.02_2_50_1.npy")
+	chan_probs = np.mean(chan_probs_samples, axis=0)
 
 	print("p = {}".format((1 - np.power(chan_probs[0], 1/7)) / 3))
 	# for w in range(4):
@@ -112,5 +112,5 @@ if __name__ == '__main__':
 	# print("non zero entries: {}".format(np.count_nonzero(np.real(chan_probs))))
 
 	# Compare the distributions
-	lead_frac = 0.01
+	lead_frac = -2
 	compare_depolarizing_heuristic(qecc, lead_frac, chan_probs)
