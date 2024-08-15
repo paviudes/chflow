@@ -220,6 +220,6 @@ def GenChannelSamples(noise, noiseidx, samps, submit, nparams, raw_params, phych
 			) = GetKraussForChannel(submit.channel, submit.eccs[0], *noise)
 			misc[j] = interactions
 	
-		print("Sample {} done in {} seconds.".format(j, timer() - start))
+		print("Noise rate {}, sample {} done in {} seconds.".format(noise, j, timer() - start))
 
 	return None
