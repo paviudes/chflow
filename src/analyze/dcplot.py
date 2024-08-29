@@ -419,6 +419,7 @@ def BinPhysLogErrs(phyerrs, logerrs, bin_width):
 			# Compute the median
 			median = np.median(logerrs[d, filtered_dataset])
 			logerr_bins[0, d, b] = median
+			# logerr_bins[0, d, b] = np.max(logerrs[d, filtered_dataset])
 			# Compute the lower and upper error bars.
 			logerr_bins[1, d, b] = median - np.percentile(logerrs[d, filtered_dataset], 25)
 			logerr_bins[2, d, b] = np.percentile(logerrs[d, filtered_dataset], 75) - median
@@ -574,6 +575,8 @@ def RelativeDecoderGains(phymet, logmet, dbses, chids = [0], thresholds=None):
 			logerrs = FilterLogicalErrorRates(dbses, chids, logmet, l)
 			# Compute the Gain metric -- ratio of the performance of the first dataset with that of the others.
 			yaxes = ComputeGain(logerrs)
+			print("Gains:\n{}".format(yaxes))
+			print("Max gains: {}".format(np.mean(yaxes, axis=1)))
 			# yaxes = logerrs
 			# np.savetxt("/home/pavi/Documents/IQC/notes/logerrs_fill.txt", yaxes)
 			# np.savetxt("/home/pavi/Documents/IQC/notes/logerrs_nofill.txt", yaxes)
@@ -614,7 +617,7 @@ def RelativeDecoderGains(phymet, logmet, dbses, chids = [0], thresholds=None):
 					yaxes_binned[0, selected[b], b],
 					yerr=yaxes_binned[1:3, selected[b], b],
 					# yaxes_binned[3, selected[b], b],
-					# yerr=yaxes_binned[2, selected[b], b],
+					# yerr=yaxes_binned[4, selected[b], b],
 					color=gv.Colors[b % gv.n_Colors],
 					alpha=0.75,
 					marker="o",
@@ -724,9 +727,9 @@ def RelativeDecoderGains(phymet, logmet, dbses, chids = [0], thresholds=None):
 			# ax.set_ylim([1E-10, 1E-2])
 
 			# Axes ticks
-			xticks = np.concatenate((np.cumsum([comb(7, i) * 3**i for i in range(1, 4)]), [4**7 * alpha for alpha in [0.001, 0.01, 0.1]]))
+			xticks = np.concatenate((np.cumsum([comb(7, i) * 3**i for i in range(1, 3)]), [4**7 * alpha for alpha in [0.001, 0.01, 0.1, 1]]))
 			ax.set_xticks(xticks)
-			ax.set_xticklabels(["$N_{%d}$" % (i) for i in range(1, 4)] + ["%d" % np.ceil(4**7 * alpha) for alpha in [0.001, 0.01, 0.1]], rotation=90)
+			ax.set_xticklabels(["$N_{%d}$" % (i) for i in range(1, 3)] + ["%d" % np.ceil(4**7 * alpha) for alpha in [0.001, 0.01, 0.1, 1]], rotation=90)
 			# print("budgets = {}".format(budgets))
 			# print("max_y = {} and min_y = {}".format(max_y, min_y))
 			# yticks = np.arange(OrderOfMagnitude(min_y/5), OrderOfMagnitude(max_y * 5))
