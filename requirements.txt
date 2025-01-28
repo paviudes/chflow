@@ -1,3 +1,5 @@
 # Install the missing packages using pip install -r requirements.txt
-sklearn>=1.0
+adjustText>=1.0
+pqdm>=0.2.0
+PyPDF2>=1.26.0
 tensorflow>=2.4.0

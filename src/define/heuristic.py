@@ -166,8 +166,8 @@ def prob_splitting_method(pauli_error, nr_hash, nqubits, single_qubit_infid):
 					if (max_prob < error_prob):
 						max_prob = error_prob
 
-				# prob = sum_prob
-				prob = max_prob
+				prob = sum_prob
+				# prob = max_prob
 	
 		# print("Prob( ", pauli_error, " ) = ", prob)
 		nr_hash[pauli_key] = prob
@@ -178,7 +178,7 @@ def prob_splitting_method(pauli_error, nr_hash, nqubits, single_qubit_infid):
 def AssignErrorProbs(known_paulis, known_probs, pauli_errors, single_qubit_infid):
 	# Assign the probability of errors using the splitting method described in prob_splitting_method(...).
 	
-	print("Using the splitting method to assign probabilities of ", pauli_errors.shape[0] - known_paulis.size, " errors excluded in the NR data.")
+	# print("Using the splitting method to assign probabilities of ", pauli_errors.shape[0] - known_paulis.size, " errors excluded in the NR data.")
 	
 	(npauli, nqubits) = pauli_errors.shape
 	nr_hash = BuildNRHash(known_paulis, known_probs, pauli_errors)

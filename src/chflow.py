@@ -54,6 +54,7 @@ from define.fnames import (
 	ChannelWise,
 	MCStatsPlotFile,
 	DecodersInstancePlot,
+	DecoderDistributionsFile,
 	DeviationPlotFile,
 	NRWeightsFile,
 	NRWeightsPlotFile,
@@ -94,7 +95,7 @@ from define.QECCLfid.utils import GetErrorProbabilities
 
 from analyze.collect import IsComplete, GatherLogErrData, AddPhysicalRates
 from analyze.cplot import ChannelWisePlot
-from analyze.dcplot import DecoderCompare, DecoderInstanceCompare, RelativeDecoderGains, RelativeDecoderPerfs
+from analyze.dcplot import DecoderCompare, DecoderInstanceCompare, RelativeDecoderGains, RelativeDecoderPerfs, CompareDecoderDistributions
 from analyze.dvplot import PlotDeviationYX
 from analyze.lplot import LevelWisePlot, LevelWisePlot2D, ComparePerformance
 from analyze.statplot import MCStatsPlot
@@ -763,6 +764,22 @@ if __name__ == "__main__":
 			if len(user) > 4:
 				nbins = int(user[4])
 			DecoderCompare(pmet, lmet, dbses, nbins=nbins)
+
+		#####################################################################
+
+		elif (user[0] == "dcdist"):
+			# Compare the different strategies for reconstructing the error distribution for a decoder, from limited CER data.
+			# We will compare the plot the TVDs between the reconstructed and the original error distributions.
+			pmet = user[1]
+			leading_fraction = float(user[2])
+			chids = list(range(submit.available.shape[0]))
+			if len(user) > 3:
+				if (";" in user[3]):
+					chids = np.arange(*list(map(int, user[3].split(";"))), dtype = np.int64)
+				else:
+					chids = list(map(int, user[3].split(",")))
+
+			CompareDecoderDistributions(pmet, submit, leading_fraction, chids)
 
 		#####################################################################
 
@@ -1465,6 +1482,9 @@ if __name__ == "__main__":
 
 			elif plot_option in ["dciplot", "dccompare"]:
 				plot_file = DecodersInstancePlot(submit, phymet.split(",")[0], logmet)
+
+			elif (plot_option == "dcdist"):
+				plot_file = DecoderDistributionsFile(submit, phymet.split(",")[0])
 
 			elif plot_option == "compare":
 				# We will use phymet to denote the physical and logical metrics, separated by commas.

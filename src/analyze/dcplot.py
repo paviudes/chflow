@@ -2,7 +2,9 @@
 import os
 import sys
 import datetime as dt
+from tqdm import tqdm
 import numpy as np
+from numpy.linalg import norm
 from scipy.special import comb
 import matplotlib
 matplotlib.use("Agg")
@@ -13,6 +15,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes, InsetPosition, mark_inset
 from scipy.interpolate import griddata
 from scipy.special import comb
+from tabulate import tabulate
 
 # Non critical packages
 try:
@@ -24,12 +27,12 @@ except ImportError:
 # Functions from other modules
 from define import metrics as ml
 from define import globalvars as gv
-from define.decoder import GetTotalErrorBudget, GetLeadingPaulis
+from define.decoder import GetTotalErrorBudget, GetLeadingPaulis, CompleteDecoderKnowledge
 from analyze.utils import latex_float, scientific_float, OrderOfMagnitude, flatten2d
 from analyze.bins import ComputeBinVariance
 from analyze.statplot import IsConverged
 from analyze.load import LoadPhysicalErrorRates
-from define.fnames import DecodersPlot, DecodersInstancePlot, LogicalErrorRates, PhysicalErrorRates, NRWeightsFile, RawPhysicalChannel, IsConvergedFile
+from define.fnames import DecodersPlot, DecodersInstancePlot, LogicalErrorRates, PhysicalErrorRates, NRWeightsFile, RawPhysicalChannel, IsConvergedFile, DecoderDistributionsFile
 
 def DecoderCompare(
 	phymet, logmet, dbses, nbins=10, thresholds={"y": 10e-16, "x": 10e-16}
@@ -331,19 +334,20 @@ def DecoderInstanceCompare(phymet, logmet, dbses_input, chids = [0], thresholds=
 def AllocateBins(values, threshold_width=10):
 	# Arrange the values into bins, each of which have a threshold (max) width.
 	# Output is a dictionary with bin index "g" refering to the indices in the array that belong to the bin g.
-	sort_index = np.argsort(values)
+	sort_order = np.argsort(values)
 	bins = {}
 	bin_count = 0
-	current_bin_min = values[sort_index[0]]
-	for i in sort_index:
-		if(values[i] > threshold_width * current_bin_min):
+	current_bin_min = values[sort_order[0]]
+	for i in range(values.size):
+		if (values[sort_order[i]] > threshold_width * current_bin_min):
 			bin_count += 1
 		if bin_count in bins:
-			bins[bin_count].append(i)
+			bins[bin_count].append(sort_order[i])
 		else:
-			bins[bin_count] = [i]
-			current_bin_min = values[i]
-	# print("values\n{}\nbins\n{}".format(values[sort_index], bins))
+			bins[bin_count] = [sort_order[i]]
+			current_bin_min = values[sort_order[i]]
+	
+	# print("values\n{}\bins\n{}\nmeans\n{}".format(values[sort_order], bins, [np.mean(values[bins[b]]) for b in bins]))
 	return bins
 
 
@@ -369,9 +373,9 @@ def FilterLogicalErrorRates(dbses, chids, logmet, level):
 	rates = []
 	samples = []
 	for (c, ch) in enumerate(chids):
-		noise = dbses[0].available[chids[ch], :-1]
+		noise = dbses[0].available[ch, :-1]
 		rates.append(np.argmin(np.sum(np.abs(dbses[0].noiserates - noise), axis=1)))
-		samples.append(int(dbses[0].available[chids[ch], -1]))
+		samples.append(int(dbses[0].available[ch, -1]))
 	is_converged = np.zeros((ndb, len(rates), len(samples)), dtype = np.int64)
 	for d in range(ndb):
 		if os.path.isfile(IsConvergedFile(dbses[d], logmet)):
@@ -406,27 +410,33 @@ def ComputeGain(logerrs):
 def BinPhysLogErrs(phyerrs, logerrs, bin_width):
 	# Bin the physical error rates and average logical error rates in a bin.
 	# print("phyerrs\n{}".format(phyerrs))
-	ndb = logerrs.shape[0]
 	phyerr_bins = AllocateBins(phyerrs, bin_width)
 	nbins = len(phyerr_bins)
-	logerr_bins = np.zeros((5, ndb, nbins), dtype = np.double)
-	filtered = {d: [] for d in range(ndb)}
-	for b in range(nbins):
-		for d in range(ndb):
-			# Filtered dataset contains the channels for which logical error rates are available and convered well.
-			filtered_dataset = [x for x in phyerr_bins[b] if (logerrs[d, x] != -1)]
-			filtered[d].extend(filtered_dataset)
-			# Compute the median
-			median = np.median(logerrs[d, filtered_dataset])
-			logerr_bins[0, d, b] = median
-			# logerr_bins[0, d, b] = np.max(logerrs[d, filtered_dataset])
-			# Compute the lower and upper error bars.
-			logerr_bins[1, d, b] = median - np.percentile(logerrs[d, filtered_dataset], 25)
-			logerr_bins[2, d, b] = np.percentile(logerrs[d, filtered_dataset], 75) - median
-			# Mean and standard deviation
-			logerr_bins[3, d, b] = np.mean(logerrs[d, filtered_dataset])
-			logerr_bins[4, d, b] = np.std(logerrs[d, filtered_dataset])
-			# print("Bin {}: mean physerr: {}, Dataset = {}\nLogical Error Rates:\n{}\n\033[1mMedian: {}\033[0m".format(b, np.median(phyerrs[b]), d, logerrs[d, filtered_dataset], median))
+	
+	if (logerrs is not None):
+		ndb = logerrs.shape[0]
+		logerr_bins = np.zeros((5, ndb, nbins), dtype = np.double)
+		filtered = {d: [] for d in range(ndb)}
+		for b in range(nbins):
+			for d in range(ndb):
+				# Filtered dataset contains the channels for which logical error rates are available and convered well.
+				filtered_dataset = [x for x in phyerr_bins[b] if (logerrs[d, x] != -1)]
+				filtered[d].extend(filtered_dataset)
+				# Compute the median
+				median = np.median(logerrs[d, filtered_dataset])
+				logerr_bins[0, d, b] = median
+				# logerr_bins[0, d, b] = np.max(logerrs[d, filtered_dataset])
+				# Compute the lower and upper error bars.
+				logerr_bins[1, d, b] = np.percentile(logerrs[d, filtered_dataset], 25)
+				logerr_bins[2, d, b] = np.percentile(logerrs[d, filtered_dataset], 75)
+				# Mean and standard deviation
+				logerr_bins[3, d, b] = np.mean(logerrs[d, filtered_dataset])
+				logerr_bins[4, d, b] = np.std(logerrs[d, filtered_dataset])
+				# print("Bin {}: mean physerr: {}, Dataset = {}\nLogical Error Rates:\n{}\n\033[1mMedian: {}\033[0m".format(b, np.median(phyerrs[b]), d, logerrs[d, filtered_dataset], median))
+	else:
+		logerr_bins = None
+		filtered = None
+
 	return (phyerr_bins, logerr_bins, filtered)
 
 
@@ -557,7 +567,7 @@ def RelativeDecoderGains(phymet, logmet, dbses, chids = [0], thresholds=None):
 	alphas = np.array([dbs.decoder_fraction for dbs in dbses], dtype = np.float64)
 
 	# Sort the alphas.
-	sort_order = np.argsort(alphas)
+	sort_order = np.argsort(np.abs(alphas))
 	alphas = alphas[sort_order]
 	dbses = [dbses[i] for i in sort_order]
 
@@ -584,6 +594,8 @@ def RelativeDecoderGains(phymet, logmet, dbses, chids = [0], thresholds=None):
 			# Bin the physical and logical error rates.
 			(bins, yaxes_binned, filtered) = BinPhysLogErrs(phyerrs, yaxes, bin_width)
 			nbins = len(bins)
+
+			# print("bins\n{}\nyaxes_binned = {}".format(bins, yaxes_binned))
 			
 			# Compute the total probability of errors excluded in the CER data.
 			# unknown_errbg_filtered = GetUnknownBudget(dbses, chids, bins, yaxes)
@@ -727,9 +739,12 @@ def RelativeDecoderGains(phymet, logmet, dbses, chids = [0], thresholds=None):
 			# ax.set_ylim([1E-10, 1E-2])
 
 			# Axes ticks
-			xticks = np.concatenate((np.cumsum([comb(7, i) * 3**i for i in range(1, 3)]), [4**7 * alpha for alpha in [0.001, 0.01, 0.1, 1]]))
+			# xticks = np.concatenate((np.cumsum([comb(7, i) * 3**i for i in range(1, 3)]), [4**7 * alpha for alpha in [0.001, 0.01, 0.1, 1]]))
+			xticks = np.concatenate(([1], [4**7 * alpha for alpha in [0.001, 0.01, 0.1, 1]]))
+			# xticklabels = ["$N_{%d}$" % (i) for i in range(1, 3)] + ["%d" % np.ceil(4**7 * alpha) for alpha in [0.001, 0.01, 0.1, 1]]
+			xticklabels = [1] + ["%d" % np.ceil(4**7 * alpha) for alpha in [0.001, 0.01, 0.1, 1]]
 			ax.set_xticks(xticks)
-			ax.set_xticklabels(["$N_{%d}$" % (i) for i in range(1, 3)] + ["%d" % np.ceil(4**7 * alpha) for alpha in [0.001, 0.01, 0.1, 1]], rotation=90)
+			ax.set_xticklabels(xticklabels, rotation=90)
 			# print("budgets = {}".format(budgets))
 			# print("max_y = {} and min_y = {}".format(max_y, min_y))
 			# yticks = np.arange(OrderOfMagnitude(min_y/5), OrderOfMagnitude(max_y * 5))
@@ -742,7 +757,7 @@ def RelativeDecoderGains(phymet, logmet, dbses, chids = [0], thresholds=None):
 			# 	adjust_text(texts, only_move={'points':'y', 'texts':'y'}, expand_points=(1, 2), precision=0.05, arrowprops=dict(arrowstyle="->", color='r', lw=0.5))
 
 			# Save the plot
-			# plt.tight_layout(pad=30)
+			plt.tight_layout(pad=5)
 			pdf.savefig(fig)
 			plt.close()
 
@@ -837,10 +852,10 @@ def RelativeDecoderPerfs(phymet, logmet, dbses, chids = [0]):
 				# Plotting the logical error rates of the database where the heuristic is used to fill the error distribution.
 				pl_fill = ax.errorbar(
 					budgets[selected[b]],
-					# yaxes_binned_ml[0, 2 * selected[b], b],
-					# yerr=yaxes_binned_ml[1:3, 2 * selected[b], b],
-					yaxes_binned_ml[3, selected[b], b],
-					yerr=yaxes_binned_ml[4, selected[b], b],
+					yaxes_binned_ml[0, 2 * selected[b], b],
+					yerr=yaxes_binned_ml[1:3, 2 * selected[b], b],
+					# yaxes_binned_ml[3, selected[b], b],
+					# yerr=yaxes_binned_ml[4, selected[b], b],
 					color=gv.Colors[b % gv.n_Colors],
 					alpha=0.75,
 					marker=gv.Markers[b % gv.n_Markers],
@@ -1006,6 +1021,117 @@ def RelativeDecoderPerfs(phymet, logmet, dbses, chids = [0]):
 		pdfInfo["ModDate"] = dt.datetime.today()
 	return None
 
+def CompareDecoderDistributions(phymet, dbs, leading_fraction, chids=[0]):
+	r"""
+	Compare the error distributions created by different decoders
+
+	All the TVds
+				original	heuristic 		dp 		fill_zeros
+	original 		0
+	heuristic     				0 			 			
+	dp 										0
+	fill_zeros 											0
+	
+	We will compute the above TVD matrix for each channel. Then we will bin all of these TVDs according to the physical error rates.
+
+	"""
+	nchans = len(chids)
+	
+	# Load the Error distributions.
+	tvds = np.zeros((nchans, 4, 4), dtype=np.double)
+	for c in tqdm(range(len(chids))):
+		ch = chids[c]
+		noise = dbs.available[ch, :-1]
+		sample = int(dbs.available[ch, -1])
+		# print("noise = {}, sample = {}".format(noise, sample))
+		original = np.load(RawPhysicalChannel(dbs, noise))[sample, :]
+		(heuristic, __) = CompleteDecoderKnowledge(dbs.decoder_fraction, original, dbs.eccs[0], ["full", "split"], quiet=True)
+		(depolarizing, __) = CompleteDecoderKnowledge(dbs.decoder_fraction, original, dbs.eccs[0], ["full", "dp"], quiet=True)
+		(fill_zeros, __) = CompleteDecoderKnowledge(dbs.decoder_fraction, original, dbs.eccs[0], ["full", "zeros"], quiet=True)
+
+		# Since the TVD is symmetric, the above matrix is hermitian.
+		tvds[c, 0, 1] = norm(original - heuristic)
+		tvds[c, 0, 2] = norm(original - depolarizing)
+		tvds[c, 0, 3] = norm(original - fill_zeros)
+		#
+		tvds[c, 1, 2] = norm(heuristic - depolarizing)
+		tvds[c, 1, 3] = norm(heuristic - fill_zeros)
+		#
+		tvds[c, 2, 3] = norm(depolarizing - fill_zeros)
+		#
+		# Symmetrize the matrix
+		tvds[c, :, :] = tvds[c, :, :] + tvds[c, :, :].T
+
+		# print("channel = {}, r = {}".format(ch, (1 - np.power(original[0], 1/dbs.eccs[0].N))))
+		# print(tabulate(tvds[c, :, :], headers=["original", "heuristic", "dp", "zeros"]))
+
+	# Bin the tvds according to the physical error metrics
+	bin_width = 3
+	phyerrs = np.load(PhysicalErrorRates(dbs, phymet))[chids]
+	phyerr_bins = AllocateBins(phyerrs, bin_width)
+	nbins = len(phyerr_bins)
+	# sort_order = np.argsort(mean_phyerrs)
+
+	# print("Bins\n{}".format(phyerr_bins))
+
+	# Plot a histogram where we have a pair of bars for each bin.
+	# The first bar in the pair denotes the TVD between the original channel and the heuristic.
+	# The second bar in the pair denotes the TVD between the original channel and the fill with zeros method.
+	original_heuristic = np.array([np.mean(tvds[phyerr_bins[b], 0, 1]) for b in range(nbins)])
+	original_zeros = np.array([np.mean(tvds[phyerr_bins[b], 0, 3]) for b in range(nbins)])
+
+	# print("original_heuristic = {}\noriginal_zeros = {}".format(original_heuristic, original_zeros))
+
+	plotfname = DecoderDistributionsFile(dbs, phymet)
+	with PdfPages(plotfname) as pdf:
+		fig = plt.figure(figsize=(gv.canvas_size[0] * 1.5, gv.canvas_size[1] * 1.2))
+		ax = plt.gca()
+		plt.bar(range(nbins), original_heuristic, log=True, width=5*np.median(phyerrs), align='center', orientation='vertical', color="k", label="$TVD(\\chi(\\mathcal{E}), \\chi_{K}(\\mathcal{E}))$")
+		plt.bar(range(nbins), original_zeros, log=True, width=5*np.median(phyerrs), align='center', orientation='vertical', color="k", alpha=0.25, label="$TVD(\\chi(\\mathcal{E}), \\hat{\\chi}_{K}(\\mathcal{E}))$")
+		
+		# Axes labels
+		ax.set_xlabel(
+			"$\\langle%s\\rangle$" % (ml.Metrics[phymet]["latex"].replace("$", "")),
+			fontsize=gv.axes_labels_fontsize,
+			labelpad=gv.axes_labelpad,
+		)
+		ax.set_ylabel("TVD", fontsize=gv.axes_labels_fontsize, labelpad=gv.axes_labelpad)
+		
+		# Axes ticks
+		mean_phyerrs = np.array([np.mean(phyerrs[phyerr_bins[b]]) for b in range(nbins)])
+		# print("mean_phyerrs = {}".format(mean_phyerrs))
+		xticklabels = ["${}$".format(latex_float(p)) for p in mean_phyerrs]
+		plt.xticks(range(nbins), labels=xticklabels)
+
+		ax.tick_params(
+			axis="both",
+			which="both",
+			pad=gv.ticks_pad,
+			direction="inout",
+			length=gv.ticks_length,
+			width=gv.ticks_width,
+			labelsize=gv.ticks_fontsize,
+		)
+
+		plt.legend(
+			numpoints=1,
+			loc="upper left",
+			ncol=1,
+			shadow=True,
+			fontsize=gv.legend_fontsize * 1.4,
+			markerscale=gv.legend_marker_scale,
+		)
+		
+		pdf.savefig(fig)
+		plt.close()
+
+		# Set PDF attributes
+		pdfInfo = pdf.infodict()
+		pdfInfo["Title"] = "Comparing different decoders"
+		pdfInfo["Author"] = "Pavithran Iyer"
+		pdfInfo["ModDate"] = dt.datetime.today()
+
+	return None
 
 def AddKinkLine(ax, ax2):
 	# Add the diagonal lines in a broken y-axis plot.

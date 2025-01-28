@@ -319,7 +319,8 @@ def MCompare(dbses_input, pmet, lmet, rates, samples=None, cutoff=1e6):
                         plt.plot(
                             [], [],
                             linewidth=gv.line_width,
-                            label="$r = %.3f$" % (phyerrs[r * samples.shape[0] + s]),
+                            label="$\\epsilon = %.3f$" % (phyerrs[r * samples.shape[0] + s]),
+                            # label="$r = %g, s = %g$" % (r, samples[s]),
                             color=gv.Colors[(r * rates.shape[0] + s) % len(gv.Colors)],
                             linestyle=gv.line_styles[d % len(gv.line_styles)],
                             alpha=plot_alpha
@@ -350,7 +351,7 @@ def MCompare(dbses_input, pmet, lmet, rates, samples=None, cutoff=1e6):
         ax.set_yticks(np.power(10.0, yticks))
 
         # Add a grid
-        ax.grid(which='both', axis='both', linewidth=2)
+        ax.grid(which='major', axis='both', linewidth=2)
 
         # Axes labels
         ax.set_xlabel(
@@ -387,6 +388,7 @@ def MCompare(dbses_input, pmet, lmet, rates, samples=None, cutoff=1e6):
         )
 
         # Save the plot
+        plt.tight_layout(pad=5)
         pdf.savefig(fig)
         plt.close()
 

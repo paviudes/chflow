@@ -110,16 +110,19 @@ n_Markers = len(Markers)
 # https://stackoverflow.com/questions/16006572/plotting-different-colors-in-matplotlib
 QB_GREEN = "#42b863"
 QB_BLUE = "#2697d0"
+# See: https://gist.github.com/thriveth/8560036
 Colors = [
-    "0.4",  # Without RC, choose 0.4 for predictability plots
-    "red", # With RC, choose red for predictability plots
-    "blue",
-    "brown",
-    "green",
-    "#9467bd",
-    "#8c564b",
-    "#e377c2",
-    "#7f7f7f",
+    "0.4",
+    "red",
+    "#377eb8",
+    "#ff7f00",
+    "#4daf4a",
+    "#f781bf",
+    "#a65628",
+    "#984ea3",
+    "#999999",
+    "#e41a1c",
+    "#dede00",
     "#bcbd22",
     "#17becf",
 ]

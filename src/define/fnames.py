@@ -9,6 +9,10 @@ def DecoderKnowledgeFile(dbs, noise):
     fname = "%s/physical/dc_%s_%s.npy" % (dbs.outdir, dbs.channel, noisedes)
     return fname
 
+def DecoderDistributionsFile(dbs, pmet):
+    # File containing the histogram plots of the TVDs between different decoder information.
+    fname = "%s/results/decoder_distributions_%s.pdf" % (dbs.outdir, pmet)
+    return fname
 
 def DeviationPlotFile(dbs, pmet, lmet):
     # File name containing scatter bins.

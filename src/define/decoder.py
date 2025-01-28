@@ -63,7 +63,18 @@ def TailorDecoder(qecc, channel, levels, bias=None):
 
 def GetTotalErrorBudget(dbs):
 	# Compute the total number of distinct Pauli error rates included in the NR dataset.
-	return np.ceil(max(1, dbs.decoder_fraction * np.power(4, dbs.eccs[0].N)))
+	n_errors = 0
+	if (dbs.cer_options[0] == "full"):
+		# Output the number of Paulis in a fraction of total data: alpha * 4^n
+		n_errors = np.ceil(max(1, dbs.decoder_fraction * np.power(4, dbs.eccs[0].N)))
+	elif (dbs.cer_options[0] == "knr"):
+		# Compute the total number of Pauli errors up to a certain weight.
+		max_weight = int(np.round(np.abs(dbs.decoder_fraction)))
+		n_errors = np.sum([comb(dbs.eccs[0].N, w) * np.power(3, w) for w in range(max_weight + 1)])
+	else:
+		print("Unknown partial data selection criteria: {}".format(dbs.cer_options[0]))
+	print("n_errors = {}".format(n_errors))
+	return n_errors
 
 """
 def GetTotalErrorBudget(dbs, noise, sample):
@@ -131,7 +142,7 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option):
 
 	if (option == "full"):
 		nPaulis = max(1, int(lead_frac * (4 ** qcode.N)))
-		print("Choosing the leading {} error probabilities from CER.".format(nPaulis))
+		# print("Choosing the leading {} error probabilities from CER.".format(nPaulis))
 		leading_paulis = np.argsort(chan_probs)[-nPaulis:][::-1]
 
 	elif (option == "sqprobs"):
@@ -195,7 +206,7 @@ def GetLeadingPaulis(lead_frac, qcode, chan_probs, option):
 	return (1 - chan_probs[0], leading_paulis, chan_probs[leading_paulis])
 
 
-def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, cer_options):
+def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, cer_options, quiet=False):
 	# Complete the probabilities given to a ML decoder.
 	"""
 	Create a function similar to GetLeadingPaulis.
@@ -210,12 +221,16 @@ def CompleteDecoderKnowledge(leading_fraction, chan_probs, qcode, cer_options):
 
 	(infid, known_paulis, known_probs) = GetLeadingPaulis(leading_fraction, qcode, np.real(chan_probs), cer_options[0])
 
+	if qcode.group_by_weight is None:
+		PrepareSyndromeLookUp(qcode)
+
 	weights = qcode.weightdist[known_paulis]
-	print("Weights of errors in the NR data:")
-	(wts, wt_freq) = np.unique(weights, return_counts=True)
-	print("Weight of the error | Number of errors")
-	for w in range(wts.size):
-		print("{}  |  {}".format(wts[w], wt_freq[w]))
+	if (quiet == False):
+		print("Weights of errors in the NR data:")
+		(wts, wt_freq) = np.unique(weights, return_counts=True)
+		print("Weight of the error | Number of errors")
+		for w in range(wts.size):
+			print("{}  |  {}".format(wts[w], wt_freq[w]))
 
 	total_unknown = 1 - np.sum(known_probs)
 	decoder_probs = np.zeros(qcode.PauliOperatorsLST.shape[0], dtype = np.double)
